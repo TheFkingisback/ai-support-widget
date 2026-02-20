@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { GatewayService } from './gateway.service.js';
 import type { RateLimiter } from './rate-limiter.js';
 import type { SnapshotService } from '../snapshot/snapshot.service.js';
+import type { OrchestratorService } from '../orchestrator/orchestrator.service.js';
 import { ValidationError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
 
@@ -26,13 +27,14 @@ interface RouteOpts {
   service: GatewayService;
   rateLimiter: RateLimiter;
   snapshotService?: SnapshotService;
+  orchestratorService?: OrchestratorService;
 }
 
 export async function registerGatewayRoutes(
   app: FastifyInstance,
   opts: RouteOpts,
 ): Promise<void> {
-  const { service, rateLimiter, snapshotService } = opts;
+  const { service, rateLimiter, snapshotService, orchestratorService } = opts;
 
   // POST /api/cases
   app.post(
@@ -128,9 +130,19 @@ export async function registerGatewayRoutes(
         );
       }
 
-      // Verify tenant owns this case
-      await service.getCase(caseId, tenantId, reqId);
+      // If orchestrator available, delegate to it (stores user msg + gets AI response)
+      if (orchestratorService) {
+        const aiMessage = await orchestratorService.handleMessage(
+          caseId,
+          tenantId,
+          parsed.data.content,
+          reqId,
+        );
+        return reply.code(200).send({ message: aiMessage });
+      }
 
+      // Fallback: just store user message
+      await service.getCase(caseId, tenantId, reqId);
       const message = await service.addMessage(
         caseId,
         'user',

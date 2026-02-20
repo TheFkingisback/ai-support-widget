@@ -120,3 +120,36 @@
   - Buffer.byteLength(JSON.stringify(obj), 'utf-8') is the correct way to measure JSON byte size for context budgets
   - Priority-based trimming: remove lowest priority items first (P4→P3→P2), never touch P1 (identity, active errors)
   - Semantic compression (truncate long text to 200 chars + "...") reduces size before removing entire items
+
+## Sprint 4 — AI Orchestrator
+- Files created:
+  - server/src/modules/orchestrator/openrouter.ts (callLLM with retry on 5xx, 30s timeout, cost estimation, model resolution)
+  - server/src/modules/orchestrator/system-prompt.ts (buildSystemPrompt: assembles identity, errors, timeline, backend logs, knowledge pack)
+  - server/src/modules/orchestrator/response-parser.ts (parseAIResponse: extracts actions, evidence citations, confidence estimation)
+  - server/src/modules/orchestrator/orchestrator.service.ts (OrchestratorService interface + createOrchestratorService factory: handleMessage, handleAction)
+  - server/src/modules/orchestrator/orchestrator.test.ts (12 tests covering all spec requirements)
+- Files modified:
+  - server/src/shared/errors.ts (added LLMError class: 502, LLM_API_ERROR, integration)
+  - server/src/app.ts (added orchestratorService to AppDeps, passed to gateway routes)
+  - server/src/modules/gateway/gateway.routes.ts (added OrchestratorService import, messages endpoint delegates to orchestrator when available)
+- Tests: 62 passed, 62 total (7 test files)
+  - orchestrator.test.ts: 12 tests
+    1. callLLM sends correct headers and body to OpenRouter
+    2. callLLM retries once on 5xx
+    3. callLLM times out after 30s
+    4. callLLM logs model, tokens, latency
+    5. buildSystemPrompt includes identity and active errors
+    6. buildSystemPrompt includes click timeline
+    7. buildSystemPrompt never includes raw secrets
+    8. parseAIResponse extracts suggested actions
+    9. parseAIResponse extracts evidence citations
+    10. handleMessage loads snapshot and calls LLM
+    11. handleMessage stores assistant message in DB
+    12. Conversation includes previous messages
+- Learnings:
+  - Monkey-patching globalThis.fetch in tests to redirect OpenRouter calls to a local mock HTTP server works well; always restore in finally block
+  - For timeout tests, mock fetch with a never-resolving promise + AbortSignal listener — test takes ~30s due to real timeout
+  - Evidence extraction regex needs new RegExp() with source+flags to avoid shared lastIndex state across calls
+  - Confidence estimation uses language cue matching: "certain/confident" → 0.9, "might be/could be" → 0.5, default → 0.7
+  - Orchestrator service follows same DI pattern: interface + factory, takes gatewayService + snapshotService + contextService as deps
+  - Gateway routes wiring: orchestrator is optional; when present, POST /messages delegates to orchestrator.handleMessage which stores both user + assistant messages

@@ -68,3 +68,10 @@ export class RateLimitError extends AppError {
     this.name = 'RateLimitError';
   }
 }
+
+export class LLMError extends AppError {
+  constructor(message: string) {
+    super(502, 'LLM_API_ERROR', message, 'integration');
+    this.name = 'LLMError';
+  }
+}

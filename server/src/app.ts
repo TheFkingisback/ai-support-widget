@@ -9,12 +9,14 @@ import { registerGatewayRoutes } from './modules/gateway/gateway.routes.js';
 import type { GatewayService } from './modules/gateway/gateway.service.js';
 import type { RateLimiter } from './modules/gateway/rate-limiter.js';
 import type { SnapshotService } from './modules/snapshot/snapshot.service.js';
+import type { OrchestratorService } from './modules/orchestrator/orchestrator.service.js';
 
 export interface AppDeps {
   jwtSecret?: string;
   gatewayService?: GatewayService;
   rateLimiter?: RateLimiter;
   snapshotService?: SnapshotService;
+  orchestratorService?: OrchestratorService;
 }
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
@@ -86,6 +88,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
       service: opts.gatewayService,
       rateLimiter: opts.rateLimiter,
       snapshotService: opts.snapshotService,
+      orchestratorService: opts.orchestratorService,
     });
   }
 
