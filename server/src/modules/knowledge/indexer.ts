@@ -68,6 +68,21 @@ export interface Indexer {
   ): Promise<{ indexed: number }>;
 }
 
+async function embedAndStoreChunks(
+  docId: string, content: string, store: DocumentStore,
+  embeddingClient: EmbeddingClient, requestId?: string,
+): Promise<number> {
+  const chunks = chunkText(content);
+  for (let i = 0; i < chunks.length; i++) {
+    const embedding = await embeddingClient.generateEmbedding(chunks[i], requestId);
+    await store.insertChunk({
+      id: genId('chk'), documentId: docId, content: chunks[i],
+      embedding, chunkIndex: i, createdAt: new Date().toISOString(),
+    });
+  }
+  return chunks.length;
+}
+
 export function createIndexer(
   store: DocumentStore,
   embeddingClient: EmbeddingClient,
@@ -77,70 +92,27 @@ export function createIndexer(
       log.info('indexer: indexDocument', requestId, { tenantId, title, category });
 
       const doc: Document = {
-        id: genId('doc'),
-        tenantId,
-        title,
-        content,
-        category,
-        metadata: {},
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        id: genId('doc'), tenantId, title, content, category,
+        metadata: {}, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
       };
-
       await store.insertDocument(doc);
+      const chunksCount = await embedAndStoreChunks(doc.id, content, store, embeddingClient, requestId);
 
-      const chunks = chunkText(content);
-      for (let i = 0; i < chunks.length; i++) {
-        const embedding = await embeddingClient.generateEmbedding(chunks[i], requestId);
-        const chunk: DocumentChunk = {
-          id: genId('chk'),
-          documentId: doc.id,
-          content: chunks[i],
-          embedding,
-          chunkIndex: i,
-          createdAt: new Date().toISOString(),
-        };
-        await store.insertChunk(chunk);
-      }
-
-      log.info('indexer: document indexed', requestId, {
-        docId: doc.id,
-        chunksCount: chunks.length,
-      });
-
+      log.info('indexer: document indexed', requestId, { docId: doc.id, chunksCount });
       return doc;
     },
 
     async reindexAll(tenantId, requestId) {
       log.info('indexer: reindexAll', requestId, { tenantId });
-
       const docs = await store.getDocumentsByTenant(tenantId);
       let totalChunks = 0;
 
       for (const doc of docs) {
         await store.deleteChunksByDocumentId(doc.id);
-        const chunks = chunkText(doc.content);
-        for (let i = 0; i < chunks.length; i++) {
-          const embedding = await embeddingClient.generateEmbedding(chunks[i], requestId);
-          const chunk: DocumentChunk = {
-            id: genId('chk'),
-            documentId: doc.id,
-            content: chunks[i],
-            embedding,
-            chunkIndex: i,
-            createdAt: new Date().toISOString(),
-          };
-          await store.insertChunk(chunk);
-        }
-        totalChunks += chunks.length;
+        totalChunks += await embedAndStoreChunks(doc.id, doc.content, store, embeddingClient, requestId);
       }
 
-      log.info('indexer: reindex complete', requestId, {
-        tenantId,
-        docsCount: docs.length,
-        totalChunks,
-      });
-
+      log.info('indexer: reindex complete', requestId, { tenantId, docsCount: docs.length, totalChunks });
       return { indexed: totalChunks };
     },
   };

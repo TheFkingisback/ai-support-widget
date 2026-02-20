@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import type { SupportContextSnapshot, Case } from '../../shared/types.js';
 import type { SnapshotService } from '../../modules/snapshot/snapshot.service.js';
 import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
@@ -8,10 +7,7 @@ import {
   mockUserLogs,
 } from './client-apis.js';
 import { buildClickTimeline } from '../../modules/snapshot/timeline.js';
-
-function genId(prefix: string): string {
-  return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;
-}
+import { genId } from './test-utils.js';
 
 interface StoredSnapshot {
   id: string;

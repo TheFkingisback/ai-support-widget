@@ -48,7 +48,11 @@ const COST_PER_1K: Record<string, { input: number; output: number }> = {
 };
 
 function estimateCost(model: string, tokensIn: number, tokensOut: number): number {
-  const rates = COST_PER_1K[model] ?? { input: 0.003, output: 0.015 };
+  const rates = COST_PER_1K[model];
+  if (!rates) {
+    log.warn('estimateCost: unknown model, defaulting to Sonnet pricing', undefined, { model });
+    return (tokensIn / 1000) * 0.003 + (tokensOut / 1000) * 0.015;
+  }
   return (tokensIn / 1000) * rates.input + (tokensOut / 1000) * rates.output;
 }
 

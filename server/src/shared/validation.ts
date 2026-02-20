@@ -4,7 +4,7 @@ import { ValidationError } from './errors.js';
 /**
  * Parses request body/query with a Zod schema, throws ValidationError on failure.
  */
-export function validateBody<T>(schema: z.ZodType<T>, data: unknown): T {
+export function validateBody<S extends z.ZodTypeAny>(schema: S, data: unknown): z.output<S> {
   const parsed = schema.safeParse(data);
   if (!parsed.success) {
     throw new ValidationError(

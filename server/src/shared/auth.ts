@@ -35,14 +35,14 @@ export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Pro
     try {
       const decoded = await request.jwtVerify<WidgetAuthPayload>();
       request.authPayload = decoded;
-      log.debug('Auth verified', (request as unknown as { requestId?: string }).requestId, {
+      log.debug('Auth verified', request.requestId, {
         tenantId: decoded.tenantId,
         userId: decoded.userId,
       });
     } catch (err) {
       log.warn(
         'Auth failed',
-        (request as unknown as { requestId?: string }).requestId,
+        request.requestId,
         { error: err instanceof Error ? err.message : String(err) },
       );
       throw new UnauthorizedError(
@@ -50,22 +50,4 @@ export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Pro
       );
     }
   });
-}
-
-export async function authMiddleware(
-  request: FastifyRequest,
-  reply: FastifyReply,
-): Promise<void> {
-  try {
-    const decoded = await request.jwtVerify<WidgetAuthPayload>();
-    request.authPayload = decoded;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Invalid or expired token';
-    const error = new UnauthorizedError(message);
-    reply.code(error.statusCode).send({
-      statusCode: error.statusCode,
-      error: error.errorCode,
-      message: error.message,
-    });
-  }
 }

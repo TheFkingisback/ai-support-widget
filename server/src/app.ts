@@ -5,7 +5,7 @@ import crypto from 'node:crypto';
 import { registerAuth } from './shared/auth.js';
 import { AppError } from './shared/errors.js';
 import { log, setLogLevel } from './shared/logger.js';
-import { getEnvSafe, type LogLevel } from './shared/env.js';
+import { getEnvSafe } from './shared/env.js';
 import { registerGatewayRoutes } from './modules/gateway/gateway.routes.js';
 import type { GatewayService } from './modules/gateway/gateway.service.js';
 import type { RateLimiter } from './modules/gateway/rate-limiter.js';
@@ -26,7 +26,7 @@ export interface AppDeps {
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   const env = getEnvSafe();
-  setLogLevel(env.LOG_LEVEL as LogLevel);
+  setLogLevel(env.LOG_LEVEL);
 
   const app = Fastify({
     logger: false,
