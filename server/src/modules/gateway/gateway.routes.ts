@@ -2,6 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
 import type { GatewayService } from './gateway.service.js';
 import type { RateLimiter } from './rate-limiter.js';
+import type { SnapshotService } from '../snapshot/snapshot.service.js';
 import { ValidationError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
 
@@ -24,13 +25,14 @@ const escalateBody = z.object({
 interface RouteOpts {
   service: GatewayService;
   rateLimiter: RateLimiter;
+  snapshotService?: SnapshotService;
 }
 
 export async function registerGatewayRoutes(
   app: FastifyInstance,
   opts: RouteOpts,
 ): Promise<void> {
-  const { service, rateLimiter } = opts;
+  const { service, rateLimiter, snapshotService } = opts;
 
   // POST /api/cases
   app.post(
@@ -56,6 +58,27 @@ export async function registerGatewayRoutes(
         parsed.data.message,
         reqId,
       );
+
+      // Trigger snapshot generation if service available
+      if (snapshotService) {
+        try {
+          const snapshot = await snapshotService.buildSnapshot(
+            tenantId,
+            userId,
+            result.case.id,
+            reqId,
+          );
+          log.info('Snapshot generated for case', reqId, {
+            caseId: result.case.id,
+            snapshotId: snapshot.meta.snapshotId,
+          });
+        } catch (err) {
+          log.warn('Snapshot generation failed, continuing without', reqId, {
+            caseId: result.case.id,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
 
       log.info('POST /api/cases response', reqId, { caseId: result.case.id });
 

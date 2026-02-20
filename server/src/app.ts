@@ -8,11 +8,13 @@ import { getEnvSafe, type LogLevel } from './shared/env.js';
 import { registerGatewayRoutes } from './modules/gateway/gateway.routes.js';
 import type { GatewayService } from './modules/gateway/gateway.service.js';
 import type { RateLimiter } from './modules/gateway/rate-limiter.js';
+import type { SnapshotService } from './modules/snapshot/snapshot.service.js';
 
 export interface AppDeps {
   jwtSecret?: string;
   gatewayService?: GatewayService;
   rateLimiter?: RateLimiter;
+  snapshotService?: SnapshotService;
 }
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
@@ -83,6 +85,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
     await registerGatewayRoutes(app, {
       service: opts.gatewayService,
       rateLimiter: opts.rateLimiter,
+      snapshotService: opts.snapshotService,
     });
   }
 

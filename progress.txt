@@ -58,3 +58,33 @@
   - Rate limiter uses Map with time-windowed buckets; reset() method clears state between tests
   - Zod schemas validate request bodies; safeParse + throw ValidationError pattern integrates cleanly with Fastify error handler
   - Fastify inject() works perfectly for testing route + auth + error handler stack without network I/O
+
+## Sprint 2 — Snapshot Builder
+- Files created:
+  - server/src/modules/snapshot/snapshot.schema.ts (Drizzle schema: snapshots table with jsonb data, bytesTotal, truncation)
+  - server/src/modules/snapshot/client-api.ts (callClientApi generic + 4 typed wrappers: getUserState, getUserHistory, getUserLogs, getBusinessRules)
+  - server/src/modules/snapshot/timeline.ts (buildClickTimeline: transforms UserEvent[] into ClickTimelineEntry[])
+  - server/src/modules/snapshot/snapshot.service.ts (SnapshotService interface + createSnapshotService factory: buildSnapshot, getSnapshot)
+  - server/src/modules/snapshot/snapshot.test.ts (10 tests covering all spec requirements)
+- Files modified:
+  - server/src/app.ts (added snapshotService to AppDeps, passed to gateway routes)
+  - server/src/modules/gateway/gateway.routes.ts (added SnapshotService import, triggers buildSnapshot on case creation with graceful failure handling)
+- Tests: 36 passed, 36 total (5 test files)
+  - snapshot.test.ts: 10 tests
+    1. callClientApi constructs correct URL from tenant baseUrl
+    2. callClientApi handles timeout (5s) with error
+    3. callClientApi logs timing on success and error
+    4. buildSnapshot calls all 4 APIs in parallel
+    5. buildSnapshot succeeds with partial failures (3 of 4 APIs)
+    6. buildSnapshot stores snapshot in DB (via mock service)
+    7. buildSnapshot includes correct truncation metadata
+    8. getSnapshot rejects wrong tenantId (tenant isolation)
+    9. buildClickTimeline formats events into readable timeline
+    10. Snapshot generation is triggered on case creation
+- Learnings:
+  - node:http createServer with listen(0) picks a random port — ideal for isolated test HTTP servers
+  - Promise.allSettled is perfect for partial-failure tolerance: check .status === 'fulfilled' for each
+  - AbortController + setTimeout provides clean timeout handling for fetch calls
+  - Mock HTTP servers in tests are more reliable than mocking fetch globally — tests actual HTTP behavior
+  - SnapshotService follows same DI pattern as GatewayService: interface + factory + mock for tests
+  - Snapshot generation wired to gateway with try/catch — failure doesn't block case creation
