@@ -5,8 +5,17 @@ import { registerAuth } from './shared/auth.js';
 import { AppError } from './shared/errors.js';
 import { log, setLogLevel } from './shared/logger.js';
 import { getEnvSafe, type LogLevel } from './shared/env.js';
+import { registerGatewayRoutes } from './modules/gateway/gateway.routes.js';
+import type { GatewayService } from './modules/gateway/gateway.service.js';
+import type { RateLimiter } from './modules/gateway/rate-limiter.js';
 
-export async function buildApp(opts?: { jwtSecret?: string }): Promise<FastifyInstance> {
+export interface AppDeps {
+  jwtSecret?: string;
+  gatewayService?: GatewayService;
+  rateLimiter?: RateLimiter;
+}
+
+export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   const env = getEnvSafe();
   setLogLevel(env.LOG_LEVEL as LogLevel);
 
@@ -68,6 +77,14 @@ export async function buildApp(opts?: { jwtSecret?: string }): Promise<FastifyIn
   app.get('/api/health', async () => {
     return { ok: true, version: '0.1.0' };
   });
+
+  // Gateway routes (if service provided)
+  if (opts?.gatewayService && opts.rateLimiter) {
+    await registerGatewayRoutes(app, {
+      service: opts.gatewayService,
+      rateLimiter: opts.rateLimiter,
+    });
+  }
 
   return app;
 }

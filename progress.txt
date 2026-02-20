@@ -30,3 +30,31 @@
   - @fastify/jwt needs type augmentation for both FastifyJWT.payload and FastifyInstance.authenticate
   - getEnvSafe() provides fallback env values for test environments where not all env vars are set
   - resetEnvCache() needed between tests when env vars change
+
+## Sprint 1 — Support Gateway
+- Files created:
+  - server/src/modules/gateway/gateway.schema.ts (Drizzle schema: cases, messages, audit_log tables)
+  - server/src/modules/gateway/gateway.service.ts (Service layer: createCase, addMessage, getCase, addFeedback, escalateCase, logAudit)
+  - server/src/modules/gateway/rate-limiter.ts (In-memory rate limiter with reset for tests)
+  - server/src/modules/gateway/gateway.routes.ts (5 REST endpoints with Zod validation)
+  - server/src/modules/gateway/gateway.test.ts (10 integration tests)
+- Files modified:
+  - server/src/app.ts (added AppDeps interface, gateway route registration with dependency injection)
+- Tests: 26 passed, 26 total (4 test files)
+  - gateway.test.ts: 10 tests
+    1. createCase returns case with correct tenantId and userId
+    2. createCase generates cas_ prefixed ID
+    3. addMessage stores message with correct role and content
+    4. getCase returns messages in chronological order
+    5. getCase rejects access from wrong tenantId (tenant isolation)
+    6. addFeedback updates case feedback field
+    7. escalateCase changes status to escalated
+    8. Rate limiter returns 429 after limit exceeded
+    9. Audit log records case creation
+    10. POST /api/cases returns 401 without auth token
+- Learnings:
+  - Use dependency injection (AppDeps) for service + rateLimiter so tests use in-memory mocks without real DB/Redis
+  - In-memory mock service mirrors real service behavior with plain arrays — no DB needed for route-level integration tests
+  - Rate limiter uses Map with time-windowed buckets; reset() method clears state between tests
+  - Zod schemas validate request bodies; safeParse + throw ValidationError pattern integrates cleanly with Fastify error handler
+  - Fastify inject() works perfectly for testing route + auth + error handler stack without network I/O
