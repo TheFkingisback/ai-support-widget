@@ -13,6 +13,7 @@ import type { SnapshotService } from './modules/snapshot/snapshot.service.js';
 import type { OrchestratorService } from './modules/orchestrator/orchestrator.service.js';
 import type { EscalationService } from './modules/escalation/escalation.service.js';
 import { registerAdminRoutes, type AdminRouteOpts } from './modules/admin/admin.routes.js';
+import { registerSwagger } from './shared/swagger.js';
 
 export interface AppDeps {
   jwtSecret?: string;
@@ -97,6 +98,9 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
       });
     },
   );
+
+  // Swagger API docs
+  await registerSwagger(app);
 
   // Health check
   app.get('/api/health', async () => {

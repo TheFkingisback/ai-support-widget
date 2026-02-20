@@ -12,6 +12,9 @@ export default function Home() {
           <Link href="/demo" className="rounded bg-gray-700 px-6 py-3 hover:bg-gray-600">
             Widget Demo
           </Link>
+          <Link href="/developers" className="rounded bg-green-700 px-6 py-3 hover:bg-green-600">
+            Developer Portal
+          </Link>
         </div>
       </div>
     </main>

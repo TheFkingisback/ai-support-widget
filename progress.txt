@@ -390,3 +390,37 @@
   - Admin API verified from actual admin.routes.ts: GET/POST tenants, PATCH tenant, GET analytics/cases/audit with exact response shapes
   - Tenant detail uses listTenants + filter instead of dedicated getTenant endpoint (matches backend which has no GET /tenants/:id)
   - Dark professional theme: gray-950 bg, gray-100 text, blue-600 accents, gray-800 borders
+
+## Sprint 12 — API Documentation + Developer Portal
+- Files created:
+  - server/src/shared/swagger.ts (registerSwagger: @fastify/swagger + @fastify/swagger-ui, OpenAPI 3.0.3 spec, dark theme)
+  - server/src/shared/swagger.test.ts (2 tests: Swagger UI serves, OpenAPI spec includes routes)
+  - web/src/app/developers/page.tsx (Developer Portal main page with 5 sections)
+  - web/src/app/developers/quick-start.tsx (4-step quick start guide)
+  - web/src/app/developers/widget-integration.tsx (Widget embed code + config options table)
+  - web/src/app/developers/endpoint-docs.tsx (4 required endpoints with request/response examples)
+  - web/src/app/developers/code-examples.tsx (JavaScript, Python, cURL examples)
+  - web/src/app/developers/error-handling.tsx (ApiError format + common error codes table)
+  - web/src/app/developers/developers.test.tsx (2 tests: Quick Start, code examples)
+  - web/src/app/developers/integration/page.tsx (6-step integration guide)
+  - web/src/app/developers/integration/integration.test.tsx (1 test: all 6 steps render)
+- Files modified:
+  - server/src/app.ts (added registerSwagger import + call before route registration)
+  - server/package.json (added @fastify/swagger, @fastify/swagger-ui dependencies)
+  - web/src/app/page.tsx (added Developer Portal link on home page)
+- Tests: 5 new tests (2 server + 3 web), all passing
+  - swagger.test.ts: 2 tests
+    1. /api/docs serves Swagger UI (HTML with swagger content)
+    2. OpenAPI spec includes all routes (JSON at /api/docs/json)
+  - developers.test.tsx: 2 tests
+    3. Developer portal renders Quick Start section
+    4. Developer portal renders code examples (JS, Python, cURL)
+  - integration.test.tsx: 1 test
+    5. Integration guide renders all 6 steps
+- Cumulative: 207 server tests + 13 widget tests + 13 web tests = 233 total tests, all passing
+- Learnings:
+  - @fastify/swagger-ui serves at routePrefix; /api/docs/ returns HTML directly (200), /api/docs/static/index.html redirects (302)
+  - Swagger UI test must handle 302 redirect by following location header, or just hit /api/docs/ directly
+  - Developer portal split into 5 sub-components (quick-start, widget-integration, endpoint-docs, code-examples, error-handling) to stay under 200 lines
+  - next/link must be mocked in tests as simple <a> tag since jsdom doesn't support Next.js router
+  - OpenAPI 3.0.3 spec auto-generated from Fastify route schemas; /api/docs/json endpoint serves it
