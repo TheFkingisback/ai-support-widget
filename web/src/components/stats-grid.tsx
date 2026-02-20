@@ -1,0 +1,38 @@
+import type { AnalyticsSummary } from '@/lib/types';
+
+interface Props {
+  analytics: AnalyticsSummary;
+}
+
+function formatMs(ms: number): string {
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${(ms / 60_000).toFixed(1)}m`;
+}
+
+export function StatsGrid({ analytics }: Props) {
+  const stats = [
+    { label: 'Total Cases', value: analytics.totalCases.toString() },
+    { label: 'Resolution Rate', value: `${(analytics.resolutionRate * 100).toFixed(1)}%` },
+    { label: 'Avg Messages', value: analytics.avgMessagesPerResolution.toFixed(1) },
+    { label: 'Avg Time to Resolve', value: formatMs(analytics.avgTimeToResolution) },
+    {
+      label: 'CSAT',
+      value: analytics.csat.total > 0
+        ? `${((analytics.csat.positive / analytics.csat.total) * 100).toFixed(0)}%`
+        : 'N/A',
+    },
+    { label: 'Resolved w/o Human', value: analytics.resolvedWithoutHuman.toString() },
+  ];
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="stats-grid">
+      {stats.map((s) => (
+        <div key={s.label} className="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
+          <p className="text-xs text-gray-500 uppercase tracking-wide">{s.label}</p>
+          <p className="mt-1 text-2xl font-bold">{s.value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}

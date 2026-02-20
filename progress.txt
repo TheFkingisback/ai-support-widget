@@ -332,3 +332,61 @@
   - Chat panel uses async/await for API calls with typing indicator shown during Promise pending state
   - Confirmation dialog pattern: overlay + box rendered into panelEl, removed on confirm/cancel
   - Evidence renderer uses locale-aware date formatting (toLocaleString) for timestamp evidence
+
+## Sprint 11 — Admin Dashboard
+- Files created:
+  - web/package.json (updated with Next.js 14, React, TanStack Query, recharts, lucide-react, Tailwind, vitest deps)
+  - web/tsconfig.json, web/next.config.js, web/tailwind.config.ts, web/postcss.config.js
+  - web/vitest.config.ts (jsdom environment, esbuild jsx: automatic, @/ alias)
+  - web/src/test-setup.ts (@testing-library/jest-dom setup)
+  - web/src/app/globals.css (Tailwind base)
+  - web/src/app/layout.tsx (root layout: dark theme, antialiased)
+  - web/src/app/page.tsx (landing: links to Admin Dashboard and Widget Demo)
+  - web/src/lib/types.ts (Tenant, Case, Message, AnalyticsSummary, AuditEntry, CreateTenantInput, UpdateTenantInput)
+  - web/src/lib/api.ts (typed API client: listTenants, createTenant, updateTenant, getAnalytics, getCases, getAuditLog, getCaseDetail)
+  - web/src/lib/test-helpers.ts (mockTenant, mockCase, mockAnalytics, mockAuditEntry, mockMessage, createMockFetch)
+  - web/src/components/sidebar.tsx (nav: Tenants, Analytics, Audit Log + active state highlighting)
+  - web/src/components/create-tenant-modal.tsx (form with name, plan, apiBaseUrl, serviceToken + validation)
+  - web/src/components/stats-grid.tsx (6 stat cards: total cases, resolution rate, avg messages, etc.)
+  - web/src/components/charts.tsx (IntentsChart + ErrorsChart: recharts BarChart horizontal layout)
+  - web/src/app/admin/layout.tsx (sidebar + main content area)
+  - web/src/app/admin/page.tsx (redirects to /admin/tenants)
+  - web/src/app/admin/tenants/page.tsx (tenant table + Create Tenant button + modal)
+  - web/src/app/admin/tenants/[id]/page.tsx (config editor: general, config, connectors, save)
+  - web/src/app/admin/tenants/[id]/cases/page.tsx (cases table + status filter + case detail modal)
+  - web/src/app/admin/analytics/page.tsx (tenant selector + stats grid + intents/errors charts)
+  - web/src/app/admin/audit/page.tsx (audit table + pagination + tenant filter)
+  - web/src/app/demo/page.tsx (widget embed demo with integration code snippet)
+  - web/src/app/admin/tenants/tenants.test.tsx (2 tests)
+  - web/src/app/admin/tenants/[id]/detail.test.tsx (2 tests)
+  - web/src/app/admin/analytics/analytics.test.tsx (2 tests)
+  - web/src/app/admin/tenants/[id]/cases/cases.test.tsx (2 tests)
+  - web/src/app/admin/audit/audit.test.tsx (1 test)
+  - web/src/app/demo/demo.test.tsx (1 test)
+- Files modified: none
+- Tests: 10 passed, 10 total (6 test files)
+  - tenants.test.tsx: 2 tests
+    1. Tenants table renders tenant list
+    2. Create tenant modal validates required fields
+  - detail.test.tsx: 2 tests
+    3. Tenant detail loads and displays config
+    4. Tenant detail saves updated config
+  - analytics.test.tsx: 2 tests
+    5. Analytics shows resolution rate chart
+    6. Analytics shows top errors chart
+  - cases.test.tsx: 2 tests
+    7. Cases table renders with correct statuses
+    8. Case detail shows full conversation
+  - audit.test.tsx: 1 test
+    9. Audit log renders paginated entries
+  - demo.test.tsx: 1 test
+    10. Widget demo page embeds widget correctly
+- Cumulative: 205 server tests + 13 widget tests + 10 web tests = 228 total tests, all passing
+- Learnings:
+  - Vitest esbuild jsx: 'automatic' with jsxImportSource: 'react' avoids "React is not defined" in tests without importing React
+  - @vitejs/plugin-react has ESM-only issues with CJS vitest config — esbuild jsx config is simpler alternative
+  - createMockFetch must sort patterns by length descending so /api/admin/tenants/:id/audit matches before /api/admin/tenants
+  - Recharts needs mocking in jsdom tests (no Canvas/SVG rendering) — mock BarChart, ResponsiveContainer as simple divs
+  - Admin API verified from actual admin.routes.ts: GET/POST tenants, PATCH tenant, GET analytics/cases/audit with exact response shapes
+  - Tenant detail uses listTenants + filter instead of dedicated getTenant endpoint (matches backend which has no GET /tenants/:id)
+  - Dark professional theme: gray-950 bg, gray-100 text, blue-600 accents, gray-800 borders
