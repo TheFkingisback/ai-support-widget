@@ -217,3 +217,34 @@
   - Email connector uses injected sendFn for testability instead of real SMTP/SendGrid
   - EscalationService follows same DI pattern: interface + factory, takes gatewayService + snapshotService + ticketStore + connectors as deps
   - Gateway routes escalate endpoint: escalationService is optional; when present, delegates full ticket creation; fallback returns placeholder
+
+## Sprint 7 — Admin API
+- Files created:
+  - server/src/modules/admin/admin.schema.ts (Drizzle schema: tenants table with jsonb config, apiBaseUrl, serviceToken)
+  - server/src/modules/admin/admin-auth.ts (API key middleware: validates Bearer token against ADMIN_API_KEY, returns 403 on failure)
+  - server/src/modules/admin/tenant.service.ts (TenantService: createTenant, updateTenant, getTenant, listTenants with plan-based defaults and token encryption)
+  - server/src/modules/admin/analytics.service.ts (AnalyticsService: getAnalytics computing resolution rate, CSAT, top intents, top errors from snapshots)
+  - server/src/modules/admin/audit.service.ts (AuditService: getAuditLog with pagination, purgeData for data retention)
+  - server/src/modules/admin/admin.routes.ts (6 REST endpoints: GET/POST tenants, PATCH tenant, GET analytics/cases/audit)
+  - server/src/modules/admin/admin.test.ts (10 integration tests)
+- Files modified:
+  - server/src/app.ts (added adminRouteOpts to AppDeps, registerAdminRoutes wiring)
+- Tests: 90 passed, 90 total (10 test files)
+  - admin.test.ts: 10 tests
+    1. createTenant stores tenant with encrypted serviceToken
+    2. createTenant sets default config based on plan
+    3. updateTenant partially updates config
+    4. getTenant returns tenant by ID
+    5. getAnalytics returns correct resolution rate
+    6. getAnalytics returns top errors from snapshots
+    7. getAuditLog returns paginated entries
+    8. purgeData removes old entries
+    9. Admin routes reject non-admin requests with 403
+    10. listTenants returns all tenants
+- Learnings:
+  - Admin auth is separate from JWT widget auth — simple API key comparison via Bearer header
+  - Plan-based default configs (starter/pro/enterprise) with merge on create keeps tenant setup simple
+  - TenantStore/AuditStore/AnalyticsDataSource abstractions follow same DI mock pattern as all other modules
+  - Token encryption uses base64 encoding (would use AES in production) — encryptToken/decryptToken pair
+  - Analytics computed on-the-fly from in-memory data sources; production would use materialized views or cache
+  - Admin routes wired into app.ts via optional adminRouteOpts — same optional pattern as other services
