@@ -2,6 +2,7 @@ import type { Message, SuggestedAction, SupportContextSnapshot } from '@shared/t
 import type { GatewayService } from '../gateway/gateway.service.js';
 import type { SnapshotService } from '../snapshot/snapshot.service.js';
 import type { ContextService } from '../context/context.service.js';
+import type { KnowledgeService } from '../knowledge/knowledge.service.js';
 import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
 import { buildSystemPrompt } from './system-prompt.js';
 import { parseAIResponse } from './response-parser.js';
@@ -30,6 +31,7 @@ export interface OrchestratorDeps {
   gatewayService: GatewayService;
   snapshotService: SnapshotService;
   contextService: ContextService;
+  knowledgeService?: KnowledgeService;
   apiKey: string;
   modelPolicy?: 'fast' | 'strong' | 'auto';
   maxMessages?: number;
@@ -41,6 +43,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
     gatewayService,
     snapshotService,
     contextService,
+    knowledgeService,
     apiKey,
     modelPolicy = 'fast',
     maxMessages = DEFAULT_MAX_MESSAGES,
@@ -75,9 +78,21 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         processedSnapshot = processed;
       }
 
-      // 5. Build system prompt
-      const knowledgeDocs = processedSnapshot?.knowledgePack?.docs ?? [];
+      // 5. Fetch knowledge base docs (if service available)
+      let knowledgeDocs = processedSnapshot?.knowledgePack?.docs ?? [];
       const runbooks = processedSnapshot?.knowledgePack?.runbooks ?? [];
+      if (knowledgeService) {
+        try {
+          const kbDocs = await knowledgeService.getRelevantDocs(
+            tenantId, userContent, processedSnapshot, undefined, requestId,
+          );
+          if (kbDocs.length > 0) knowledgeDocs = [...knowledgeDocs, ...kbDocs];
+        } catch (err) {
+          log.warn('handleMessage: knowledge service failed, continuing', requestId, {
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
       const allDocs = [...knowledgeDocs, ...runbooks];
 
       const systemPrompt = processedSnapshot

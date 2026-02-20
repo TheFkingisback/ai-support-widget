@@ -153,3 +153,33 @@
   - Confidence estimation uses language cue matching: "certain/confident" → 0.9, "might be/could be" → 0.5, default → 0.7
   - Orchestrator service follows same DI pattern: interface + factory, takes gatewayService + snapshotService + contextService as deps
   - Gateway routes wiring: orchestrator is optional; when present, POST /messages delegates to orchestrator.handleMessage which stores both user + assistant messages
+
+## Sprint 5 — Knowledge Base (RAG)
+- Files created:
+  - server/src/modules/knowledge/knowledge.schema.ts (Drizzle schema: documents, document_chunks tables)
+  - server/src/modules/knowledge/embeddings.ts (EmbeddingClient interface + factory with OpenAI text-embedding-3-small, LRU cache)
+  - server/src/modules/knowledge/indexer.ts (Indexer: indexDocument with chunking ~500 tokens + 50 overlap, reindexAll)
+  - server/src/modules/knowledge/retriever.ts (Retriever: vector similarity search via cosine distance, tenant isolation, deduplication)
+  - server/src/modules/knowledge/knowledge.service.ts (KnowledgeService: getRelevantDocs combining user message + error codes, category priority sorting)
+  - server/src/modules/knowledge/knowledge.test.ts (9 tests covering all spec requirements)
+- Files modified:
+  - server/src/modules/orchestrator/orchestrator.service.ts (added optional KnowledgeService dep, fetches KB docs before LLM call, graceful failure)
+- Tests: 71 passed, 71 total (8 test files)
+  - knowledge.test.ts: 9 tests
+    1. generateEmbedding returns 1536-dimension vector
+    2. indexDocument chunks content into ~500 token pieces
+    3. indexDocument stores chunks with embeddings in store
+    4. search returns relevant documents by similarity
+    5. search filters by tenantId (tenant isolation)
+    6. search returns empty for tenant with no docs
+    7. getRelevantDocs combines user message with error codes for search
+    8. getRelevantDocs respects maxDocs limit
+    9. reindexAll deletes old chunks and creates new ones
+- Learnings:
+  - Deterministic fake embeddings: hash text chars into 1536-dim vector then normalize — gives meaningful cosine similarity for tests
+  - In-memory DocumentStore + ChunkStore mocks follow same pattern as other modules: plain arrays with filter/splice
+  - ChunkStore joins document metadata (title, category, tenantId) with chunk data for retriever use
+  - Cosine similarity search with deduplication by documentId ensures one result per document
+  - Category priority sorting (runbook > doc > changelog > faq) applied after similarity ranking
+  - KnowledgeService is optional in OrchestratorDeps — orchestrator gracefully degrades if KB search fails
+  - chunkText uses chars-per-token approximation (4 chars = 1 token) for chunk sizing with overlap
