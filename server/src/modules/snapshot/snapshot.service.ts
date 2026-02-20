@@ -159,17 +159,11 @@ export function createSnapshotService(
       const rows = await db
         .select()
         .from(snapshots)
-        .where(eq(snapshots.id, snapshotId))
+        .where(and(eq(snapshots.id, snapshotId), eq(snapshots.tenantId, tenantId)))
         .limit(1);
 
       if (rows.length === 0) {
         throw new NotFoundError('Snapshot', snapshotId);
-      }
-
-      if (rows[0].tenantId !== tenantId) {
-        throw new ForbiddenError(
-          `Tenant ${tenantId} cannot access snapshot ${snapshotId}`,
-        );
       }
 
       return rows[0].data as SupportContextSnapshot;

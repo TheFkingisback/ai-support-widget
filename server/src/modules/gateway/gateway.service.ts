@@ -208,17 +208,11 @@ export function createGatewayService(
       const caseRows = await db
         .select()
         .from(cases)
-        .where(eq(cases.id, caseId))
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)))
         .limit(1);
 
       if (caseRows.length === 0) {
         throw new NotFoundError('Case', caseId);
-      }
-
-      if (caseRows[0].tenantId !== tenantId) {
-        throw new ForbiddenError(
-          `Tenant ${tenantId} cannot access case ${caseId}`,
-        );
       }
 
       const msgRows = await db
@@ -244,16 +238,11 @@ export function createGatewayService(
       const caseRows = await db
         .select()
         .from(cases)
-        .where(eq(cases.id, caseId))
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)))
         .limit(1);
 
       if (caseRows.length === 0) {
         throw new NotFoundError('Case', caseId);
-      }
-      if (caseRows[0].tenantId !== tenantId) {
-        throw new ForbiddenError(
-          `Tenant ${tenantId} cannot access case ${caseId}`,
-        );
       }
 
       await db
@@ -280,16 +269,11 @@ export function createGatewayService(
       const caseRows = await db
         .select()
         .from(cases)
-        .where(eq(cases.id, caseId))
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)))
         .limit(1);
 
       if (caseRows.length === 0) {
         throw new NotFoundError('Case', caseId);
-      }
-      if (caseRows[0].tenantId !== tenantId) {
-        throw new ForbiddenError(
-          `Tenant ${tenantId} cannot access case ${caseId}`,
-        );
       }
 
       await db

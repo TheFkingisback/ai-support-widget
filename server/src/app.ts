@@ -32,7 +32,10 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
     genReqId: () => `req_${crypto.randomUUID().replace(/-/g, '').slice(0, 12)}`,
   });
 
-  await app.register(cors, { origin: true });
+  const allowedOrigins = env.CORS_ORIGINS
+    ? env.CORS_ORIGINS.split(',').map((o) => o.trim())
+    : true; // fallback for dev; production MUST set CORS_ORIGINS
+  await app.register(cors, { origin: allowedOrigins });
 
   const jwtSecret = opts?.jwtSecret ?? env.JWT_SECRET;
   await registerAuth(app, jwtSecret);

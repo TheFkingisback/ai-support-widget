@@ -5,6 +5,7 @@ import { resetEnvCache } from '../../shared/env.js';
 import {
   createTenantService,
   encryptToken,
+  decryptToken,
   type TenantStore,
   type TenantRecord,
   type TenantService,
@@ -198,10 +199,11 @@ describe('Admin Module', () => {
     expect(body.tenant.name).toBe('Acme Corp');
     expect(body.tenant.id).toMatch(/^ten_/);
 
-    // Verify token is encrypted in store
+    // Verify token is encrypted in store (AES-GCM, not plaintext)
     const stored = tenantStore._records[0];
     expect(stored.serviceToken).not.toBe('secret-token-123');
-    expect(stored.serviceToken).toBe(encryptToken('secret-token-123'));
+    // Encryption is non-deterministic (random IV), so verify round-trip instead
+    expect(decryptToken(stored.serviceToken)).toBe('secret-token-123');
   });
 
   // Test 2: createTenant sets default config based on plan

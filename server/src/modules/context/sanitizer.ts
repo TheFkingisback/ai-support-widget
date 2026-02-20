@@ -38,6 +38,8 @@ const SAFE_FIELDS = new Set([
 
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const PHONE_RE = /(\+?\d{1,3})[\s-]?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}/g;
+const SSN_RE = /\b\d{3}-\d{2}-\d{4}\b/g;
+const CC_RE = /\b(?:4\d{3}|5[1-5]\d{2}|3[47]\d{2}|6(?:011|5\d{2}))[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b/g;
 const BASE64_RE = /(?:[A-Za-z0-9+/]{4}){10,}(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?/g;
 const INTERNAL_URL_RE = /https?:\/\/(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|localhost|127\.0\.0\.1)(?::\d+)?[^\s"',}]*/gi;
 const INTERNAL_HOST_RE = /(?:[a-z0-9-]+\.internal|[a-z0-9-]+\.local|[a-z0-9-]+\.corp)(?::\d+)?/gi;
@@ -121,6 +123,23 @@ function deepMaskPII(
     if (phones) {
       for (const phone of phones) {
         result = result.replace(phone, maskPhone(phone));
+        audit.count++;
+        if (!audit.fields.includes(fieldPath)) audit.fields.push(fieldPath);
+      }
+    }
+    const ssns = result.match(SSN_RE);
+    if (ssns) {
+      for (const ssn of ssns) {
+        result = result.replace(ssn, `***-**-${ssn.slice(-4)}`);
+        audit.count++;
+        if (!audit.fields.includes(fieldPath)) audit.fields.push(fieldPath);
+      }
+    }
+    const ccs = result.match(CC_RE);
+    if (ccs) {
+      for (const cc of ccs) {
+        const digits = cc.replace(/\D/g, '');
+        result = result.replace(cc, `****-****-****-${digits.slice(-4)}`);
         audit.count++;
         if (!audit.fields.includes(fieldPath)) audit.fields.push(fieldPath);
       }
@@ -301,7 +320,8 @@ export function sanitize(
   const finalStr = JSON.stringify(current);
 
   const secretsRedacted = countPatternMatches(JSON.stringify(snapshot), SECRET_PATTERNS);
-  const piiMasked = countOccurrences(origStr, EMAIL_RE) + countOccurrences(origStr, PHONE_RE);
+  const piiMasked = countOccurrences(origStr, EMAIL_RE) + countOccurrences(origStr, PHONE_RE)
+    + countOccurrences(origStr, SSN_RE) + countOccurrences(origStr, CC_RE);
   const binaryRemoved = countLongBase64(origStr) - countLongBase64(afterBinary);
   const internalUrlsStripped =
     countOccurrences(afterBinary, INTERNAL_URL_RE) + countOccurrences(afterBinary, INTERNAL_HOST_RE);

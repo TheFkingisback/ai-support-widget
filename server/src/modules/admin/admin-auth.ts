@@ -1,6 +1,18 @@
+import crypto from 'node:crypto';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { ForbiddenError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
+
+function timingSafeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) {
+    // Compare against self to consume constant time, then return false
+    crypto.timingSafeEqual(bufA, bufA);
+    return false;
+  }
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 export function createAdminAuth(apiKey: string) {
   return async function adminAuth(
@@ -19,7 +31,7 @@ export function createAdminAuth(apiKey: string) {
       ? authHeader.slice(7)
       : authHeader;
 
-    if (provided !== apiKey) {
+    if (!timingSafeEqual(provided, apiKey)) {
       log.warn('Admin auth: invalid API key', reqId);
       throw new ForbiddenError('Invalid admin API key');
     }

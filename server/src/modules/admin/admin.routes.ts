@@ -150,7 +150,13 @@ export async function registerAdminRoutes(
       const result = await auditService.getAuditLog(
         id, parsed.data.page, parsed.data.pageSize, reqId,
       );
-      return reply.code(200).send({ entries: result.data, ...result });
+      return reply.code(200).send({
+        entries: result.data,
+        total: result.total,
+        page: result.page,
+        pageSize: result.pageSize,
+        hasMore: result.hasMore,
+      });
     },
   );
 }

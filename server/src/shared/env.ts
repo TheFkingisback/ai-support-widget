@@ -11,6 +11,7 @@ const envSchema = z.object({
   LOG_LEVEL: LogLevel.default('medium'),
   PORT: z.coerce.number().int().positive().default(3000),
   MAX_CONTEXT_BYTES: z.coerce.number().int().positive().default(5_000_000),
+  CORS_ORIGINS: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -30,11 +31,12 @@ export function getEnvSafe(): Env {
     return {
       DATABASE_URL: process.env.DATABASE_URL ?? '',
       REDIS_URL: process.env.REDIS_URL ?? '',
-      JWT_SECRET: process.env.JWT_SECRET ?? 'test-secret',
+      JWT_SECRET: process.env.JWT_SECRET ?? '',
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ?? '',
       LOG_LEVEL: (process.env.LOG_LEVEL as LogLevel) ?? 'medium',
       PORT: Number(process.env.PORT) || 3000,
       MAX_CONTEXT_BYTES: Number(process.env.MAX_CONTEXT_BYTES) || 5_000_000,
+      CORS_ORIGINS: process.env.CORS_ORIGINS,
     };
   }
 }
