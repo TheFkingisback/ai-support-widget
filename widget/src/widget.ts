@@ -96,5 +96,5 @@ export class AISupportWidget {
 
 // Expose globally for script tag usage
 if (typeof window !== 'undefined') {
-  (window as Record<string, unknown>)['AISupportWidget'] = AISupportWidget;
+  (window as unknown as Record<string, unknown>)['AISupportWidget'] = AISupportWidget;
 }

@@ -284,3 +284,51 @@
   - Direct trimToSize() calls are much faster than going through full context pipeline for trimming-specific tests
   - Integration tests need independent mock state: beforeEach clears arrays, each test file gets its own JWT secret and tmp dir
   - The trimmer's byteSize() is called per iteration making it slow on very large arrays — test data design matters for speed
+
+## Sprint 10 — Widget SDK
+- Files created:
+  - widget/src/types.ts (WidgetConfig, Case, Message, SuggestedAction, Evidence, ApiError interfaces)
+  - widget/src/api.ts (ApiClient interface + createApiClient factory: request helper with 401 retry, createCase, sendMessage, addFeedback, escalate, executeAction)
+  - widget/src/widget.ts (AISupportWidget.init: Shadow DOM container, style injection, FAB button, chat panel lifecycle, global window export)
+  - widget/src/chat.ts (createChatPanel: header with title/escalate/close, message list, input bar, typing indicator, send flow with case creation)
+  - widget/src/chat-renderer.ts (renderMessage: content + evidence + actions + feedback buttons, action handlers, system messages)
+  - widget/src/styles.ts (getStyles: CSS-in-JS with light/dark themes, CSS custom properties, responsive mobile breakpoint)
+  - widget/src/actions.ts (renderActions: action buttons with dispatch, confirmation dialog for destructive actions)
+  - widget/src/evidence.ts (renderEvidence: error_code red badge, job_id copyable, timestamp locale-formatted, log_excerpt code block)
+  - widget/src/test-helpers.ts (createMockApiClient, mockCase, mockAssistantMessage, mockActions, mockEvidence)
+  - widget/src/widget.test.ts (6 tests: Shadow DOM, FAB, open/close panel, style isolation, destroy)
+  - widget/src/api.test.ts (4 tests: sendMessage endpoint, feedback endpoint, escalate endpoint, 401 token refresh)
+  - widget/src/chat.test.ts (3 tests: typing indicator, evidence rendering, action buttons with confirmation)
+  - widget/vitest.config.ts (jsdom environment, globals: true)
+  - widget/tsconfig.json (ES2020 target, DOM lib, strict mode, bundler module resolution)
+- Files modified:
+  - widget/tsconfig.json (excluded test-helpers.ts from compilation)
+  - widget/src/widget.ts (fixed window type cast for strict TS)
+- Tests: 13 passed, 13 total (3 test files) — all 12 spec tests + 1 bonus destroy test
+  - widget.test.ts: 6 tests
+    1. Widget.init creates Shadow DOM container
+    2. Widget.init renders chat FAB button
+    3. Chat panel opens on FAB click
+    4. Chat panel closes on close button click
+    5. Styles are isolated in Shadow DOM
+    6. Widget destroys and removes from DOM
+  - api.test.ts: 4 tests
+    7. sendMessage calls correct API endpoint with auth header
+    8. addFeedback calls feedback endpoint
+    9. escalate calls escalation endpoint
+    10. Widget handles 401 by calling onTokenRefresh and retrying
+  - chat.test.ts: 3 tests
+    11. Typing indicator shows while waiting for response
+    12. Evidence blocks render with correct types (error_code, job_id, timestamp, log_excerpt)
+    13. Action buttons render with labels, confirmation dialog for destructive actions
+- Cumulative: 205 server tests + 13 widget tests = 218 total tests, all passing
+- Learnings:
+  - Shadow DOM with mode: 'open' allows test access via host.shadowRoot
+  - jsdom environment in vitest supports Shadow DOM, attachShadow, and custom elements
+  - Test-helpers.ts with mock factories (createMockApiClient, mockCase, etc.) keeps tests DRY
+  - TypeScript strict mode catches window-to-Record cast — use `unknown` intermediate cast
+  - test-helpers.ts must be excluded from tsconfig when it uses vitest globals (vi.fn) without imports
+  - Widget SDK is pure TypeScript, zero dependencies — builds to single file with tsc
+  - Chat panel uses async/await for API calls with typing indicator shown during Promise pending state
+  - Confirmation dialog pattern: overlay + box rendered into panelEl, removed on confirm/cancel
+  - Evidence renderer uses locale-aware date formatting (toLocaleString) for timestamp evidence
