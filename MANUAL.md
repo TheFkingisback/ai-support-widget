@@ -184,11 +184,8 @@ type TEST_REVIEW.md
 You should have:
 - `build-frontend.ps1`
 - `specs/10-widget-sdk.md`
-- `specs/11-widget-chat.md`
-- `specs/12-admin-dashboard.md`
-- `specs/13-admin-analytics.md`
-- `specs/14-api-docs.md`
-- `specs/15-landing-polish.md`
+- `specs/11-admin-dashboard.md`
+- `specs/12-api-docs.md`
 
 ### Step 2: Place the files
 Put `build-frontend.ps1` in the project root (same folder as CLAUDE.md).

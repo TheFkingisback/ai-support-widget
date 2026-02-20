@@ -1,6 +1,6 @@
 import { log } from '../../shared/logger.js';
 import type { EmbeddingClient } from './embeddings.js';
-import type { KnowledgeDoc } from '../../../../shared/types.js';
+import type { KnowledgeDoc } from '../../shared/types.js';
 
 export interface ChunkWithMeta {
   id: string;

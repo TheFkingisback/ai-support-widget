@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import { log } from '../../shared/logger.js';
 import { NotFoundError, ValidationError } from '../../shared/errors.js';
-import type { Tenant, TenantConfig } from '../../../../shared/types.js';
+import type { Tenant, TenantConfig } from '../../shared/types.js';
 
 function genId(prefix: string): string {
   return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;

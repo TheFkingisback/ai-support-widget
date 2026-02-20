@@ -31,13 +31,10 @@ export async function registerExtraGatewayRoutes(
   const { service, orchestratorService, escalationService } = opts;
 
   // POST /api/cases/:caseId/escalate
-  app.post(
+  app.post<{ Params: { caseId: string } }>(
     '/api/cases/:caseId/escalate',
     { preHandler: [app.authenticate] },
-    async (
-      request: FastifyRequest<{ Params: { caseId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { tenantId } = request.authPayload;
       const { caseId } = request.params;
@@ -66,13 +63,10 @@ export async function registerExtraGatewayRoutes(
   );
 
   // POST /api/cases/:caseId/actions
-  app.post(
+  app.post<{ Params: { caseId: string } }>(
     '/api/cases/:caseId/actions',
     { preHandler: [app.authenticate] },
-    async (
-      request: FastifyRequest<{ Params: { caseId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { tenantId } = request.authPayload;
       const { caseId } = request.params;

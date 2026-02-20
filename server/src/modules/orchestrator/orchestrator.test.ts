@@ -10,7 +10,7 @@ import type {
   SuggestedAction,
   Evidence,
   SupportContextSnapshot,
-} from '../../../../shared/types.js';
+} from '../../shared/types.js';
 import { setLogLevel, setLogsDir } from '../../shared/logger.js';
 import { resetEnvCache } from '../../shared/env.js';
 import { NotFoundError, ForbiddenError } from '../../shared/errors.js';

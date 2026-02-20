@@ -81,13 +81,10 @@ export async function registerGatewayRoutes(
   );
 
   // GET /api/cases/:caseId
-  app.get(
+  app.get<{ Params: { caseId: string } }>(
     '/api/cases/:caseId',
     { preHandler: [app.authenticate] },
-    async (
-      request: FastifyRequest<{ Params: { caseId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { tenantId } = request.authPayload;
       const { caseId } = request.params;
@@ -97,13 +94,10 @@ export async function registerGatewayRoutes(
   );
 
   // POST /api/cases/:caseId/messages
-  app.post(
+  app.post<{ Params: { caseId: string } }>(
     '/api/cases/:caseId/messages',
     { preHandler: [app.authenticate] },
-    async (
-      request: FastifyRequest<{ Params: { caseId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
@@ -134,13 +128,10 @@ export async function registerGatewayRoutes(
   );
 
   // POST /api/cases/:caseId/feedback
-  app.post(
+  app.post<{ Params: { caseId: string } }>(
     '/api/cases/:caseId/feedback',
     { preHandler: [app.authenticate] },
-    async (
-      request: FastifyRequest<{ Params: { caseId: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { tenantId } = request.authPayload;
       const { caseId } = request.params;

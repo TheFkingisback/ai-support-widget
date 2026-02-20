@@ -1,5 +1,5 @@
 import { log } from '../../shared/logger.js';
-import type { Case, Message, SupportContextSnapshot } from '../../../../shared/types.js';
+import type { Case, Message, SupportContextSnapshot } from '../../shared/types.js';
 import type { TicketPayload } from './connectors/connector.js';
 
 const PRIORITY_BY_ERROR_CLASS: Record<string, TicketPayload['priority']> = {

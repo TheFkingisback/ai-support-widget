@@ -1,4 +1,4 @@
-import type { KnowledgeDoc, SupportContextSnapshot } from '../../../../shared/types.js';
+import type { KnowledgeDoc, SupportContextSnapshot } from '../../shared/types.js';
 import { log } from '../../shared/logger.js';
 import type { Retriever } from './retriever.js';
 

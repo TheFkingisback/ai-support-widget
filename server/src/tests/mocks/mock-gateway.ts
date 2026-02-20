@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { Case, Message, SuggestedAction, Evidence } from '../../../../shared/types.js';
+import type { Case, Message, SuggestedAction, Evidence } from '../../shared/types.js';
 import type { GatewayService } from '../../modules/gateway/gateway.service.js';
 import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
 

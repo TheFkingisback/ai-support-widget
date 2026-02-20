@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { setLogLevel, setLogsDir } from '../../shared/logger.js';
 import { trimToSize } from '../../modules/context/trimmer.js';
 import { createContextService } from '../../modules/context/context.service.js';
-import type { SupportContextSnapshot } from '../../../../shared/types.js';
+import type { SupportContextSnapshot } from '../../shared/types.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';

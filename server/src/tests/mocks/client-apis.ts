@@ -4,7 +4,7 @@ import type {
   GetUserHistoryResponse,
   GetUserLogsResponse,
   GetBusinessRulesResponse,
-} from '../../../../shared/types.js';
+} from '../../shared/types.js';
 
 const NOW = '2026-02-20T10:00:00.000Z';
 const HOUR_AGO = '2026-02-20T09:00:00.000Z';

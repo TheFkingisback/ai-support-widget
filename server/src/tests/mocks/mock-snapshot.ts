@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import type { SupportContextSnapshot, Case } from '../../../../shared/types.js';
+import type { SupportContextSnapshot, Case } from '../../shared/types.js';
 import type { SnapshotService } from '../../modules/snapshot/snapshot.service.js';
 import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
 import {

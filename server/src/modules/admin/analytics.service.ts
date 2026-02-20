@@ -1,5 +1,5 @@
 import { log } from '../../shared/logger.js';
-import type { AnalyticsSummary, Case, Message, SupportContextSnapshot } from '../../../../shared/types.js';
+import type { AnalyticsSummary, Case, Message, SupportContextSnapshot } from '../../shared/types.js';
 
 export interface AnalyticsDataSource {
   getCasesByTenant(tenantId: string): Promise<Case[]>;
@@ -15,7 +15,7 @@ function topCountsFromMap<K extends string>(
   counts: Map<string, number>,
   keyName: K,
   limit = 10,
-): Record<K, string> & { count: number }[] {
+): (Record<K, string> & { count: number })[] {
   return Array.from(counts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)

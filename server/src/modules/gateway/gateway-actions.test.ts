@@ -7,7 +7,7 @@ import type { GatewayService } from './gateway.service.js';
 import type { RateLimiter } from './rate-limiter.js';
 import type { OrchestratorService } from '../orchestrator/orchestrator.service.js';
 import type { FastifyInstance } from 'fastify';
-import type { Case, Message, SuggestedAction } from '../../../../shared/types.js';
+import type { Case, Message, SuggestedAction } from '../../shared/types.js';
 import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
 import crypto from 'node:crypto';
 import fs from 'node:fs';

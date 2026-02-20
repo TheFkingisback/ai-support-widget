@@ -6,7 +6,7 @@ import { createInMemoryRateLimiter } from '../../modules/gateway/rate-limiter.js
 import { createMockGatewayService } from '../mocks/mock-gateway.js';
 import { createMockSnapshotService } from '../mocks/mock-snapshot.js';
 import type { FastifyInstance } from 'fastify';
-import type { KnowledgeDoc } from '../../../../shared/types.js';
+import type { KnowledgeDoc } from '../../shared/types.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';

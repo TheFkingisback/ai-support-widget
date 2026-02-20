@@ -9,7 +9,7 @@ import type {
   Message,
   SuggestedAction,
   Evidence,
-} from '../../../../shared/types.js';
+} from '../../shared/types.js';
 
 function toMessage(row: typeof messages.$inferSelect): Message {
   return {

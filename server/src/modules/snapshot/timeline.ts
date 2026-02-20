@@ -1,5 +1,5 @@
 import { log } from '../../shared/logger.js';
-import type { UserEvent, ClickTimelineEntry } from '../../../../shared/types.js';
+import type { UserEvent, ClickTimelineEntry } from '../../shared/types.js';
 
 export function buildClickTimeline(
   events: UserEvent[],

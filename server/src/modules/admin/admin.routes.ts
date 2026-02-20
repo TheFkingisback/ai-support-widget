@@ -77,13 +77,10 @@ export async function registerAdminRoutes(
   );
 
   // PATCH /api/admin/tenants/:id
-  app.patch(
+  app.patch<{ Params: { id: string } }>(
     '/api/admin/tenants/:id',
     { preHandler: [adminAuth] },
-    async (
-      request: FastifyRequest<{ Params: { id: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { id } = request.params;
 
@@ -101,13 +98,10 @@ export async function registerAdminRoutes(
   );
 
   // GET /api/admin/tenants/:id/analytics
-  app.get(
+  app.get<{ Params: { id: string } }>(
     '/api/admin/tenants/:id/analytics',
     { preHandler: [adminAuth] },
-    async (
-      request: FastifyRequest<{ Params: { id: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { id } = request.params;
       const analytics = await analyticsService.getAnalytics(id, reqId);
@@ -116,13 +110,10 @@ export async function registerAdminRoutes(
   );
 
   // GET /api/admin/tenants/:id/cases
-  app.get(
+  app.get<{ Params: { id: string } }>(
     '/api/admin/tenants/:id/cases',
     { preHandler: [adminAuth] },
-    async (
-      request: FastifyRequest<{ Params: { id: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { id } = request.params;
       const cases = getCasesByTenant ? await getCasesByTenant(id) : [];
@@ -132,13 +123,10 @@ export async function registerAdminRoutes(
   );
 
   // GET /api/admin/tenants/:id/audit
-  app.get(
+  app.get<{ Params: { id: string }; Querystring: { page?: string; pageSize?: string } }>(
     '/api/admin/tenants/:id/audit',
     { preHandler: [adminAuth] },
-    async (
-      request: FastifyRequest<{ Params: { id: string }; Querystring: { page?: string; pageSize?: string } }>,
-      reply: FastifyReply,
-    ) => {
+    async (request, reply) => {
       const reqId = request.id as string;
       const { id } = request.params;
 

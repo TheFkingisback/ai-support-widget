@@ -16,7 +16,7 @@ import type {
   GetUserLogsResponse,
   GetBusinessRulesResponse,
   UserEvent,
-} from '../../../../shared/types.js';
+} from '../../shared/types.js';
 import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
 import { buildClickTimeline } from './timeline.js';
 import {

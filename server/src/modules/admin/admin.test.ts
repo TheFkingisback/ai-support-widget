@@ -21,7 +21,7 @@ import {
 } from './audit.service.js';
 import { createAdminAuth } from './admin-auth.js';
 import type { FastifyInstance } from 'fastify';
-import type { Case, Message, SupportContextSnapshot } from '../../../../shared/types.js';
+import type { Case, Message, SupportContextSnapshot } from '../../shared/types.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';

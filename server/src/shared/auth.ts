@@ -2,7 +2,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import fastifyJwt from '@fastify/jwt';
 import { UnauthorizedError } from './errors.js';
 import { log } from './logger.js';
-import type { WidgetAuthPayload } from '../../../shared/types.js';
+import type { WidgetAuthPayload } from './types.js';
 
 declare module 'fastify' {
   interface FastifyInstance {

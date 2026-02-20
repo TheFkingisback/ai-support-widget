@@ -17,7 +17,7 @@ import type {
   GetUserHistoryResponse,
   GetUserLogsResponse,
   GetBusinessRulesResponse,
-} from '../../../../shared/types.js';
+} from '../../shared/types.js';
 
 function genId(prefix: string): string {
   return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;

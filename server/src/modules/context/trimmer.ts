@@ -53,7 +53,7 @@ export function trimToSize(
   let current: SupportContextSnapshot = JSON.parse(JSON.stringify(snapshot));
 
   // Remove _ranking metadata if present (from ranker)
-  const asRecord = current as Record<string, unknown>;
+  const asRecord = current as unknown as Record<string, unknown>;
   if ('_ranking' in asRecord) {
     delete asRecord['_ranking'];
   }

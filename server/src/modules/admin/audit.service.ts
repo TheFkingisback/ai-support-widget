@@ -1,5 +1,5 @@
 import { log } from '../../shared/logger.js';
-import type { PaginatedResponse, AuditEntry } from '../../../../shared/types.js';
+import type { PaginatedResponse, AuditEntry } from '../../shared/types.js';
 
 export type { AuditEntry };
 

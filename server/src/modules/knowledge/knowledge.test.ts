@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import type { SupportContextSnapshot, KnowledgeDoc } from '../../../../shared/types.js';
+import type { SupportContextSnapshot, KnowledgeDoc } from '../../shared/types.js';
 import { setLogLevel, setLogsDir } from '../../shared/logger.js';
 import { resetEnvCache } from '../../shared/env.js';
 import { clearEmbeddingCache, EMBEDDING_DIM } from './embeddings.js';

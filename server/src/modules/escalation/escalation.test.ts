@@ -8,7 +8,7 @@ import type { EscalationDeps, TicketRecord } from './escalation.service.js';
 import type { Connector, TicketPayload } from './connectors/connector.js';
 import type { GatewayService } from '../gateway/gateway.service.js';
 import type { SnapshotService } from '../snapshot/snapshot.service.js';
-import type { Case, Message, SupportContextSnapshot } from '../../../../shared/types.js';
+import type { Case, Message, SupportContextSnapshot } from '../../shared/types.js';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';

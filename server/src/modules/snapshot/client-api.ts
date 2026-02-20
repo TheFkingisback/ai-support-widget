@@ -6,7 +6,7 @@ import type {
   GetUserHistoryResponse,
   GetUserLogsResponse,
   GetBusinessRulesResponse,
-} from '../../../../shared/types.js';
+} from '../../shared/types.js';
 
 export class ClientApiError extends AppError {
   constructor(message: string, endpoint: string) {
