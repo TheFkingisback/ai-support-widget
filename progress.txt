@@ -183,3 +183,37 @@
   - Category priority sorting (runbook > doc > changelog > faq) applied after similarity ranking
   - KnowledgeService is optional in OrchestratorDeps — orchestrator gracefully degrades if KB search fails
   - chunkText uses chars-per-token approximation (4 chars = 1 token) for chunk sizing with overlap
+
+## Sprint 6 — Escalation Engine
+- Files created:
+  - server/src/modules/escalation/escalation.schema.ts (Drizzle schema: tickets table)
+  - server/src/modules/escalation/connectors/connector.ts (Connector interface + TicketPayload/TicketResult types)
+  - server/src/modules/escalation/connectors/zendesk.ts (Zendesk REST API connector)
+  - server/src/modules/escalation/connectors/jira.ts (Jira REST API connector)
+  - server/src/modules/escalation/connectors/email.ts (Email fallback connector)
+  - server/src/modules/escalation/ticket-builder.ts (buildTicket: assembles summary, description, tags, priority from case+messages+snapshot)
+  - server/src/modules/escalation/escalation.service.ts (EscalationService: orchestrates load→build→send→store→update)
+  - server/src/modules/escalation/escalation.test.ts (9 tests covering all spec requirements)
+- Files modified:
+  - server/src/app.ts (added EscalationService to AppDeps, passed to gateway routes)
+  - server/src/modules/gateway/gateway.routes.ts (added EscalationService import, escalate endpoint delegates to escalation service when available)
+- Tests: 80 passed, 80 total (9 test files)
+  - escalation.test.ts: 9 tests
+    1. buildTicket includes conversation summary
+    2. buildTicket includes evidence from messages
+    3. buildTicket includes click timeline from snapshot
+    4. Zendesk connector sends correct API call
+    5. Jira connector sends correct API call
+    6. Email connector sends email with ticket content
+    7. escalate selects correct connector for tenant
+    8. escalate updates case status to 'escalated'
+    9. escalate stores ticket record in DB
+- Learnings:
+  - Connector pattern: interface + factory function per provider, tenant config selects which connector to use
+  - Mock fetch (globalThis.fetch monkey-patch) works well for testing connectors; always restore in finally block
+  - TicketStore abstraction allows in-memory mock for tests — same DI pattern as other modules
+  - Ticket builder extracts evidence from all messages, click timeline from snapshot, priority from error class
+  - Priority mapping: infra → high, permission/business → normal, validation → low, default → normal
+  - Email connector uses injected sendFn for testability instead of real SMTP/SendGrid
+  - EscalationService follows same DI pattern: interface + factory, takes gatewayService + snapshotService + ticketStore + connectors as deps
+  - Gateway routes escalate endpoint: escalationService is optional; when present, delegates full ticket creation; fallback returns placeholder

@@ -4,6 +4,7 @@ import type { GatewayService } from './gateway.service.js';
 import type { RateLimiter } from './rate-limiter.js';
 import type { SnapshotService } from '../snapshot/snapshot.service.js';
 import type { OrchestratorService } from '../orchestrator/orchestrator.service.js';
+import type { EscalationService } from '../escalation/escalation.service.js';
 import { ValidationError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
 
@@ -28,13 +29,14 @@ interface RouteOpts {
   rateLimiter: RateLimiter;
   snapshotService?: SnapshotService;
   orchestratorService?: OrchestratorService;
+  escalationService?: EscalationService;
 }
 
 export async function registerGatewayRoutes(
   app: FastifyInstance,
   opts: RouteOpts,
 ): Promise<void> {
-  const { service, rateLimiter, snapshotService, orchestratorService } = opts;
+  const { service, rateLimiter, snapshotService, orchestratorService, escalationService } = opts;
 
   // POST /api/cases
   app.post(
@@ -200,6 +202,18 @@ export async function registerGatewayRoutes(
         );
       }
 
+      // If escalation service available, use it for full ticket creation
+      if (escalationService) {
+        const result = await escalationService.escalate(
+          caseId,
+          tenantId,
+          parsed.data.reason,
+          reqId,
+        );
+        return reply.code(200).send(result);
+      }
+
+      // Fallback: just update case status
       await service.escalateCase(
         caseId,
         tenantId,
