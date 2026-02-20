@@ -1,5 +1,5 @@
 import type {
-  Tenant, AnalyticsSummary, AuditEntry, Case, Message,
+  Tenant, AnalyticsSummary, AuditEntry, Case,
   CreateTenantInput, UpdateTenantInput,
 } from './types';
 
@@ -64,8 +64,4 @@ export async function getAuditLog(
   tenantId: string, page = 1, pageSize = 20,
 ): Promise<{ entries: AuditEntry[]; total: number; page: number; pageSize: number; hasMore: boolean }> {
   return request('GET', `/api/admin/tenants/${tenantId}/audit?page=${page}&pageSize=${pageSize}`);
-}
-
-export async function getCaseDetail(caseId: string): Promise<{ case: Case; messages: Message[] }> {
-  return request('GET', `/api/cases/${caseId}`);
 }

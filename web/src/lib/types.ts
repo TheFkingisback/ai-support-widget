@@ -41,13 +41,13 @@ export interface Message {
 }
 
 export interface SuggestedAction {
-  type: string;
+  type: 'retry' | 'open_docs' | 'create_ticket' | 'request_access' | 'custom';
   label: string;
   payload: Record<string, unknown>;
 }
 
 export interface Evidence {
-  type: string;
+  type: 'error_code' | 'job_id' | 'timestamp' | 'resource_id' | 'log_excerpt';
   label: string;
   value: string;
 }

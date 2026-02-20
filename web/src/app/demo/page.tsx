@@ -13,8 +13,9 @@ export default function DemoPage() {
       if (typeof win.AISupportWidget === 'object' && win.AISupportWidget !== null) {
         const widget = win.AISupportWidget as { init: (cfg: Record<string, unknown>) => { destroy?: () => void } };
         widgetRef.current = widget.init({
+          tenantKey: 'ten_demo',
           apiUrl: 'http://localhost:3000',
-          token: 'demo-jwt-token',
+          jwt: 'demo-jwt-token',
           theme: 'dark',
           position: 'bottom-right',
         });
@@ -44,7 +45,8 @@ export default function DemoPage() {
 <script>
   AISupportWidget.init({
     apiUrl: 'https://support-api.yourapp.com',
-    token: '<jwt-from-your-backend>',
+    tenantKey: '<your-tenant-key>',
+    jwt: '<jwt-from-your-backend>',
     theme: 'dark',
     position: 'bottom-right',
     onTokenRefresh: async () => {
