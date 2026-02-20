@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Analytics</h1>
         <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)}
-          className="rounded bg-gray-800 px-3 py-2 text-sm" data-testid="tenant-selector">
+          className="input-field w-auto" data-testid="tenant-selector">
           {tenants.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
@@ -60,8 +60,8 @@ export default function AnalyticsPage() {
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
-      <h3 className="mb-3 text-sm font-semibold text-gray-400 uppercase tracking-wide">{title}</h3>
+    <div className="card">
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">{title}</h3>
       {children}
     </div>
   );

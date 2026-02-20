@@ -37,7 +37,7 @@ export default function TenantsPage() {
         <h1 className="text-2xl font-bold">Tenants</h1>
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm font-medium hover:bg-blue-700"
+          className="btn-primary flex items-center gap-2"
         >
           <Plus size={16} /> Create Tenant
         </button>
@@ -48,7 +48,7 @@ export default function TenantsPage() {
       ) : (
         <table className="w-full text-sm" data-testid="tenants-table">
           <thead>
-            <tr className="border-b border-gray-800 text-left text-gray-400">
+            <tr className="table-header">
               <th className="pb-3 pr-4">Name</th>
               <th className="pb-3 pr-4">Plan</th>
               <th className="pb-3 pr-4">Connectors</th>
@@ -58,7 +58,7 @@ export default function TenantsPage() {
           </thead>
           <tbody>
             {tenants.map((t) => (
-              <tr key={t.id} className="border-b border-gray-800/50 hover:bg-gray-900/50">
+              <tr key={t.id} className="table-row">
                 <td className="py-3 pr-4">
                   <Link href={`/admin/tenants/${t.id}`} className="text-blue-400 hover:underline">
                     {t.name}

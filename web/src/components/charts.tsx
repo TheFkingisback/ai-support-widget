@@ -1,6 +1,13 @@
 'use client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
+const CHART_THEME = {
+  axis: '#6b7280',
+  tooltip: { background: '#1f2937', border: '#374151' },
+  fontSize: 12,
+  radius: 6,
+};
+
 interface IntentsProps {
   data: { intent: string; count: number }[];
 }
@@ -10,12 +17,16 @@ export function IntentsChart({ data }: IntentsProps) {
   if (items.length === 0) return <p className="text-sm text-gray-500">No data</p>;
 
   return (
-    <div data-testid="intents-chart" style={{ width: '100%', height: 250 }}>
+    <div data-testid="intents-chart" className="h-64 w-full">
       <ResponsiveContainer>
         <BarChart data={items} layout="vertical" margin={{ left: 60, right: 20, top: 5, bottom: 5 }}>
-          <XAxis type="number" stroke="#6b7280" fontSize={12} />
-          <YAxis type="category" dataKey="intent" stroke="#6b7280" fontSize={12} width={55} />
-          <Tooltip contentStyle={{ background: '#1f2937', border: '1px solid #374151', borderRadius: 6 }} />
+          <XAxis type="number" stroke={CHART_THEME.axis} fontSize={CHART_THEME.fontSize} />
+          <YAxis type="category" dataKey="intent" stroke={CHART_THEME.axis} fontSize={CHART_THEME.fontSize} width={55} />
+          <Tooltip contentStyle={{
+            background: CHART_THEME.tooltip.background,
+            border: `1px solid ${CHART_THEME.tooltip.border}`,
+            borderRadius: CHART_THEME.radius,
+          }} />
           <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>
@@ -32,12 +43,16 @@ export function ErrorsChart({ data }: ErrorsProps) {
   if (items.length === 0) return <p className="text-sm text-gray-500">No data</p>;
 
   return (
-    <div data-testid="errors-chart" style={{ width: '100%', height: 250 }}>
+    <div data-testid="errors-chart" className="h-64 w-full">
       <ResponsiveContainer>
         <BarChart data={items} layout="vertical" margin={{ left: 80, right: 20, top: 5, bottom: 5 }}>
-          <XAxis type="number" stroke="#6b7280" fontSize={12} />
-          <YAxis type="category" dataKey="errorCode" stroke="#6b7280" fontSize={12} width={75} />
-          <Tooltip contentStyle={{ background: '#1f2937', border: '1px solid #374151', borderRadius: 6 }} />
+          <XAxis type="number" stroke={CHART_THEME.axis} fontSize={CHART_THEME.fontSize} />
+          <YAxis type="category" dataKey="errorCode" stroke={CHART_THEME.axis} fontSize={CHART_THEME.fontSize} width={75} />
+          <Tooltip contentStyle={{
+            background: CHART_THEME.tooltip.background,
+            border: `1px solid ${CHART_THEME.tooltip.border}`,
+            borderRadius: CHART_THEME.radius,
+          }} />
           <Bar dataKey="count" fill="#ef4444" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>

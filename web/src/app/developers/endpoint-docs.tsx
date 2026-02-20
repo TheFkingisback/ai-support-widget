@@ -125,9 +125,9 @@ export function EndpointDocs() {
       </p>
       <div className="space-y-8">
         {endpoints.map((ep) => (
-          <div key={ep.path} className="rounded-lg border border-gray-800 bg-gray-900 p-5">
+          <div key={ep.path} className="card">
             <div className="mb-2 flex items-center gap-3">
-              <span className="rounded bg-green-700 px-2 py-0.5 text-xs font-bold">{ep.method}</span>
+              <span className="rounded-md bg-green-700 px-2 py-0.5 text-xs font-bold">{ep.method}</span>
               <code className="text-blue-400">{ep.path}</code>
             </div>
             <p className="mb-1 text-sm text-gray-400">Query params: {ep.params}</p>
@@ -136,7 +136,7 @@ export function EndpointDocs() {
               <summary className="cursor-pointer text-sm text-blue-400 hover:text-blue-300">
                 Example response
               </summary>
-              <pre className="mt-2 overflow-x-auto rounded bg-gray-950 p-3 text-xs text-gray-300">
+              <pre className="mt-2 overflow-x-auto rounded-lg bg-gray-950 p-3 font-mono text-xs text-gray-300">
                 {ep.response}
               </pre>
             </details>

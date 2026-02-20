@@ -23,13 +23,13 @@ export function WidgetIntegration() {
       <p className="mb-4 text-gray-400">
         Add the widget to any page with two script tags:
       </p>
-      <pre className="mb-6 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-green-400 border border-gray-800">
+      <pre className="mb-6 overflow-x-auto rounded-lg bg-gray-900 p-4 font-mono text-sm text-green-400 border border-gray-800">
         {widgetCode}
       </pre>
       <h3 className="mb-3 text-xl font-semibold">Configuration Options</h3>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-800 text-left text-gray-400">
+          <tr className="table-header">
             <th className="py-2 pr-4">Option</th>
             <th className="py-2 pr-4">Type</th>
             <th className="py-2">Description</th>
@@ -37,7 +37,7 @@ export function WidgetIntegration() {
         </thead>
         <tbody>
           {configOptions.map((opt) => (
-            <tr key={opt.name} className="border-b border-gray-800/50">
+            <tr key={opt.name} className="table-row">
               <td className="py-2 pr-4 font-mono text-blue-400">{opt.name}</td>
               <td className="py-2 pr-4 font-mono text-yellow-400">{opt.type}</td>
               <td className="py-2 text-gray-300">{opt.desc}</td>

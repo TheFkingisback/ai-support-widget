@@ -28,9 +28,9 @@ export function StatsGrid({ analytics }: Props) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="stats-grid">
       {stats.map((s) => (
-        <div key={s.label} className="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">{s.label}</p>
-          <p className="mt-1 text-2xl font-bold">{s.value}</p>
+        <div key={s.label} className="card">
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{s.label}</p>
+          <p className="mt-2 text-2xl font-bold">{s.value}</p>
         </div>
       ))}
     </div>

@@ -37,7 +37,7 @@ export default function AuditPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Audit Log</h1>
         <select value={selectedId} onChange={(e) => { setSelectedId(e.target.value); setPage(1); }}
-          className="rounded bg-gray-800 px-3 py-2 text-sm">
+          className="input-field w-auto">
           {tenants.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
@@ -48,7 +48,7 @@ export default function AuditPage() {
         <>
           <table className="w-full text-sm" data-testid="audit-table">
             <thead>
-              <tr className="border-b border-gray-800 text-left text-gray-400">
+              <tr className="table-header">
                 <th className="pb-3 pr-4">Timestamp</th>
                 <th className="pb-3 pr-4">User</th>
                 <th className="pb-3 pr-4">Action</th>
@@ -58,7 +58,7 @@ export default function AuditPage() {
             </thead>
             <tbody>
               {entries.map((e) => (
-                <tr key={e.id} className="border-b border-gray-800/50">
+                <tr key={e.id} className="table-row">
                   <td className="py-3 pr-4 text-gray-400">{new Date(e.createdAt).toLocaleString()}</td>
                   <td className="py-3 pr-4 text-gray-300">{e.userId}</td>
                   <td className="py-3 pr-4">
@@ -77,10 +77,10 @@ export default function AuditPage() {
             <span>Total: {total}</span>
             <div className="flex gap-2">
               <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                className="rounded bg-gray-800 px-3 py-1 disabled:opacity-50">Prev</button>
+                className="btn-secondary px-3 py-1">Prev</button>
               <span className="px-2 py-1">Page {page}</span>
               <button onClick={() => setPage((p) => p + 1)} disabled={!hasMore}
-                className="rounded bg-gray-800 px-3 py-1 disabled:opacity-50">Next</button>
+                className="btn-secondary px-3 py-1">Next</button>
             </div>
           </div>
         </>

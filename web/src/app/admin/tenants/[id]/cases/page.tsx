@@ -30,12 +30,12 @@ export default function CasesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center gap-4">
-        <Link href={`/admin/tenants/${tenantId}`} className="text-gray-400 hover:text-white">
+        <Link href={`/admin/tenants/${tenantId}`} className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
           <ArrowLeft size={20} />
         </Link>
         <h1 className="text-2xl font-bold">Cases</h1>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}
-          className="ml-auto rounded bg-gray-800 px-3 py-2 text-sm" data-testid="status-filter">
+          className="input-field ml-auto w-auto" data-testid="status-filter">
           <option value="all">All</option>
           <option value="active">Active</option>
           <option value="resolved">Resolved</option>
@@ -46,7 +46,7 @@ export default function CasesPage() {
       {loading ? <p className="text-gray-500">Loading...</p> : (
         <table className="w-full text-sm" data-testid="cases-table">
           <thead>
-            <tr className="border-b border-gray-800 text-left text-gray-400">
+            <tr className="table-header">
               <th className="pb-3 pr-4">Case ID</th>
               <th className="pb-3 pr-4">User</th>
               <th className="pb-3 pr-4">Status</th>
@@ -57,7 +57,7 @@ export default function CasesPage() {
           </thead>
           <tbody>
             {filtered.map((c) => (
-              <tr key={c.id} className="border-b border-gray-800/50 hover:bg-gray-900/50 cursor-pointer"
+              <tr key={c.id} className="table-row cursor-pointer"
                 onClick={() => setSelectedCase(c)}>
                 <td className="py-3 pr-4 text-blue-400">{c.id}</td>
                 <td className="py-3 pr-4 text-gray-400">{c.userId}</td>
@@ -86,11 +86,11 @@ export default function CasesPage() {
 
 function CaseDetail({ caseData, onClose }: { caseData: Case; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" data-testid="case-detail">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" data-testid="case-detail">
       <div className="w-full max-w-lg rounded-lg bg-gray-900 p-6 shadow-xl max-h-[80vh] overflow-auto">
         <div className="mb-4 flex justify-between items-center">
           <h2 className="font-semibold">Case {caseData.id}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-sm">Close</button>
+          <button onClick={onClose} className="btn-secondary px-3 py-1 text-sm">Close</button>
         </div>
         <dl className="space-y-2 text-sm">
           <Dt label="Status">{caseData.status}</Dt>

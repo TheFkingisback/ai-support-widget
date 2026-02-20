@@ -21,13 +21,13 @@ export function ErrorHandling() {
       <p className="mb-4 text-gray-400">
         All API errors return a consistent <code className="text-blue-400">ApiError</code> format:
       </p>
-      <pre className="mb-6 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-300 border border-gray-800">
+      <pre className="mb-6 overflow-x-auto rounded-lg bg-gray-900 p-4 font-mono text-sm text-gray-300 border border-gray-800">
         {errorExample}
       </pre>
       <h3 className="mb-3 text-xl font-semibold">Common Error Codes</h3>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-800 text-left text-gray-400">
+          <tr className="table-header">
             <th className="py-2 pr-4">Code</th>
             <th className="py-2 pr-4">Status</th>
             <th className="py-2">Description</th>
@@ -35,7 +35,7 @@ export function ErrorHandling() {
         </thead>
         <tbody>
           {errorCodes.map((e) => (
-            <tr key={e.code} className="border-b border-gray-800/50">
+            <tr key={e.code} className="table-row">
               <td className="py-2 pr-4 font-mono text-red-400">{e.code}</td>
               <td className="py-2 pr-4 text-yellow-400">{e.status}</td>
               <td className="py-2 text-gray-300">{e.desc}</td>

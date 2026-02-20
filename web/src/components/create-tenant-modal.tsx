@@ -41,20 +41,22 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" data-testid="create-tenant-modal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" data-testid="create-tenant-modal">
       <div className="w-full max-w-md rounded-lg bg-gray-900 p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">Create Tenant</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white"><X size={20} /></button>
+          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
+            <X size={20} />
+          </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <Field label="Name" error={errors.name}>
             <input value={name} onChange={(e) => setName(e.target.value)}
-              className="w-full rounded bg-gray-800 px-3 py-2 text-sm" placeholder="Acme Corp" />
+              className="input-field" placeholder="Acme Corp" />
           </Field>
           <Field label="Plan">
             <select value={plan} onChange={(e) => setPlan(e.target.value as CreateTenantInput['plan'])}
-              className="w-full rounded bg-gray-800 px-3 py-2 text-sm">
+              className="input-field">
               <option value="starter">Starter</option>
               <option value="pro">Pro</option>
               <option value="enterprise">Enterprise</option>
@@ -62,13 +64,13 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
           </Field>
           <Field label="API Base URL" error={errors.apiBaseUrl}>
             <input value={apiBaseUrl} onChange={(e) => setApiBaseUrl(e.target.value)}
-              className="w-full rounded bg-gray-800 px-3 py-2 text-sm" placeholder="https://api.acme.com" />
+              className="input-field" placeholder="https://api.acme.com" />
           </Field>
           <Field label="Service Token" error={errors.serviceToken}>
             <input value={serviceToken} onChange={(e) => setServiceToken(e.target.value)} type="password"
-              className="w-full rounded bg-gray-800 px-3 py-2 text-sm" placeholder="sk_live_..." />
+              className="input-field" placeholder="sk_live_..." />
           </Field>
-          <button type="submit" className="w-full rounded bg-blue-600 py-2 text-sm font-medium hover:bg-blue-700">
+          <button type="submit" className="btn-primary w-full">
             Create Tenant
           </button>
         </form>

@@ -59,7 +59,7 @@ export default function TenantDetailPage() {
   return (
     <div data-testid="tenant-detail">
       <div className="mb-6 flex items-center gap-4">
-        <Link href="/admin/tenants" className="text-gray-400 hover:text-white"><ArrowLeft size={20} /></Link>
+        <Link href="/admin/tenants" className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"><ArrowLeft size={20} /></Link>
         <h1 className="text-2xl font-bold">{tenant.name}</h1>
         <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs">{tenant.id}</span>
       </div>
@@ -68,11 +68,11 @@ export default function TenantDetailPage() {
         <Section title="General">
           <Field label="Name">
             <input value={name} onChange={(e) => setName(e.target.value)}
-              className="w-full rounded bg-gray-800 px-3 py-2 text-sm" />
+              className="input-field" />
           </Field>
           <Field label="Plan">
             <select value={plan} onChange={(e) => setPlan(e.target.value as Tenant['plan'])}
-              className="w-full rounded bg-gray-800 px-3 py-2 text-sm">
+              className="input-field">
               <option value="starter">Starter</option>
               <option value="pro">Pro</option>
               <option value="enterprise">Enterprise</option>
@@ -94,7 +94,7 @@ export default function TenantDetailPage() {
           <Field label="Model Policy">
             <select value={config.modelPolicy}
               onChange={(e) => setConfigField('modelPolicy', e.target.value as TenantConfig['modelPolicy'])}
-              className="w-full rounded bg-gray-800 px-3 py-2 text-sm">
+              className="input-field">
               <option value="fast">Fast</option>
               <option value="strong">Strong</option>
               <option value="auto">Auto</option>
@@ -106,10 +106,10 @@ export default function TenantDetailPage() {
           <div className="flex flex-wrap gap-2">
             {CONNECTORS.map((c) => (
               <button key={c} onClick={() => toggleConnector(c)}
-                className={`rounded-full px-3 py-1 text-sm ${
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
                   config.enabledConnectors.includes(c)
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-800 text-gray-400'
+                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}>
                 {c}
               </button>
@@ -125,7 +125,7 @@ export default function TenantDetailPage() {
 
       <div className="mt-6 flex items-center gap-4">
         <button onClick={handleSave} disabled={saving}
-          className="flex items-center gap-2 rounded bg-blue-600 px-6 py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+          className="btn-primary flex items-center gap-2 px-6">
           <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
         </button>
         {saved && <span className="text-sm text-green-400">Saved successfully</span>}
@@ -136,8 +136,8 @@ export default function TenantDetailPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-gray-800 bg-gray-900/50 p-4">
-      <h2 className="mb-3 text-sm font-semibold text-gray-400 uppercase tracking-wide">{title}</h2>
+    <div className="card">
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">{title}</h2>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -156,7 +156,7 @@ function NumField({ label, value, onChange }: { label: string; value: number; on
   return (
     <Field label={label}>
       <input type="number" value={value} onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full rounded bg-gray-800 px-3 py-2 text-sm" />
+        className="input-field" />
     </Field>
   );
 }

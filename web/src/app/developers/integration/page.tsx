@@ -57,10 +57,10 @@ export default function IntegrationGuidePage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <h1 className="text-2xl font-bold text-blue-400">Integration Guide</h1>
           <div className="flex gap-4 text-sm">
-            <Link href="/developers" className="text-gray-400 hover:text-white">
+            <Link href="/developers" className="text-gray-400 transition-colors hover:text-white">
               Developer Portal
             </Link>
-            <Link href="/" className="text-gray-400 hover:text-white">Home</Link>
+            <Link href="/" className="text-gray-400 transition-colors hover:text-white">Home</Link>
           </div>
         </div>
       </header>
@@ -83,9 +83,9 @@ export default function IntegrationGuidePage() {
                 </span>
                 <h2 className="text-xl font-semibold">{step.title}</h2>
               </div>
-              <pre className="whitespace-pre-wrap text-sm text-gray-300 font-sans">
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-300">
                 {step.content}
-              </pre>
+              </p>
             </div>
           ))}
         </div>

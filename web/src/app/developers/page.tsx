@@ -12,10 +12,10 @@ export default function DevelopersPage() {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <h1 className="text-2xl font-bold text-blue-400">Developer Portal</h1>
           <div className="flex gap-4 text-sm">
-            <Link href="/" className="text-gray-400 hover:text-white">Home</Link>
+            <Link href="/" className="text-gray-400 transition-colors hover:text-white">Home</Link>
             <Link
               href="/developers/integration"
-              className="rounded bg-blue-600 px-4 py-1.5 text-white hover:bg-blue-700"
+              className="btn-primary"
             >
               Integration Guide
             </Link>
@@ -23,7 +23,7 @@ export default function DevelopersPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-10 space-y-16">
+      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-16">
         <QuickStart />
         <WidgetIntegration />
         <EndpointDocs />
