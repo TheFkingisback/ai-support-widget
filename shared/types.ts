@@ -247,6 +247,17 @@ export interface AnalyticsSummary {
   csat: { positive: number; negative: number; total: number };
 }
 
+// === Audit ===
+export interface AuditEntry {
+  id: string;
+  tenantId: TenantId;
+  userId: UserId;
+  caseId: CaseId | null;
+  action: string;
+  details: Record<string, unknown>;
+  createdAt: string;
+}
+
 // === API Errors ===
 export interface ApiError {
   statusCode: number;

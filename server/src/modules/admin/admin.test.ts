@@ -393,7 +393,7 @@ describe('Admin Module', () => {
 
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
-    expect(body.data.length).toBe(2);
+    expect(body.entries.length).toBe(2);
     expect(body.total).toBe(5);
     expect(body.hasMore).toBe(true);
     expect(body.page).toBe(1);

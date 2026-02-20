@@ -248,7 +248,7 @@ export function createGatewayService(
       await db
         .update(cases)
         .set({ feedback, updatedAt: new Date() })
-        .where(eq(cases.id, caseId));
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
 
       await db.insert(auditLog).values({
         id: genId('aud'),
@@ -279,7 +279,7 @@ export function createGatewayService(
       await db
         .update(cases)
         .set({ status: 'escalated', updatedAt: new Date() })
-        .where(eq(cases.id, caseId));
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
 
       await db.insert(auditLog).values({
         id: genId('aud'),

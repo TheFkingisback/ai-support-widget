@@ -1,15 +1,7 @@
 import { log } from '../../shared/logger.js';
-import type { PaginatedResponse } from '../../../../shared/types.js';
+import type { PaginatedResponse, AuditEntry } from '../../../../shared/types.js';
 
-export interface AuditEntry {
-  id: string;
-  tenantId: string;
-  userId: string;
-  caseId: string | null;
-  action: string;
-  details: Record<string, unknown>;
-  createdAt: string;
-}
+export type { AuditEntry };
 
 export interface AuditStore {
   findByTenant(
