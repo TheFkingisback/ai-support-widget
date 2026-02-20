@@ -88,3 +88,35 @@
   - Mock HTTP servers in tests are more reliable than mocking fetch globally — tests actual HTTP behavior
   - SnapshotService follows same DI pattern as GatewayService: interface + factory + mock for tests
   - Snapshot generation wired to gateway with try/catch — failure doesn't block case creation
+
+## Sprint 3 — Context Processor
+- Files created:
+  - server/src/modules/context/sanitizer.ts (redactSecrets, maskPII, removeBinary, stripInternalUrls, validateSchema, sanitize pipeline)
+  - server/src/modules/context/ranker.ts (rankByRelevance with 4 priority tiers, recency sorting)
+  - server/src/modules/context/trimmer.ts (trimToSize with priority-based cutting, semantic compression)
+  - server/src/modules/context/context.service.ts (ContextService interface + createContextService factory: processContext pipeline)
+  - server/src/modules/context/context.test.ts (14 tests covering all spec requirements)
+- Files modified: none
+- Tests: 50 passed, 50 total (6 test files)
+  - context.test.ts: 14 tests
+    1. redactSecrets removes JWT tokens from data
+    2. redactSecrets removes connection strings
+    3. redactSecrets preserves allowed fields (IDs, timestamps, error codes)
+    4. maskPII masks email addresses consistently
+    5. maskPII preserves non-PII fields
+    6. removeBinary strips base64 content
+    7. stripInternalUrls removes internal endpoints
+    8. validateSchema rejects malformed snapshot
+    9. rankByRelevance puts active errors in priority 1
+    10. trimToSize reduces snapshot to under maxBytes
+    11. trimToSize removes knowledge pack items before events (priority order)
+    12. trimToSize records truncation counters accurately
+    13. Full pipeline: sanitize → rank → trim produces valid output
+    14. Sanitization audit records all changes
+- Learnings:
+  - Deep recursion for sanitization must traverse ALL values including safe fields — safe fields protect key names, not nested content
+  - API key regex needs [A-Za-z0-9_-] (with underscore/dash) to catch patterns like sk_live_xxx
+  - RegExp with /g flag needs lastIndex reset or new RegExp() for each test() call to avoid skipping matches
+  - Buffer.byteLength(JSON.stringify(obj), 'utf-8') is the correct way to measure JSON byte size for context budgets
+  - Priority-based trimming: remove lowest priority items first (P4→P3→P2), never touch P1 (identity, active errors)
+  - Semantic compression (truncate long text to 200 chars + "...") reduces size before removing entire items
