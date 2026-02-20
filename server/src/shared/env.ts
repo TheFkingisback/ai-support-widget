@@ -37,7 +37,7 @@ export function getEnvSafe(): Env {
       REDIS_URL: process.env.REDIS_URL ?? '',
       JWT_SECRET: jwtSecret,
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ?? '',
-      LOG_LEVEL: (process.env.LOG_LEVEL as LogLevel) ?? 'medium',
+      LOG_LEVEL: LogLevel.catch('medium').parse(process.env.LOG_LEVEL),
       PORT: Number(process.env.PORT) || 3000,
       MAX_CONTEXT_BYTES: Number(process.env.MAX_CONTEXT_BYTES) || 5_000_000,
       CORS_ORIGINS: process.env.CORS_ORIGINS,

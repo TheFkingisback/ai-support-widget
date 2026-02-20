@@ -1,6 +1,5 @@
 import { log } from '../../shared/logger.js';
-import type { AnalyticsSummary, Case, Message } from '../../../../shared/types.js';
-import type { SupportContextSnapshot } from '../../../../shared/types.js';
+import type { AnalyticsSummary, Case, Message, SupportContextSnapshot } from '../../../../shared/types.js';
 
 export interface AnalyticsDataSource {
   getCasesByTenant(tenantId: string): Promise<Case[]>;
@@ -12,9 +11,20 @@ export interface AnalyticsService {
   getAnalytics(tenantId: string, requestId?: string): Promise<AnalyticsSummary>;
 }
 
+function topCountsFromMap<K extends string>(
+  counts: Map<string, number>,
+  keyName: K,
+  limit = 10,
+): Record<K, string> & { count: number }[] {
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([key, count]) => ({ [keyName]: key, count }) as Record<K, string> & { count: number });
+}
+
 function extractIntents(messages: Message[]): { intent: string; count: number }[] {
   const counts = new Map<string, number>();
-  const userMsgs = messages.filter((m) => m.role === 'user');
+  const userMsgs = messages.filter((msg) => msg.role === 'user');
 
   for (const msg of userMsgs) {
     const words = msg.content.toLowerCase().split(/\s+/);
@@ -25,10 +35,7 @@ function extractIntents(messages: Message[]): { intent: string; count: number }[
     }
   }
 
-  return Array.from(counts.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([intent, count]) => ({ intent, count }));
+  return topCountsFromMap(counts, 'intent');
 }
 
 function extractTopErrors(
@@ -41,10 +48,7 @@ function extractTopErrors(
     }
   }
 
-  return Array.from(counts.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([errorCode, count]) => ({ errorCode, count }));
+  return topCountsFromMap(counts, 'errorCode');
 }
 
 export function createAnalyticsService(
@@ -77,19 +81,19 @@ export function createAnalyticsService(
       // Approximate time to first response: diff between case creation and first assistant msg
       const firstResponseTimes: number[] = [];
       const resolutionTimes: number[] = [];
-      for (const c of resolved) {
+      for (const resolvedCase of resolved) {
         const caseMsgs = messages
-          .filter((m) => m.caseId === c.id)
+          .filter((m) => m.caseId === resolvedCase.id)
           .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         const firstAssistant = caseMsgs.find((m) => m.role === 'assistant');
         if (firstAssistant) {
           const diff = new Date(firstAssistant.createdAt).getTime() -
-            new Date(c.createdAt).getTime();
+            new Date(resolvedCase.createdAt).getTime();
           firstResponseTimes.push(diff);
         }
-        if (c.resolvedAt) {
+        if (resolvedCase.resolvedAt) {
           resolutionTimes.push(
-            new Date(c.resolvedAt).getTime() - new Date(c.createdAt).getTime(),
+            new Date(resolvedCase.resolvedAt).getTime() - new Date(resolvedCase.createdAt).getTime(),
           );
         }
       }

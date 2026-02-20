@@ -18,6 +18,19 @@ function compressText(text: string, maxChars = 200): string {
   return text.slice(0, maxChars) + '...';
 }
 
+function popUntilFits(
+  arr: unknown[],
+  current: unknown,
+  maxBytes: number,
+): number {
+  let removed = 0;
+  while (byteSize(current) > maxBytes && arr.length > 0) {
+    arr.pop();
+    removed++;
+  }
+  return removed;
+}
+
 export function trimToSize(
   snapshot: SupportContextSnapshot,
   maxBytes: number,
@@ -58,54 +71,20 @@ export function trimToSize(
     }
   }
 
-  // Remove changelog entries (oldest first = end of array)
-  while (byteSize(current) > maxBytes && current.knowledgePack.changelog.length > 0) {
-    current.knowledgePack.changelog.pop();
-    docsRemoved++;
-  }
+  // Priority 3: Remove knowledge pack entries (oldest first = end of array)
+  docsRemoved += popUntilFits(current.knowledgePack.changelog, current, maxBytes);
+  docsRemoved += popUntilFits(current.knowledgePack.runbooks, current, maxBytes);
+  docsRemoved += popUntilFits(current.knowledgePack.docs, current, maxBytes);
 
-  // Remove runbooks (oldest first = end of array)
-  while (byteSize(current) > maxBytes && current.knowledgePack.runbooks.length > 0) {
-    current.knowledgePack.runbooks.pop();
-    docsRemoved++;
-  }
+  // Priority 2: Cut recentActivity and backend (oldest first)
+  eventsRemoved += popUntilFits(current.recentActivity.clickTimeline, current, maxBytes);
+  eventsRemoved += popUntilFits(current.recentActivity.events, current, maxBytes);
 
-  // Remove docs (oldest first = end of array)
-  while (byteSize(current) > maxBytes && current.knowledgePack.docs.length > 0) {
-    current.knowledgePack.docs.pop();
-    docsRemoved++;
-  }
-
-  // Priority 2: Cut recentActivity and backend — oldest items first (end of sorted arrays)
-  // Remove click timeline entries (oldest first)
-  while (byteSize(current) > maxBytes && current.recentActivity.clickTimeline.length > 0) {
-    current.recentActivity.clickTimeline.pop();
-    eventsRemoved++;
-  }
-
-  // Remove events (oldest first)
-  while (byteSize(current) > maxBytes && current.recentActivity.events.length > 0) {
-    current.recentActivity.events.pop();
-    eventsRemoved++;
-  }
-
-  // Trim backend recent requests (oldest first)
-  while (byteSize(current) > maxBytes && current.backend.recentRequests.length > 0) {
-    current.backend.recentRequests.pop();
-    logsTrimmed = true;
-  }
-
-  // Trim backend jobs (oldest first)
-  while (byteSize(current) > maxBytes && current.backend.jobs.length > 0) {
-    current.backend.jobs.pop();
-    logsTrimmed = true;
-  }
-
-  // Trim backend errors (oldest first)
-  while (byteSize(current) > maxBytes && current.backend.errors.length > 0) {
-    current.backend.errors.pop();
-    logsTrimmed = true;
-  }
+  // Trim backend logs (oldest first)
+  const requestsTrimmed = popUntilFits(current.backend.recentRequests, current, maxBytes);
+  const jobsTrimmed = popUntilFits(current.backend.jobs, current, maxBytes);
+  const errorsTrimmed = popUntilFits(current.backend.errors, current, maxBytes);
+  logsTrimmed = requestsTrimmed + jobsTrimmed + errorsTrimmed > 0;
 
   // Update meta truncation
   current = {

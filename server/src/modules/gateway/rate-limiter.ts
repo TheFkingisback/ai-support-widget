@@ -2,7 +2,7 @@ import { RateLimitError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
 
 export interface RateLimiter {
-  check(key: string, limit: number, windowMs: number): Promise<void>;
+  check(key: string, limit: number, windowMs: number, requestId?: string): Promise<void>;
   reset(): void;
 }
 
@@ -14,7 +14,7 @@ export function createInMemoryRateLimiter(): RateLimiter {
   const buckets = new Map<string, { count: number; resetAt: number }>();
 
   return {
-    async check(key, limit, windowMs) {
+    async check(key, limit, windowMs, requestId) {
       const now = Date.now();
       const bucket = buckets.get(key);
 
@@ -26,7 +26,7 @@ export function createInMemoryRateLimiter(): RateLimiter {
       bucket.count += 1;
 
       if (bucket.count > limit) {
-        log.warn('Rate limit exceeded', undefined, { key, limit, windowMs });
+        log.warn('Rate limit exceeded', requestId, { key, limit, windowMs });
         throw new RateLimitError(
           `Rate limit exceeded: ${limit} requests per ${windowMs / 1000}s`,
         );

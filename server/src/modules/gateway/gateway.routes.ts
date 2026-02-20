@@ -43,7 +43,7 @@ export async function registerGatewayRoutes(
       const reqId = request.id as string;
       const { tenantId, userId } = request.authPayload;
 
-      await rateLimiter.check(`create:${tenantId}:${userId}`, 10, 60_000);
+      await rateLimiter.check(`create:${tenantId}:${userId}`, 10, 60_000, reqId);
 
       const parsed = createCaseBody.safeParse(request.body);
       if (!parsed.success) {
@@ -108,7 +108,7 @@ export async function registerGatewayRoutes(
       const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
 
-      await rateLimiter.check(`msg:${tenantId}:${userId}`, 30, 60_000);
+      await rateLimiter.check(`msg:${tenantId}:${userId}`, 30, 60_000, reqId);
 
       const parsed = addMessageBody.safeParse(request.body);
       if (!parsed.success) {
