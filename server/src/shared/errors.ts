@@ -1,5 +1,3 @@
-import { log } from './logger.js';
-
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly errorCode: string;
@@ -19,11 +17,6 @@ export class AppError extends Error {
     this.errorCode = errorCode;
     this.errorClass = errorClass;
     this.field = field;
-    log.error(`${errorCode}: ${message}`, undefined, {
-      statusCode,
-      errorClass,
-      ...(field && { field }),
-    });
   }
 }
 

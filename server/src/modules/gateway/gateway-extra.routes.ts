@@ -3,8 +3,8 @@ import { z } from 'zod';
 import type { GatewayService } from './gateway.service.js';
 import type { OrchestratorService } from '../orchestrator/orchestrator.service.js';
 import type { EscalationService } from '../escalation/escalation.service.js';
-import { ValidationError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
+import { validateBody } from '../../shared/validation.js';
 
 const escalateBody = z.object({
   reason: z.string().max(2000).optional(),
@@ -39,22 +39,16 @@ export async function registerExtraGatewayRoutes(
       const { tenantId } = request.authPayload;
       const { caseId } = request.params;
 
-      const parsed = escalateBody.safeParse(request.body);
-      if (!parsed.success) {
-        throw new ValidationError(
-          parsed.error.issues[0].message,
-          parsed.error.issues[0].path[0] as string,
-        );
-      }
+      const data = validateBody(escalateBody, request.body);
 
       if (escalationService) {
         const result = await escalationService.escalate(
-          caseId, tenantId, parsed.data.reason, reqId,
+          caseId, tenantId, data.reason, reqId,
         );
         return reply.code(200).send(result);
       }
 
-      await service.escalateCase(caseId, tenantId, parsed.data.reason, reqId);
+      await service.escalateCase(caseId, tenantId, data.reason, reqId);
       return reply.code(200).send({
         ticketId: 'tkt_placeholder',
         ticketUrl: 'https://tickets.example.com/placeholder',
@@ -71,17 +65,11 @@ export async function registerExtraGatewayRoutes(
       const { tenantId } = request.authPayload;
       const { caseId } = request.params;
 
-      const parsed = actionBody.safeParse(request.body);
-      if (!parsed.success) {
-        throw new ValidationError(
-          parsed.error.issues[0].message,
-          parsed.error.issues[0].path[0] as string,
-        );
-      }
+      const actionData = validateBody(actionBody, request.body);
 
       if (orchestratorService) {
         const result = await orchestratorService.handleAction(
-          caseId, tenantId, parsed.data.action, reqId,
+          caseId, tenantId, actionData.action, reqId,
         );
         return reply.code(200).send({ result });
       }
@@ -89,10 +77,10 @@ export async function registerExtraGatewayRoutes(
       await service.getCase(caseId, tenantId, reqId);
       log.info('Action received (no orchestrator)', reqId, {
         caseId,
-        actionType: parsed.data.action.type,
+        actionType: actionData.action.type,
       });
       return reply.code(200).send({
-        result: `Action "${parsed.data.action.label}" acknowledged.`,
+        result: `Action "${actionData.action.label}" acknowledged.`,
       });
     },
   );

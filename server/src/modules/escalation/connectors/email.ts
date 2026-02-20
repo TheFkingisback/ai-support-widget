@@ -27,7 +27,14 @@ export function createEmailConnector(config: EmailConfig): Connector {
         payload.description,
       ].join('\n');
 
-      await config.sendFn(config.recipientEmail, subject, body);
+      try {
+        await config.sendFn(config.recipientEmail, subject, body);
+      } catch (err) {
+        log.error('Email: send failed', requestId, {
+          error: err instanceof Error ? err.message : String(err),
+        });
+        throw new Error(`Email send failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
 
       const externalId = `email_${payload.caseId}`;
       const externalUrl = `mailto:${config.recipientEmail}`;

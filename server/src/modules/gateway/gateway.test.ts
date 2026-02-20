@@ -91,9 +91,14 @@ function createMockGatewayService(): GatewayService & {
       return { case: newCase, message: msg };
     },
 
-    async addMessage(caseId, role, content, opts) {
+    async addMessage(caseId, tenantId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
+      if (c.tenantId !== tenantId) {
+        throw new ForbiddenError(
+          `Tenant ${tenantId} cannot access case ${caseId}`,
+        );
+      }
 
       const msgId = genId('msg');
       const now = new Date().toISOString();

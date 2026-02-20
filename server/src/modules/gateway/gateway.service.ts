@@ -1,4 +1,4 @@
-import { eq, asc } from 'drizzle-orm';
+import { eq, and, asc } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { cases, messages } from './gateway.schema.js';
 import { NotFoundError } from '../../shared/errors.js';
@@ -34,6 +34,7 @@ export interface GatewayService {
 
   addMessage(
     caseId: string,
+    tenantId: string,
     role: Message['role'],
     content: string,
     opts?: {
@@ -109,12 +110,10 @@ export function createGatewayService(
       return { case: toCase(caseRow[0]), message: toMessage(msgRow[0]) };
     },
 
-    async addMessage(caseId, role, content, opts, requestId) {
-      log.info('Adding message', requestId, { caseId, role });
+    async addMessage(caseId, tenantId, role, content, opts, requestId) {
+      log.info('Adding message', requestId, { caseId, tenantId, role });
 
-      const caseRows = await db.select().from(cases)
-        .where(eq(cases.id, caseId)).limit(1);
-      if (caseRows.length === 0) throw new NotFoundError('Case', caseId);
+      const caseRow = await findCaseWithTenant(db, caseId, tenantId);
 
       const msgId = genId('msg');
       const now = new Date();
@@ -126,8 +125,8 @@ export function createGatewayService(
       });
 
       await db.update(cases).set({
-        messageCount: caseRows[0].messageCount + 1, updatedAt: now,
-      }).where(eq(cases.id, caseId));
+        messageCount: caseRow.messageCount + 1, updatedAt: now,
+      }).where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
 
       log.info('Message added', requestId, { caseId, msgId, role });
 
@@ -153,7 +152,7 @@ export function createGatewayService(
       const caseRow = await findCaseWithTenant(db, caseId, tenantId);
 
       await db.update(cases).set({ feedback, updatedAt: new Date() })
-        .where(eq(cases.id, caseId));
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
 
       await insertAudit(db, tenantId, caseRow.userId, caseId,
         'feedback_added', { feedback }, requestId);
@@ -165,7 +164,7 @@ export function createGatewayService(
       const caseRow = await findCaseWithTenant(db, caseId, tenantId);
 
       await db.update(cases).set({ status: 'escalated', updatedAt: new Date() })
-        .where(eq(cases.id, caseId));
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
 
       await insertAudit(db, tenantId, caseRow.userId, caseId,
         'case_escalated', { reason: reason ?? 'No reason provided' }, requestId);

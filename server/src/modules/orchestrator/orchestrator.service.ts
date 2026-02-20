@@ -58,7 +58,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       const { case: caseData, messages } = await gatewayService.getCase(caseId, tenantId, requestId);
 
       // 2. Store user message
-      await gatewayService.addMessage(caseId, 'user', userContent, undefined, requestId);
+      await gatewayService.addMessage(caseId, tenantId, 'user', userContent, undefined, requestId);
 
       // 3. Load snapshot
       let snapshot: SupportContextSnapshot | null = null;
@@ -139,6 +139,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       // 9. Store assistant message
       const assistantMessage = await gatewayService.addMessage(
         caseId,
+        tenantId,
         'assistant',
         parsed.content,
         {
@@ -161,10 +162,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
     },
 
     async handleAction(caseId, tenantId, action, requestId) {
-      log.info('handleAction: start', requestId, {
-        caseId,
-        actionType: action.type,
-      });
+      log.info('handleAction: start', requestId, { caseId, actionType: action.type });
 
       // Verify tenant access
       await gatewayService.getCase(caseId, tenantId, requestId);
@@ -188,11 +186,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
           result = `Action "${action.label}" acknowledged.`;
       }
 
-      log.info('handleAction: complete', requestId, {
-        caseId,
-        actionType: action.type,
-        result,
-      });
+      log.info('handleAction: complete', requestId, { caseId, actionType: action.type, result });
 
       return result;
     },

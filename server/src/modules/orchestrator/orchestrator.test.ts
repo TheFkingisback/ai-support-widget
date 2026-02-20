@@ -268,9 +268,12 @@ function createMockGatewayService(): GatewayService & {
       return { case: newCase, message: msg };
     },
 
-    async addMessage(caseId, role, content, opts) {
+    async addMessage(caseId, tenantId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
+      if (c.tenantId !== tenantId) {
+        throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
+      }
       const msg: Message = {
         id: genId('msg'),
         caseId,
@@ -750,9 +753,9 @@ describe('Orchestrator service', () => {
       snapshotService._snapshots.set(caseData.snapshotId, { tenantId: 'ten_abc', data: snapshot });
 
       // Add some previous messages
-      await gatewayService.addMessage(caseData.id, 'assistant', 'I see your issue.');
-      await gatewayService.addMessage(caseData.id, 'user', 'Can you help?');
-      await gatewayService.addMessage(caseData.id, 'assistant', 'Yes, checking now.');
+      await gatewayService.addMessage(caseData.id, 'ten_abc', 'assistant', 'I see your issue.');
+      await gatewayService.addMessage(caseData.id, 'ten_abc', 'user', 'Can you help?');
+      await gatewayService.addMessage(caseData.id, 'ten_abc', 'assistant', 'Yes, checking now.');
 
       // Now send via orchestrator
       await orchestrator.handleMessage(

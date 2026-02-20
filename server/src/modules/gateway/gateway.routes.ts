@@ -5,8 +5,8 @@ import type { RateLimiter } from './rate-limiter.js';
 import type { SnapshotService } from '../snapshot/snapshot.service.js';
 import type { OrchestratorService } from '../orchestrator/orchestrator.service.js';
 import type { EscalationService } from '../escalation/escalation.service.js';
-import { ValidationError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
+import { validateBody } from '../../shared/validation.js';
 import { registerExtraGatewayRoutes } from './gateway-extra.routes.js';
 
 const createCaseBody = z.object({
@@ -45,15 +45,8 @@ export async function registerGatewayRoutes(
 
       await rateLimiter.check(`create:${tenantId}:${userId}`, 10, 60_000, reqId);
 
-      const parsed = createCaseBody.safeParse(request.body);
-      if (!parsed.success) {
-        throw new ValidationError(
-          parsed.error.issues[0].message,
-          parsed.error.issues[0].path[0] as string,
-        );
-      }
-
-      const result = await service.createCase(tenantId, userId, parsed.data.message, reqId);
+      const data = validateBody(createCaseBody, request.body);
+      const result = await service.createCase(tenantId, userId, data.message, reqId);
 
       if (snapshotService) {
         try {
@@ -104,24 +97,18 @@ export async function registerGatewayRoutes(
 
       await rateLimiter.check(`msg:${tenantId}:${userId}`, 30, 60_000, reqId);
 
-      const parsed = addMessageBody.safeParse(request.body);
-      if (!parsed.success) {
-        throw new ValidationError(
-          parsed.error.issues[0].message,
-          parsed.error.issues[0].path[0] as string,
-        );
-      }
+      const msgData = validateBody(addMessageBody, request.body);
 
       if (orchestratorService) {
         const aiMessage = await orchestratorService.handleMessage(
-          caseId, tenantId, parsed.data.content, reqId,
+          caseId, tenantId, msgData.content, reqId,
         );
         return reply.code(200).send({ message: aiMessage });
       }
 
       await service.getCase(caseId, tenantId, reqId);
       const message = await service.addMessage(
-        caseId, 'user', parsed.data.content, undefined, reqId,
+        caseId, tenantId, 'user', msgData.content, undefined, reqId,
       );
       return reply.code(200).send({ message });
     },
@@ -136,15 +123,8 @@ export async function registerGatewayRoutes(
       const { tenantId } = request.authPayload;
       const { caseId } = request.params;
 
-      const parsed = feedbackBody.safeParse(request.body);
-      if (!parsed.success) {
-        throw new ValidationError(
-          parsed.error.issues[0].message,
-          parsed.error.issues[0].path[0] as string,
-        );
-      }
-
-      await service.addFeedback(caseId, tenantId, parsed.data.feedback, reqId);
+      const fbData = validateBody(feedbackBody, request.body);
+      await service.addFeedback(caseId, tenantId, fbData.feedback, reqId);
       return reply.code(200).send({ ok: true });
     },
   );

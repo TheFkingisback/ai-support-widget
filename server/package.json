@@ -12,6 +12,7 @@
   "dependencies": {
     "fastify": "^5.2.1",
     "@fastify/cors": "^10.0.2",
+    "@fastify/helmet": "^13.0.0",
     "@fastify/jwt": "^9.0.2",
     "drizzle-orm": "^0.38.4",
     "postgres": "^3.4.5",

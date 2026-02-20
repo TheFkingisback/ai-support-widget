@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { ValidationError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
+import { validateBody } from '../../shared/validation.js';
 import type { TenantService } from './tenant.service.js';
 import type { AnalyticsService } from './analytics.service.js';
 import type { AuditService } from './audit.service.js';
@@ -58,15 +58,7 @@ export async function registerAdminRoutes(
     { preHandler: [adminAuth] },
     async (request: FastifyRequest, reply: FastifyReply) => {
       const reqId = request.id as string;
-      const parsed = createTenantBody.safeParse(request.body);
-      if (!parsed.success) {
-        throw new ValidationError(
-          parsed.error.issues[0].message,
-          parsed.error.issues[0].path[0] as string,
-        );
-      }
-
-      const { name, plan, config, apiBaseUrl, serviceToken } = parsed.data;
+      const { name, plan, config, apiBaseUrl, serviceToken } = validateBody(createTenantBody, request.body);
       const tenant = await tenantService.createTenant(
         name, plan, config as Record<string, unknown> | undefined,
         apiBaseUrl, serviceToken, reqId,
@@ -84,15 +76,8 @@ export async function registerAdminRoutes(
       const reqId = request.id as string;
       const { id } = request.params;
 
-      const parsed = updateTenantBody.safeParse(request.body);
-      if (!parsed.success) {
-        throw new ValidationError(
-          parsed.error.issues[0].message,
-          parsed.error.issues[0].path[0] as string,
-        );
-      }
-
-      const tenant = await tenantService.updateTenant(id, parsed.data, reqId);
+      const updates = validateBody(updateTenantBody, request.body);
+      const tenant = await tenantService.updateTenant(id, updates, reqId);
       return reply.code(200).send({ tenant });
     },
   );
@@ -130,13 +115,9 @@ export async function registerAdminRoutes(
       const reqId = request.id as string;
       const { id } = request.params;
 
-      const parsed = paginationQuery.safeParse(request.query);
-      if (!parsed.success) {
-        throw new ValidationError(parsed.error.issues[0].message);
-      }
-
+      const pagination = validateBody(paginationQuery, request.query);
       const result = await auditService.getAuditLog(
-        id, parsed.data.page, parsed.data.pageSize, reqId,
+        id, pagination.page, pagination.pageSize, reqId,
       );
       return reply.code(200).send({
         entries: result.data,

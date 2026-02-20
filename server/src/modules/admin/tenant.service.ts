@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { log } from '../../shared/logger.js';
 import { NotFoundError, ValidationError } from '../../shared/errors.js';
+import { getEnvSafe } from '../../shared/env.js';
 import type { Tenant, TenantConfig } from '../../shared/types.js';
 
 function genId(prefix: string): string {
@@ -42,7 +43,14 @@ const IV_LEN = 12;
 const TAG_LEN = 16;
 
 function deriveKey(): Buffer {
-  const secret = process.env.TOKEN_ENCRYPTION_KEY ?? process.env.JWT_SECRET ?? '';
+  const env = getEnvSafe();
+  const secret = env.TOKEN_ENCRYPTION_KEY ?? env.JWT_SECRET;
+  if (!env.TOKEN_ENCRYPTION_KEY && env.JWT_SECRET) {
+    log.warn('TOKEN_ENCRYPTION_KEY not set — falling back to JWT_SECRET. Set TOKEN_ENCRYPTION_KEY in production.');
+  }
+  if (!secret) {
+    throw new Error('Neither TOKEN_ENCRYPTION_KEY nor JWT_SECRET is set — cannot encrypt tokens');
+  }
   return crypto.createHash('sha256').update(secret).digest();
 }
 

@@ -12,6 +12,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   MAX_CONTEXT_BYTES: z.coerce.number().int().positive().default(5_000_000),
   CORS_ORIGINS: z.string().optional(),
+  JWT_MAX_AGE: z.string().optional(),
+  TOKEN_ENCRYPTION_KEY: z.string().optional(),
+  LOG_MAX_FILE_SIZE: z.coerce.number().int().positive().default(10_485_760),
+  LOG_MAX_FILES: z.coerce.number().int().positive().default(5),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -41,6 +45,10 @@ export function getEnvSafe(): Env {
       PORT: Number(process.env.PORT) || 3000,
       MAX_CONTEXT_BYTES: Number(process.env.MAX_CONTEXT_BYTES) || 5_000_000,
       CORS_ORIGINS: process.env.CORS_ORIGINS,
+      JWT_MAX_AGE: process.env.JWT_MAX_AGE,
+      TOKEN_ENCRYPTION_KEY: process.env.TOKEN_ENCRYPTION_KEY,
+      LOG_MAX_FILE_SIZE: Number(process.env.LOG_MAX_FILE_SIZE) || 10_485_760,
+      LOG_MAX_FILES: Number(process.env.LOG_MAX_FILES) || 5,
     };
   }
 }

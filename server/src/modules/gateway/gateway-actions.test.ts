@@ -42,9 +42,10 @@ function createMockGatewayService(): GatewayService & { _cases: Case[] } {
       _messages.push(msg);
       return { case: c, message: msg };
     },
-    async addMessage(caseId, role, content, opts) {
+    async addMessage(caseId, tenantId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
+      if (c.tenantId !== tenantId) throw new ForbiddenError('Tenant isolation');
       const msg: Message = {
         id: genId('msg'), caseId, role, content,
         actions: opts?.actions ?? [], evidence: opts?.evidence ?? [],

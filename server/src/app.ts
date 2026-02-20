@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance, type FastifyRequest, type FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
+import helmet from '@fastify/helmet';
 import crypto from 'node:crypto';
 import { registerAuth } from './shared/auth.js';
 import { AppError } from './shared/errors.js';
@@ -29,7 +30,18 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
 
   const app = Fastify({
     logger: false,
+    bodyLimit: 1_048_576,
     genReqId: () => `req_${crypto.randomUUID().replace(/-/g, '').slice(0, 12)}`,
+  });
+
+  await app.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"],
+      },
+    },
   });
 
   const allowedOrigins = env.CORS_ORIGINS
@@ -41,7 +53,8 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   await app.register(cors, { origin: allowedOrigins });
 
   const jwtSecret = opts?.jwtSecret ?? env.JWT_SECRET;
-  await registerAuth(app, jwtSecret);
+  const jwtMaxAge = env.JWT_MAX_AGE ?? '8h';
+  await registerAuth(app, { secret: jwtSecret, maxAge: jwtMaxAge });
 
   // Request logging
   app.addHook('onRequest', async (request: FastifyRequest) => {

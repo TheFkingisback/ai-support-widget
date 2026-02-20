@@ -31,54 +31,37 @@ describe('Full Flow Integration', () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fullflow-test-'));
     setLogsDir(tmpDir);
     setLogLevel('low');
-
     process.env.JWT_SECRET = JWT_SECRET;
     process.env.DATABASE_URL = 'postgres://fake:fake@localhost:5432/fake';
     process.env.REDIS_URL = 'redis://localhost:6379';
     process.env.OPENROUTER_API_KEY = 'sk-fake-test';
     resetEnvCache();
 
-    // Start mock LLM server
     mockLLM = createMockOpenRouterServer();
     llmUrl = await mockLLM.start();
-
-    // Monkey-patch fetch to redirect OpenRouter calls to mock
     originalFetch = globalThis.fetch;
     globalThis.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === 'string' ? input : input.toString();
       if (url.includes('openrouter.ai')) {
-        const mockUrl = url.replace(/https?:\/\/openrouter\.ai/, llmUrl);
-        return originalFetch(mockUrl, init);
+        return originalFetch(url.replace(/https?:\/\/openrouter\.ai/, llmUrl), init);
       }
       return originalFetch(input, init);
     };
 
     gateway = createMockGatewayService();
     snapshotSvc = createMockSnapshotService(gateway._cases);
-    const contextSvc = createContextService();
-
     const orchestrator = createOrchestratorService({
-      gatewayService: gateway,
-      snapshotService: snapshotSvc,
-      contextService: contextSvc,
-      apiKey: 'sk-fake-test',
-      modelPolicy: 'fast',
+      gatewayService: gateway, snapshotService: snapshotSvc,
+      contextService: createContextService(), apiKey: 'sk-fake-test', modelPolicy: 'fast',
     });
-
     app = await buildApp({
-      jwtSecret: JWT_SECRET,
-      gatewayService: gateway,
-      rateLimiter: createInMemoryRateLimiter(),
-      snapshotService: snapshotSvc,
+      jwtSecret: JWT_SECRET, gatewayService: gateway,
+      rateLimiter: createInMemoryRateLimiter(), snapshotService: snapshotSvc,
       orchestratorService: orchestrator,
     });
-
     token = app.jwt.sign({
-      tenantId: TENANT_ID,
-      userId: USER_ID,
-      userEmail: 'user@fullflow.com',
-      userRoles: ['user'],
-      plan: 'pro',
+      tenantId: TENANT_ID, userId: USER_ID,
+      userEmail: 'user@fullflow.com', userRoles: ['user'], plan: 'pro',
     });
   });
 

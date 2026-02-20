@@ -20,8 +20,16 @@ declare module '@fastify/jwt' {
   }
 }
 
-export async function registerAuth(app: FastifyInstance, secret: string): Promise<void> {
-  await app.register(fastifyJwt, { secret });
+export interface AuthOptions {
+  secret: string;
+  maxAge?: string;
+}
+
+export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Promise<void> {
+  await app.register(fastifyJwt, {
+    secret: opts.secret,
+    verify: { maxAge: opts.maxAge ?? '8h' },
+  });
 
   app.decorate('authenticate', async function (request: FastifyRequest, _reply: FastifyReply) {
     try {

@@ -3,43 +3,20 @@ import path from 'node:path';
 
 export type LogLevel = 'off' | 'low' | 'medium' | 'high' | 'psycho';
 
-const LEVEL_VALUES: Record<LogLevel, number> = {
-  off: 0,
-  low: 1,
-  medium: 2,
-  high: 3,
-  psycho: 4,
-};
-
+const LEVEL_VALUES: Record<LogLevel, number> = { off: 0, low: 1, medium: 2, high: 3, psycho: 4 };
 type Severity = 'ERROR' | 'WARN' | 'INFO' | 'DEBUG' | 'TRACE';
-
-const SEVERITY_MIN_LEVEL: Record<Severity, number> = {
-  ERROR: 1,
-  WARN: 1,
-  INFO: 2,
-  DEBUG: 3,
-  TRACE: 4,
-};
-
+const SEVERITY_MIN_LEVEL: Record<Severity, number> = { ERROR: 1, WARN: 1, INFO: 2, DEBUG: 3, TRACE: 4 };
 const COLORS: Record<Severity, string> = {
-  ERROR: '\x1b[31m',
-  WARN: '\x1b[33m',
-  INFO: '\x1b[36m',
-  DEBUG: '\x1b[90m',
-  TRACE: '\x1b[35m',
+  ERROR: '\x1b[31m', WARN: '\x1b[33m', INFO: '\x1b[36m', DEBUG: '\x1b[90m', TRACE: '\x1b[35m',
 };
 const RESET = '\x1b[0m';
 
-interface LogEntry {
-  timestamp: string;
-  level: Severity;
-  message: string;
-  requestId?: string;
-  data?: Record<string, unknown>;
-}
+interface LogEntry { timestamp: string; level: Severity; message: string; requestId?: string; data?: Record<string, unknown>; }
 
 let currentLevel: LogLevel = 'medium';
 let logsDir = path.resolve('logs');
+let maxFileSize = 10_485_760; // 10 MB
+let maxFiles = 5;
 
 export function setLogLevel(level: LogLevel): void {
   currentLevel = level;
@@ -47,6 +24,11 @@ export function setLogLevel(level: LogLevel): void {
 
 export function setLogsDir(dir: string): void {
   logsDir = dir;
+}
+
+export function setLogRotation(size: number, files: number): void {
+  maxFileSize = size;
+  maxFiles = files;
 }
 
 function shouldLog(severity: Severity): boolean {
@@ -64,11 +46,35 @@ function ensureLogsDir(): void {
   }
 }
 
+function rotateIfNeeded(filePath: string): void {
+  try {
+    if (!fs.existsSync(filePath)) return;
+    const stat = fs.statSync(filePath);
+    if (stat.size < maxFileSize) return;
+
+    // Delete oldest rotated file
+    const oldest = `${filePath}.${maxFiles - 1}`;
+    if (fs.existsSync(oldest)) fs.unlinkSync(oldest);
+    // Shift numbered files up: .N-2→.N-1, ..., .1→.2
+    for (let i = maxFiles - 2; i >= 1; i--) {
+      const src = `${filePath}.${i}`;
+      const dst = `${filePath}.${i + 1}`;
+      if (fs.existsSync(src)) fs.renameSync(src, dst);
+    }
+    // Move current → .1
+    fs.renameSync(filePath, `${filePath}.1`);
+  } catch {
+    // Silently fail rotation
+  }
+}
+
 function writeToFile(entry: LogEntry): void {
   try {
     ensureLogsDir();
+    const filePath = getLogFilePath();
+    rotateIfNeeded(filePath);
     const line = JSON.stringify(entry) + '\n';
-    fs.appendFileSync(getLogFilePath(), line, 'utf-8');
+    fs.appendFileSync(filePath, line, 'utf-8');
   } catch {
     // Silently fail file writes in test environments
   }

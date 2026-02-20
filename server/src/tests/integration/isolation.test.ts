@@ -121,7 +121,73 @@ describe('Tenant Isolation Integration', () => {
     }
   });
 
-  // Test 6: Tenant A cannot see tenant B's knowledge docs
+  // Test 6: Tenant B cannot send message to Tenant A's case
+  it('tenant B cannot send message to tenant A case', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/cases',
+      headers: { authorization: `Bearer ${tokenA}` },
+      payload: { message: 'Tenant A case for message test' },
+    });
+    expect(createRes.statusCode).toBe(200);
+    const caseId = JSON.parse(createRes.body).case.id;
+
+    const msgRes = await app.inject({
+      method: 'POST',
+      url: `/api/cases/${caseId}/messages`,
+      headers: { authorization: `Bearer ${tokenB}` },
+      payload: { content: 'Cross-tenant message attempt' },
+    });
+
+    expect(msgRes.statusCode).toBe(403);
+    expect(JSON.parse(msgRes.body).error).toBe('FORBIDDEN');
+  });
+
+  // Test 7: Tenant B cannot add feedback to Tenant A's case
+  it('tenant B cannot add feedback to tenant A case', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/cases',
+      headers: { authorization: `Bearer ${tokenA}` },
+      payload: { message: 'Tenant A case for feedback test' },
+    });
+    expect(createRes.statusCode).toBe(200);
+    const caseId = JSON.parse(createRes.body).case.id;
+
+    const fbRes = await app.inject({
+      method: 'POST',
+      url: `/api/cases/${caseId}/feedback`,
+      headers: { authorization: `Bearer ${tokenB}` },
+      payload: { feedback: 'positive' },
+    });
+
+    expect(fbRes.statusCode).toBe(403);
+    expect(JSON.parse(fbRes.body).error).toBe('FORBIDDEN');
+  });
+
+  // Test 8: Tenant B cannot escalate Tenant A's case
+  it('tenant B cannot escalate tenant A case', async () => {
+    const createRes = await app.inject({
+      method: 'POST',
+      url: '/api/cases',
+      headers: { authorization: `Bearer ${tokenA}` },
+      payload: { message: 'Tenant A case for escalation test' },
+    });
+    expect(createRes.statusCode).toBe(200);
+    const caseId = JSON.parse(createRes.body).case.id;
+
+    const escRes = await app.inject({
+      method: 'POST',
+      url: `/api/cases/${caseId}/escalate`,
+      headers: { authorization: `Bearer ${tokenB}` },
+      payload: { reason: 'Cross-tenant escalation attempt' },
+    });
+
+    expect(escRes.statusCode).toBe(403);
+    expect(JSON.parse(escRes.body).error).toBe('FORBIDDEN');
+  });
+
+  // Test 9: Tenant A cannot see tenant B's knowledge docs
   it('tenant A cannot see tenant B knowledge docs', async () => {
     // Simulate KB docs for tenant B only
     kbDocs.push({

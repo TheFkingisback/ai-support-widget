@@ -308,7 +308,7 @@ describe('Escalation Service', () => {
   function buildDeps(overrides?: Partial<EscalationDeps>): EscalationDeps {
     const mockGateway: GatewayService = {
       async createCase() { throw new Error('not needed'); },
-      async addMessage() { throw new Error('not needed'); },
+      async addMessage(_caseId: string, _tenantId: string) { throw new Error('not needed'); },
       async getCase(caseId, tenantId) {
         if (mockCase.id !== caseId) throw new NotFoundError('Case', caseId);
         if (mockCase.tenantId !== tenantId) {

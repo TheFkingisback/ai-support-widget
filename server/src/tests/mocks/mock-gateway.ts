@@ -48,9 +48,10 @@ export function createMockGatewayService(): MockGateway {
       return { case: newCase, message: msg };
     },
 
-    async addMessage(caseId, role, content, opts) {
+    async addMessage(caseId, tenantId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
+      if (c.tenantId !== tenantId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       const now = new Date().toISOString();
       const msg: Message = {
         id: genId('msg'), caseId, role, content,

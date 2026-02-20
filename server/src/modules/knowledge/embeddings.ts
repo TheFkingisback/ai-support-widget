@@ -39,17 +39,25 @@ export function createEmbeddingClient(apiKey: string): EmbeddingClient {
       const start = Date.now();
       log.info('embeddings: generating', requestId, { textLen: text.length });
 
-      const res = await fetch('https://api.openai.com/v1/embeddings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'text-embedding-3-small',
-          input: text,
-        }),
-      });
+      const controller = new AbortController();
+      const fetchTimeout = setTimeout(() => controller.abort(), 10_000);
+      let res: Response;
+      try {
+        res = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({ model: 'text-embedding-3-small', input: text }),
+          signal: controller.signal,
+        });
+      } catch (err) {
+        clearTimeout(fetchTimeout);
+        throw new Error(`Embedding API request failed: ${err instanceof Error ? err.message : String(err)}`);
+      } finally {
+        clearTimeout(fetchTimeout);
+      }
 
       if (!res.ok) {
         const body = await res.text();
