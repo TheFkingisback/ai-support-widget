@@ -1,0 +1,32 @@
+## Sprint 0 — Project Scaffold + Logger + Shared Types
+- Files created:
+  - package.json (root monorepo)
+  - shared/package.json, shared/tsconfig.json, shared/types.ts
+  - server/package.json, server/tsconfig.json, server/vitest.config.ts
+  - server/src/shared/env.ts
+  - server/src/shared/logger.ts
+  - server/src/shared/log-investigator.ts
+  - server/src/shared/errors.ts
+  - server/src/shared/db.ts
+  - server/src/shared/redis.ts
+  - server/src/shared/auth.ts
+  - server/src/app.ts
+  - server/src/shared/logger.test.ts
+  - server/src/shared/errors.test.ts
+  - server/src/app.test.ts
+  - docker-compose.yml
+  - .env
+  - .gitignore
+  - web/package.json
+  - widget/package.json
+- Files modified: none
+- Tests: 16 passed, 16 total (3 test files)
+  - logger.test.ts: 6 tests (write at LOW, skip DEBUG at LOW, all levels at PSYCHO, readErrors, readRequest, time)
+  - errors.test.ts: 7 tests (AppError, NotFoundError, UnauthorizedError, ForbiddenError, ValidationError, RateLimitError, ConflictError)
+  - app.test.ts: 3 tests (health check 200, auth rejects invalid JWT 401, auth extracts tenantId from valid JWT)
+- Learnings:
+  - Fastify inject() makes instance "ready" — register test routes in beforeAll before any inject calls
+  - Use Fastify's built-in genReqId for request ID generation instead of manual hook
+  - @fastify/jwt needs type augmentation for both FastifyJWT.payload and FastifyInstance.authenticate
+  - getEnvSafe() provides fallback env values for test environments where not all env vars are set
+  - resetEnvCache() needed between tests when env vars change

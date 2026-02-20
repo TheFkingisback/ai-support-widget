@@ -1,0 +1,10 @@
+{
+  "name": "ai-support-widget",
+  "private": true,
+  "workspaces": [
+    "server",
+    "web",
+    "widget",
+    "shared"
+  ]
+}
