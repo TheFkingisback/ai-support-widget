@@ -80,7 +80,7 @@ RULES:
     backendLines.push('Errors:');
     for (const e of errors) {
       backendLines.push(
-        `  ${e.ts} [${e.errorCode}] ${e.route} req=${e.requestId}`,
+        `  ${e.ts} [${e.errorCode}] ${e.route}`,
       );
     }
   }

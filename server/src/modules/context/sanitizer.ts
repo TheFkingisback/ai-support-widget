@@ -20,22 +20,6 @@ const SECRET_PATTERNS: RegExp[] = [
   /-----BEGIN (?:RSA |EC )?(?:PRIVATE|PUBLIC) KEY-----[\s\S]*?-----END/g, // PEM keys
 ];
 
-// Fields that are safe and should never be redacted
-const SAFE_FIELDS = new Set([
-  'snapshotId', 'createdAt', 'updatedAt', 'resolvedAt', 'occurredAt',
-  'tenantId', 'userId', 'caseId', 'errorCode', 'errorClass',
-  'id', 'type', 'status', 'version', 'date', 'ts',
-  'jobId', 'queue', 'lastStage', 'route', 'httpStatus',
-  'resourceId', 'requestId', 'event', 'page', 'elementId',
-  'intent', 'action', 'label', 'category', 'title', 'summary',
-  'limit', 'current', 'max', 'timingMs', 'durationMs',
-  'windowHours', 'maxBytes', 'plan', 'retryable', 'userActionable',
-  'roles', 'featuresEnabled', 'correlationRequestId',
-  'redactionVersion', 'fieldsRemoved',
-  'eventsRemoved', 'logsTrimmed', 'docsRemoved',
-  'content', 'metadata',
-]);
-
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 const PHONE_RE = /(\+?\d{1,3})[\s-]?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}/g;
 const SSN_RE = /\b\d{3}-\d{2}-\d{4}\b/g;

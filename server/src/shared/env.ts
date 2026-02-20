@@ -28,10 +28,14 @@ export function getEnvSafe(): Env {
   try {
     return getEnv();
   } catch {
+    const jwtSecret = process.env.JWT_SECRET ?? '';
+    if (!jwtSecret && process.env.NODE_ENV !== 'test') {
+      throw new Error('JWT_SECRET must be set — refusing to start with empty secret');
+    }
     return {
       DATABASE_URL: process.env.DATABASE_URL ?? '',
       REDIS_URL: process.env.REDIS_URL ?? '',
-      JWT_SECRET: process.env.JWT_SECRET ?? '',
+      JWT_SECRET: jwtSecret,
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ?? '',
       LOG_LEVEL: (process.env.LOG_LEVEL as LogLevel) ?? 'medium',
       PORT: Number(process.env.PORT) || 3000,

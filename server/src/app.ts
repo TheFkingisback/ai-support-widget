@@ -34,7 +34,10 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
 
   const allowedOrigins = env.CORS_ORIGINS
     ? env.CORS_ORIGINS.split(',').map((o) => o.trim())
-    : true; // fallback for dev; production MUST set CORS_ORIGINS
+    : ['http://localhost:3000', 'http://localhost:3001'];
+  if (!env.CORS_ORIGINS) {
+    log.warn('CORS_ORIGINS not set — restricting to localhost. Set CORS_ORIGINS in production.');
+  }
   await app.register(cors, { origin: allowedOrigins });
 
   const jwtSecret = opts?.jwtSecret ?? env.JWT_SECRET;
@@ -72,9 +75,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
         });
       }
 
-      log.error(`Unhandled error: ${error.message}`, reqId, {
-        stack: error.stack,
-      });
+      log.error(`Unhandled error: ${error.message}`, reqId);
       return reply.code(500).send({
         statusCode: 500,
         error: 'INTERNAL_ERROR',

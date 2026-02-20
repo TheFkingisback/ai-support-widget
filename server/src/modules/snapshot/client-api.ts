@@ -35,7 +35,7 @@ export async function callClientApi<T>(
   }
 
   const fullUrl = url.toString();
-  log.info(`Client API call: ${endpoint}`, requestId, { url: fullUrl });
+  log.info(`Client API call: ${endpoint}`, requestId, { endpoint });
 
   const start = Date.now();
   const controller = new AbortController();
@@ -55,7 +55,6 @@ export async function callClientApi<T>(
 
     if (!response.ok) {
       log.error(`Client API error: ${endpoint}`, requestId, {
-        url: fullUrl,
         status: response.status,
         timingMs,
       });
@@ -68,7 +67,6 @@ export async function callClientApi<T>(
     const data = (await response.json()) as T;
 
     log.info(`Client API success: ${endpoint}`, requestId, {
-      url: fullUrl,
       status: response.status,
       timingMs,
     });
@@ -84,7 +82,7 @@ export async function callClientApi<T>(
         ? `Client API ${endpoint} timed out after ${timeoutMs}ms`
         : `Client API ${endpoint} failed: ${err instanceof Error ? err.message : String(err)}`;
 
-    log.error(message, requestId, { url: fullUrl, timingMs });
+    log.error(message, requestId, { endpoint, timingMs });
     throw new ClientApiError(message, endpoint);
   } finally {
     clearTimeout(timeout);

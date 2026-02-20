@@ -167,8 +167,6 @@ export function createGatewayService(
         throw new NotFoundError('Case', caseId);
       }
 
-      // Tenant isolation is enforced by callers via getCase() before addMessage()
-
       const msgId = genId('msg');
       const now = new Date();
 

@@ -100,7 +100,8 @@ export async function callLLM(
 
       if (!res.ok) {
         const text = await res.text().catch(() => 'unknown');
-        throw new LLMError(`OpenRouter ${res.status}: ${text}`);
+        const safeText = text.slice(0, 200).replace(/Bearer\s+\S+/gi, 'Bearer [REDACTED]');
+        throw new LLMError(`OpenRouter ${res.status}: ${safeText}`);
       }
 
       const data = (await res.json()) as OpenRouterResponse;
