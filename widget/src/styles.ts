@@ -9,7 +9,7 @@ export function getStyles(theme: 'light' | 'dark'): string {
       --ai-support-radius: 12px;
       --ai-support-surface: ${isLight ? '#f4f4f5' : '#2a2a3e'};
       --ai-support-border: ${isLight ? '#e4e4e7' : '#3a3a4e'};
-      --ai-support-muted: ${isLight ? '#71717a' : '#a1a1aa'};
+      --ai-support-muted: ${isLight ? '#5c5c66' : '#a1a1aa'};
       --ai-support-danger: #ef4444;
       --ai-support-success: #22c55e;
       --ai-support-focus: ${isLight ? '#2563eb' : '#60a5fa'};
@@ -45,7 +45,7 @@ export function getStyles(theme: 'light' | 'dark'): string {
       display: flex; align-items: center; padding: 14px 16px; gap: 8px;
       background: var(--ai-support-primary); color: #fff;
     }
-    .ai-widget-header-title { flex: 1; font-weight: 600; font-size: 15px; }
+    .ai-widget-header-title { flex: 1; font-weight: 600; font-size: 15px; margin: 0; }
     .ai-widget-header button {
       background: none; border: none; color: #fff; cursor: pointer;
       font-size: 13px; padding: 4px 8px; border-radius: 4px; opacity: .9;
@@ -132,11 +132,13 @@ export function getStyles(theme: 'light' | 'dark'): string {
       flex: 1; padding: 8px 12px; border-radius: 8px;
       border: 1px solid var(--ai-support-border);
       background: var(--ai-support-bg); color: var(--ai-support-text);
-      font-size: 14px; outline: none;
-      transition: border-color .15s ease-in-out;
+      font-size: 14px; transition: border-color .15s ease-in-out;
     }
     .ai-widget-input input:hover { border-color: var(--ai-support-muted); }
-    .ai-widget-input input:focus { border-color: var(--ai-support-primary); }
+    .ai-widget-input input:focus {
+      border-color: var(--ai-support-primary);
+      outline: 2px solid var(--ai-support-focus); outline-offset: 1px;
+    }
     .ai-widget-input button {
       padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer;
       background: var(--ai-support-primary); color: #fff;
@@ -173,6 +175,14 @@ export function getStyles(theme: 'light' | 'dark'): string {
       .ai-msg { max-width: 90%; }
       .ai-widget-header button { min-height: 44px; min-width: 44px; }
       .ai-widget-input button { min-height: 44px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; animation: none !important; }
+    }
+    @media (forced-colors: active) {
+      .ai-widget-fab, .ai-action-btn, .ai-confirm-yes, .ai-confirm-no {
+        border: 2px solid ButtonText;
+      }
     }
   `;
 }

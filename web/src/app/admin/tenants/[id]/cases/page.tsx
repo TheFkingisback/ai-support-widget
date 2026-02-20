@@ -30,11 +30,12 @@ export default function CasesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center gap-4">
-        <Link href={`/admin/tenants/${tenantId}`} className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
-          <ArrowLeft size={20} />
+        <Link href={`/admin/tenants/${tenantId}`} aria-label="Back to tenant details" className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
+          <ArrowLeft size={20} aria-hidden="true" />
         </Link>
         <h1 className="text-2xl font-bold">Cases</h1>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}
+          aria-label="Filter by status"
           className="input-field ml-auto w-auto" data-testid="status-filter">
           <option value="all">All</option>
           <option value="active">Active</option>
@@ -43,22 +44,24 @@ export default function CasesPage() {
         </select>
       </div>
 
-      {loading ? <p className="text-gray-500">Loading...</p> : (
+      {loading ? <p className="text-gray-500" role="status">Loading...</p> : (
         <table className="w-full text-sm" data-testid="cases-table">
           <thead>
             <tr className="table-header">
-              <th className="pb-3 pr-4">Case ID</th>
-              <th className="pb-3 pr-4">User</th>
-              <th className="pb-3 pr-4">Status</th>
-              <th className="pb-3 pr-4">Messages</th>
-              <th className="pb-3 pr-4">Created</th>
-              <th className="pb-3">Resolved</th>
+              <th scope="col" className="pb-3 pr-4">Case ID</th>
+              <th scope="col" className="pb-3 pr-4">User</th>
+              <th scope="col" className="pb-3 pr-4">Status</th>
+              <th scope="col" className="pb-3 pr-4">Messages</th>
+              <th scope="col" className="pb-3 pr-4">Created</th>
+              <th scope="col" className="pb-3">Resolved</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((c) => (
               <tr key={c.id} className="table-row cursor-pointer"
-                onClick={() => setSelectedCase(c)}>
+                tabIndex={0} role="button" aria-label={`View case ${c.id}`}
+                onClick={() => setSelectedCase(c)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCase(c); } }}>
                 <td className="py-3 pr-4 text-blue-400">{c.id}</td>
                 <td className="py-3 pr-4 text-gray-400">{c.userId}</td>
                 <td className="py-3 pr-4">
@@ -86,11 +89,13 @@ export default function CasesPage() {
 
 function CaseDetail({ caseData, onClose }: { caseData: Case; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" data-testid="case-detail">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      data-testid="case-detail" role="dialog" aria-modal="true" aria-labelledby="case-detail-title"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
       <div className="w-full max-w-lg rounded-lg bg-gray-900 p-6 shadow-xl max-h-[80vh] overflow-auto">
         <div className="mb-4 flex justify-between items-center">
-          <h2 className="font-semibold">Case {caseData.id}</h2>
-          <button onClick={onClose} className="btn-secondary px-3 py-1 text-sm">Close</button>
+          <h2 id="case-detail-title" className="font-semibold">Case {caseData.id}</h2>
+          <button onClick={onClose} aria-label="Close case details" className="btn-secondary px-3 py-1 text-sm">Close</button>
         </div>
         <dl className="space-y-2 text-sm">
           <Dt label="Status">{caseData.status}</Dt>

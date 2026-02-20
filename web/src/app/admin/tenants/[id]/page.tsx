@@ -59,7 +59,7 @@ export default function TenantDetailPage() {
   return (
     <div data-testid="tenant-detail">
       <div className="mb-6 flex items-center gap-4">
-        <Link href="/admin/tenants" className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"><ArrowLeft size={20} /></Link>
+        <Link href="/admin/tenants" aria-label="Back to tenants list" className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"><ArrowLeft size={20} aria-hidden="true" /></Link>
         <h1 className="text-2xl font-bold">{tenant.name}</h1>
         <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs">{tenant.id}</span>
       </div>
@@ -103,17 +103,21 @@ export default function TenantDetailPage() {
         </Section>
 
         <Section title="Connectors">
-          <div className="flex flex-wrap gap-2">
-            {CONNECTORS.map((c) => (
-              <button key={c} onClick={() => toggleConnector(c)}
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                  config.enabledConnectors.includes(c)
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                }`}>
-                {c}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Connector toggles">
+            {CONNECTORS.map((c) => {
+              const enabled = config.enabledConnectors.includes(c);
+              return (
+                <button key={c} onClick={() => toggleConnector(c)}
+                  aria-pressed={enabled}
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                    enabled
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                  }`}>
+                  {c}
+                </button>
+              );
+            })}
           </div>
         </Section>
 
@@ -126,9 +130,9 @@ export default function TenantDetailPage() {
       <div className="mt-6 flex items-center gap-4">
         <button onClick={handleSave} disabled={saving}
           className="btn-primary flex items-center gap-2 px-6">
-          <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
+          <Save size={16} aria-hidden="true" /> {saving ? 'Saving...' : 'Save Changes'}
         </button>
-        {saved && <span className="text-sm text-green-400">Saved successfully</span>}
+        {saved && <span role="status" className="text-sm text-green-400">Saved successfully</span>}
       </div>
     </div>
   );

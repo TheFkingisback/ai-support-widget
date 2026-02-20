@@ -32,14 +32,14 @@ export default function AnalyticsPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Analytics</h1>
         <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)}
-          className="input-field w-auto" data-testid="tenant-selector">
+          aria-label="Select tenant" className="input-field w-auto" data-testid="tenant-selector">
           {tenants.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}
         </select>
       </div>
 
-      {loading && <p className="text-gray-500">Loading analytics...</p>}
+      {loading && <p className="text-gray-500" role="status">Loading analytics...</p>}
 
       {analytics && (
         <div data-testid="analytics-content">

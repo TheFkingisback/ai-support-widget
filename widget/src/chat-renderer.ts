@@ -43,7 +43,7 @@ function createFeedbackButtons(deps: ChatRendererDeps): HTMLElement {
 
   const thumbsUp = document.createElement('button');
   thumbsUp.textContent = '\u{1F44D}';
-  thumbsUp.title = 'Helpful';
+  thumbsUp.setAttribute('aria-label', 'Mark as helpful');
   thumbsUp.addEventListener('click', () => {
     deps.apiClient.addFeedback(deps.caseId, 'positive').catch(() => {});
     container.textContent = 'Thanks for your feedback!';
@@ -51,7 +51,7 @@ function createFeedbackButtons(deps: ChatRendererDeps): HTMLElement {
 
   const thumbsDown = document.createElement('button');
   thumbsDown.textContent = '\u{1F44E}';
-  thumbsDown.title = 'Not helpful';
+  thumbsDown.setAttribute('aria-label', 'Mark as not helpful');
   thumbsDown.addEventListener('click', () => {
     deps.apiClient.addFeedback(deps.caseId, 'negative').catch(() => {});
     container.textContent = 'Thanks for your feedback!';

@@ -61,29 +61,46 @@ function dispatchAction(action: SuggestedAction, handlers: ActionHandlers): void
 function showConfirmation(panelEl: HTMLElement, label: string, onConfirm: () => void): void {
   const overlay = document.createElement('div');
   overlay.className = 'ai-confirm-overlay';
+  overlay.setAttribute('role', 'alertdialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', `Confirm: ${label}`);
 
   const box = document.createElement('div');
   box.className = 'ai-confirm-box';
 
   const msg = document.createElement('p');
+  msg.id = 'ai-confirm-msg';
   msg.textContent = `Are you sure you want to "${label}"?`;
+  overlay.setAttribute('aria-describedby', 'ai-confirm-msg');
   box.appendChild(msg);
+
+  const dismiss = () => overlay.remove();
 
   const yesBtn = document.createElement('button');
   yesBtn.className = 'ai-confirm-yes';
   yesBtn.textContent = 'Yes';
-  yesBtn.addEventListener('click', () => {
-    overlay.remove();
-    onConfirm();
-  });
+  yesBtn.addEventListener('click', () => { dismiss(); onConfirm(); });
 
   const noBtn = document.createElement('button');
   noBtn.className = 'ai-confirm-no';
   noBtn.textContent = 'Cancel';
-  noBtn.addEventListener('click', () => overlay.remove());
+  noBtn.addEventListener('click', dismiss);
+
+  // Focus trap: Tab cycles between Yes and Cancel
+  overlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { dismiss(); return; }
+    if (e.key === 'Tab') {
+      const active = overlay.getRootNode() instanceof ShadowRoot
+        ? (overlay.getRootNode() as ShadowRoot).activeElement
+        : document.activeElement;
+      if (e.shiftKey && active === noBtn) { e.preventDefault(); yesBtn.focus(); }
+      else if (!e.shiftKey && active === yesBtn) { e.preventDefault(); noBtn.focus(); }
+    }
+  });
 
   box.appendChild(yesBtn);
   box.appendChild(noBtn);
   overlay.appendChild(box);
   panelEl.appendChild(overlay);
+  noBtn.focus();
 }

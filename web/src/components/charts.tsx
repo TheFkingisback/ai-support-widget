@@ -17,7 +17,8 @@ export function IntentsChart({ data }: IntentsProps) {
   if (items.length === 0) return <p className="text-sm text-gray-500">No data</p>;
 
   return (
-    <div data-testid="intents-chart" className="h-64 w-full">
+    <div data-testid="intents-chart" className="h-64 w-full" role="img"
+      aria-label={`Top intents chart: ${items.map((i) => `${i.intent} (${i.count})`).join(', ')}`}>
       <ResponsiveContainer>
         <BarChart data={items} layout="vertical" margin={{ left: 60, right: 20, top: 5, bottom: 5 }}>
           <XAxis type="number" stroke={CHART_THEME.axis} fontSize={CHART_THEME.fontSize} />
@@ -43,7 +44,8 @@ export function ErrorsChart({ data }: ErrorsProps) {
   if (items.length === 0) return <p className="text-sm text-gray-500">No data</p>;
 
   return (
-    <div data-testid="errors-chart" className="h-64 w-full">
+    <div data-testid="errors-chart" className="h-64 w-full" role="img"
+      aria-label={`Top errors chart: ${items.map((i) => `${i.errorCode} (${i.count})`).join(', ')}`}>
       <ResponsiveContainer>
         <BarChart data={items} layout="vertical" margin={{ left: 80, right: 20, top: 5, bottom: 5 }}>
           <XAxis type="number" stroke={CHART_THEME.axis} fontSize={CHART_THEME.fontSize} />

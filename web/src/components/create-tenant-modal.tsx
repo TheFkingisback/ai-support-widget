@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import type { CreateTenantInput } from '@/lib/types';
 
@@ -15,6 +15,21 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
   const [apiBaseUrl, setApiBaseUrl] = useState('');
   const [serviceToken, setServiceToken] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (open) dialogRef.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -41,12 +56,14 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" data-testid="create-tenant-modal">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      data-testid="create-tenant-modal" role="dialog" aria-modal="true" aria-labelledby="create-tenant-title"
+      ref={dialogRef} tabIndex={-1}>
       <div className="w-full max-w-md rounded-lg bg-gray-900 p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Create Tenant</h2>
-          <button onClick={onClose} className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
-            <X size={20} />
+          <h2 id="create-tenant-title" className="text-lg font-semibold">Create Tenant</h2>
+          <button onClick={onClose} aria-label="Close dialog" className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -84,7 +101,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
     <label className="block">
       <span className="mb-1 block text-sm text-gray-400">{label}</span>
       {children}
-      {error && <span className="mt-1 block text-xs text-red-400">{error}</span>}
+      {error && <span role="alert" className="mt-1 block text-xs text-red-400">{error}</span>}
     </label>
   );
 }

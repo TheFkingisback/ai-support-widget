@@ -51,7 +51,9 @@ export class AISupportWidget {
     const fab = document.createElement('button');
     fab.className = `ai-widget-fab${isLeft ? ' left' : ''}`;
     fab.textContent = '\u{1F4AC}';
-    fab.title = 'Open support';
+    fab.setAttribute('aria-label', 'Open support chat');
+    fab.setAttribute('aria-expanded', 'false');
+    fab.setAttribute('aria-haspopup', 'dialog');
     shadow.appendChild(fab);
 
     let chatPanel: ChatPanel | null = null;
@@ -65,6 +67,9 @@ export class AISupportWidget {
         onClose: close,
       });
       shadow.appendChild(chatPanel.element);
+      fab.setAttribute('aria-expanded', 'true');
+      fab.setAttribute('aria-label', 'Close support chat');
+      chatPanel.focus();
     }
 
     function close(): void {
@@ -72,6 +77,9 @@ export class AISupportWidget {
         chatPanel.destroy();
         chatPanel = null;
       }
+      fab.setAttribute('aria-expanded', 'false');
+      fab.setAttribute('aria-label', 'Open support chat');
+      fab.focus();
     }
 
     function destroy(): void {

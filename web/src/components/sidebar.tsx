@@ -26,7 +26,7 @@ export function Sidebar() {
           <X size={20} />
         </button>
       </div>
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="flex-1 space-y-1 p-3" aria-label="Admin navigation">
         {navItems.map((item) => {
           const active = pathname.startsWith(item.href);
           const Icon = item.icon;
@@ -35,13 +35,14 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               onClick={() => setMobileOpen(false)}
+              aria-current={active ? 'page' : undefined}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
                   ? 'bg-blue-600/20 text-blue-400'
                   : 'text-gray-400 hover:bg-gray-800 hover:text-gray-200'
               }`}
             >
-              <Icon size={18} />
+              <Icon size={18} aria-hidden="true" />
               {item.label}
             </Link>
           );
@@ -52,7 +53,7 @@ export function Sidebar() {
           href="/"
           className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-gray-400 transition-colors hover:bg-gray-800 hover:text-gray-200"
         >
-          <LogOut size={18} />
+          <LogOut size={18} aria-hidden="true" />
           Exit Admin
         </Link>
       </div>
@@ -72,11 +73,13 @@ export function Sidebar() {
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          aria-hidden="true"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       <aside
+        aria-label="Admin sidebar"
         className={`fixed inset-y-0 left-0 z-50 flex w-56 flex-col border-r border-gray-800 bg-gray-900 transition-transform md:static md:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}

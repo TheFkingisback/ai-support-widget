@@ -13,11 +13,15 @@ export function renderEvidence(evidenceList: Evidence[], locale: string): HTMLEl
       badge.textContent = `${ev.label}: ${ev.value}`;
     } else if (ev.type === 'job_id') {
       badge.textContent = `${ev.label}: ${ev.value}`;
-      badge.title = 'Click to copy';
-      badge.addEventListener('click', () => {
-        navigator.clipboard.writeText(ev.value).catch(() => {
-          /* clipboard unavailable */
-        });
+      badge.setAttribute('role', 'button');
+      badge.setAttribute('tabindex', '0');
+      badge.setAttribute('aria-label', `Copy ${ev.label}: ${ev.value}`);
+      const copyValue = () => {
+        navigator.clipboard.writeText(ev.value).catch(() => {});
+      };
+      badge.addEventListener('click', copyValue);
+      badge.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyValue(); }
       });
     } else if (ev.type === 'timestamp') {
       const date = new Date(ev.value);

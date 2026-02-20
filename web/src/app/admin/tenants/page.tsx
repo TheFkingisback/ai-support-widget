@@ -39,21 +39,21 @@ export default function TenantsPage() {
           onClick={() => setModalOpen(true)}
           className="btn-primary flex items-center gap-2"
         >
-          <Plus size={16} /> Create Tenant
+          <Plus size={16} aria-hidden="true" /> Create Tenant
         </button>
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-gray-500" role="status">Loading...</p>
       ) : (
         <table className="w-full text-sm" data-testid="tenants-table">
           <thead>
             <tr className="table-header">
-              <th className="pb-3 pr-4">Name</th>
-              <th className="pb-3 pr-4">Plan</th>
-              <th className="pb-3 pr-4">Connectors</th>
-              <th className="pb-3 pr-4">Model Policy</th>
-              <th className="pb-3">Created</th>
+              <th scope="col" className="pb-3 pr-4">Name</th>
+              <th scope="col" className="pb-3 pr-4">Plan</th>
+              <th scope="col" className="pb-3 pr-4">Connectors</th>
+              <th scope="col" className="pb-3 pr-4">Model Policy</th>
+              <th scope="col" className="pb-3">Created</th>
             </tr>
           </thead>
           <tbody>
