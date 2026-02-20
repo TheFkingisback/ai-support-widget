@@ -248,3 +248,39 @@
   - Token encryption uses base64 encoding (would use AES in production) — encryptToken/decryptToken pair
   - Analytics computed on-the-fly from in-memory data sources; production would use materialized views or cache
   - Admin routes wired into app.ts via optional adminRouteOpts — same optional pattern as other services
+
+## Sprint 8 — Integration Tests
+- Files created:
+  - server/src/tests/mocks/client-apis.ts (Mock client API endpoints: getUserState, getUserHistory, getUserLogs, getBusinessRules with realistic upload error data)
+  - server/src/tests/mocks/openrouter.ts (Mock OpenRouter server returning structured response with diagnosis, evidence, and actions)
+  - server/src/tests/mocks/mock-gateway.ts (Reusable in-memory mock GatewayService extracted for integration tests)
+  - server/src/tests/mocks/mock-snapshot.ts (Mock SnapshotService with case→snapshot linking for orchestrator integration)
+  - server/src/tests/integration/full-flow.test.ts (3 tests: full pipeline, conversation history, feedback)
+  - server/src/tests/integration/isolation.test.ts (3 tests: case isolation, snapshot isolation, KB isolation)
+  - server/src/tests/integration/sanitization.test.ts (3 tests: secrets removed, PII masked, audit recorded)
+  - server/src/tests/integration/trimming.test.ts (3 tests: size reduction, identity preserved, truncation counters)
+- Files modified: none
+- Tests: 102 passed, 102 total (14 test files)
+  - full-flow.test.ts: 3 tests
+    1. Full pipeline: case → snapshot → sanitize → LLM → response with evidence
+    2. Follow-up message includes conversation history
+    3. Feedback updates case
+  - isolation.test.ts: 3 tests
+    4. Tenant A cannot access tenant B's case
+    5. Tenant A cannot access tenant B's snapshot
+    6. Tenant A cannot see tenant B's knowledge docs
+  - sanitization.test.ts: 3 tests
+    7. Secrets are removed from LLM input (JWT, API keys, connection strings, bearer tokens)
+    8. PII is masked in LLM input (emails, phone numbers)
+    9. Audit records all sanitization actions (secretsRedacted, piiMasked, internalUrlsStripped)
+  - trimming.test.ts: 3 tests
+    10. Large snapshot (>5MB) trimmed to under 1MB
+    11. Identity block preserved after trimming (Priority 1 data survives)
+    12. Truncation counters match actual removals
+- Learnings:
+  - Mock snapshot service needs case array reference to link snapshotId back to case — orchestrator looks up by case.snapshotId
+  - Monkey-patching globalThis.fetch to redirect OpenRouter calls to local mock HTTP server works well for end-to-end LLM testing
+  - Trimming performance: use fewer items with larger content (20KB each) rather than many small items — avoids O(n²) JSON.stringify calls in trimmer's while loops
+  - Direct trimToSize() calls are much faster than going through full context pipeline for trimming-specific tests
+  - Integration tests need independent mock state: beforeEach clears arrays, each test file gets its own JWT secret and tmp dir
+  - The trimmer's byteSize() is called per iteration making it slow on very large arrays — test data design matters for speed
