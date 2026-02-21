@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Building2, BarChart3, ScrollText, LogOut, Menu, X } from 'lucide-react';
+import { Building2, BarChart3, ScrollText, MessageSquare, LogOut, Menu, X } from 'lucide-react';
 
 const navItems = [
   { href: '/admin/tenants', label: 'Tenants', icon: Building2 },
+  { href: '/admin/sessions', label: 'Sessions', icon: MessageSquare },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/audit', label: 'Audit Log', icon: ScrollText },
 ];

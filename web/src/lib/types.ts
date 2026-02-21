@@ -126,3 +126,27 @@ export interface CostSummary {
   totalTokensOut: number;
   byModel: CostByModel[];
 }
+
+// === Sessions ===
+export interface SessionSummary extends Case {
+  hasSnapshot: boolean;
+  llmCalls: number;
+  totalCost: number;
+}
+
+export interface SessionDetail {
+  case: Case;
+  messages: Message[];
+  snapshot: SnapshotData | null;
+  costs: LLMCostEntry[];
+}
+
+export interface SnapshotData {
+  meta: { snapshotId: string; createdAt: string };
+  identity: { tenantId: string; userId: string; roles: string[]; plan: string; featuresEnabled: string[] };
+  productState: { entities: unknown[]; activeErrors: unknown[]; limitsReached: unknown[] };
+  recentActivity: { windowHours: number; events: unknown[]; clickTimeline: unknown[] };
+  backend: { recentRequests: unknown[]; jobs: unknown[]; errors: unknown[] };
+  knowledgePack: { docs: unknown[]; runbooks: unknown[]; changelog: unknown[] };
+  privacy: { redactionVersion: string; fieldsRemoved: string[] };
+}

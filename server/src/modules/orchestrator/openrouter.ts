@@ -33,8 +33,8 @@ interface OpenRouterResponse {
 }
 
 const MODEL_MAP: Record<string, string> = {
-  fast: 'anthropic/claude-sonnet-4-20250514',
-  strong: 'anthropic/claude-opus-4-20250514',
+  fast: 'anthropic/claude-sonnet-4',
+  strong: 'anthropic/claude-sonnet-4.5',
 };
 
 export function resolveModel(
@@ -47,8 +47,8 @@ export function resolveModel(
 }
 
 const COST_PER_1K: Record<string, { input: number; output: number }> = {
-  'anthropic/claude-sonnet-4-20250514': { input: 0.003, output: 0.015 },
-  'anthropic/claude-opus-4-20250514': { input: 0.015, output: 0.075 },
+  'anthropic/claude-sonnet-4': { input: 0.003, output: 0.015 },
+  'anthropic/claude-sonnet-4.5': { input: 0.005, output: 0.025 },
 };
 
 function estimateCost(model: string, tokensIn: number, tokensOut: number): number {

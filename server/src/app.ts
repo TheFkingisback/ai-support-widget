@@ -13,6 +13,7 @@ import type { SnapshotService } from './modules/snapshot/snapshot.service.js';
 import type { OrchestratorService } from './modules/orchestrator/orchestrator.service.js';
 import type { EscalationService } from './modules/escalation/escalation.service.js';
 import { registerAdminRoutes, type AdminRouteOpts } from './modules/admin/admin.routes.js';
+import { registerSessionAdminRoutes, type SessionAdminOpts } from './modules/admin/session-admin.routes.js';
 import { registerSwagger } from './shared/swagger.js';
 
 export interface AppDeps {
@@ -23,6 +24,7 @@ export interface AppDeps {
   orchestratorService?: OrchestratorService;
   escalationService?: EscalationService;
   adminRouteOpts?: AdminRouteOpts;
+  sessionAdminOpts?: SessionAdminOpts;
 }
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
@@ -121,6 +123,11 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   // Admin routes (if opts provided)
   if (opts?.adminRouteOpts) {
     await registerAdminRoutes(app, opts.adminRouteOpts);
+  }
+
+  // Session admin routes (if opts provided)
+  if (opts?.sessionAdminOpts) {
+    await registerSessionAdminRoutes(app, opts.sessionAdminOpts);
   }
 
   return app;

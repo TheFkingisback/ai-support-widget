@@ -1,6 +1,7 @@
 import type {
   Tenant, AnalyticsSummary, AuditEntry, Case,
   CreateTenantInput, UpdateTenantInput, OpenRouterModel, CostSummary,
+  SessionSummary, SessionDetail,
 } from './types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
@@ -77,4 +78,13 @@ export async function getCosts(tenantId: string, month?: string): Promise<CostSu
     'GET', `/api/admin/tenants/${tenantId}/costs${qs}`,
   );
   return data.costs;
+}
+
+export async function getSessions(): Promise<SessionSummary[]> {
+  const data = await request<{ sessions: SessionSummary[] }>('GET', '/api/admin/sessions');
+  return data.sessions;
+}
+
+export async function getSessionDetail(caseId: string): Promise<SessionDetail> {
+  return request<SessionDetail>('GET', `/api/admin/sessions/${caseId}`);
 }
