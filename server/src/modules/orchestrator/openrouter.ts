@@ -37,7 +37,11 @@ const MODEL_MAP: Record<string, string> = {
   strong: 'anthropic/claude-opus-4-20250514',
 };
 
-export function resolveModel(policy: 'fast' | 'strong' | 'auto'): string {
+export function resolveModel(
+  policy: 'fast' | 'strong' | 'auto',
+  preferredModel?: string,
+): string {
+  if (preferredModel) return preferredModel;
   if (policy === 'auto') return MODEL_MAP['fast'];
   return MODEL_MAP[policy];
 }

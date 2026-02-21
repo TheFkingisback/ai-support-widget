@@ -13,6 +13,11 @@ vi.mock('next/link', () => ({
     <a href={href} {...props}>{children}</a>,
 }));
 
+vi.mock('@/lib/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/api')>();
+  return { ...actual, listModels: vi.fn().mockResolvedValue([]) };
+});
+
 import TenantDetailPage from './page';
 
 const tenant = mockTenant({ id: 'ten_test123', name: 'Test Corp' });
@@ -79,5 +84,13 @@ describe('Tenant Detail Page', () => {
       );
       expect(patchCalls.length).toBeGreaterThan(0);
     });
+  });
+
+  it('renders the model picker with default placeholder', async () => {
+    render(<TenantDetailPage />);
+    await waitFor(() => screen.getByTestId('tenant-detail'));
+
+    expect(screen.getByText('Preferred Model')).toBeInTheDocument();
+    expect(screen.getByText('Use policy default')).toBeInTheDocument();
   });
 });

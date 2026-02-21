@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Save, ArrowLeft } from 'lucide-react';
 import { listTenants, updateTenant } from '@/lib/api';
 import type { Tenant, TenantConfig, UpdateTenantInput } from '@/lib/types';
+import ModelPicker from '@/components/model-picker';
 
 const CONNECTORS = ['email', 'zendesk', 'jira'];
 
@@ -99,6 +100,12 @@ export default function TenantDetailPage() {
               <option value="strong">Strong</option>
               <option value="auto">Auto</option>
             </select>
+          </Field>
+          <Field label="Preferred Model">
+            <ModelPicker
+              value={config.preferredModel}
+              onChange={(modelId) => setConfigField('preferredModel', modelId)}
+            />
           </Field>
         </Section>
 

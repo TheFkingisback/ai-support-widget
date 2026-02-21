@@ -9,7 +9,10 @@
       "Bash(npm install:*)",
       "Bash(git remote add:*)",
       "Bash(gh repo create:*)",
-      "Bash(git remote set-url:*)"
+      "Bash(git remote set-url:*)",
+      "Bash(test:*)",
+      "Bash(node -e:*)",
+      "Bash(node test-key.mjs:*)"
     ]
   }
 }
