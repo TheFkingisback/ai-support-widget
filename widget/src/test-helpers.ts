@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import type { Case, Message, SuggestedAction, Evidence } from './types.js';
 import type { ApiClient } from './api.js';
 
