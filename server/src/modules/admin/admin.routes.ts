@@ -5,6 +5,8 @@ import { validateBody } from '../../shared/validation.js';
 import type { TenantService } from './tenant.service.js';
 import type { AnalyticsService } from './analytics.service.js';
 import type { AuditService } from './audit.service.js';
+import type { ModelListService } from '../orchestrator/model-list.service.js';
+import type { CostService } from './cost.service.js';
 
 const createTenantBody = z.object({
   name: z.string().min(1).max(200),
@@ -32,13 +34,17 @@ export interface AdminRouteOpts {
   adminAuth: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
   /** Optional: provides case listing by tenant */
   getCasesByTenant?: (tenantId: string) => Promise<unknown[]>;
+  /** Optional: provides OpenRouter model list */
+  modelListService?: ModelListService;
+  /** Optional: provides LLM cost tracking */
+  costService?: CostService;
 }
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
   opts: AdminRouteOpts,
 ): Promise<void> {
-  const { tenantService, analyticsService, auditService, adminAuth, getCasesByTenant } = opts;
+  const { tenantService, analyticsService, auditService, adminAuth, getCasesByTenant, modelListService, costService } = opts;
 
   // GET /api/admin/tenants
   app.get(
@@ -128,4 +134,35 @@ export async function registerAdminRoutes(
       });
     },
   );
+
+  // GET /api/admin/models
+  if (modelListService) {
+    app.get(
+      '/api/admin/models',
+      { preHandler: [adminAuth] },
+      async (request: FastifyRequest, reply: FastifyReply) => {
+        const reqId = request.id as string;
+        log.info('GET /api/admin/models', reqId);
+        const models = await modelListService.getModels(reqId);
+        return reply.code(200).send({ models });
+      },
+    );
+  }
+
+  // GET /api/admin/tenants/:id/costs?month=YYYY-MM
+  if (costService) {
+    app.get<{ Params: { id: string }; Querystring: { month?: string } }>(
+      '/api/admin/tenants/:id/costs',
+      { preHandler: [adminAuth] },
+      async (request, reply) => {
+        const reqId = request.id as string;
+        const { id } = request.params;
+        const month = (request.query as { month?: string }).month
+          ?? new Date().toISOString().slice(0, 7);
+        log.info('GET /api/admin/tenants/:id/costs', reqId, { tenantId: id, month });
+        const costs = await costService.getMonthlySummary(id, month, reqId);
+        return reply.code(200).send({ costs });
+      },
+    );
+  }
 }

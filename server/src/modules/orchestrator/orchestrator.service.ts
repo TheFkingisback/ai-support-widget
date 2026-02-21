@@ -3,6 +3,8 @@ import type { GatewayService } from '../gateway/gateway.service.js';
 import type { SnapshotService } from '../snapshot/snapshot.service.js';
 import type { ContextService } from '../context/context.service.js';
 import type { KnowledgeService } from '../knowledge/knowledge.service.js';
+import type { TenantService } from '../admin/tenant.service.js';
+import type { CostRecorder } from '../admin/cost.service.js';
 import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
 import { buildSystemPrompt } from './system-prompt.js';
 import { parseAIResponse } from './response-parser.js';
@@ -32,6 +34,8 @@ export interface OrchestratorDeps {
   snapshotService: SnapshotService;
   contextService: ContextService;
   knowledgeService?: KnowledgeService;
+  tenantService?: TenantService;
+  costRecorder?: CostRecorder;
   apiKey: string;
   modelPolicy?: 'fast' | 'strong' | 'auto';
   maxMessages?: number;
@@ -40,14 +44,10 @@ export interface OrchestratorDeps {
 
 export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorService {
   const {
-    gatewayService,
-    snapshotService,
-    contextService,
-    knowledgeService,
-    apiKey,
-    modelPolicy = 'fast',
-    maxMessages = DEFAULT_MAX_MESSAGES,
-    maxContextBytes = DEFAULT_MAX_BYTES,
+    gatewayService, snapshotService, contextService,
+    knowledgeService, tenantService, costRecorder,
+    apiKey, modelPolicy = 'fast',
+    maxMessages = DEFAULT_MAX_MESSAGES, maxContextBytes = DEFAULT_MAX_BYTES,
   } = deps;
 
   return {
@@ -59,7 +59,6 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
 
       // 2. Store user message
       await gatewayService.addMessage(caseId, tenantId, 'user', userContent, undefined, requestId);
-
       // 3. Load snapshot
       let snapshot: SupportContextSnapshot | null = null;
       try {
@@ -71,7 +70,6 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         });
       }
 
-      // 4. Process context
       let processedSnapshot = snapshot;
       if (snapshot) {
         const { processed } = contextService.processContext(snapshot, maxContextBytes, requestId);
@@ -94,7 +92,6 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         }
       }
       const allDocs = [...knowledgeDocs, ...runbooks];
-
       const systemPrompt = processedSnapshot
         ? buildSystemPrompt(processedSnapshot, allDocs, requestId)
         : 'You are a helpful support assistant. Answer the user\'s question.';
@@ -113,10 +110,8 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
 
       const recentMessages = allMessages.slice(-maxMessages);
       log.debug('handleMessage: conversation', requestId, {
-        totalMessages: allMessages.length,
-        includedMessages: recentMessages.length,
+        totalMessages: allMessages.length, includedMessages: recentMessages.length,
       });
-
       const llmMessages: LLMMessage[] = [
         { role: 'system', content: systemPrompt },
         ...recentMessages.map((m) => ({
@@ -125,18 +120,38 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         })),
       ];
 
-      // 7. Call LLM
-      const model = resolveModel(modelPolicy);
+      // 7. Resolve model (tenant preferredModel > tenant policy > deps policy)
+      let effectivePolicy = modelPolicy;
+      let preferredModel: string | undefined;
+      if (tenantService) {
+        try {
+          const tc = await tenantService.getTenant(tenantId, requestId);
+          effectivePolicy = tc.config.modelPolicy ?? modelPolicy;
+          preferredModel = tc.config.preferredModel;
+        } catch (err) {
+          log.warn('handleMessage: tenant lookup failed', requestId, {
+            error: err instanceof Error ? err.message : String(err) });
+        }
+      }
+      const model = resolveModel(effectivePolicy, preferredModel);
       const llmResponse = await callLLM(
         { model, messages: llmMessages },
         apiKey,
         requestId,
       );
 
-      // 8. Parse response
+      // 8. Record cost (fire-and-forget)
+      if (costRecorder) {
+        costRecorder.record({
+          tenantId, model, tokensIn: llmResponse.tokensIn,
+          tokensOut: llmResponse.tokensOut, estimatedCost: llmResponse.estimatedCost, caseId,
+        }, requestId).catch(() => {});
+      }
+
+      // 9. Parse response
       const parsed = parseAIResponse(llmResponse.content, requestId);
 
-      // 9. Store assistant message
+      // 10. Store assistant message
       const assistantMessage = await gatewayService.addMessage(
         caseId,
         tenantId,
@@ -151,43 +166,23 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       );
 
       log.info('handleMessage: complete', requestId, {
-        caseId,
-        model: llmResponse.model,
-        tokensIn: llmResponse.tokensIn,
-        tokensOut: llmResponse.tokensOut,
-        latencyMs: llmResponse.latencyMs,
+        caseId, model: llmResponse.model, tokensIn: llmResponse.tokensIn,
+        tokensOut: llmResponse.tokensOut, latencyMs: llmResponse.latencyMs,
       });
-
       return assistantMessage;
     },
 
     async handleAction(caseId, tenantId, action, requestId) {
       log.info('handleAction: start', requestId, { caseId, actionType: action.type });
-
-      // Verify tenant access
       await gatewayService.getCase(caseId, tenantId, requestId);
-
-      let result: string;
-
-      switch (action.type) {
-        case 'retry':
-          result = 'Retry action initiated. Please try the operation again.';
-          break;
-        case 'open_docs':
-          result = 'Opening documentation link.';
-          break;
-        case 'create_ticket':
-          result = 'Support ticket creation initiated.';
-          break;
-        case 'request_access':
-          result = 'Access request sent to your administrator.';
-          break;
-        default:
-          result = `Action "${action.label}" acknowledged.`;
-      }
-
+      const messages: Record<string, string> = {
+        retry: 'Retry action initiated. Please try the operation again.',
+        open_docs: 'Opening documentation link.',
+        create_ticket: 'Support ticket creation initiated.',
+        request_access: 'Access request sent to your administrator.',
+      };
+      const result = messages[action.type] ?? `Action "${action.label}" acknowledged.`;
       log.info('handleAction: complete', requestId, { caseId, actionType: action.type, result });
-
       return result;
     },
   };

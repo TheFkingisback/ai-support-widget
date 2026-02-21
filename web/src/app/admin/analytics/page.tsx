@@ -1,15 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { listTenants, getAnalytics } from '@/lib/api';
-import type { Tenant, AnalyticsSummary } from '@/lib/types';
+import { listTenants, getAnalytics, getCosts } from '@/lib/api';
+import type { Tenant, AnalyticsSummary, CostSummary } from '@/lib/types';
 import { StatsGrid } from '@/components/stats-grid';
 import { IntentsChart, ErrorsChart } from '@/components/charts';
+import { CostSummaryCard } from '@/components/cost-summary';
 
 export default function AnalyticsPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
+  const [costs, setCosts] = useState<CostSummary | null>(null);
   const [loading, setLoading] = useState(false);
+  const [costsLoading, setCostsLoading] = useState(false);
 
   useEffect(() => {
     listTenants().then((t) => {
@@ -21,10 +24,15 @@ export default function AnalyticsPage() {
   useEffect(() => {
     if (!selectedId) return;
     setLoading(true);
+    setCostsLoading(true);
     getAnalytics(selectedId)
       .then(setAnalytics)
       .catch(() => setAnalytics(null))
       .finally(() => setLoading(false));
+    getCosts(selectedId)
+      .then(setCosts)
+      .catch(() => setCosts(null))
+      .finally(() => setCostsLoading(false));
   }, [selectedId]);
 
   return (
@@ -52,6 +60,7 @@ export default function AnalyticsPage() {
               <ErrorsChart data={analytics.topErrors} />
             </ChartCard>
           </div>
+          <CostSummaryCard costs={costs} loading={costsLoading} />
         </div>
       )}
     </div>

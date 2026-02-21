@@ -1,4 +1,4 @@
-import type { Tenant, Case, AnalyticsSummary, AuditEntry, Message } from './types';
+import type { Tenant, Case, AnalyticsSummary, AuditEntry, Message, CostSummary } from './types';
 
 export function mockTenant(overrides?: Partial<Tenant>): Tenant {
   return {
@@ -79,6 +79,22 @@ export function mockMessage(overrides?: Partial<Message>): Message {
     evidence: [],
     confidence: null,
     createdAt: '2026-02-01T12:00:00.000Z',
+    ...overrides,
+  };
+}
+
+export function mockCostSummary(overrides?: Partial<CostSummary>): CostSummary {
+  return {
+    tenantId: 'ten_test123',
+    month: '2026-02',
+    totalCost: 1.25,
+    totalCalls: 10,
+    totalTokensIn: 5000,
+    totalTokensOut: 2000,
+    byModel: [
+      { model: 'anthropic/claude-sonnet-4-20250514', callCount: 8, tokensIn: 4000, tokensOut: 1600, cost: 0.75 },
+      { model: 'anthropic/claude-opus-4-20250514', callCount: 2, tokensIn: 1000, tokensOut: 400, cost: 0.50 },
+    ],
     ...overrides,
   };
 }

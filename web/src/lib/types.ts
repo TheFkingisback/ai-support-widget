@@ -12,8 +12,17 @@ export interface TenantConfig {
   maxLogLines: number;
   maxDocs: number;
   modelPolicy: 'fast' | 'strong' | 'auto';
+  preferredModel?: string;
   retentionDays: number;
   enabledConnectors: string[];
+}
+
+export interface OpenRouterModel {
+  id: string;
+  name: string;
+  provider: string;
+  promptPricing: number;
+  completionPricing: number;
 }
 
 export interface Case {
@@ -86,4 +95,34 @@ export interface UpdateTenantInput {
   name?: string;
   plan?: 'starter' | 'pro' | 'enterprise';
   config?: Partial<TenantConfig>;
+}
+
+// === LLM Cost Tracking ===
+export interface LLMCostEntry {
+  id: string;
+  tenantId: string;
+  model: string;
+  tokensIn: number;
+  tokensOut: number;
+  estimatedCost: number;
+  caseId: string;
+  createdAt: string;
+}
+
+export interface CostByModel {
+  model: string;
+  callCount: number;
+  tokensIn: number;
+  tokensOut: number;
+  cost: number;
+}
+
+export interface CostSummary {
+  tenantId: string;
+  month: string;
+  totalCost: number;
+  totalCalls: number;
+  totalTokensIn: number;
+  totalTokensOut: number;
+  byModel: CostByModel[];
 }

@@ -231,8 +231,17 @@ export interface TenantConfig {
   maxLogLines: number;
   maxDocs: number;
   modelPolicy: 'fast' | 'strong' | 'auto';
+  preferredModel?: string;
   retentionDays: number;
   enabledConnectors: string[];
+}
+
+export interface OpenRouterModel {
+  id: string;
+  name: string;
+  provider: string;
+  promptPricing: number;
+  completionPricing: number;
 }
 
 export interface AnalyticsSummary {
@@ -265,6 +274,36 @@ export interface ApiError {
   message: string;
   field?: string;
   requestId?: string;
+}
+
+// === LLM Cost Tracking ===
+export interface LLMCostEntry {
+  id: string;
+  tenantId: TenantId;
+  model: string;
+  tokensIn: number;
+  tokensOut: number;
+  estimatedCost: number;
+  caseId: CaseId;
+  createdAt: string;
+}
+
+export interface CostByModel {
+  model: string;
+  callCount: number;
+  tokensIn: number;
+  tokensOut: number;
+  cost: number;
+}
+
+export interface CostSummary {
+  tenantId: TenantId;
+  month: string;
+  totalCost: number;
+  totalCalls: number;
+  totalTokensIn: number;
+  totalTokensOut: number;
+  byModel: CostByModel[];
 }
 
 // === Pagination ===

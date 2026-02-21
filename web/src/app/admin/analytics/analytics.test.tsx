@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { mockTenant, mockAnalytics, createMockFetch } from '@/lib/test-helpers';
+import { mockTenant, mockAnalytics, mockCostSummary, createMockFetch } from '@/lib/test-helpers';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => '/admin/analytics',
@@ -27,11 +27,13 @@ import AnalyticsPage from './page';
 
 const tenant = mockTenant({ id: 'ten_test123', name: 'Test Corp' });
 const analytics = mockAnalytics();
+const costs = mockCostSummary();
 
 describe('Analytics Page', () => {
   beforeEach(() => {
     globalThis.fetch = vi.fn().mockImplementation(
       createMockFetch({
+        '/api/admin/tenants/ten_test123/costs': { costs },
         '/api/admin/tenants/ten_test123/analytics': { analytics },
         '/api/admin/tenants': { tenants: [tenant] },
       }),
@@ -54,5 +56,13 @@ describe('Analytics Page', () => {
       expect(screen.getByTestId('errors-chart')).toBeInTheDocument();
     });
     expect(screen.getByText('Top Errors')).toBeInTheDocument();
+  });
+
+  it('shows cost summary card', async () => {
+    render(<AnalyticsPage />);
+    await waitFor(() => {
+      expect(screen.getByTestId('cost-summary')).toBeInTheDocument();
+    });
+    expect(screen.getByText('$1.25')).toBeInTheDocument();
   });
 });

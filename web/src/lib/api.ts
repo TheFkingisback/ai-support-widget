@@ -1,6 +1,6 @@
 import type {
   Tenant, AnalyticsSummary, AuditEntry, Case,
-  CreateTenantInput, UpdateTenantInput,
+  CreateTenantInput, UpdateTenantInput, OpenRouterModel, CostSummary,
 } from './types';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
@@ -64,4 +64,17 @@ export async function getAuditLog(
   tenantId: string, page = 1, pageSize = 20,
 ): Promise<{ entries: AuditEntry[]; total: number; page: number; pageSize: number; hasMore: boolean }> {
   return request('GET', `/api/admin/tenants/${tenantId}/audit?page=${page}&pageSize=${pageSize}`);
+}
+
+export async function listModels(): Promise<OpenRouterModel[]> {
+  const data = await request<{ models: OpenRouterModel[] }>('GET', '/api/admin/models');
+  return data.models;
+}
+
+export async function getCosts(tenantId: string, month?: string): Promise<CostSummary> {
+  const qs = month ? `?month=${month}` : '';
+  const data = await request<{ costs: CostSummary }>(
+    'GET', `/api/admin/tenants/${tenantId}/costs${qs}`,
+  );
+  return data.costs;
 }
