@@ -11,6 +11,7 @@ import { registerExtraGatewayRoutes } from './gateway-extra.routes.js';
 
 const createCaseBody = z.object({
   message: z.string().min(1, 'Message is required').max(5000),
+  context: z.record(z.unknown()).optional(),
 });
 
 const addMessageBody = z.object({
@@ -51,7 +52,7 @@ export async function registerGatewayRoutes(
       if (snapshotService) {
         try {
           const snapshot = await snapshotService.buildSnapshot(
-            tenantId, userId, result.case.id, reqId,
+            tenantId, userId, result.case.id, reqId, data.context,
           );
           log.info('Snapshot generated for case', reqId, {
             caseId: result.case.id,

@@ -28,11 +28,12 @@ export function createMockSnapshotService(
   return {
     _snapshots,
 
-    async buildSnapshot(tenantId, userId, caseId, requestId) {
+    async buildSnapshot(tenantId, userId, caseId, requestId, pushedContext) {
       const snapshotId = genId('scs');
-      const state = mockUserState(userId, tenantId);
-      const history = mockUserHistory();
-      const logs = mockUserLogs();
+      const ctx = pushedContext as Record<string, unknown> | undefined;
+      const state = (ctx?.userState ?? mockUserState(userId, tenantId)) as ReturnType<typeof mockUserState>;
+      const history = (ctx?.userHistory ?? mockUserHistory()) as ReturnType<typeof mockUserHistory>;
+      const logs = (ctx?.userLogs ?? mockUserLogs()) as ReturnType<typeof mockUserLogs>;
       const clickTimeline = buildClickTimeline(history.events, requestId);
 
       const snapshot: SupportContextSnapshot = {
@@ -44,26 +45,30 @@ export function createMockSnapshotService(
         },
         identity: {
           tenantId, userId,
-          roles: state.roles,
-          plan: state.plan,
-          featuresEnabled: state.featuresEnabled,
+          roles: state.roles ?? [],
+          plan: state.plan ?? 'unknown',
+          featuresEnabled: state.featuresEnabled ?? [],
         },
         productState: {
-          entities: state.entities,
-          activeErrors: state.activeErrors,
-          limitsReached: state.limitsReached,
+          entities: state.entities ?? [],
+          activeErrors: state.activeErrors ?? [],
+          limitsReached: state.limitsReached ?? [],
         },
         recentActivity: {
-          windowHours: history.windowHours,
-          events: history.events,
+          windowHours: history.windowHours ?? 72,
+          events: history.events ?? [],
           clickTimeline,
         },
         backend: {
-          recentRequests: logs.recentRequests,
-          jobs: logs.jobs,
-          errors: logs.errors,
+          recentRequests: logs.recentRequests ?? [],
+          jobs: logs.jobs ?? [],
+          errors: logs.errors ?? [],
         },
-        knowledgePack: { docs: [], runbooks: [], changelog: [] },
+        knowledgePack: {
+          docs: [],
+          runbooks: ctx?.businessRules ? [{ id: 'rules', title: 'Business Rules', content: JSON.stringify(ctx.businessRules), category: 'rules' }] : [],
+          changelog: [],
+        },
         privacy: { redactionVersion: '1.0', fieldsRemoved: [] },
       };
 

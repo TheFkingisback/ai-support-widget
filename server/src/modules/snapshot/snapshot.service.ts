@@ -29,6 +29,7 @@ export interface SnapshotService {
     userId: string,
     caseId: string,
     requestId?: string,
+    pushedContext?: Record<string, unknown>,
   ): Promise<SupportContextSnapshot>;
 
   getSnapshot(

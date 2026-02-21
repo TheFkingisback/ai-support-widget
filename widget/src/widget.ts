@@ -65,6 +65,7 @@ export class AISupportWidget {
         locale,
         position,
         onClose: close,
+        context: config.context,
       });
       shadow.appendChild(chatPanel.element);
       fab.setAttribute('aria-expanded', 'true');

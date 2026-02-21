@@ -7,6 +7,7 @@ export interface ChatPanelConfig {
   locale: string;
   position: 'bottom-right' | 'bottom-left';
   onClose: () => void;
+  context?: Record<string, unknown>;
 }
 
 export interface ChatPanel {
@@ -104,7 +105,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
     const typing = showTyping();
     try {
       if (!caseId) {
-        const result = await apiClient.createCase(text);
+        const result = await apiClient.createCase(text, config.context);
         caseId = result.case.id;
         // Show user message
         const userMsg: Message = {

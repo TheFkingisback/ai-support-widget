@@ -7,6 +7,9 @@ export interface WidgetConfig {
   position?: 'bottom-right' | 'bottom-left';
   locale?: string;
   onTokenRefresh?: () => Promise<string>;
+  /** Pre-fetched support context from the host app (push model). */
+  context?: Record<string, unknown>;
+  onOpen?: () => Promise<void> | void;
 }
 
 /** Case returned by the gateway */
