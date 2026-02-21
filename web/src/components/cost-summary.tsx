@@ -34,13 +34,14 @@ export function CostSummaryCard({ costs, loading }: CostSummaryCardProps) {
       </div>
 
       {costs.byModel.length > 0 && (
-        <table className="mt-4 w-full text-sm" data-testid="cost-by-model">
+        <table className="mt-4 w-full text-sm" data-testid="cost-by-model"
+          aria-label={`Cost breakdown by model for ${costs.month}`}>
           <thead>
             <tr className="border-b border-gray-700 text-left text-gray-400">
-              <th className="pb-1">Model</th>
-              <th className="pb-1">Calls</th>
-              <th className="pb-1">Tokens</th>
-              <th className="pb-1">Cost</th>
+              <th scope="col" className="pb-1">Model</th>
+              <th scope="col" className="pb-1">Calls</th>
+              <th scope="col" className="pb-1">Tokens</th>
+              <th scope="col" className="pb-1">Cost</th>
             </tr>
           </thead>
           <tbody>

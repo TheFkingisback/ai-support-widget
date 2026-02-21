@@ -84,6 +84,7 @@ export default function ModelPicker({ value, onChange }: ModelPickerProps) {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}
               placeholder="Search models..."
               className="input-field w-full text-sm"
               aria-label="Search models"
@@ -91,13 +92,21 @@ export default function ModelPicker({ value, onChange }: ModelPickerProps) {
             />
           </div>
           <ul className="max-h-64 overflow-y-auto p-1" role="group">
-            {loading && <li className="px-3 py-2 text-sm text-gray-500">Loading models...</li>}
+            {loading && (
+              <li className="px-3 py-2 text-sm text-gray-500" role="status">Loading models...</li>
+            )}
             {!loading && filtered.length === 0 && (
               <li className="px-3 py-2 text-sm text-gray-500">No models found</li>
             )}
             {filtered.map((m) => (
               <li key={m.id} role="option" aria-selected={m.id === value}
+                tabIndex={0}
                 onClick={() => { onChange(m.id); setOpen(false); setSearch(''); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault(); onChange(m.id); setOpen(false); setSearch('');
+                  }
+                }}
                 className={`cursor-pointer rounded-md px-3 py-2 text-sm transition-colors ${
                   m.id === value
                     ? 'bg-blue-600 text-white'
