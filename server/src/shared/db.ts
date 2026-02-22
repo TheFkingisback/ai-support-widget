@@ -1,11 +1,12 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { log } from './logger.js';
 
 let client: ReturnType<typeof postgres> | null = null;
-let db: ReturnType<typeof drizzle> | null = null;
+let db: PostgresJsDatabase | null = null;
 
-export function getDb(databaseUrl?: string): ReturnType<typeof drizzle> {
+export function getDb(databaseUrl?: string): PostgresJsDatabase {
   if (db) return db;
 
   const url = databaseUrl ?? process.env.DATABASE_URL;

@@ -144,7 +144,7 @@ export interface SessionDetail {
 
 export interface SnapshotData {
   meta: { snapshotId: string; createdAt: string };
-  identity: { tenantId: string; userId: string; roles: string[]; plan: string; featuresEnabled: string[] };
+  identity: { tenantId: string; userId: string; roles: string[]; plan: string; featuresEnabled: string[]; profile?: { fullName?: string; email?: string; country?: string } };
   productState: { entities: unknown[]; activeErrors: unknown[]; limitsReached: unknown[] };
   recentActivity: { windowHours: number; events: unknown[]; clickTimeline: unknown[] };
   backend: { recentRequests: unknown[]; jobs: unknown[]; errors: unknown[] };

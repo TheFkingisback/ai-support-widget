@@ -88,3 +88,7 @@ export async function getSessions(): Promise<SessionSummary[]> {
 export async function getSessionDetail(caseId: string): Promise<SessionDetail> {
   return request<SessionDetail>('GET', `/api/admin/sessions/${caseId}`);
 }
+
+export async function purgeSessions(olderThanDays: number): Promise<{ purged: number; cutoff: string }> {
+  return request('DELETE', '/api/admin/sessions/purge', { olderThanDays });
+}

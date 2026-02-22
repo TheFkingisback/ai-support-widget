@@ -107,24 +107,15 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
       if (!caseId) {
         const result = await apiClient.createCase(text, config.context);
         caseId = result.case.id;
-        // Show user message
-        const userMsg: Message = {
-          id: 'local_u', caseId, role: 'user', content: text,
-          actions: [], evidence: [], confidence: null, createdAt: new Date().toISOString(),
-        };
-        typing.remove();
-        appendRendered(userMsg);
-      } else {
-        const aiMsg = await apiClient.sendMessage(caseId, text);
-        typing.remove();
-        // Show user message
-        const userMsg: Message = {
-          id: 'local_u', caseId, role: 'user', content: text,
-          actions: [], evidence: [], confidence: null, createdAt: new Date().toISOString(),
-        };
-        appendRendered(userMsg);
-        appendRendered(aiMsg);
       }
+      const aiMsg = await apiClient.sendMessage(caseId, text);
+      typing.remove();
+      const userMsg: Message = {
+        id: 'local_u', caseId, role: 'user', content: text,
+        actions: [], evidence: [], confidence: null, createdAt: new Date().toISOString(),
+      };
+      appendRendered(userMsg);
+      appendRendered(aiMsg);
     } catch {
       typing.remove();
       const errEl = document.createElement('div');

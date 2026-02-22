@@ -4,10 +4,11 @@ import { log } from '../../shared/logger.js';
 
 /** Abstracts how session data is fetched — works with both mock and real stores. */
 export interface SessionDataSource {
-  getAllCases(): Case[];
-  getMessages(caseId: string): Message[];
-  getSnapshotByCaseId(caseId: string): SupportContextSnapshot | null;
-  getCostsByCaseId(caseId: string): LLMCostEntry[];
+  getAllCases(): Promise<Case[]>;
+  getMessages(caseId: string): Promise<Message[]>;
+  getSnapshotByCaseId(caseId: string): Promise<SupportContextSnapshot | null>;
+  getCostsByCaseId(caseId: string): Promise<LLMCostEntry[]>;
+  purgeOlderThan?(olderThan: string): Promise<number>;
 }
 
 export interface SessionAdminOpts {
@@ -29,19 +30,19 @@ export async function registerSessionAdminRoutes(
       const reqId = request.id as string;
       log.info('GET /api/admin/sessions', reqId);
 
-      const cases = dataSource.getAllCases();
-      const sessions = cases.map((c) => {
-        const messages = dataSource.getMessages(c.id);
-        const snapshot = dataSource.getSnapshotByCaseId(c.id);
-        const costs = dataSource.getCostsByCaseId(c.id);
+      const allCases = await dataSource.getAllCases();
+      const sessions = await Promise.all(allCases.map(async (c) => {
+        const msgs = await dataSource.getMessages(c.id);
+        const snapshot = await dataSource.getSnapshotByCaseId(c.id);
+        const costs = await dataSource.getCostsByCaseId(c.id);
         return {
           ...c,
-          messageCount: messages.length,
+          messageCount: msgs.length,
           hasSnapshot: !!snapshot,
           llmCalls: costs.length,
           totalCost: costs.reduce((s, e) => s + e.estimatedCost, 0),
         };
-      });
+      }));
 
       return reply.code(200).send({ sessions });
     },
@@ -56,22 +57,44 @@ export async function registerSessionAdminRoutes(
       const { caseId } = request.params;
       log.info('GET /api/admin/sessions/:caseId', reqId, { caseId });
 
-      const cases = dataSource.getAllCases();
-      const caseData = cases.find((c) => c.id === caseId);
+      const allCases = await dataSource.getAllCases();
+      const caseData = allCases.find((c) => c.id === caseId);
       if (!caseData) {
         return reply.code(404).send({ error: 'Case not found' });
       }
 
-      const messages = dataSource.getMessages(caseId);
-      const snapshot = dataSource.getSnapshotByCaseId(caseId);
-      const costs = dataSource.getCostsByCaseId(caseId);
+      const msgs = await dataSource.getMessages(caseId);
+      const snapshot = await dataSource.getSnapshotByCaseId(caseId);
+      const costs = await dataSource.getCostsByCaseId(caseId);
 
       return reply.code(200).send({
         case: caseData,
-        messages,
+        messages: msgs,
         snapshot,
         costs,
       });
+    },
+  );
+
+  // DELETE /api/admin/sessions/purge — purge old sessions
+  app.delete<{ Body: { olderThanDays: number } }>(
+    '/api/admin/sessions/purge',
+    { preHandler: [adminAuth] },
+    async (request, reply) => {
+      const reqId = request.id as string;
+      const { olderThanDays } = request.body ?? { olderThanDays: 90 };
+
+      if (!dataSource.purgeOlderThan) {
+        return reply.code(501).send({ error: 'Purge not supported' });
+      }
+
+      const cutoff = new Date(Date.now() - olderThanDays * 24 * 3600_000).toISOString();
+      log.warn('Purging sessions', reqId, { olderThanDays, cutoff });
+
+      const purged = await dataSource.purgeOlderThan(cutoff);
+      log.warn('Sessions purged', reqId, { purged });
+
+      return reply.code(200).send({ purged, cutoff });
     },
   );
 }

@@ -33,11 +33,23 @@ RULES:
 
   // Identity block
   const { identity } = snapshot;
+  const profileLine = identity.profile?.fullName
+    ? `\n- Name: ${identity.profile.fullName}` : '';
   sections.push(`USER STATE:
-- User: ${identity.userId}
+- User: ${identity.userId}${profileLine}
 - Roles: ${identity.roles.join(', ')}
 - Plan: ${identity.plan}
 - Features: ${identity.featuresEnabled.join(', ') || 'none'}`);
+
+  // Entities (sessions, cars, etc.)
+  const { entities } = snapshot.productState;
+  if (entities.length > 0) {
+    const entityLines = entities.map((e) => {
+      const meta = e.metadata ? ` ${JSON.stringify(e.metadata)}` : '';
+      return `- [${e.type}] ${e.description ?? e.id ?? 'unknown'}${meta}`;
+    });
+    sections.push(`PRODUCT ENTITIES:\n${entityLines.join('\n')}`);
+  }
 
   // Active errors
   const { activeErrors } = snapshot.productState;

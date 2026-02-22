@@ -15,6 +15,7 @@ import type { EscalationService } from './modules/escalation/escalation.service.
 import { registerAdminRoutes, type AdminRouteOpts } from './modules/admin/admin.routes.js';
 import { registerSessionAdminRoutes, type SessionAdminOpts } from './modules/admin/session-admin.routes.js';
 import { registerSwagger } from './shared/swagger.js';
+import { sql } from 'drizzle-orm';
 
 export interface AppDeps {
   jwtSecret?: string;
@@ -104,9 +105,26 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   // Swagger API docs
   await registerSwagger(app);
 
-  // Health check
-  app.get('/api/health', async () => {
-    return { ok: true, version: '0.1.0' };
+  // Health check — verifies DB and Redis connectivity
+  app.get('/api/health', async (_req, reply) => {
+    let dbOk = false;
+    let redisOk = false;
+    try {
+      const { getDb } = await import('./shared/db.js');
+      const db = getDb();
+      await db.execute(sql`SELECT 1`);
+      dbOk = true;
+    } catch { /* db unreachable */ }
+    try {
+      const { getRedis } = await import('./shared/redis.js');
+      const redis = getRedis();
+      await redis.ping();
+      redisOk = true;
+    } catch { /* redis unreachable */ }
+    const ok = dbOk && redisOk;
+    return reply.code(ok ? 200 : 503).send({
+      ok, version: '0.1.0', db: dbOk ? 'ok' : 'error', redis: redisOk ? 'ok' : 'error',
+    });
   });
 
   // Gateway routes (if service provided)

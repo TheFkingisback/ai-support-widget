@@ -1,0 +1,90 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aiwidget
+      POSTGRES_USER: aiwidget
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - aiwidget-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiwidget"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redisdata:/data
+    networks:
+      - aiwidget-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://aiwidget:${DB_PASSWORD}@postgres:5432/aiwidget
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      ADMIN_API_KEY: ${ADMIN_API_KEY}
+      LOG_LEVEL: ${LOG_LEVEL:-low}
+      PORT: 3005
+      CORS_ORIGINS: https://${DOMAIN}
+    ports:
+      - "127.0.0.1:3005:3005"
+    networks:
+      - aiwidget-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3005/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        NEXT_PUBLIC_API_URL: https://${DOMAIN}
+        NEXT_PUBLIC_ADMIN_API_KEY: ${ADMIN_API_KEY}
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3006:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: https://${DOMAIN}
+      NEXT_PUBLIC_ADMIN_API_KEY: ${ADMIN_API_KEY}
+    networks:
+      - aiwidget-net
+
+networks:
+  aiwidget-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redisdata:

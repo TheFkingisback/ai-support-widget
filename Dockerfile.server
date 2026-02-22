@@ -1,0 +1,40 @@
+# ── Stage 1: Build ──────────────────────────────────────────────
+FROM node:20-alpine AS build
+WORKDIR /app
+
+# Install deps (server only, no workspace hoisting)
+COPY server/package.json server/package-lock.json* ./
+RUN npm install --ignore-scripts
+
+# Copy source and compile
+COPY server/tsconfig.json ./
+COPY server/src/ ./src/
+RUN npx tsc
+
+# ── Stage 2: Production runtime ────────────────────────────────
+FROM node:20-alpine AS runtime
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Install prod deps only
+COPY server/package.json server/package-lock.json* ./
+RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
+
+# Copy compiled output
+COPY --from=build /app/dist ./dist
+
+# Create logs directory
+RUN mkdir -p logs
+
+# Non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+EXPOSE 3005
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3005/api/health || exit 1
+
+CMD ["node", "dist/index.js"]

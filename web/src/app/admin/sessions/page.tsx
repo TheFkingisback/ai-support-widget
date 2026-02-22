@@ -1,8 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { MessageSquare, Database, Cpu, DollarSign } from 'lucide-react';
-import { getSessions } from '@/lib/api';
+import { MessageSquare, Database, Cpu, DollarSign, Trash2 } from 'lucide-react';
+import { getSessions, purgeSessions } from '@/lib/api';
 import type { SessionSummary } from '@/lib/types';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -15,11 +15,31 @@ export default function SessionsPage() {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [purging, setPurging] = useState(false);
+  const [purgeMsg, setPurgeMsg] = useState<string | null>(null);
+  const [purgeDays, setPurgeDays] = useState(30);
 
-  useEffect(() => {
+  const loadSessions = () => {
     setLoading(true);
     getSessions().then(setSessions).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(loadSessions, []);
+
+  const handlePurge = async () => {
+    if (!confirm(`Delete all sessions older than ${purgeDays} days? This cannot be undone.`)) return;
+    setPurging(true);
+    setPurgeMsg(null);
+    try {
+      const result = await purgeSessions(purgeDays);
+      setPurgeMsg(`Purged ${result.purged} sessions (before ${new Date(result.cutoff).toLocaleDateString()})`);
+      loadSessions();
+    } catch {
+      setPurgeMsg('Purge failed');
+    } finally {
+      setPurging(false);
+    }
+  };
 
   const filtered = filter === 'all' ? sessions : sessions.filter((s) => s.status === filter);
 
@@ -38,6 +58,24 @@ export default function SessionsPage() {
           <option value="resolved">Resolved</option>
           <option value="escalated">Escalated</option>
         </select>
+      </div>
+
+      <div className="mb-4 flex items-center gap-3 rounded-lg border border-gray-800 bg-gray-900 p-3">
+        <Trash2 size={16} className="text-red-400" aria-hidden="true" />
+        <span className="text-sm text-gray-400">Purge sessions older than</span>
+        <input
+          type="number" min={1} max={365} value={purgeDays}
+          onChange={(e) => setPurgeDays(Number(e.target.value))}
+          className="input-field w-20 text-center" aria-label="Days"
+        />
+        <span className="text-sm text-gray-400">days</span>
+        <button
+          onClick={handlePurge} disabled={purging}
+          className="rounded bg-red-600 px-3 py-1 text-sm text-white hover:bg-red-500 disabled:opacity-50"
+        >
+          {purging ? 'Purging...' : 'Purge'}
+        </button>
+        {purgeMsg && <span className="text-xs text-gray-400">{purgeMsg}</span>}
       </div>
 
       {loading ? (

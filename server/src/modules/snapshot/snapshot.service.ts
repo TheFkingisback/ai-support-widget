@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { eq, and } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { snapshots } from './snapshot.schema.js';
+import { cases } from '../gateway/gateway.schema.js';
 import {
   getUserState,
   getUserHistory,
@@ -119,6 +120,8 @@ export function createSnapshotService(
           roles: state?.roles ?? [],
           plan: state?.plan ?? 'unknown',
           featuresEnabled: state?.featuresEnabled ?? [],
+          profile: (state as unknown as Record<string, unknown>)?.profile as
+            { fullName?: string; email?: string; country?: string } | undefined,
         },
         productState: {
           entities: state?.entities ?? [],
@@ -161,6 +164,10 @@ export function createSnapshotService(
         truncation: snapshot.meta.truncation,
         createdAt: new Date(),
       });
+
+      // Link snapshot to case so orchestrator can find it
+      await db.update(cases).set({ snapshotId })
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
 
       log.info('Snapshot built', requestId, {
         snapshotId,

@@ -9,6 +9,12 @@ import {
 import { buildClickTimeline } from '../../modules/snapshot/timeline.js';
 import { genId } from './test-utils.js';
 
+function extractProfile(state: Record<string, unknown>): { fullName?: string; email?: string; country?: string } | undefined {
+  const p = state.profile as Record<string, unknown> | undefined;
+  if (!p) return undefined;
+  return { fullName: p.fullName as string | undefined, email: p.email as string | undefined, country: p.country as string | undefined };
+}
+
 function extractPushedDocs(ctx?: Record<string, unknown>): Array<{ id: string; title: string; content: string; category: string }> {
   if (!ctx?.knowledgePack) return [];
   const kp = ctx.knowledgePack as Record<string, unknown>;
@@ -59,6 +65,7 @@ export function createMockSnapshotService(
           roles: state.roles ?? [],
           plan: state.plan ?? 'unknown',
           featuresEnabled: state.featuresEnabled ?? [],
+          profile: extractProfile(state as unknown as Record<string, unknown>),
         },
         productState: {
           entities: state.entities ?? [],
