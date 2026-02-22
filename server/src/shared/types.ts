@@ -72,6 +72,7 @@ export interface SupportContextSnapshot {
     roles: string[];
     plan: string;
     featuresEnabled: string[];
+    profile?: { fullName?: string; email?: string; country?: string };
   };
   productState: {
     entities: ProductEntity[];
@@ -101,7 +102,8 @@ export interface SupportContextSnapshot {
 
 export interface ProductEntity {
   type: string;
-  id: string;
+  id?: string;
+  description?: string;
   status: string;
   metadata: Record<string, unknown>;
 }
@@ -185,6 +187,7 @@ export interface GetUserStateResponse {
   tenantId: TenantId;
   roles: string[];
   plan: string;
+  profile?: { fullName?: string; email?: string; country?: string };
   featuresEnabled: string[];
   entities: ProductEntity[];
   activeErrors: ActiveError[];
@@ -234,6 +237,7 @@ export interface TenantConfig {
   preferredModel?: string;
   retentionDays: number;
   enabledConnectors: string[];
+  customInstructions?: string;
 }
 
 export interface OpenRouterModel {
