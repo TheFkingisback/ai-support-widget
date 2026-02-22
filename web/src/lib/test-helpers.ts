@@ -31,6 +31,7 @@ export function mockCase(overrides?: Partial<Case>): Case {
     resolvedAt: null,
     messageCount: 3,
     feedback: null,
+    rating: null,
     ...overrides,
   };
 }
@@ -52,6 +53,7 @@ export function mockAnalytics(overrides?: Partial<AnalyticsSummary>): AnalyticsS
       { errorCode: 'RATE_LIMITED', count: 8 },
     ],
     csat: { positive: 30, negative: 5, total: 35 },
+    avgRating: 7.5,
     ...overrides,
   };
 }
