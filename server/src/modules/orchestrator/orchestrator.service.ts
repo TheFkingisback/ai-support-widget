@@ -76,7 +76,24 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         processedSnapshot = processed;
       }
 
-      // 5. Fetch knowledge base docs (if service available)
+      // 5. Resolve model + custom instructions (tenant config)
+      let effectivePolicy = modelPolicy;
+      let preferredModel: string | undefined;
+      let customInstructions: string | undefined;
+      if (tenantService) {
+        try {
+          const tc = await tenantService.getTenant(tenantId, requestId);
+          effectivePolicy = tc.config.modelPolicy ?? modelPolicy;
+          preferredModel = tc.config.preferredModel;
+          customInstructions = tc.config.customInstructions;
+        } catch (err) {
+          log.warn('handleMessage: tenant lookup failed', requestId, {
+            error: err instanceof Error ? err.message : String(err) });
+        }
+      }
+      const model = resolveModel(effectivePolicy, preferredModel);
+
+      // 6. Fetch knowledge base docs (if service available)
       let knowledgeDocs = processedSnapshot?.knowledgePack?.docs ?? [];
       const runbooks = processedSnapshot?.knowledgePack?.runbooks ?? [];
       if (knowledgeService) {
@@ -93,10 +110,10 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       }
       const allDocs = [...knowledgeDocs, ...runbooks];
       const systemPrompt = processedSnapshot
-        ? buildSystemPrompt(processedSnapshot, allDocs, requestId)
+        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions)
         : 'You are a helpful support assistant. Answer the user\'s question.';
 
-      // 6. Build conversation messages (last N)
+      // 7. Build conversation messages (last N)
       const allMessages = [...messages, {
         id: 'pending',
         caseId,
@@ -119,21 +136,6 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
           content: m.content,
         })),
       ];
-
-      // 7. Resolve model (tenant preferredModel > tenant policy > deps policy)
-      let effectivePolicy = modelPolicy;
-      let preferredModel: string | undefined;
-      if (tenantService) {
-        try {
-          const tc = await tenantService.getTenant(tenantId, requestId);
-          effectivePolicy = tc.config.modelPolicy ?? modelPolicy;
-          preferredModel = tc.config.preferredModel;
-        } catch (err) {
-          log.warn('handleMessage: tenant lookup failed', requestId, {
-            error: err instanceof Error ? err.message : String(err) });
-        }
-      }
-      const model = resolveModel(effectivePolicy, preferredModel);
       const llmResponse = await callLLM(
         { model, messages: llmMessages },
         apiKey,

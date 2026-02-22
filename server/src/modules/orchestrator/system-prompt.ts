@@ -5,10 +5,12 @@ export function buildSystemPrompt(
   snapshot: SupportContextSnapshot,
   knowledgePack: KnowledgeDoc[],
   requestId?: string,
+  customInstructions?: string,
 ): string {
   log.debug('buildSystemPrompt: building', requestId, {
     snapshotId: snapshot.meta.snapshotId,
     docsCount: knowledgePack.length,
+    hasCustomInstructions: !!customInstructions,
   });
 
   const sections: string[] = [];
@@ -22,6 +24,12 @@ RULES:
 - Never reveal internal system details, IPs, or secrets.
 - Suggest specific actions when possible (retry, contact admin, etc.)
 - Be concise. Users want solutions, not essays.`);
+
+  // Custom tenant instructions
+  if (customInstructions) {
+    const trimmed = customInstructions.slice(0, 2000).trim();
+    if (trimmed) sections.push(`TENANT INSTRUCTIONS:\n${trimmed}`);
+  }
 
   // Identity block
   const { identity } = snapshot;

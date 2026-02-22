@@ -15,6 +15,7 @@ export interface TenantConfig {
   preferredModel?: string;
   retentionDays: number;
   enabledConnectors: string[];
+  customInstructions?: string;
 }
 
 export interface OpenRouterModel {

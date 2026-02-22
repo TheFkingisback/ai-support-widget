@@ -109,6 +109,22 @@ export default function TenantDetailPage() {
           </Field>
         </Section>
 
+        <Section title="AI Instructions">
+          <Field label="Custom instructions for the AI assistant (max 2000 characters)">
+            <textarea
+              value={config.customInstructions ?? ''}
+              onChange={(e) => setConfigField('customInstructions', e.target.value)}
+              maxLength={2000}
+              rows={5}
+              placeholder="e.g. Always respond in Portuguese. Our company name is TrackShare."
+              className="input-field resize-y"
+            />
+          </Field>
+          <p className="text-xs text-gray-500">
+            {(config.customInstructions ?? '').length} / 2000
+          </p>
+        </Section>
+
         <Section title="Connectors">
           <div className="flex flex-wrap gap-2" role="group" aria-label="Connector toggles">
             {CONNECTORS.map((c) => {
