@@ -9,6 +9,17 @@ import {
 import { buildClickTimeline } from '../../modules/snapshot/timeline.js';
 import { genId } from './test-utils.js';
 
+function extractPushedDocs(ctx?: Record<string, unknown>): Array<{ id: string; title: string; content: string; category: string }> {
+  if (!ctx?.knowledgePack) return [];
+  const kp = ctx.knowledgePack as Record<string, unknown>;
+  const docs = kp.docs as Array<{ id?: string; title?: string; content?: string; category?: string }> | undefined;
+  if (!Array.isArray(docs)) return [];
+  return docs.map((d) => ({
+    id: d.id ?? 'unknown', title: d.title ?? 'Unknown',
+    content: d.content ?? '', category: d.category ?? 'general',
+  }));
+}
+
 interface StoredSnapshot {
   id: string;
   tenantId: string;
@@ -65,7 +76,7 @@ export function createMockSnapshotService(
           errors: logs.errors ?? [],
         },
         knowledgePack: {
-          docs: [],
+          docs: extractPushedDocs(ctx),
           runbooks: ctx?.businessRules ? [{ id: 'rules', title: 'Business Rules', content: JSON.stringify(ctx.businessRules), category: 'rules' }] : [],
           changelog: [],
         },
