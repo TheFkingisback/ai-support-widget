@@ -9,6 +9,7 @@ import type { Case } from '@/lib/types';
 const STATUS_COLORS: Record<string, string> = {
   active: 'bg-green-900/50 text-green-400',
   resolved: 'bg-blue-900/50 text-blue-400',
+  unresolved: 'bg-yellow-900/50 text-yellow-400',
   escalated: 'bg-red-900/50 text-red-400',
 };
 
@@ -40,6 +41,7 @@ export default function CasesPage() {
           <option value="all">All</option>
           <option value="active">Active</option>
           <option value="resolved">Resolved</option>
+          <option value="unresolved">Unresolved</option>
           <option value="escalated">Escalated</option>
         </select>
       </div>
@@ -102,6 +104,7 @@ function CaseDetail({ caseData, onClose }: { caseData: Case; onClose: () => void
           <Dt label="User">{caseData.userId}</Dt>
           <Dt label="Messages">{caseData.messageCount}</Dt>
           <Dt label="Feedback">{caseData.feedback ?? 'None'}</Dt>
+          <Dt label="Rating">{caseData.rating != null ? `${caseData.rating}/10` : 'N/A'}</Dt>
           <Dt label="Created">{new Date(caseData.createdAt).toLocaleString()}</Dt>
           <Dt label="Resolved">{caseData.resolvedAt ? new Date(caseData.resolvedAt).toLocaleString() : 'N/A'}</Dt>
         </dl>

@@ -33,7 +33,7 @@ export class AISupportWidget {
 
     // Inject styles
     const styleEl = document.createElement('style');
-    styleEl.textContent = getStyles(theme);
+    styleEl.textContent = getStyles(theme, config.brandColor);
     shadow.appendChild(styleEl);
 
     // Create API client
@@ -59,20 +59,53 @@ export class AISupportWidget {
     shadow.appendChild(fab);
 
     let chatPanel: ChatPanel | null = null;
+    let panelVisible = false;
+
+    function handleCaseClosed(): void {
+      // After case is closed, destroy panel so next open starts fresh
+      if (chatPanel) {
+        chatPanel.destroy();
+        chatPanel = null;
+      }
+      panelVisible = false;
+      fab.setAttribute('aria-expanded', 'false');
+      fab.setAttribute('aria-label', 'Open support chat');
+    }
 
     function open(): void {
+      if (chatPanel && !panelVisible) {
+        // Restore minimized panel
+        chatPanel.show();
+        panelVisible = true;
+        fab.setAttribute('aria-expanded', 'true');
+        fab.setAttribute('aria-label', 'Minimize support chat');
+        chatPanel.focus();
+        return;
+      }
       if (chatPanel) return;
       chatPanel = createChatPanel({
         apiClient,
         locale,
         position,
-        onClose: close,
+        onClose: minimize,
+        onCaseClosed: handleCaseClosed,
         context: config.context,
       });
       shadow.appendChild(chatPanel.element);
+      panelVisible = true;
       fab.setAttribute('aria-expanded', 'true');
-      fab.setAttribute('aria-label', 'Close support chat');
+      fab.setAttribute('aria-label', 'Minimize support chat');
       chatPanel.focus();
+    }
+
+    function minimize(): void {
+      if (chatPanel) {
+        chatPanel.hide();
+      }
+      panelVisible = false;
+      fab.setAttribute('aria-expanded', 'false');
+      fab.setAttribute('aria-label', 'Open support chat');
+      fab.focus();
     }
 
     function close(): void {
@@ -80,6 +113,7 @@ export class AISupportWidget {
         chatPanel.destroy();
         chatPanel = null;
       }
+      panelVisible = false;
       fab.setAttribute('aria-expanded', 'false');
       fab.setAttribute('aria-label', 'Open support chat');
       fab.focus();
@@ -92,8 +126,8 @@ export class AISupportWidget {
     }
 
     fab.addEventListener('click', () => {
-      if (chatPanel) {
-        close();
+      if (panelVisible) {
+        minimize();
       } else {
         open();
       }

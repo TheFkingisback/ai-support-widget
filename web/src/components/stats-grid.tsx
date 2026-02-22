@@ -17,9 +17,9 @@ export function StatsGrid({ analytics }: Props) {
     { label: 'Avg Messages', value: analytics.avgMessagesPerResolution.toFixed(1) },
     { label: 'Avg Time to Resolve', value: formatMs(analytics.avgTimeToResolution) },
     {
-      label: 'CSAT',
-      value: analytics.csat.total > 0
-        ? `${((analytics.csat.positive / analytics.csat.total) * 100).toFixed(0)}%`
+      label: 'Avg Rating',
+      value: analytics.avgRating > 0
+        ? `${analytics.avgRating.toFixed(1)}/10`
         : 'N/A',
     },
     { label: 'Resolved w/o Human', value: analytics.resolvedWithoutHuman.toString() },

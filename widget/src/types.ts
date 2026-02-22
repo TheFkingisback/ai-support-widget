@@ -10,6 +10,8 @@ export interface WidgetConfig {
   /** Pre-fetched support context from the host app (push model). */
   context?: Record<string, unknown>;
   onOpen?: () => Promise<void> | void;
+  /** Brand color override for primary theme color (hex). */
+  brandColor?: string;
 }
 
 /** Case returned by the gateway */
@@ -17,13 +19,14 @@ export interface Case {
   id: string;
   tenantId: string;
   userId: string;
-  status: 'active' | 'resolved' | 'escalated';
+  status: 'active' | 'resolved' | 'unresolved' | 'escalated';
   snapshotId: string;
   createdAt: string;
   updatedAt: string;
   resolvedAt: string | null;
   messageCount: number;
   feedback: 'positive' | 'negative' | null;
+  rating: number | null;
 }
 
 /** Message returned by the gateway */

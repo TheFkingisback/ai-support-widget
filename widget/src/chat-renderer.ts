@@ -9,6 +9,7 @@ export interface ChatRendererDeps {
   messagesEl: HTMLElement;
   panelEl: HTMLElement;
   caseId: string;
+  onCaseClosed?: () => void;
 }
 
 /** Renders a message element and appends to container */
@@ -31,35 +32,91 @@ export function renderMessage(msg: Message, deps: ChatRendererDeps): HTMLElement
   }
 
   if (msg.role === 'assistant') {
-    el.appendChild(createFeedbackButtons(deps));
+    el.appendChild(createCaseCloseButtons(deps));
   }
 
   return el;
 }
 
-function createFeedbackButtons(deps: ChatRendererDeps): HTMLElement {
+function createCaseCloseButtons(deps: ChatRendererDeps): HTMLElement {
   const container = document.createElement('div');
-  container.className = 'ai-feedback';
+  container.className = 'ai-case-close';
 
-  const thumbsUp = document.createElement('button');
-  thumbsUp.textContent = '\u{1F44D}';
-  thumbsUp.setAttribute('aria-label', 'Mark as helpful');
-  thumbsUp.addEventListener('click', () => {
-    deps.apiClient.addFeedback(deps.caseId, 'positive').catch(() => {});
-    container.textContent = 'Thanks for your feedback!';
-  });
+  const question = document.createElement('p');
+  question.textContent = 'Was your issue resolved?';
+  container.appendChild(question);
 
-  const thumbsDown = document.createElement('button');
-  thumbsDown.textContent = '\u{1F44E}';
-  thumbsDown.setAttribute('aria-label', 'Mark as not helpful');
-  thumbsDown.addEventListener('click', () => {
-    deps.apiClient.addFeedback(deps.caseId, 'negative').catch(() => {});
-    container.textContent = 'Thanks for your feedback!';
-  });
+  const btns = document.createElement('div');
+  btns.className = 'ai-case-close-btns';
 
-  container.appendChild(thumbsUp);
-  container.appendChild(thumbsDown);
+  const yesBtn = document.createElement('button');
+  yesBtn.className = 'ai-close-yes';
+  yesBtn.textContent = 'Yes';
+  yesBtn.setAttribute('aria-label', 'Issue was resolved');
+
+  const noBtn = document.createElement('button');
+  noBtn.className = 'ai-close-no';
+  noBtn.textContent = 'No';
+  noBtn.setAttribute('aria-label', 'Issue was not resolved');
+
+  yesBtn.addEventListener('click', () => showRatingStep(container, 'resolved', deps));
+  noBtn.addEventListener('click', () => showRatingStep(container, 'unresolved', deps));
+
+  btns.appendChild(yesBtn);
+  btns.appendChild(noBtn);
+  container.appendChild(btns);
   return container;
+}
+
+function showRatingStep(
+  container: HTMLElement,
+  resolution: 'resolved' | 'unresolved',
+  deps: ChatRendererDeps,
+): void {
+  container.innerHTML = '';
+  const label = document.createElement('p');
+  label.textContent = 'How would you rate this experience? (1-10)';
+  container.appendChild(label);
+
+  const ratingRow = document.createElement('div');
+  ratingRow.className = 'ai-rating';
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = String(i);
+    btn.setAttribute('aria-label', `Rate ${i} out of 10`);
+    btn.addEventListener('click', () => submitClose(container, resolution, i, deps));
+    ratingRow.appendChild(btn);
+  }
+  container.appendChild(ratingRow);
+  deps.messagesEl.scrollTop = deps.messagesEl.scrollHeight;
+}
+
+async function submitClose(
+  container: HTMLElement,
+  resolution: 'resolved' | 'unresolved',
+  rating: number,
+  deps: ChatRendererDeps,
+): Promise<void> {
+  container.innerHTML = '';
+  const loading = document.createElement('p');
+  loading.textContent = 'Closing case...';
+  container.appendChild(loading);
+
+  try {
+    await deps.apiClient.closeCase(deps.caseId, resolution, rating);
+    container.innerHTML = '';
+    const thanks = document.createElement('p');
+    thanks.textContent = 'Thanks for your feedback! Case closed.';
+    container.appendChild(thanks);
+    if (deps.onCaseClosed) {
+      setTimeout(() => deps.onCaseClosed!(), 2000);
+    }
+  } catch {
+    container.innerHTML = '';
+    const err = document.createElement('p');
+    err.textContent = 'Failed to close case. Please try again.';
+    container.appendChild(err);
+  }
 }
 
 function createActionHandlers(deps: ChatRendererDeps): ActionHandlers {

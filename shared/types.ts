@@ -22,13 +22,14 @@ export interface Case {
   id: CaseId;
   tenantId: TenantId;
   userId: UserId;
-  status: 'active' | 'resolved' | 'escalated';
+  status: 'active' | 'resolved' | 'unresolved' | 'escalated';
   snapshotId: SnapshotId;
   createdAt: string;
   updatedAt: string;
   resolvedAt: string | null;
   messageCount: number;
   feedback: 'positive' | 'negative' | null;
+  rating: number | null;
 }
 
 export interface Message {
@@ -258,6 +259,7 @@ export interface AnalyticsSummary {
   topIntents: { intent: string; count: number }[];
   topErrors: { errorCode: string; count: number }[];
   csat: { positive: number; negative: number; total: number };
+  avgRating: number;
 }
 
 // === Audit ===

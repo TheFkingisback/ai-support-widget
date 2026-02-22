@@ -7,6 +7,7 @@ export interface ChatPanelConfig {
   locale: string;
   position: 'bottom-right' | 'bottom-left';
   onClose: () => void;
+  onCaseClosed?: () => void;
   context?: Record<string, unknown>;
 }
 
@@ -14,6 +15,8 @@ export interface ChatPanel {
   element: HTMLElement;
   destroy(): void;
   focus(): void;
+  hide(): void;
+  show(): void;
 }
 
 export function createChatPanel(config: ChatPanelConfig): ChatPanel {
@@ -33,17 +36,12 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   title.textContent = 'Support';
   title.id = 'ai-widget-title';
   panel.setAttribute('aria-labelledby', 'ai-widget-title');
-  const escalateBtn = document.createElement('button');
-  escalateBtn.className = 'ai-escalate-btn';
-  escalateBtn.textContent = 'Talk to human';
-  escalateBtn.setAttribute('aria-label', 'Escalate to human support');
   const closeBtn = document.createElement('button');
   closeBtn.className = 'ai-close-btn';
   closeBtn.textContent = '\u2715';
-  closeBtn.setAttribute('aria-label', 'Close support chat');
+  closeBtn.setAttribute('aria-label', 'Minimize support chat');
   closeBtn.addEventListener('click', onClose);
   header.appendChild(title);
-  header.appendChild(escalateBtn);
   header.appendChild(closeBtn);
 
   // Messages
@@ -76,7 +74,11 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   let sending = false;
 
   function getDeps(): ChatRendererDeps {
-    return { apiClient, locale, messagesEl, panelEl: panel, caseId: caseId ?? '' };
+    return {
+      apiClient, locale, messagesEl, panelEl: panel,
+      caseId: caseId ?? '',
+      onCaseClosed: config.onCaseClosed,
+    };
   }
 
   function showTyping(): HTMLElement {
@@ -137,25 +139,11 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
     if (e.key === 'Escape') onClose();
   });
 
-  escalateBtn.addEventListener('click', async () => {
-    if (!caseId) return;
-    try {
-      const result = await apiClient.escalate(caseId, 'User requested human agent');
-      const sysMsg = document.createElement('div');
-      sysMsg.className = 'ai-msg system';
-      sysMsg.textContent = `Escalated to human support. Ticket: ${result.ticketId}`;
-      messagesEl.appendChild(sysMsg);
-    } catch {
-      const errEl = document.createElement('div');
-      errEl.className = 'ai-msg system';
-      errEl.textContent = 'Failed to escalate. Please try again.';
-      messagesEl.appendChild(errEl);
-    }
-  });
-
   return {
     element: panel,
     destroy() { panel.remove(); },
     focus() { input.focus(); },
+    hide() { panel.classList.add('hidden'); },
+    show() { panel.classList.remove('hidden'); },
   };
 }

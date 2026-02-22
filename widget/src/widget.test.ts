@@ -53,16 +53,18 @@ describe('Widget SDK', () => {
     expect(panel).toBeTruthy();
   });
 
-  // Test 4: Chat panel closes on close button click
-  it('closes chat panel on close button click', () => {
+  // Test 4: Chat panel hides (minimizes) on close button click
+  it('minimizes chat panel on close button click', () => {
     AISupportWidget.init(getConfig());
     const shadow = getShadow();
     (shadow.querySelector('.ai-widget-fab') as HTMLElement).click();
-    expect(shadow.querySelector('.ai-widget-panel')).toBeTruthy();
+    const panel = shadow.querySelector('.ai-widget-panel') as HTMLElement;
+    expect(panel).toBeTruthy();
 
     const closeBtn = shadow.querySelector('.ai-close-btn') as HTMLElement;
     closeBtn.click();
-    expect(shadow.querySelector('.ai-widget-panel')).toBeNull();
+    // Panel still in DOM but hidden
+    expect(panel.classList.contains('hidden')).toBe(true);
   });
 
   // Test 12: Styles are isolated in Shadow DOM

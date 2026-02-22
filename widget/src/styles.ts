@@ -1,9 +1,11 @@
 /** CSS-in-JS styles injected into Shadow DOM */
-export function getStyles(theme: 'light' | 'dark'): string {
+export function getStyles(theme: 'light' | 'dark', brandColor?: string): string {
   const isLight = theme === 'light';
+  const primary = brandColor ?? (isLight ? '#2563eb' : '#60a5fa');
+  const focus = brandColor ?? (isLight ? '#2563eb' : '#60a5fa');
   return `
     :host {
-      --ai-support-primary: ${isLight ? '#2563eb' : '#60a5fa'};
+      --ai-support-primary: ${primary};
       --ai-support-bg: ${isLight ? '#ffffff' : '#1e1e2e'};
       --ai-support-text: ${isLight ? '#1a1a2e' : '#e4e4e7'};
       --ai-support-radius: 12px;
@@ -12,7 +14,7 @@ export function getStyles(theme: 'light' | 'dark'): string {
       --ai-support-muted: ${isLight ? '#5c5c66' : '#a1a1aa'};
       --ai-support-danger: #ef4444;
       --ai-support-success: #22c55e;
-      --ai-support-focus: ${isLight ? '#2563eb' : '#60a5fa'};
+      --ai-support-focus: ${focus};
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-size: 14px;
       line-height: 1.5;
@@ -34,7 +36,7 @@ export function getStyles(theme: 'light' | 'dark'): string {
     .ai-widget-fab:hover { transform: scale(1.08); }
     .ai-widget-fab:active { transform: scale(0.95); }
     .ai-widget-panel {
-      position: fixed; bottom: 88px; right: 20px; width: 380px; max-height: 560px;
+      position: fixed; bottom: 88px; right: 20px; width: 440px; max-height: 620px;
       background: var(--ai-support-bg); border-radius: var(--ai-support-radius);
       box-shadow: 0 8px 32px rgba(0,0,0,.18); display: flex; flex-direction: column;
       overflow: hidden; z-index: 2147483647; border: 1px solid var(--ai-support-border);
@@ -59,7 +61,8 @@ export function getStyles(theme: 'light' | 'dark'): string {
     }
     .ai-msg {
       max-width: 85%; padding: 10px 14px; border-radius: 12px;
-      word-break: break-word; font-size: 14px; line-height: 1.5;
+      word-break: break-word; overflow-wrap: break-word;
+      white-space: pre-wrap; font-size: 14px; line-height: 1.5;
     }
     .ai-msg.user {
       align-self: flex-end; background: var(--ai-support-primary); color: #fff;
@@ -71,7 +74,7 @@ export function getStyles(theme: 'light' | 'dark'): string {
     }
     .ai-msg.system {
       align-self: center; color: var(--ai-support-muted); font-size: 12px;
-      font-style: italic;
+      font-style: italic; white-space: normal;
     }
     .ai-typing {
       align-self: flex-start; color: var(--ai-support-muted);
@@ -117,13 +120,26 @@ export function getStyles(theme: 'light' | 'dark'): string {
     .ai-action-btn.create_ticket {
       border-color: var(--ai-support-danger); color: var(--ai-support-danger);
     }
-    .ai-feedback { display: flex; gap: 4px; margin-top: 6px; }
-    .ai-feedback button {
-      background: none; border: 1px solid var(--ai-support-border); border-radius: 4px;
-      padding: 2px 8px; cursor: pointer; font-size: 14px; color: var(--ai-support-muted);
+    .ai-case-close { margin-top: 8px; padding: 8px; border-radius: 8px;
+      background: var(--ai-support-surface); text-align: center;
+    }
+    .ai-case-close p { font-size: 13px; margin-bottom: 8px; color: var(--ai-support-text); }
+    .ai-case-close-btns { display: flex; gap: 8px; justify-content: center; }
+    .ai-case-close-btns button {
+      padding: 6px 16px; border-radius: 6px; cursor: pointer; border: none;
+      font-size: 13px; font-weight: 500; transition: opacity .15s ease-in-out;
+    }
+    .ai-case-close-btns button:hover { opacity: .85; }
+    .ai-close-yes { background: var(--ai-support-success); color: #fff; }
+    .ai-close-no { background: var(--ai-support-danger); color: #fff; }
+    .ai-rating { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
+    .ai-rating button {
+      width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
+      border: 1px solid var(--ai-support-border); background: var(--ai-support-bg);
+      color: var(--ai-support-text); font-size: 13px; font-weight: 600;
       transition: background .15s ease-in-out;
     }
-    .ai-feedback button:hover { background: var(--ai-support-surface); }
+    .ai-rating button:hover { background: var(--ai-support-primary); color: #fff; }
     .ai-widget-input {
       display: flex; padding: 10px 12px; gap: 8px;
       border-top: 1px solid var(--ai-support-border);

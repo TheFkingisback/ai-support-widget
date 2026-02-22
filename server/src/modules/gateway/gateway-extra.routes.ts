@@ -6,6 +6,11 @@ import type { EscalationService } from '../escalation/escalation.service.js';
 import { log } from '../../shared/logger.js';
 import { validateBody } from '../../shared/validation.js';
 
+const closeCaseBody = z.object({
+  resolution: z.enum(['resolved', 'unresolved']),
+  rating: z.number().int().min(1).max(10),
+});
+
 const escalateBody = z.object({
   reason: z.string().max(2000).optional(),
 });
@@ -29,6 +34,21 @@ export async function registerExtraGatewayRoutes(
   opts: ExtraRouteOpts,
 ): Promise<void> {
   const { service, orchestratorService, escalationService } = opts;
+
+  // POST /api/cases/:caseId/close
+  app.post<{ Params: { caseId: string } }>(
+    '/api/cases/:caseId/close',
+    { preHandler: [app.authenticate] },
+    async (request, reply) => {
+      const reqId = request.id as string;
+      const { tenantId } = request.authPayload;
+      const { caseId } = request.params;
+
+      const data = validateBody(closeCaseBody, request.body);
+      await service.closeCase(caseId, tenantId, data.resolution, data.rating, reqId);
+      return reply.code(200).send({ ok: true });
+    },
+  );
 
   // POST /api/cases/:caseId/escalate
   app.post<{ Params: { caseId: string } }>(

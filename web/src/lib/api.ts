@@ -8,11 +8,33 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 let apiKey = process.env.NEXT_PUBLIC_ADMIN_API_KEY ?? '';
 
+function loadStoredKey(): void {
+  if (!apiKey && typeof window !== 'undefined') {
+    apiKey = sessionStorage.getItem('admin_api_key') ?? '';
+  }
+}
+
+export function getAdminApiKey(): string {
+  loadStoredKey();
+  return apiKey;
+}
+
 export function setAdminApiKey(key: string): void {
   apiKey = key;
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('admin_api_key', key);
+  }
+}
+
+export function clearAdminApiKey(): void {
+  apiKey = '';
+  if (typeof window !== 'undefined') {
+    sessionStorage.removeItem('admin_api_key');
+  }
 }
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  loadStoredKey();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${apiKey}`,

@@ -8,6 +8,7 @@ import type { SessionSummary } from '@/lib/types';
 const STATUS_COLORS: Record<string, string> = {
   active: 'bg-green-900/50 text-green-400',
   resolved: 'bg-blue-900/50 text-blue-400',
+  unresolved: 'bg-yellow-900/50 text-yellow-400',
   escalated: 'bg-red-900/50 text-red-400',
 };
 
@@ -56,6 +57,7 @@ export default function SessionsPage() {
           <option value="all">All</option>
           <option value="active">Active</option>
           <option value="resolved">Resolved</option>
+          <option value="unresolved">Unresolved</option>
           <option value="escalated">Escalated</option>
         </select>
       </div>

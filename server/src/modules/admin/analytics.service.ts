@@ -108,6 +108,13 @@ export function createAnalyticsService(
       const positive = cases.filter((c) => c.feedback === 'positive').length;
       const negative = cases.filter((c) => c.feedback === 'negative').length;
 
+      const ratings = cases
+        .map((c) => c.rating)
+        .filter((r): r is number => r !== null && r !== undefined);
+      const avgRating = ratings.length > 0
+        ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+        : 0;
+
       const summary: AnalyticsSummary = {
         totalCases,
         resolvedWithoutHuman,
@@ -118,6 +125,7 @@ export function createAnalyticsService(
         topIntents: extractIntents(messages),
         topErrors: extractTopErrors(snapshots),
         csat: { positive, negative, total: positive + negative },
+        avgRating,
       };
 
       log.info('Analytics computed', requestId, { tenantId, totalCases });

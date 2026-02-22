@@ -19,6 +19,7 @@ export const cases = pgTable('cases', {
   resolvedAt: timestamp('resolved_at', { withTimezone: true }),
   messageCount: integer('message_count').notNull().default(0),
   feedback: varchar('feedback', { length: 10 }),
+  rating: integer('rating'),
 });
 
 export const messages = pgTable('messages', {

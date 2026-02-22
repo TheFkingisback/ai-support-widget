@@ -35,7 +35,7 @@ describe('A11y: FAB button', () => {
     instance.open();
     const fab = getShadow().querySelector('.ai-widget-fab')!;
     expect(fab.getAttribute('aria-expanded')).toBe('true');
-    expect(fab.getAttribute('aria-label')).toBe('Close support chat');
+    expect(fab.getAttribute('aria-label')).toBe('Minimize support chat');
   });
 
   it('restores aria attributes when closed', () => {
@@ -75,16 +75,7 @@ describe('A11y: Chat panel', () => {
       position: 'bottom-right', onClose: vi.fn(),
     });
     const closeBtn = panel.element.querySelector('.ai-close-btn')!;
-    expect(closeBtn.getAttribute('aria-label')).toBe('Close support chat');
-  });
-
-  it('escalate button has aria-label', () => {
-    const panel = createChatPanel({
-      apiClient: createMockApiClient(), locale: 'en-US',
-      position: 'bottom-right', onClose: vi.fn(),
-    });
-    const btn = panel.element.querySelector('.ai-escalate-btn')!;
-    expect(btn.getAttribute('aria-label')).toBe('Escalate to human support');
+    expect(closeBtn.getAttribute('aria-label')).toBe('Minimize support chat');
   });
 
   it('messages container has role=log and aria-live', () => {

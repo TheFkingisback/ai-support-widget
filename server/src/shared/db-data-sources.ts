@@ -17,6 +17,7 @@ function toCase(row: typeof cases.$inferSelect): Case {
     resolvedAt: row.resolvedAt?.toISOString() ?? null,
     messageCount: row.messageCount,
     feedback: (row.feedback as Case['feedback']) ?? null,
+    rating: row.rating ?? null,
   };
 }
 

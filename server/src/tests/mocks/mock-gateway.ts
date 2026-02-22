@@ -32,7 +32,7 @@ export function createMockGatewayService(): MockGateway {
       const newCase: Case = {
         id: caseId, tenantId, userId, status: 'active',
         snapshotId, createdAt: now, updatedAt: now,
-        resolvedAt: null, messageCount: 1, feedback: null,
+        resolvedAt: null, messageCount: 1, feedback: null, rating: null,
       };
       _cases.push(newCase);
       const msg: Message = {
@@ -76,6 +76,18 @@ export function createMockGatewayService(): MockGateway {
       c.feedback = feedback;
       c.updatedAt = new Date().toISOString();
       _audit.push({ tenantId, userId: c.userId, caseId, action: 'feedback_added', details: { feedback } });
+    },
+
+    async closeCase(caseId, tenantId, resolution, rating) {
+      const c = _cases.find((c) => c.id === caseId);
+      if (!c) throw new NotFoundError('Case', caseId);
+      if (c.tenantId !== tenantId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
+      c.status = resolution;
+      c.rating = rating;
+      c.feedback = resolution === 'resolved' ? 'positive' : 'negative';
+      c.resolvedAt = new Date().toISOString();
+      c.updatedAt = new Date().toISOString();
+      _audit.push({ tenantId, userId: c.userId, caseId, action: 'case_closed', details: { resolution, rating } });
     },
 
     async escalateCase(caseId, tenantId, reason) {

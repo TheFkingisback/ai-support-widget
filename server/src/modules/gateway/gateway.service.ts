@@ -58,6 +58,14 @@ export interface GatewayService {
     requestId?: string,
   ): Promise<void>;
 
+  closeCase(
+    caseId: string,
+    tenantId: string,
+    resolution: 'resolved' | 'unresolved',
+    rating: number,
+    requestId?: string,
+  ): Promise<void>;
+
   escalateCase(
     caseId: string,
     tenantId: string,
@@ -157,6 +165,22 @@ export function createGatewayService(
       await insertAudit(db, tenantId, caseRow.userId, caseId,
         'feedback_added', { feedback }, requestId);
       log.info('Feedback added', requestId, { caseId, feedback });
+    },
+
+    async closeCase(caseId, tenantId, resolution, rating, requestId) {
+      log.info('Closing case', requestId, { caseId, resolution, rating });
+      const caseRow = await findCaseWithTenant(db, caseId, tenantId);
+      const now = new Date();
+      const feedback = resolution === 'resolved' ? 'positive' : 'negative';
+
+      await db.update(cases).set({
+        status: resolution, feedback, rating,
+        resolvedAt: now, updatedAt: now,
+      }).where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
+
+      await insertAudit(db, tenantId, caseRow.userId, caseId,
+        'case_closed', { resolution, rating }, requestId);
+      log.info('Case closed', requestId, { caseId, resolution, rating });
     },
 
     async escalateCase(caseId, tenantId, reason, requestId) {
