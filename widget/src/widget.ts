@@ -7,6 +7,8 @@ export interface WidgetInstance {
   open(): void;
   close(): void;
   destroy(): void;
+  /** Proactively push a fresh JWT into the widget (avoids 401 round-trip). */
+  updateJwt(newJwt: string): void;
 }
 
 export class AISupportWidget {
@@ -97,7 +99,11 @@ export class AISupportWidget {
       }
     });
 
-    const instance: WidgetInstance = { open, close, destroy };
+    function updateJwt(newJwt: string): void {
+      jwt = newJwt;
+    }
+
+    const instance: WidgetInstance = { open, close, destroy, updateJwt };
     AISupportWidget.instance = instance;
     return instance;
   }
