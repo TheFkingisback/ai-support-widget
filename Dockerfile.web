@@ -25,9 +25,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy standalone output
+# Copy standalone output + public assets
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/public ./public
 
 # Non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
