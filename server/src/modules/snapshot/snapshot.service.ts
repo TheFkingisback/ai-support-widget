@@ -6,7 +6,6 @@ import {
   getUserState,
   getUserHistory,
   getUserLogs,
-  getBusinessRules,
 } from './client-api.js';
 import { buildClickTimeline } from './timeline.js';
 import { NotFoundError, ForbiddenError } from '../../shared/errors.js';
@@ -16,11 +15,21 @@ import type {
   GetUserStateResponse,
   GetUserHistoryResponse,
   GetUserLogsResponse,
-  GetBusinessRulesResponse,
 } from '../../shared/types.js';
 
 function genId(prefix: string): string {
   return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;
+}
+
+function extractPushedDocs(ctx?: Record<string, unknown>): Array<{ id: string; title: string; content: string; category: string }> {
+  if (!ctx?.knowledgePack) return [];
+  const kp = ctx.knowledgePack as Record<string, unknown>;
+  const docs = kp.docs as Array<{ id?: string; title?: string; content?: string; category?: string }> | undefined;
+  if (!Array.isArray(docs)) return [];
+  return docs.map((d) => ({
+    id: d.id ?? 'unknown', title: d.title ?? 'Unknown',
+    content: d.content ?? '', category: d.category ?? 'general',
+  }));
 }
 
 export interface SnapshotService {
@@ -49,34 +58,41 @@ export function createSnapshotService(
   clientApiOpts: ClientApiOpts,
 ): SnapshotService {
   return {
-    async buildSnapshot(tenantId, userId, caseId, requestId) {
-      log.info('Building snapshot', requestId, { tenantId, userId, caseId });
+    async buildSnapshot(tenantId, userId, caseId, requestId, pushedContext) {
+      const ctx = pushedContext as Record<string, unknown> | undefined;
+      const pushed = !!(ctx?.userState || ctx?.userHistory || ctx?.userLogs);
+      log.info('Building snapshot', requestId, { tenantId, userId, caseId, pushed });
 
       const snapshotId = genId('scs');
       const windowHours = 72;
 
-      const [stateResult, historyResult, logsResult, rulesResult] =
-        await Promise.allSettled([
+      let state: GetUserStateResponse | null = null;
+      let history: GetUserHistoryResponse | null = null;
+      let logs: GetUserLogsResponse | null = null;
+      const failedSources: string[] = [];
+
+      if (pushed) {
+        // Push model: host app provided context data upfront
+        state = (ctx!.userState as GetUserStateResponse | null) ?? null;
+        history = (ctx!.userHistory as GetUserHistoryResponse | null) ?? null;
+        logs = (ctx!.userLogs as GetUserLogsResponse | null) ?? null;
+        if (!state) failedSources.push('user-state');
+        if (!history) failedSources.push('user-history');
+        if (!logs) failedSources.push('user-logs');
+      } else {
+        // Pull model: fetch from client APIs
+        const [stateR, historyR, logsR] = await Promise.allSettled([
           getUserState(clientApiOpts, userId, requestId),
           getUserHistory(clientApiOpts, userId, windowHours, requestId),
           getUserLogs(clientApiOpts, userId, windowHours, requestId),
-          getBusinessRules(clientApiOpts, requestId),
         ]);
-
-      const state: GetUserStateResponse | null =
-        stateResult.status === 'fulfilled' ? stateResult.value : null;
-      const history: GetUserHistoryResponse | null =
-        historyResult.status === 'fulfilled' ? historyResult.value : null;
-      const logs: GetUserLogsResponse | null =
-        logsResult.status === 'fulfilled' ? logsResult.value : null;
-      const rules: GetBusinessRulesResponse | null =
-        rulesResult.status === 'fulfilled' ? rulesResult.value : null;
-
-      const failedSources: string[] = [];
-      if (!state) failedSources.push('user-state');
-      if (!history) failedSources.push('user-history');
-      if (!logs) failedSources.push('user-logs');
-      if (!rules) failedSources.push('business-rules');
+        state = stateR.status === 'fulfilled' ? stateR.value : null;
+        history = historyR.status === 'fulfilled' ? historyR.value : null;
+        logs = logsR.status === 'fulfilled' ? logsR.value : null;
+        if (!state) failedSources.push('user-state');
+        if (!history) failedSources.push('user-history');
+        if (!logs) failedSources.push('user-logs');
+      }
 
       if (failedSources.length > 0) {
         log.warn('Some client APIs failed', requestId, { failedSources });
@@ -120,8 +136,10 @@ export function createSnapshotService(
           errors: logs?.errors ?? [],
         },
         knowledgePack: {
-          docs: [],
-          runbooks: [],
+          docs: extractPushedDocs(ctx),
+          runbooks: ctx?.businessRules
+            ? [{ id: 'rules', title: 'Business Rules', content: JSON.stringify(ctx.businessRules), category: 'rules' }]
+            : [],
           changelog: [],
         },
         privacy: {
