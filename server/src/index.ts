@@ -32,12 +32,19 @@ async function main() {
   const costStore = createDbCostStore(db);
   const costSvc = createCostService(costStore);
 
+  const mcpOpts = env.MCP_SERVER_URL && env.MCP_SERVICE_TOKEN
+    ? { serverUrl: env.MCP_SERVER_URL, serviceToken: env.MCP_SERVICE_TOKEN }
+    : undefined;
+
+  if (mcpOpts) log.info(`MCP tools enabled → ${env.MCP_SERVER_URL}`);
+
   const orchestrator = createOrchestratorService({
     gatewayService: gateway,
     snapshotService: snapshotSvc,
     contextService: createContextService(),
     costRecorder: costSvc,
     tenantService,
+    mcpOpts,
     apiKey: env.OPENROUTER_API_KEY,
     modelPolicy: 'fast',
   });

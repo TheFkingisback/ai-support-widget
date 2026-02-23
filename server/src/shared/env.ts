@@ -15,6 +15,8 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().optional(),
   JWT_MAX_AGE: z.string().optional(),
   TOKEN_ENCRYPTION_KEY: z.string().optional(),
+  MCP_SERVER_URL: z.string().url().optional(),
+  MCP_SERVICE_TOKEN: z.string().optional(),
   LOG_MAX_FILE_SIZE: z.coerce.number().int().positive().default(10_485_760),
   LOG_MAX_FILES: z.coerce.number().int().positive().default(5),
 });
@@ -49,6 +51,8 @@ export function getEnvSafe(): Env {
       CORS_ORIGINS: process.env.CORS_ORIGINS,
       JWT_MAX_AGE: process.env.JWT_MAX_AGE,
       TOKEN_ENCRYPTION_KEY: process.env.TOKEN_ENCRYPTION_KEY,
+      MCP_SERVER_URL: process.env.MCP_SERVER_URL,
+      MCP_SERVICE_TOKEN: process.env.MCP_SERVICE_TOKEN,
       LOG_MAX_FILE_SIZE: Number(process.env.LOG_MAX_FILE_SIZE) || 10_485_760,
       LOG_MAX_FILES: Number(process.env.LOG_MAX_FILES) || 5,
     };

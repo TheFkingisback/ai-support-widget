@@ -5,7 +5,9 @@ import type { ContextService } from '../context/context.service.js';
 import type { KnowledgeService } from '../knowledge/knowledge.service.js';
 import type { TenantService } from '../admin/tenant.service.js';
 import type { CostRecorder } from '../admin/cost.service.js';
+import type { McpClientOpts } from './mcp-client.js';
 import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
+import { executeWithTools } from './tool-executor.js';
 import { buildSystemPrompt } from './system-prompt.js';
 import { parseAIResponse } from './response-parser.js';
 import { log } from '../../shared/logger.js';
@@ -36,6 +38,7 @@ export interface OrchestratorDeps {
   knowledgeService?: KnowledgeService;
   tenantService?: TenantService;
   costRecorder?: CostRecorder;
+  mcpOpts?: McpClientOpts;
   apiKey: string;
   modelPolicy?: 'fast' | 'strong' | 'auto';
   maxMessages?: number;
@@ -45,7 +48,7 @@ export interface OrchestratorDeps {
 export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorService {
   const {
     gatewayService, snapshotService, contextService,
-    knowledgeService, tenantService, costRecorder,
+    knowledgeService, tenantService, costRecorder, mcpOpts,
     apiKey, modelPolicy = 'fast',
     maxMessages = DEFAULT_MAX_MESSAGES, maxContextBytes = DEFAULT_MAX_BYTES,
   } = deps;
@@ -54,17 +57,14 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
     async handleMessage(caseId, tenantId, userContent, requestId) {
       log.info('handleMessage: start', requestId, { caseId, tenantId });
 
-      // 1. Load case + messages
       const { case: caseData, messages } = await gatewayService.getCase(caseId, tenantId, requestId);
-
-      // 2. Store user message
       await gatewayService.addMessage(caseId, tenantId, 'user', userContent, undefined, requestId);
-      // 3. Load snapshot
+
       let snapshot: SupportContextSnapshot | null = null;
       try {
         snapshot = await snapshotService.getSnapshot(caseData.snapshotId, tenantId, requestId);
       } catch (err) {
-        log.warn('handleMessage: snapshot not found, continuing without', requestId, {
+        log.warn('handleMessage: snapshot not found', requestId, {
           snapshotId: caseData.snapshotId,
           error: err instanceof Error ? err.message : String(err),
         });
@@ -76,7 +76,6 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         processedSnapshot = processed;
       }
 
-      // 5. Resolve model + custom instructions (tenant config)
       let effectivePolicy = modelPolicy;
       let preferredModel: string | undefined;
       let customInstructions: string | undefined;
@@ -93,7 +92,6 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       }
       const model = resolveModel(effectivePolicy, preferredModel);
 
-      // 6. Fetch knowledge base docs (if service available)
       let knowledgeDocs = processedSnapshot?.knowledgePack?.docs ?? [];
       const runbooks = processedSnapshot?.knowledgePack?.runbooks ?? [];
       if (knowledgeService) {
@@ -103,7 +101,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
           );
           if (kbDocs.length > 0) knowledgeDocs = [...knowledgeDocs, ...kbDocs];
         } catch (err) {
-          log.warn('handleMessage: knowledge service failed, continuing', requestId, {
+          log.warn('handleMessage: knowledge service failed', requestId, {
             error: err instanceof Error ? err.message : String(err),
           });
         }
@@ -113,22 +111,12 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions)
         : 'You are a helpful support assistant. Answer the user\'s question.';
 
-      // 7. Build conversation messages (last N)
       const allMessages = [...messages, {
-        id: 'pending',
-        caseId,
-        role: 'user' as const,
-        content: userContent,
-        actions: [],
-        evidence: [],
-        confidence: null,
-        createdAt: new Date().toISOString(),
+        id: 'pending', caseId, role: 'user' as const, content: userContent,
+        actions: [], evidence: [], confidence: null, createdAt: new Date().toISOString(),
       }];
 
       const recentMessages = allMessages.slice(-maxMessages);
-      log.debug('handleMessage: conversation', requestId, {
-        totalMessages: allMessages.length, includedMessages: recentMessages.length,
-      });
       const llmMessages: LLMMessage[] = [
         { role: 'system', content: systemPrompt },
         ...recentMessages.map((m) => ({
@@ -136,13 +124,14 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
           content: m.content,
         })),
       ];
-      const llmResponse = await callLLM(
-        { model, messages: llmMessages },
-        apiKey,
-        requestId,
-      );
 
-      // 8. Record cost (fire-and-forget)
+      // Use tool-augmented loop if MCP is configured, otherwise plain LLM call
+      const llmResponse = mcpOpts
+        ? await executeWithTools({
+            mcpOpts, userId: caseData.userId, model, apiKey, llmMessages, requestId,
+          })
+        : await callLLM({ model, messages: llmMessages }, apiKey, requestId);
+
       if (costRecorder) {
         costRecorder.record({
           tenantId, model, tokensIn: llmResponse.tokensIn,
@@ -150,20 +139,10 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         }, requestId).catch(() => {});
       }
 
-      // 9. Parse response
       const parsed = parseAIResponse(llmResponse.content, requestId);
-
-      // 10. Store assistant message
       const assistantMessage = await gatewayService.addMessage(
-        caseId,
-        tenantId,
-        'assistant',
-        parsed.content,
-        {
-          actions: parsed.actions,
-          evidence: parsed.evidence,
-          confidence: parsed.confidence,
-        },
+        caseId, tenantId, 'assistant', parsed.content,
+        { actions: parsed.actions, evidence: parsed.evidence, confidence: parsed.confidence },
         requestId,
       );
 

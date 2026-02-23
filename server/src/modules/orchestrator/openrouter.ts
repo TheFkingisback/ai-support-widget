@@ -2,8 +2,21 @@ import { log } from '../../shared/logger.js';
 import { LLMError } from '../../shared/errors.js';
 
 export interface LLMMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
+  role: 'system' | 'user' | 'assistant' | 'tool';
+  content: string | null;
+  tool_calls?: ToolCall[];
+  tool_call_id?: string;
+}
+
+export interface ToolCall {
+  id: string;
+  type: 'function';
+  function: { name: string; arguments: string };
+}
+
+export interface ToolDef {
+  type: 'function';
+  function: { name: string; description: string; parameters: Record<string, unknown> };
 }
 
 export interface LLMRequest {
@@ -11,6 +24,7 @@ export interface LLMRequest {
   messages: LLMMessage[];
   maxTokens?: number;
   temperature?: number;
+  tools?: ToolDef[];
 }
 
 export interface LLMResponse {
@@ -20,10 +34,15 @@ export interface LLMResponse {
   tokensOut: number;
   latencyMs: number;
   estimatedCost: number;
+  toolCalls?: ToolCall[];
 }
 
 interface OpenRouterChoice {
-  message: { role: string; content: string };
+  message: {
+    role: string;
+    content: string | null;
+    tool_calls?: ToolCall[];
+  };
 }
 
 interface OpenRouterResponse {
@@ -65,21 +84,18 @@ export async function callLLM(
   apiKey: string,
   requestId?: string,
 ): Promise<LLMResponse> {
-  const { model, messages, maxTokens = 2048, temperature = 0.3 } = params;
+  const { model, messages, maxTokens = 2048, temperature = 0.3, tools } = params;
 
   log.info('callLLM: sending request', requestId, {
-    model,
-    messageCount: messages.length,
-    maxTokens,
+    model, messageCount: messages.length, maxTokens, hasTools: !!tools,
   });
 
-  const body = JSON.stringify({
-    model,
-    messages,
-    max_tokens: maxTokens,
-    temperature,
-  });
+  const payload: Record<string, unknown> = {
+    model, messages, max_tokens: maxTokens, temperature,
+  };
+  if (tools && tools.length > 0) payload.tools = tools;
 
+  const body = JSON.stringify(payload);
   const start = Date.now();
   let lastError: Error | null = null;
 
@@ -116,18 +132,17 @@ export async function callLLM(
       const latencyMs = Date.now() - start;
       const tokensIn = data.usage?.prompt_tokens ?? 0;
       const tokensOut = data.usage?.completion_tokens ?? 0;
-      const content = data.choices?.[0]?.message?.content ?? '';
+      const choice = data.choices?.[0]?.message;
+      const content = choice?.content ?? '';
+      const toolCalls = choice?.tool_calls;
       const cost = estimateCost(model, tokensIn, tokensOut);
 
       log.info('callLLM: response received', requestId, {
-        model,
-        tokensIn,
-        tokensOut,
-        latencyMs,
-        estimatedCost: cost,
+        model, tokensIn, tokensOut, latencyMs, estimatedCost: cost,
+        toolCalls: toolCalls?.length ?? 0,
       });
 
-      return { content, model, tokensIn, tokensOut, latencyMs, estimatedCost: cost };
+      return { content, model, tokensIn, tokensOut, latencyMs, estimatedCost: cost, toolCalls };
     } catch (err) {
       clearTimeout(timeout);
       if (err instanceof LLMError) throw err;
