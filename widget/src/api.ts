@@ -23,13 +23,15 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
     const url = `${config.apiUrl}${path}`;
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${jwt}`,
-      'Content-Type': 'application/json',
     };
+    if (body !== undefined) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     let res = await fetch(url, {
       method,
       headers,
-      body: body ? JSON.stringify(body) : undefined,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
     });
 
     if (res.status === 401 && config.onTokenRefresh) {
@@ -37,7 +39,7 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
       res = await fetch(url, {
         method,
         headers: { ...headers, Authorization: `Bearer ${jwt}` },
-        body: body ? JSON.stringify(body) : undefined,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
       });
     }
 
