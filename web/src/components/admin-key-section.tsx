@@ -12,6 +12,7 @@ export function AdminKeySection({ tenantId }: Props) {
   const [resetting, setResetting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState('');
 
   async function handleReset() {
     if (!confirming) {
@@ -19,11 +20,13 @@ export function AdminKeySection({ tenantId }: Props) {
       return;
     }
     setResetting(true);
+    setError('');
     try {
       const result = await resetTenantKey(tenantId);
       setNewKey(result.adminApiKey);
       setConfirming(false);
     } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to reset key');
       setConfirming(false);
     } finally {
       setResetting(false);
@@ -63,6 +66,9 @@ export function AdminKeySection({ tenantId }: Props) {
             <p className="text-xs text-gray-500">
               Generate a new admin key for this tenant. The previous key will stop working immediately.
             </p>
+            {error && (
+              <p className="text-sm text-red-400" role="alert">{error}</p>
+            )}
             {confirming && (
               <p className="text-sm text-yellow-400" role="alert">
                 Are you sure? The current key will be invalidated.

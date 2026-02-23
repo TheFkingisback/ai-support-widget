@@ -21,6 +21,7 @@ export default function TenantDetailPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const load = useCallback(async () => {
     const tenants = await listTenants();
@@ -161,11 +162,16 @@ export default function TenantDetailPage() {
           <Save size={16} aria-hidden="true" /> {saving ? 'Saving...' : 'Save Changes'}
         </button>
         {saved && <span role="status" className="text-sm text-green-400">Saved successfully</span>}
+        {deleteError && <span className="text-sm text-red-400">{deleteError}</span>}
         <div className="ml-auto">
           {confirmDelete ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-red-400">Confirm?</span>
-              <button onClick={async () => { await deleteTenant(tenantId); router.push('/admin/tenants'); }}
+              <button onClick={async () => {
+                  setDeleteError('');
+                  try { await deleteTenant(tenantId); router.push('/admin/tenants'); }
+                  catch (err) { setDeleteError(err instanceof Error ? err.message : 'Failed to delete'); }
+                }}
                 className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700">Delete</button>
               <button onClick={() => setConfirmDelete(false)}
                 className="rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-600">Cancel</button>

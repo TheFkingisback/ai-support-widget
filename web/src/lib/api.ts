@@ -75,14 +75,16 @@ export async function adminLogin(apiKey: string): Promise<LoginResult> {
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   loadStoredToken();
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     Authorization: `Bearer ${token}`,
   };
+  if (body !== undefined) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
   if (!res.ok) {
