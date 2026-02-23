@@ -51,14 +51,11 @@ export interface LoginResult {
   tenantId?: string;
 }
 
-export async function adminLogin(apiKey: string, tenantId?: string): Promise<LoginResult> {
-  const body: Record<string, string> = { apiKey };
-  if (tenantId) body.tenantId = tenantId;
-
+export async function adminLogin(apiKey: string): Promise<LoginResult> {
   const res = await fetch(`${BASE_URL}/api/admin/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ apiKey }),
   });
 
   if (!res.ok) {

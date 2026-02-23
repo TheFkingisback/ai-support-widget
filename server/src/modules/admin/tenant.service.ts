@@ -36,6 +36,7 @@ export interface TenantStore {
   delete(id: string): Promise<void>;
   findById(id: string): Promise<TenantRecord | null>;
   findAll(): Promise<TenantRecord[]>;
+  findByAdminKeyHash(hash: string): Promise<TenantRecord | null>;
 }
 
 export interface TenantRecord {
@@ -70,6 +71,7 @@ export interface TenantService {
   deleteTenant(tenantId: string, requestId?: string): Promise<void>;
   getTenant(tenantId: string, requestId?: string): Promise<Tenant>;
   listTenants(requestId?: string): Promise<Tenant[]>;
+  findTenantByAdminKeyHash(hash: string, requestId?: string): Promise<Tenant | null>;
 }
 
 function toTenant(record: TenantRecord): Tenant {
@@ -161,6 +163,13 @@ export function createTenantService(store: TenantStore): TenantService {
       const records = await store.findAll();
       log.debug('Tenants listed', requestId, { count: records.length });
       return records.map(toTenant);
+    },
+
+    async findTenantByAdminKeyHash(hash, requestId) {
+      const record = await store.findByAdminKeyHash(hash);
+      if (!record) return null;
+      log.debug('Tenant found by admin key hash', requestId, { tenantId: record.id });
+      return toTenant(record);
     },
   };
 }

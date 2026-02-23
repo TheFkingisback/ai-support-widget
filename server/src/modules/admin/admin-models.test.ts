@@ -23,6 +23,7 @@ function createMockTenantStore(): TenantStore {
     async delete(id) { const i = records.findIndex((r) => r.id === id); if (i >= 0) records.splice(i, 1); },
     async findById(id) { return records.find((r) => r.id === id) ?? null; },
     async findAll() { return [...records]; },
+    async findByAdminKeyHash(hash) { return records.find((r) => r.config.adminApiKeyHash === hash) ?? null; },
   };
 }
 

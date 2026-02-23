@@ -52,6 +52,12 @@ describe('Admin API Tenant Isolation', () => {
         const idx = tenants.findIndex((t) => t.id === id);
         if (idx >= 0) tenants.splice(idx, 1);
       },
+      async findByAdminKeyHash(hash: string) {
+        return tenants.find((t: Record<string, unknown>) => {
+          const cfg = t.config as Record<string, unknown> | undefined;
+          return cfg?.adminApiKeyHash === hash;
+        }) ?? null;
+      },
     };
 
     const analyticsDataSource = {

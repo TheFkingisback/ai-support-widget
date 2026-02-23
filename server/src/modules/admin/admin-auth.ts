@@ -84,7 +84,7 @@ export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
 
 /**
  * Creates login handler: POST /api/admin/login
- * Body: { apiKey } for super-admin, or { tenantId, apiKey } for tenant admin.
+ * Body: { apiKey }. Auto-detects: super-admin key → super, tsk_ key → tenant admin.
  */
 export function createLoginHandler(opts: AdminAuthOpts) {
   return async function loginHandler(
@@ -92,43 +92,36 @@ export function createLoginHandler(opts: AdminAuthOpts) {
     reply: FastifyReply,
   ): Promise<void> {
     const reqId = request.id as string;
-    const body = request.body as { tenantId?: string; apiKey?: string } | undefined;
+    const body = request.body as { apiKey?: string } | undefined;
     const apiKey = body?.apiKey;
-    const tenantId = body?.tenantId;
 
     if (!apiKey) {
       throw new ForbiddenError('apiKey is required');
     }
 
-    // Tenant-specific login
-    if (tenantId && opts.tenantService) {
-      const tenant = await opts.tenantService.getTenant(tenantId, reqId);
-      const storedHash = tenant.config.adminApiKeyHash;
-      if (!storedHash) {
-        throw new ForbiddenError('Tenant has no admin key configured');
-      }
-      const providedHash = hashApiKey(apiKey);
-      if (!timingSafeEqual(providedHash, storedHash)) {
-        log.warn('Tenant admin login failed', reqId, { tenantId });
-        throw new ForbiddenError('Invalid tenant admin credentials');
-      }
-
-      const payload: AdminAuthPayload = { role: 'tenant_admin', tenantId };
+    // Try super-admin key first
+    if (timingSafeEqual(apiKey, opts.superAdminKey)) {
+      const payload: AdminAuthPayload = { role: 'super_admin' };
       const jwtToken = jwt.sign(payload, opts.jwtSecret, { expiresIn: '8h' });
-      log.info('Tenant admin login success', reqId, { tenantId });
-      reply.code(200).send({ token: jwtToken, role: 'tenant_admin', tenantId });
+      log.info('Super admin login success', reqId);
+      reply.code(200).send({ token: jwtToken, role: 'super_admin' });
       return;
     }
 
-    // Super-admin login
-    if (!timingSafeEqual(apiKey, opts.superAdminKey)) {
-      log.warn('Super admin login failed', reqId);
-      throw new ForbiddenError('Invalid admin credentials');
+    // Try tenant admin key (lookup by hash)
+    if (opts.tenantService) {
+      const keyHash = hashApiKey(apiKey);
+      const tenant = await opts.tenantService.findTenantByAdminKeyHash(keyHash, reqId);
+      if (tenant) {
+        const payload: AdminAuthPayload = { role: 'tenant_admin', tenantId: tenant.id };
+        const jwtToken = jwt.sign(payload, opts.jwtSecret, { expiresIn: '8h' });
+        log.info('Tenant admin login success', reqId, { tenantId: tenant.id });
+        reply.code(200).send({ token: jwtToken, role: 'tenant_admin', tenantId: tenant.id });
+        return;
+      }
     }
 
-    const payload: AdminAuthPayload = { role: 'super_admin' };
-    const jwtToken = jwt.sign(payload, opts.jwtSecret, { expiresIn: '8h' });
-    log.info('Super admin login success', reqId);
-    reply.code(200).send({ token: jwtToken, role: 'super_admin' });
+    log.warn('Admin login failed: no matching key', reqId);
+    throw new ForbiddenError('Invalid credentials');
   };
 }

@@ -50,6 +50,12 @@ export function createDbTenantStore(db: PostgresJsDatabase): TenantStore {
       const rows = await db.select().from(tenants).orderBy(desc(tenants.createdAt));
       return rows.map(toTenantRecord);
     },
+    async findByAdminKeyHash(hash) {
+      const rows = await db.select().from(tenants)
+        .where(sql`${tenants.config}->>'adminApiKeyHash' = ${hash}`)
+        .limit(1);
+      return rows.length > 0 ? toTenantRecord(rows[0]) : null;
+    },
   };
 }
 
