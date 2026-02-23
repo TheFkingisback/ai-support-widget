@@ -73,11 +73,31 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   let caseId: string | null = null;
   let sending = false;
 
+  async function sendProgrammatic(text: string): Promise<void> {
+    if (!caseId || sending) return;
+    sending = true;
+    const typing = showTyping();
+    try {
+      const aiMsg = await apiClient.sendMessage(caseId, text);
+      typing.remove();
+      appendRendered(aiMsg);
+    } catch {
+      typing.remove();
+      const errEl = document.createElement('div');
+      errEl.className = 'ai-msg system';
+      errEl.textContent = 'Failed to get response. Please try again.';
+      messagesEl.appendChild(errEl);
+    } finally {
+      sending = false;
+    }
+  }
+
   function getDeps(): ChatRendererDeps {
     return {
       apiClient, locale, messagesEl, panelEl: panel,
       caseId: caseId ?? '',
       onCaseClosed: config.onCaseClosed,
+      onSendMessage: sendProgrammatic,
     };
   }
 

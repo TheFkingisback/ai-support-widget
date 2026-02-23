@@ -6,7 +6,7 @@ import type {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
-let apiKey = process.env.NEXT_PUBLIC_ADMIN_API_KEY ?? '';
+let apiKey = '';
 
 function loadStoredKey(): void {
   if (!apiKey && typeof window !== 'undefined') {

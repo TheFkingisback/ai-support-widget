@@ -49,6 +49,8 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-low}
       PORT: 3005
       CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
+      MCP_SERVER_URL: ${MCP_SERVER_URL}
+      MCP_SERVICE_TOKEN: ${MCP_SERVICE_TOKEN}
     ports:
       - "127.0.0.1:3005:3005"
     networks:
@@ -66,7 +68,6 @@ services:
       dockerfile: Dockerfile.web
       args:
         NEXT_PUBLIC_API_URL: https://${DOMAIN}
-        NEXT_PUBLIC_ADMIN_API_KEY: ${ADMIN_API_KEY}
     restart: unless-stopped
     depends_on:
       server:
@@ -75,7 +76,6 @@ services:
       - "127.0.0.1:3006:3000"
     environment:
       NEXT_PUBLIC_API_URL: https://${DOMAIN}
-      NEXT_PUBLIC_ADMIN_API_KEY: ${ADMIN_API_KEY}
     networks:
       - aiwidget-net
 

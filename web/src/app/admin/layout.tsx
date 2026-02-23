@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/sidebar';
 import { AdminLogin } from '@/components/admin-login';
-import { getAdminApiKey } from '@/lib/api';
+import { getAdminApiKey, clearAdminApiKey, listTenants } from '@/lib/api';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -10,10 +10,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const key = getAdminApiKey();
-    if (key) {
-      setAuthenticated(true);
+    if (!key) {
+      setChecking(false);
+      return;
     }
-    setChecking(false);
+    listTenants()
+      .then(() => setAuthenticated(true))
+      .catch(() => clearAdminApiKey())
+      .finally(() => setChecking(false));
   }, []);
 
   if (checking) {

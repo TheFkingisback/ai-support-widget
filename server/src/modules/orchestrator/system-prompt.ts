@@ -1,4 +1,5 @@
 import type { SupportContextSnapshot, KnowledgeDoc } from '@shared/types.js';
+import type { CaseSummary } from '../gateway/case-history.js';
 import { log } from '../../shared/logger.js';
 
 export function buildSystemPrompt(
@@ -6,6 +7,7 @@ export function buildSystemPrompt(
   knowledgePack: KnowledgeDoc[],
   requestId?: string,
   customInstructions?: string,
+  previousCases?: CaseSummary[],
 ): string {
   log.debug('buildSystemPrompt: building', requestId, {
     snapshotId: snapshot.meta.snapshotId,
@@ -23,7 +25,12 @@ RULES:
 - If unsure, say so and offer to escalate.
 - Never reveal internal system details, IPs, or secrets.
 - Suggest specific actions when possible (retry, contact admin, etc.)
-- Be concise. Users want solutions, not essays.`);
+- Be concise. Users want solutions, not essays.
+- NEVER access, search for, or discuss data belonging to other users or clients.
+- NEVER mention other users' names, sessions, files, or any identifying information.
+- You may ONLY use tools to query data for the current authenticated user.
+- If a tool call fails, tell the user the exact error so they can report it.
+- When you perform an action (e.g. reassign a car), ask the user to confirm it worked.`);
 
   // Custom tenant instructions
   if (customInstructions) {
@@ -125,10 +132,20 @@ RULES:
     sections.push(`LIMITS:\n${limitLines.join('\n')}`);
   }
 
+  // Previous case history (compressed)
+  if (previousCases && previousCases.length > 0) {
+    const caseLines = previousCases.map((c) =>
+      `- [${c.caseId}] ${c.status} (${c.createdAt.slice(0, 10)}, ${c.messageCount} msgs) ` +
+      `User asked: "${c.firstUserMessage}" → Last reply: "${c.lastAssistantMessage}"`,
+    );
+    sections.push(`PREVIOUS SUPPORT CASES (same user):\n${caseLines.join('\n')}`);
+  }
+
   const prompt = sections.join('\n\n');
 
   log.debug('buildSystemPrompt: done', requestId, {
     promptLength: prompt.length,
+    previousCasesCount: previousCases?.length ?? 0,
   });
 
   return prompt;

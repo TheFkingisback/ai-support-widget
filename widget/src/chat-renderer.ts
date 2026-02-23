@@ -10,6 +10,7 @@ export interface ChatRendererDeps {
   panelEl: HTMLElement;
   caseId: string;
   onCaseClosed?: () => void;
+  onSendMessage?: (text: string) => Promise<void>;
 }
 
 /** Renders a message element and appends to container */
@@ -32,13 +33,13 @@ export function renderMessage(msg: Message, deps: ChatRendererDeps): HTMLElement
   }
 
   if (msg.role === 'assistant') {
-    el.appendChild(createCaseCloseButtons(deps));
+    el.appendChild(createFeedbackButtons(deps));
   }
 
   return el;
 }
 
-function createCaseCloseButtons(deps: ChatRendererDeps): HTMLElement {
+function createFeedbackButtons(deps: ChatRendererDeps): HTMLElement {
   const container = document.createElement('div');
   container.className = 'ai-case-close';
 
@@ -60,12 +61,31 @@ function createCaseCloseButtons(deps: ChatRendererDeps): HTMLElement {
   noBtn.setAttribute('aria-label', 'Issue was not resolved');
 
   yesBtn.addEventListener('click', () => showRatingStep(container, 'resolved', deps));
-  noBtn.addEventListener('click', () => showRatingStep(container, 'unresolved', deps));
+  noBtn.addEventListener('click', () => handleUnresolved(container, deps));
 
   btns.appendChild(yesBtn);
   btns.appendChild(noBtn);
   container.appendChild(btns);
   return container;
+}
+
+function handleUnresolved(container: HTMLElement, deps: ChatRendererDeps): void {
+  container.innerHTML = '';
+  const msg = document.createElement('p');
+  msg.textContent = 'I\'ll keep trying to help. Please describe what\'s still wrong.';
+  container.appendChild(msg);
+
+  const closeAnyway = document.createElement('button');
+  closeAnyway.className = 'ai-close-no';
+  closeAnyway.textContent = 'Close case anyway';
+  closeAnyway.style.marginTop = '8px';
+  closeAnyway.addEventListener('click', () => showRatingStep(container, 'unresolved', deps));
+  container.appendChild(closeAnyway);
+
+  if (deps.onSendMessage) {
+    deps.onSendMessage('My issue is not resolved yet. Please try a different approach.');
+  }
+  deps.messagesEl.scrollTop = deps.messagesEl.scrollHeight;
 }
 
 function showRatingStep(

@@ -10,6 +10,8 @@ import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
 import { executeWithTools } from './tool-executor.js';
 import { buildSystemPrompt } from './system-prompt.js';
 import { parseAIResponse } from './response-parser.js';
+import { getPreviousCaseSummaries } from '../gateway/case-history.js';
+import { getDb } from '../../shared/db.js';
 import { log } from '../../shared/logger.js';
 
 const DEFAULT_MAX_MESSAGES = 20;
@@ -107,8 +109,20 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         }
       }
       const allDocs = [...knowledgeDocs, ...runbooks];
+
+      let previousCases: Awaited<ReturnType<typeof getPreviousCaseSummaries>> = [];
+      try {
+        previousCases = await getPreviousCaseSummaries(
+          getDb(), tenantId, caseData.userId, caseId, requestId,
+        );
+      } catch (err) {
+        log.warn('handleMessage: previous cases fetch failed', requestId, {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+
       const systemPrompt = processedSnapshot
-        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions)
+        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases)
         : 'You are a helpful support assistant. Answer the user\'s question.';
 
       const allMessages = [...messages, {
