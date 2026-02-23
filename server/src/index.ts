@@ -12,7 +12,7 @@ import { createAnalyticsService } from './modules/admin/analytics.service.js';
 import { createAuditService } from './modules/admin/audit.service.js';
 import { createCostService } from './modules/admin/cost.service.js';
 import { createModelListService } from './modules/orchestrator/model-list.service.js';
-import { createAdminAuth } from './modules/admin/admin-auth.js';
+import { createAdminAuth, createLoginHandler } from './modules/admin/admin-auth.js';
 import { createDbTenantStore, createDbCostStore, createDbAuditStore } from './shared/db-stores.js';
 import { createDbAnalyticsDataSource, createDbSessionDataSource } from './shared/db-data-sources.js';
 
@@ -50,7 +50,9 @@ async function main() {
   });
 
   const modelListService = createModelListService(env.OPENROUTER_API_KEY);
-  const adminAuth = createAdminAuth(env.ADMIN_API_KEY);
+  const authOpts = { superAdminKey: env.ADMIN_API_KEY, jwtSecret: env.JWT_SECRET, tenantService };
+  const adminAuth = createAdminAuth(authOpts);
+  const loginHandler = createLoginHandler(authOpts);
   const sessionDataSource = createDbSessionDataSource(db);
 
   const app = await buildApp({
@@ -64,6 +66,7 @@ async function main() {
       analyticsService: createAnalyticsService(createDbAnalyticsDataSource(db)),
       auditService: createAuditService(createDbAuditStore(db)),
       adminAuth,
+      loginHandler,
       modelListService,
       costService: costSvc,
     },

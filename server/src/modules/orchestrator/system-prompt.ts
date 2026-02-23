@@ -1,13 +1,15 @@
 import type { SupportContextSnapshot, KnowledgeDoc } from '@shared/types.js';
-import type { CaseSummary } from '../gateway/case-history.js';
+import type { CaseHistoryEntry } from '../gateway/case-history.js';
 import { log } from '../../shared/logger.js';
+
+const MAX_HISTORY_CHARS = 8000;
 
 export function buildSystemPrompt(
   snapshot: SupportContextSnapshot,
   knowledgePack: KnowledgeDoc[],
   requestId?: string,
   customInstructions?: string,
-  previousCases?: CaseSummary[],
+  previousCases?: CaseHistoryEntry[],
 ): string {
   log.debug('buildSystemPrompt: building', requestId, {
     snapshotId: snapshot.meta.snapshotId,
@@ -30,7 +32,10 @@ RULES:
 - NEVER mention other users' names, sessions, files, or any identifying information.
 - You may ONLY use tools to query data for the current authenticated user.
 - If a tool call fails, tell the user the exact error so they can report it.
-- When you perform an action (e.g. reassign a car), ask the user to confirm it worked.`);
+- When you perform an action (e.g. reassign a car), ask the user to confirm it worked.
+- Before closing or suggesting to close the case, ALWAYS ask: "Is there anything else I can help with?"
+- NEVER close the case without the user's explicit confirmation.
+- If the user seems satisfied, ask permission before closing.`);
 
   // Custom tenant instructions
   if (customInstructions) {
@@ -132,13 +137,9 @@ RULES:
     sections.push(`LIMITS:\n${limitLines.join('\n')}`);
   }
 
-  // Previous case history (compressed)
+  // Full conversation history (last 30 days)
   if (previousCases && previousCases.length > 0) {
-    const caseLines = previousCases.map((c) =>
-      `- [${c.caseId}] ${c.status} (${c.createdAt.slice(0, 10)}, ${c.messageCount} msgs) ` +
-      `User asked: "${c.firstUserMessage}" → Last reply: "${c.lastAssistantMessage}"`,
-    );
-    sections.push(`PREVIOUS SUPPORT CASES (same user):\n${caseLines.join('\n')}`);
+    sections.push(buildHistorySection(previousCases));
   }
 
   const prompt = sections.join('\n\n');
@@ -149,4 +150,26 @@ RULES:
   });
 
   return prompt;
+}
+
+function buildHistorySection(cases: CaseHistoryEntry[]): string {
+  const lines: string[] = ['PREVIOUS CONVERSATIONS (last 30 days):'];
+  let totalChars = lines[0].length;
+
+  for (const c of cases) {
+    const header = `\n--- Case ${c.caseId} (${c.status}, ${c.createdAt.slice(0, 10)}) ---`;
+    if (totalChars + header.length > MAX_HISTORY_CHARS) break;
+    lines.push(header);
+    totalChars += header.length;
+
+    for (const m of c.messages) {
+      const label = m.role === 'user' ? 'User' : 'Assistant';
+      const line = `${label}: ${m.content}`;
+      if (totalChars + line.length + 1 > MAX_HISTORY_CHARS) break;
+      lines.push(line);
+      totalChars += line.length + 1;
+    }
+  }
+
+  return lines.join('\n');
 }

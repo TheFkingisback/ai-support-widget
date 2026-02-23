@@ -1,16 +1,18 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Save, ArrowLeft } from 'lucide-react';
-import { listTenants, updateTenant } from '@/lib/api';
+import { Save, ArrowLeft, Trash2 } from 'lucide-react';
+import { listTenants, updateTenant, deleteTenant } from '@/lib/api';
 import type { Tenant, TenantConfig, UpdateTenantInput } from '@/lib/types';
 import ModelPicker from '@/components/model-picker';
+import { AdminKeySection } from '@/components/admin-key-section';
 
 const CONNECTORS = ['email', 'zendesk', 'jira'];
 
 export default function TenantDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const tenantId = params.id as string;
   const [tenant, setTenant] = useState<Tenant | null>(null);
   const [config, setConfig] = useState<TenantConfig | null>(null);
@@ -18,6 +20,7 @@ export default function TenantDetailPage() {
   const [plan, setPlan] = useState<Tenant['plan']>('starter');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const load = useCallback(async () => {
     const tenants = await listTenants();
@@ -144,6 +147,8 @@ export default function TenantDetailPage() {
           </div>
         </Section>
 
+        <AdminKeySection tenantId={tenantId} />
+
         <Section title="Quick Links">
           <Link href={`/admin/tenants/${tenantId}/cases`}
             className="block text-blue-400 hover:underline text-sm">Browse Cases</Link>
@@ -156,6 +161,22 @@ export default function TenantDetailPage() {
           <Save size={16} aria-hidden="true" /> {saving ? 'Saving...' : 'Save Changes'}
         </button>
         {saved && <span role="status" className="text-sm text-green-400">Saved successfully</span>}
+        <div className="ml-auto">
+          {confirmDelete ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-red-400">Confirm?</span>
+              <button onClick={async () => { await deleteTenant(tenantId); router.push('/admin/tenants'); }}
+                className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700">Delete</button>
+              <button onClick={() => setConfirmDelete(false)}
+                className="rounded-lg bg-gray-700 px-3 py-1.5 text-sm text-gray-300 hover:bg-gray-600">Cancel</button>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmDelete(true)}
+              className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-sm text-red-400 transition-colors hover:bg-red-900/30">
+              <Trash2 size={14} aria-hidden="true" /> Delete Tenant
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
 import { executeWithTools } from './tool-executor.js';
 import { buildSystemPrompt } from './system-prompt.js';
 import { parseAIResponse } from './response-parser.js';
-import { getPreviousCaseSummaries } from '../gateway/case-history.js';
+import { getFullCaseHistory } from '../gateway/case-history.js';
 import { getDb } from '../../shared/db.js';
 import { log } from '../../shared/logger.js';
 
@@ -110,9 +110,9 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       }
       const allDocs = [...knowledgeDocs, ...runbooks];
 
-      let previousCases: Awaited<ReturnType<typeof getPreviousCaseSummaries>> = [];
+      let previousCases: Awaited<ReturnType<typeof getFullCaseHistory>> = [];
       try {
-        previousCases = await getPreviousCaseSummaries(
+        previousCases = await getFullCaseHistory(
           getDb(), tenantId, caseData.userId, caseId, requestId,
         );
       } catch (err) {

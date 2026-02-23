@@ -6,38 +6,80 @@ import type {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
-let apiKey = '';
+let token = '';
 
-function loadStoredKey(): void {
-  if (!apiKey && typeof window !== 'undefined') {
-    apiKey = sessionStorage.getItem('admin_api_key') ?? '';
+function loadStoredToken(): void {
+  if (!token && typeof window !== 'undefined') {
+    token = sessionStorage.getItem('admin_token') ?? '';
   }
 }
 
 export function getAdminApiKey(): string {
-  loadStoredKey();
-  return apiKey;
+  loadStoredToken();
+  return token;
 }
 
 export function setAdminApiKey(key: string): void {
-  apiKey = key;
+  token = key;
   if (typeof window !== 'undefined') {
-    sessionStorage.setItem('admin_api_key', key);
+    sessionStorage.setItem('admin_token', key);
   }
 }
 
 export function clearAdminApiKey(): void {
-  apiKey = '';
+  token = '';
   if (typeof window !== 'undefined') {
-    sessionStorage.removeItem('admin_api_key');
+    sessionStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_role');
+    sessionStorage.removeItem('admin_tenant_id');
   }
 }
 
+export function getAdminRole(): string {
+  if (typeof window !== 'undefined') return sessionStorage.getItem('admin_role') ?? '';
+  return '';
+}
+
+export function getAdminTenantId(): string {
+  if (typeof window !== 'undefined') return sessionStorage.getItem('admin_tenant_id') ?? '';
+  return '';
+}
+
+export interface LoginResult {
+  token: string;
+  role: 'super_admin' | 'tenant_admin';
+  tenantId?: string;
+}
+
+export async function adminLogin(apiKey: string, tenantId?: string): Promise<LoginResult> {
+  const body: Record<string, string> = { apiKey };
+  if (tenantId) body.tenantId = tenantId;
+
+  const res = await fetch(`${BASE_URL}/api/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message ?? `Login failed: ${res.status}`);
+  }
+
+  const result = await res.json() as LoginResult;
+  setAdminApiKey(result.token);
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('admin_role', result.role);
+    if (result.tenantId) sessionStorage.setItem('admin_tenant_id', result.tenantId);
+  }
+  return result;
+}
+
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
-  loadStoredKey();
+  loadStoredToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${apiKey}`,
+    Authorization: `Bearer ${token}`,
   };
 
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -59,9 +101,21 @@ export async function listTenants(): Promise<Tenant[]> {
   return data.tenants;
 }
 
-export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
-  const data = await request<{ tenant: Tenant }>('POST', '/api/admin/tenants', input);
-  return data.tenant;
+export interface CreateTenantResult {
+  tenant: Tenant;
+  adminApiKey: string;
+}
+
+export async function createTenant(input: CreateTenantInput): Promise<CreateTenantResult> {
+  return request<CreateTenantResult>('POST', '/api/admin/tenants', input);
+}
+
+export async function resetTenantKey(tenantId: string): Promise<{ adminApiKey: string }> {
+  return request<{ adminApiKey: string }>('POST', `/api/admin/tenants/${tenantId}/reset-key`);
+}
+
+export async function deleteTenant(id: string): Promise<void> {
+  await request<{ ok: true }>('DELETE', `/api/admin/tenants/${id}`);
 }
 
 export async function updateTenant(id: string, input: UpdateTenantInput): Promise<Tenant> {

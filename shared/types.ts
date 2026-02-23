@@ -239,6 +239,7 @@ export interface TenantConfig {
   retentionDays: number;
   enabledConnectors: string[];
   customInstructions?: string;
+  adminApiKeyHash?: string;
 }
 
 export interface OpenRouterModel {

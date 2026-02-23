@@ -55,6 +55,7 @@ export function getStyles(theme: 'light' | 'dark', brandColor?: string): string 
     }
     .ai-widget-header button:hover { opacity: 1; background: rgba(255,255,255,.15); }
     .ai-widget-header button:focus-visible { outline-color: #fff; }
+    .ai-end-btn { font-size: 11px !important; opacity: .7; }
     .ai-widget-messages {
       flex: 1; overflow-y: auto; padding: 12px; display: flex;
       flex-direction: column; gap: 8px; min-height: 200px;

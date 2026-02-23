@@ -40,6 +40,10 @@ function createMockTenantStore(): TenantStore & { _records: TenantRecord[] } {
       const idx = _records.findIndex((r) => r.id === id);
       if (idx >= 0) Object.assign(_records[idx], fields);
     },
+    async delete(id) {
+      const idx = _records.findIndex((r) => r.id === id);
+      if (idx >= 0) _records.splice(idx, 1);
+    },
     async findById(id) {
       return _records.find((r) => r.id === id) ?? null;
     },
@@ -198,6 +202,7 @@ describe('Admin Module', () => {
     const body = JSON.parse(res.body);
     expect(body.tenant.name).toBe('Acme Corp');
     expect(body.tenant.id).toMatch(/^ten_/);
+    expect(body.adminApiKey).toMatch(/^tsk_/);
 
     // Verify token is encrypted in store (AES-GCM, not plaintext)
     const stored = tenantStore._records[0];
@@ -263,7 +268,7 @@ describe('Admin Module', () => {
 
   // Test 4: getTenant returns tenant by ID
   it('getTenant returns tenant by ID', async () => {
-    const tenant = await tenantService.createTenant(
+    const result = await tenantService.createTenant(
       'Get Co', 'enterprise', undefined, 'https://api.get.com', 'tok-3',
     );
 
@@ -275,7 +280,7 @@ describe('Admin Module', () => {
 
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
-    const found = body.tenants.find((t: { id: string }) => t.id === tenant.id);
+    const found = body.tenants.find((t: { id: string }) => t.id === result.tenant.id);
     expect(found).toBeDefined();
     expect(found.name).toBe('Get Co');
     expect(found.plan).toBe('enterprise');

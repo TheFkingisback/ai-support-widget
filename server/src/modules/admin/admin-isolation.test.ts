@@ -40,13 +40,17 @@ describe('Admin API Tenant Isolation', () => {
     cases = [];
 
     const tenantStore = {
-      async insert(t: Tenant) { tenants.push(t); },
+      async save(t: Tenant) { tenants.push(t); },
       async findById(id: string) { return tenants.find((t) => t.id === id) ?? null; },
       async findAll() { return tenants; },
       async update(id: string, u: Partial<Tenant>) {
         const t = tenants.find((t) => t.id === id);
         if (t) Object.assign(t, u);
         return t ?? null;
+      },
+      async delete(id: string) {
+        const idx = tenants.findIndex((t) => t.id === id);
+        if (idx >= 0) tenants.splice(idx, 1);
       },
     };
 

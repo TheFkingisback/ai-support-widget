@@ -25,10 +25,10 @@ export default function TenantsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  async function handleCreate(input: CreateTenantInput) {
-    await createTenant(input);
-    setModalOpen(false);
+  async function handleCreate(input: CreateTenantInput): Promise<{ adminApiKey: string }> {
+    const result = await createTenant(input);
     await load();
+    return { adminApiKey: result.adminApiKey };
   }
 
   return (

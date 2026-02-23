@@ -8,6 +8,7 @@ export interface ApiClientConfig {
 
 export interface ApiClient {
   createCase(message: string, context?: Record<string, unknown>): Promise<{ case: Case; snapshot: { id: string } }>;
+  getCase(caseId: string): Promise<{ case: Case; messages: Message[] }>;
   sendMessage(caseId: string, content: string): Promise<Message>;
   addFeedback(caseId: string, feedback: 'positive' | 'negative'): Promise<void>;
   escalate(caseId: string, reason?: string): Promise<{ ticketId: string; ticketUrl: string }>;
@@ -57,6 +58,10 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
       return request<{ case: Case; snapshot: { id: string } }>('POST', '/api/cases', {
         message, ...(context ? { context } : {}),
       });
+    },
+
+    async getCase(caseId: string) {
+      return request<{ case: Case; messages: Message[] }>('GET', `/api/cases/${caseId}`);
     },
 
     async sendMessage(caseId: string, content: string) {

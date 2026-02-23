@@ -1,82 +1,39 @@
 import crypto from 'node:crypto';
 import { log } from '../../shared/logger.js';
 import { NotFoundError, ValidationError } from '../../shared/errors.js';
-import { getEnvSafe } from '../../shared/env.js';
 import type { Tenant, TenantConfig } from '../../shared/types.js';
+import { hashApiKey } from './admin-auth.js';
+import { encryptToken, decryptToken } from './encryption.js';
+
+export { encryptToken, decryptToken };
 
 function genId(prefix: string): string {
   return `${prefix}_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`;
 }
 
+function generateAdminKey(): string {
+  return `tsk_${crypto.randomBytes(24).toString('base64url')}`;
+}
+
 const PLAN_DEFAULTS: Record<string, TenantConfig> = {
   starter: {
-    maxContextBytes: 1_000_000,
-    maxEventWindowHours: 24,
-    maxLogLines: 100,
-    maxDocs: 5,
-    modelPolicy: 'fast',
-    retentionDays: 30,
-    enabledConnectors: ['email'],
+    maxContextBytes: 1_000_000, maxEventWindowHours: 24, maxLogLines: 100,
+    maxDocs: 5, modelPolicy: 'fast', retentionDays: 30, enabledConnectors: ['email'],
   },
   pro: {
-    maxContextBytes: 5_000_000,
-    maxEventWindowHours: 72,
-    maxLogLines: 500,
-    maxDocs: 20,
-    modelPolicy: 'auto',
-    retentionDays: 90,
-    enabledConnectors: ['email', 'zendesk'],
+    maxContextBytes: 5_000_000, maxEventWindowHours: 72, maxLogLines: 500,
+    maxDocs: 20, modelPolicy: 'auto', retentionDays: 90, enabledConnectors: ['email', 'zendesk'],
   },
   enterprise: {
-    maxContextBytes: 10_000_000,
-    maxEventWindowHours: 168,
-    maxLogLines: 1000,
-    maxDocs: 50,
-    modelPolicy: 'strong',
-    retentionDays: 365,
-    enabledConnectors: ['email', 'zendesk', 'jira'],
+    maxContextBytes: 10_000_000, maxEventWindowHours: 168, maxLogLines: 1000,
+    maxDocs: 50, modelPolicy: 'strong', retentionDays: 365, enabledConnectors: ['email', 'zendesk', 'jira'],
   },
 };
-
-const ALGO = 'aes-256-gcm';
-const IV_LEN = 12;
-const TAG_LEN = 16;
-
-function deriveKey(): Buffer {
-  const env = getEnvSafe();
-  const secret = env.TOKEN_ENCRYPTION_KEY ?? env.JWT_SECRET;
-  if (!env.TOKEN_ENCRYPTION_KEY && env.JWT_SECRET) {
-    log.warn('TOKEN_ENCRYPTION_KEY not set — falling back to JWT_SECRET. Set TOKEN_ENCRYPTION_KEY in production.');
-  }
-  if (!secret) {
-    throw new Error('Neither TOKEN_ENCRYPTION_KEY nor JWT_SECRET is set — cannot encrypt tokens');
-  }
-  return crypto.createHash('sha256').update(secret).digest();
-}
-
-export function encryptToken(token: string): string {
-  const key = deriveKey();
-  const iv = crypto.randomBytes(IV_LEN);
-  const cipher = crypto.createCipheriv(ALGO, key, iv);
-  const enc = Buffer.concat([cipher.update(token, 'utf-8'), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return Buffer.concat([iv, tag, enc]).toString('base64');
-}
-
-export function decryptToken(encrypted: string): string {
-  const key = deriveKey();
-  const buf = Buffer.from(encrypted, 'base64');
-  const iv = buf.subarray(0, IV_LEN);
-  const tag = buf.subarray(IV_LEN, IV_LEN + TAG_LEN);
-  const ciphertext = buf.subarray(IV_LEN + TAG_LEN);
-  const decipher = crypto.createDecipheriv(ALGO, key, iv);
-  decipher.setAuthTag(tag);
-  return decipher.update(ciphertext) + decipher.final('utf-8');
-}
 
 export interface TenantStore {
   save(tenant: TenantRecord): Promise<void>;
   update(id: string, fields: Partial<TenantRecord>): Promise<void>;
+  delete(id: string): Promise<void>;
   findById(id: string): Promise<TenantRecord | null>;
   findAll(): Promise<TenantRecord[]>;
 }
@@ -92,15 +49,16 @@ export interface TenantRecord {
   updatedAt: string;
 }
 
+export interface CreateTenantResult {
+  tenant: Tenant;
+  adminApiKey: string;
+}
+
 export interface TenantService {
   createTenant(
-    name: string,
-    plan: string,
-    config: Partial<TenantConfig> | undefined,
-    apiBaseUrl: string,
-    serviceToken: string,
-    requestId?: string,
-  ): Promise<Tenant>;
+    name: string, plan: string, config: Partial<TenantConfig> | undefined,
+    apiBaseUrl: string, serviceToken: string, requestId?: string,
+  ): Promise<CreateTenantResult>;
 
   updateTenant(
     tenantId: string,
@@ -108,6 +66,8 @@ export interface TenantService {
     requestId?: string,
   ): Promise<Tenant>;
 
+  resetAdminKey(tenantId: string, requestId?: string): Promise<{ adminApiKey: string }>;
+  deleteTenant(tenantId: string, requestId?: string): Promise<void>;
   getTenant(tenantId: string, requestId?: string): Promise<Tenant>;
   listTenants(requestId?: string): Promise<Tenant[]>;
 }
@@ -132,22 +92,20 @@ export function createTenantService(store: TenantStore): TenantService {
       const id = genId('ten');
       const now = new Date().toISOString();
       const defaults = PLAN_DEFAULTS[plan];
-      const mergedConfig: TenantConfig = { ...defaults, ...config };
+      const adminApiKey = generateAdminKey();
+      const mergedConfig: TenantConfig = {
+        ...defaults, ...config, adminApiKeyHash: hashApiKey(adminApiKey),
+      };
 
       const record: TenantRecord = {
-        id,
-        name,
-        plan,
-        config: mergedConfig,
-        apiBaseUrl,
-        serviceToken: encryptToken(serviceToken),
-        createdAt: now,
-        updatedAt: now,
+        id, name, plan, config: mergedConfig,
+        apiBaseUrl, serviceToken: encryptToken(serviceToken),
+        createdAt: now, updatedAt: now,
       };
 
       await store.save(record);
       log.info('Tenant created', requestId, { tenantId: id, name, plan });
-      return toTenant(record);
+      return { tenant: toTenant(record), adminApiKey };
     },
 
     async updateTenant(tenantId, updates, requestId) {
@@ -157,22 +115,39 @@ export function createTenantService(store: TenantStore): TenantService {
       const fields: Partial<TenantRecord> = { updatedAt: new Date().toISOString() };
       if (updates.name) fields.name = updates.name;
       if (updates.plan) {
-        fields.plan = updates.plan;
         if (!PLAN_DEFAULTS[updates.plan]) {
           throw new ValidationError(`Invalid plan: ${updates.plan}`, 'plan');
         }
+        fields.plan = updates.plan;
       }
       if (updates.config) {
-        fields.config = { ...existing.config, ...updates.config };
+        const { adminApiKeyHash: _strip, ...safeConfig } = updates.config;
+        fields.config = { ...existing.config, ...safeConfig };
       }
 
       await store.update(tenantId, fields);
       const updated = await store.findById(tenantId);
-      log.info('Tenant updated', requestId, {
-        tenantId,
-        changedFields: Object.keys(updates),
-      });
+      log.info('Tenant updated', requestId, { tenantId, changedFields: Object.keys(updates) });
       return toTenant(updated!);
+    },
+
+    async resetAdminKey(tenantId, requestId) {
+      const existing = await store.findById(tenantId);
+      if (!existing) throw new NotFoundError('Tenant', tenantId);
+
+      const adminApiKey = generateAdminKey();
+      const config = { ...existing.config, adminApiKeyHash: hashApiKey(adminApiKey) };
+      await store.update(tenantId, { config, updatedAt: new Date().toISOString() });
+
+      log.info('Tenant admin key reset', requestId, { tenantId });
+      return { adminApiKey };
+    },
+
+    async deleteTenant(tenantId, requestId) {
+      const existing = await store.findById(tenantId);
+      if (!existing) throw new NotFoundError('Tenant', tenantId);
+      await store.delete(tenantId);
+      log.info('Tenant deleted', requestId, { tenantId });
     },
 
     async getTenant(tenantId, requestId) {

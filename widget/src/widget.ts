@@ -2,6 +2,7 @@ import type { WidgetConfig } from './types.js';
 import { getStyles } from './styles.js';
 import { createApiClient, type ApiClient } from './api.js';
 import { createChatPanel, type ChatPanel } from './chat.js';
+import { saveCaseId, loadCaseId, clearCaseId } from './persistence.js';
 
 export interface WidgetInstance {
   open(): void;
@@ -22,6 +23,7 @@ export class AISupportWidget {
     const theme = config.theme ?? 'light';
     const position = config.position ?? 'bottom-right';
     const locale = config.locale ?? 'en-US';
+    const tenantKey = config.tenantKey;
     const isLeft = position === 'bottom-left';
 
     // Create host element and shadow DOM
@@ -62,7 +64,7 @@ export class AISupportWidget {
     let panelVisible = false;
 
     function handleCaseClosed(): void {
-      // After case is closed, destroy panel so next open starts fresh
+      clearCaseId(tenantKey);
       if (chatPanel) {
         chatPanel.destroy();
         chatPanel = null;
@@ -72,9 +74,16 @@ export class AISupportWidget {
       fab.setAttribute('aria-label', 'Open support chat');
     }
 
-    function open(): void {
+    function showPanel(panel: ChatPanel): void {
+      shadow.appendChild(panel.element);
+      panelVisible = true;
+      fab.setAttribute('aria-expanded', 'true');
+      fab.setAttribute('aria-label', 'Minimize support chat');
+      panel.focus();
+    }
+
+    async function open(): Promise<void> {
       if (chatPanel && !panelVisible) {
-        // Restore minimized panel
         chatPanel.show();
         panelVisible = true;
         fab.setAttribute('aria-expanded', 'true');
@@ -83,19 +92,39 @@ export class AISupportWidget {
         return;
       }
       if (chatPanel) return;
+
+      // Try to restore a previous session from localStorage
+      const storedCaseId = loadCaseId(tenantKey);
+      if (storedCaseId) {
+        try {
+          const { case: caseData, messages } = await apiClient.getCase(storedCaseId);
+          if (caseData.status === 'active') {
+            chatPanel = createChatPanel({
+              apiClient, locale, position,
+              onClose: minimize, onCaseClosed: handleCaseClosed,
+              context: config.context,
+              initialCaseId: storedCaseId,
+              initialMessages: messages,
+              onCaseCreated: (id) => saveCaseId(tenantKey, id),
+            });
+            showPanel(chatPanel);
+            return;
+          }
+          // Case is closed — clear and start fresh
+          clearCaseId(tenantKey);
+        } catch {
+          // Case not found or error — clear and start fresh
+          clearCaseId(tenantKey);
+        }
+      }
+
       chatPanel = createChatPanel({
-        apiClient,
-        locale,
-        position,
-        onClose: minimize,
-        onCaseClosed: handleCaseClosed,
+        apiClient, locale, position,
+        onClose: minimize, onCaseClosed: handleCaseClosed,
         context: config.context,
+        onCaseCreated: (id) => saveCaseId(tenantKey, id),
       });
-      shadow.appendChild(chatPanel.element);
-      panelVisible = true;
-      fab.setAttribute('aria-expanded', 'true');
-      fab.setAttribute('aria-label', 'Minimize support chat');
-      chatPanel.focus();
+      showPanel(chatPanel);
     }
 
     function minimize(): void {

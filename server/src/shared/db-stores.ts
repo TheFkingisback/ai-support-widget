@@ -43,6 +43,9 @@ export function createDbTenantStore(db: PostgresJsDatabase): TenantStore {
       const rows = await db.select().from(tenants).where(eq(tenants.id, id)).limit(1);
       return rows.length > 0 ? toTenantRecord(rows[0]) : null;
     },
+    async delete(id) {
+      await db.delete(tenants).where(eq(tenants.id, id));
+    },
     async findAll() {
       const rows = await db.select().from(tenants).orderBy(desc(tenants.createdAt));
       return rows.map(toTenantRecord);

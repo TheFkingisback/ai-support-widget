@@ -1,6 +1,6 @@
 import type { ApiClient } from './api.js';
 import type { Message } from './types.js';
-import { renderMessage, type ChatRendererDeps } from './chat-renderer.js';
+import { renderMessage, createCloseFlow, type ChatRendererDeps } from './chat-renderer.js';
 
 export interface ChatPanelConfig {
   apiClient: ApiClient;
@@ -9,6 +9,9 @@ export interface ChatPanelConfig {
   onClose: () => void;
   onCaseClosed?: () => void;
   context?: Record<string, unknown>;
+  initialCaseId?: string;
+  initialMessages?: Message[];
+  onCaseCreated?: (caseId: string) => void;
 }
 
 export interface ChatPanel {
@@ -41,7 +44,13 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   closeBtn.textContent = '\u2715';
   closeBtn.setAttribute('aria-label', 'Minimize support chat');
   closeBtn.addEventListener('click', onClose);
+  const endBtn = document.createElement('button');
+  endBtn.className = 'ai-end-btn';
+  endBtn.textContent = 'End Session';
+  endBtn.setAttribute('aria-label', 'End support session');
+  endBtn.style.display = 'none';
   header.appendChild(title);
+  header.appendChild(endBtn);
   header.appendChild(closeBtn);
 
   // Messages
@@ -70,8 +79,26 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   panel.appendChild(messagesEl);
   panel.appendChild(inputBar);
 
-  let caseId: string | null = null;
+  let caseId: string | null = config.initialCaseId ?? null;
   let sending = false;
+  let closeFlowShown = false;
+
+  // Show "End Session" when there's an active case
+  if (caseId) endBtn.style.display = '';
+
+  endBtn.addEventListener('click', () => {
+    if (!caseId || closeFlowShown) return;
+    closeFlowShown = true;
+    messagesEl.appendChild(createCloseFlow(getDeps()));
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  });
+
+  // Restore previous messages if resuming
+  if (config.initialMessages && config.initialMessages.length > 0) {
+    for (const msg of config.initialMessages) {
+      appendRendered(msg);
+    }
+  }
 
   async function sendProgrammatic(text: string): Promise<void> {
     if (!caseId || sending) return;
@@ -129,6 +156,8 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
       if (!caseId) {
         const result = await apiClient.createCase(text, config.context);
         caseId = result.case.id;
+        config.onCaseCreated?.(caseId);
+        endBtn.style.display = '';
       }
       const aiMsg = await apiClient.sendMessage(caseId, text);
       typing.remove();

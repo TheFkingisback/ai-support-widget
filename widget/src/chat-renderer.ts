@@ -13,7 +13,7 @@ export interface ChatRendererDeps {
   onSendMessage?: (text: string) => Promise<void>;
 }
 
-/** Renders a message element and appends to container */
+/** Renders a message element */
 export function renderMessage(msg: Message, deps: ChatRendererDeps): HTMLElement {
   const el = document.createElement('div');
   el.className = `ai-msg ${msg.role}`;
@@ -32,14 +32,11 @@ export function renderMessage(msg: Message, deps: ChatRendererDeps): HTMLElement
     el.appendChild(renderActions(msg.actions, handlers, deps.panelEl));
   }
 
-  if (msg.role === 'assistant') {
-    el.appendChild(createFeedbackButtons(deps));
-  }
-
   return el;
 }
 
-function createFeedbackButtons(deps: ChatRendererDeps): HTMLElement {
+/** Creates the close-case flow UI (called when user clicks "End Session") */
+export function createCloseFlow(deps: ChatRendererDeps): HTMLElement {
   const container = document.createElement('div');
   container.className = 'ai-case-close';
 

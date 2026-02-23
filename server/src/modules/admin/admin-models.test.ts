@@ -20,6 +20,7 @@ function createMockTenantStore(): TenantStore {
   return {
     async save(r) { records.push({ ...r }); },
     async update(id, f) { const i = records.findIndex((r) => r.id === id); if (i >= 0) Object.assign(records[i], f); },
+    async delete(id) { const i = records.findIndex((r) => r.id === id); if (i >= 0) records.splice(i, 1); },
     async findById(id) { return records.find((r) => r.id === id) ?? null; },
     async findAll() { return [...records]; },
   };
