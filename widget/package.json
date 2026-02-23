@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc && node -e \"require('esbuild').buildSync({entryPoints:['dist/widget.js'],bundle:true,format:'iife',globalName:'AISupportWidgetModule',outfile:'dist/widget.bundle.js',minify:true})\"",
+    "build": "tsc && node -e \"require('esbuild').buildSync({entryPoints:['dist/widget.js'],bundle:true,format:'iife',globalName:'AISupportWidgetModule',outfile:'dist/widget.bundle.js',minify:true,footer:{js:'window.AISupportWidget=AISupportWidgetModule.AISupportWidget;'}})\"",
     "test": "vitest run",
     "test:watch": "vitest"
   },
