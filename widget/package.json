@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"require('esbuild').buildSync({entryPoints:['dist/widget.js'],bundle:true,format:'iife',globalName:'AISupportWidgetModule',outfile:'dist/widget.bundle.js',minify:true})\"",
     "test": "vitest run",
     "test:watch": "vitest"
   },
