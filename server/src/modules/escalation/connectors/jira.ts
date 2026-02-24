@@ -15,7 +15,23 @@ const PRIORITY_MAP: Record<string, string> = {
   urgent: 'Highest',
 };
 
+/** Rejects private/internal IPs and non-HTTPS URLs. */
+function validateBaseUrl(raw: string): void {
+  const u = new URL(raw);
+  if (u.protocol !== 'https:') {
+    throw new Error('Jira baseUrl must use HTTPS');
+  }
+  const host = u.hostname;
+  if (host === 'localhost' || host.startsWith('127.') || host.startsWith('10.') ||
+      host.startsWith('192.168.') || host.startsWith('169.254.') || host === '0.0.0.0' ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host)) {
+    throw new Error('Jira baseUrl must not point to private/internal networks');
+  }
+}
+
 export function createJiraConnector(config: JiraConfig): Connector {
+  validateBaseUrl(config.baseUrl);
+
   return {
     name: 'jira',
 

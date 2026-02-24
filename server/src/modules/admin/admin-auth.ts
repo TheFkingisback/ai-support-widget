@@ -60,7 +60,7 @@ export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
     // Try JWT decode first (per-tenant login flow)
     if (opts.jwtSecret) {
       try {
-        const decoded = jwt.verify(token, opts.jwtSecret) as AdminAuthPayload;
+        const decoded = jwt.verify(token, opts.jwtSecret, { algorithms: ['HS256'] }) as AdminAuthPayload;
         if (decoded.role === 'super_admin' || decoded.role === 'tenant_admin') {
           request.adminPayload = decoded;
           log.debug('Admin auth via JWT', reqId, { role: decoded.role, tenantId: decoded.tenantId });

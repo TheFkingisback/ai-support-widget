@@ -28,7 +28,7 @@ export interface AuthOptions {
 export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Promise<void> {
   await app.register(fastifyJwt, {
     secret: opts.secret,
-    verify: { maxAge: opts.maxAge ?? '8h' },
+    verify: { maxAge: opts.maxAge ?? '8h', allowedAlg: 'HS256' },
   });
 
   app.decorate('authenticate', async function (request: FastifyRequest, _reply: FastifyReply) {

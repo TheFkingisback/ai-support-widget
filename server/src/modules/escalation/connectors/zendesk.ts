@@ -7,6 +7,8 @@ interface ZendeskConfig {
   email: string;
 }
 
+const SUBDOMAIN_RE = /^[a-z0-9][a-z0-9-]{0,62}$/;
+
 const PRIORITY_MAP: Record<string, string> = {
   low: 'low',
   normal: 'normal',
@@ -15,6 +17,10 @@ const PRIORITY_MAP: Record<string, string> = {
 };
 
 export function createZendeskConnector(config: ZendeskConfig): Connector {
+  if (!SUBDOMAIN_RE.test(config.subdomain)) {
+    throw new Error(`Invalid Zendesk subdomain: must be lowercase alphanumeric/hyphens`);
+  }
+
   return {
     name: 'zendesk',
 
