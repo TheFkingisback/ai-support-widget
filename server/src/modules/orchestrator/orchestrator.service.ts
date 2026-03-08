@@ -8,6 +8,7 @@ import type { CostRecorder } from '../admin/cost.service.js';
 import type { McpClientOpts } from './mcp-client.js';
 import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
 import { executeWithTools } from './tool-executor.js';
+import { exchangeToken } from './token-exchange.js';
 import { buildSystemPrompt } from './system-prompt.js';
 import { parseAIResponse } from './response-parser.js';
 import { getFullCaseHistory } from '../gateway/case-history.js';
@@ -23,6 +24,7 @@ export interface OrchestratorService {
     tenantId: string,
     userContent: string,
     requestId?: string,
+    widgetJwt?: string,
   ): Promise<Message>;
 
   handleAction(
@@ -41,6 +43,7 @@ export interface OrchestratorDeps {
   tenantService?: TenantService;
   costRecorder?: CostRecorder;
   mcpOpts?: McpClientOpts;
+  oauthTokenUrl?: string;
   apiKey: string;
   modelPolicy?: 'fast' | 'strong' | 'auto';
   maxMessages?: number;
@@ -51,12 +54,12 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
   const {
     gatewayService, snapshotService, contextService,
     knowledgeService, tenantService, costRecorder, mcpOpts,
-    apiKey, modelPolicy = 'fast',
+    oauthTokenUrl, apiKey, modelPolicy = 'fast',
     maxMessages = DEFAULT_MAX_MESSAGES, maxContextBytes = DEFAULT_MAX_BYTES,
   } = deps;
 
   return {
-    async handleMessage(caseId, tenantId, userContent, requestId) {
+    async handleMessage(caseId, tenantId, userContent, requestId, widgetJwt) {
       log.info('handleMessage: start', requestId, { caseId, tenantId });
 
       const { case: caseData, messages } = await gatewayService.getCase(caseId, tenantId, requestId);
@@ -139,10 +142,26 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         })),
       ];
 
+      // RFC 8693 Token Exchange: swap widget JWT for scoped access token
+      let effectiveMcpOpts = mcpOpts;
+      if (mcpOpts && oauthTokenUrl && widgetJwt) {
+        const scoped = await exchangeToken(widgetJwt, {
+          oauthTokenUrl,
+          scope: 'support:read support:actions mcp:tools',
+          resource: mcpOpts.serverUrl,
+        }, caseData.userId, requestId);
+        if (scoped) {
+          effectiveMcpOpts = { ...mcpOpts, serviceToken: scoped };
+          log.info('handleMessage: using exchanged OAuth token for MCP', requestId);
+        } else {
+          log.warn('handleMessage: token exchange failed, falling back to serviceToken', requestId);
+        }
+      }
+
       // Use tool-augmented loop if MCP is configured, otherwise plain LLM call
-      const llmResponse = mcpOpts
+      const llmResponse = effectiveMcpOpts
         ? await executeWithTools({
-            mcpOpts, userId: caseData.userId, model, apiKey, llmMessages, requestId,
+            mcpOpts: effectiveMcpOpts, userId: caseData.userId, model, apiKey, llmMessages, requestId,
           })
         : await callLLM({ model, messages: llmMessages }, apiKey, requestId);
 

@@ -101,8 +101,10 @@ export async function registerGatewayRoutes(
       const msgData = validateBody(addMessageBody, request.body);
 
       if (orchestratorService) {
+        const rawJwt = request.headers.authorization?.startsWith('Bearer ')
+          ? request.headers.authorization.slice(7) : undefined;
         const aiMessage = await orchestratorService.handleMessage(
-          caseId, tenantId, msgData.content, reqId,
+          caseId, tenantId, msgData.content, reqId, rawJwt,
         );
         return reply.code(200).send({ message: aiMessage });
       }

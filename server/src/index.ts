@@ -37,6 +37,7 @@ async function main() {
     : undefined;
 
   if (mcpOpts) log.info(`MCP tools enabled → ${env.MCP_SERVER_URL}`);
+  if (env.OAUTH_TOKEN_URL) log.info(`OAuth token exchange enabled → ${env.OAUTH_TOKEN_URL}`);
 
   const orchestrator = createOrchestratorService({
     gatewayService: gateway,
@@ -45,6 +46,7 @@ async function main() {
     costRecorder: costSvc,
     tenantService,
     mcpOpts,
+    oauthTokenUrl: env.OAUTH_TOKEN_URL,
     apiKey: env.OPENROUTER_API_KEY,
     modelPolicy: 'fast',
   });
