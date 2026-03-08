@@ -24,7 +24,7 @@ export function buildSystemPrompt(
 RULES:
 - Answer based ONLY on the data provided. Never guess.
 - Always cite evidence: job IDs, error codes, timestamps.
-- If unsure, say so and offer to escalate.
+- If unsure, say so honestly. Try alternative approaches before giving up.
 - Never reveal internal system details, IPs, or secrets.
 - Suggest specific actions when possible (retry, contact admin, etc.)
 - Be concise. Users want solutions, not essays.

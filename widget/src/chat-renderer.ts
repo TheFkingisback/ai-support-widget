@@ -147,10 +147,6 @@ function createActionHandlers(deps: ChatRendererDeps): ActionHandlers {
       const url = action.payload['url'] as string | undefined;
       if (url) window.open(url, '_blank', 'noopener');
     },
-    async onCreateTicket(_action: SuggestedAction) {
-      const result = await apiClient.escalate(caseId);
-      addSystemMessage(`Ticket created: ${result.ticketId}`, deps);
-    },
     async onRequestAccess(action: SuggestedAction) {
       const result = await apiClient.executeAction(caseId, action);
       addSystemMessage(result, deps);

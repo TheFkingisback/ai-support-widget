@@ -3,12 +3,11 @@ import type { SuggestedAction } from './types.js';
 export interface ActionHandlers {
   onRetry: (action: SuggestedAction) => Promise<void>;
   onOpenDocs: (action: SuggestedAction) => void;
-  onCreateTicket: (action: SuggestedAction) => Promise<void>;
   onRequestAccess: (action: SuggestedAction) => Promise<void>;
   onCustom: (action: SuggestedAction) => Promise<void>;
 }
 
-const DESTRUCTIVE_TYPES = new Set(['create_ticket']);
+const DESTRUCTIVE_TYPES = new Set<string>();
 
 /** Renders suggested action buttons below AI messages */
 export function renderActions(
@@ -47,9 +46,6 @@ function dispatchAction(action: SuggestedAction, handlers: ActionHandlers): void
       handlers.onOpenDocs(action);
       break;
     }
-    case 'create_ticket':
-      handlers.onCreateTicket(action);
-      break;
     case 'request_access':
       handlers.onRequestAccess(action);
       break;

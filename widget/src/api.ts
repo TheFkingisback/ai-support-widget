@@ -11,7 +11,6 @@ export interface ApiClient {
   getCase(caseId: string): Promise<{ case: Case; messages: Message[] }>;
   sendMessage(caseId: string, content: string): Promise<Message>;
   addFeedback(caseId: string, feedback: 'positive' | 'negative'): Promise<void>;
-  escalate(caseId: string, reason?: string): Promise<{ ticketId: string; ticketUrl: string }>;
   closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating: number): Promise<void>;
   executeAction(caseId: string, action: SuggestedAction): Promise<string>;
 }
@@ -73,12 +72,6 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
 
     async addFeedback(caseId: string, feedback: 'positive' | 'negative') {
       await request<{ ok: true }>('POST', `/api/cases/${caseId}/feedback`, { feedback });
-    },
-
-    async escalate(caseId: string, reason?: string) {
-      return request<{ ticketId: string; ticketUrl: string }>(
-        'POST', `/api/cases/${caseId}/escalate`, { reason },
-      );
     },
 
     async closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating: number) {

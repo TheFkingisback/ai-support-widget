@@ -15,7 +15,6 @@ const ACTION_PATTERNS: Array<{
 }> = [
   { regex: /\bretry\b/i, type: 'retry', labelPrefix: 'Retry' },
   { regex: /\bdocumentation\b|\bdocs\b|\bguide\b/i, type: 'open_docs', labelPrefix: 'View docs' },
-  { regex: /\bcreate\s+(?:a\s+)?ticket\b|\bsubmit\s+(?:a\s+)?ticket\b/i, type: 'create_ticket', labelPrefix: 'Create ticket' },
   { regex: /\brequest\s+access\b|\bcontact\s+(?:your\s+)?admin\b/i, type: 'request_access', labelPrefix: 'Request access' },
 ];
 
