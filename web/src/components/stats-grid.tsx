@@ -1,3 +1,7 @@
+import {
+  BarChart3, CheckCircle2, MessageSquare, Clock, Star, Users,
+} from 'lucide-react';
+import { StatCard } from '@/components/ui/stat-card';
 import type { AnalyticsSummary } from '@/lib/types';
 
 interface Props {
@@ -11,28 +15,25 @@ function formatMs(ms: number): string {
 }
 
 export function StatsGrid({ analytics }: Props) {
-  const stats = [
-    { label: 'Total Cases', value: analytics.totalCases.toString() },
-    { label: 'Resolution Rate', value: `${(analytics.resolutionRate * 100).toFixed(1)}%` },
-    { label: 'Avg Messages', value: analytics.avgMessagesPerResolution.toFixed(1) },
-    { label: 'Avg Time to Resolve', value: formatMs(analytics.avgTimeToResolution) },
-    {
-      label: 'Avg Rating',
-      value: analytics.avgRating > 0
-        ? `${analytics.avgRating.toFixed(1)}/10`
-        : 'N/A',
-    },
-    { label: 'Resolved w/o Human', value: analytics.resolvedWithoutHuman.toString() },
-  ];
-
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-testid="stats-grid">
-      {stats.map((s) => (
-        <div key={s.label} className="card">
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">{s.label}</p>
-          <p className="mt-2 text-2xl font-bold">{s.value}</p>
-        </div>
-      ))}
+    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="stats-grid">
+      <StatCard label="Total Cases" value={String(analytics.totalCases)}
+        icon={BarChart3} accent="brand" />
+      <StatCard label="Resolution Rate"
+        value={`${(analytics.resolutionRate * 100).toFixed(1)}%`}
+        icon={CheckCircle2} accent="emerald" />
+      <StatCard label="Avg Messages"
+        value={analytics.avgMessagesPerResolution.toFixed(1)}
+        icon={MessageSquare} accent="sky" />
+      <StatCard label="Avg Time to Resolve"
+        value={formatMs(analytics.avgTimeToResolution)}
+        icon={Clock} accent="amber" />
+      <StatCard label="Avg Rating"
+        value={analytics.avgRating > 0 ? `${analytics.avgRating.toFixed(1)}/10` : 'N/A'}
+        icon={Star} accent="amber" />
+      <StatCard label="Resolved w/o Human"
+        value={String(analytics.resolvedWithoutHuman)}
+        icon={Users} accent="emerald" />
     </div>
   );
 }

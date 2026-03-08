@@ -46,6 +46,6 @@ describe('Audit Log Page', () => {
       expect(screen.getByText('case_escalated')).toBeInTheDocument();
     });
     expect(screen.getByTestId('audit-table')).toBeInTheDocument();
-    expect(screen.getByText('Total: 3')).toBeInTheDocument();
+    expect(screen.getByText('3 entries total')).toBeInTheDocument();
   });
 });

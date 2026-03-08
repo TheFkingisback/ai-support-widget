@@ -1,7 +1,8 @@
 'use client';
+import { DollarSign } from 'lucide-react';
 import type { CostSummary } from '@/lib/types';
 
-interface CostSummaryCardProps {
+interface Props {
   costs: CostSummary | null;
   loading: boolean;
 }
@@ -16,15 +17,20 @@ function fmtTokens(n: number): string {
   return String(n);
 }
 
-export function CostSummaryCard({ costs, loading }: CostSummaryCardProps) {
-  if (loading) return <p className="text-gray-500" role="status">Loading costs...</p>;
+export function CostSummaryCard({ costs, loading }: Props) {
+  if (loading) return <div className="skeleton h-48 w-full rounded-2xl" />;
   if (!costs) return null;
 
   return (
-    <div className="card mt-6" data-testid="cost-summary">
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
-        LLM Costs — {costs.month}
-      </h3>
+    <div className="card" data-testid="cost-summary">
+      <div className="mb-4 flex items-center gap-2">
+        <div className="rounded-xl bg-amber-500/10 p-2 text-amber-400">
+          <DollarSign size={18} />
+        </div>
+        <h3 className="text-sm font-semibold text-surface-800">
+          LLM Costs -- {costs.month}
+        </h3>
+      </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Stat label="Total Cost" value={`$${fmt(costs.totalCost)}`} />
@@ -34,27 +40,29 @@ export function CostSummaryCard({ costs, loading }: CostSummaryCardProps) {
       </div>
 
       {costs.byModel.length > 0 && (
-        <table className="mt-4 w-full text-sm" data-testid="cost-by-model"
-          aria-label={`Cost breakdown by model for ${costs.month}`}>
-          <thead>
-            <tr className="border-b border-gray-700 text-left text-gray-400">
-              <th scope="col" className="pb-1">Model</th>
-              <th scope="col" className="pb-1">Calls</th>
-              <th scope="col" className="pb-1">Tokens</th>
-              <th scope="col" className="pb-1">Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            {costs.byModel.map((m) => (
-              <tr key={m.model} className="border-b border-gray-800">
-                <td className="py-1 font-mono text-xs">{m.model}</td>
-                <td className="py-1">{m.callCount}</td>
-                <td className="py-1">{fmtTokens(m.tokensIn + m.tokensOut)}</td>
-                <td className="py-1">${fmt(m.cost)}</td>
+        <div className="mt-4 overflow-x-auto rounded-xl border border-surface-400/30">
+          <table className="w-full text-sm" data-testid="cost-by-model"
+            aria-label={`Cost breakdown by model for ${costs.month}`}>
+            <thead>
+              <tr className="border-b border-surface-400/30 text-left text-xs text-surface-600">
+                <th scope="col" className="px-3 py-2">Model</th>
+                <th scope="col" className="px-3 py-2">Calls</th>
+                <th scope="col" className="px-3 py-2">Tokens</th>
+                <th scope="col" className="px-3 py-2">Cost</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {costs.byModel.map((m) => (
+                <tr key={m.model} className="border-b border-surface-400/20 last:border-0">
+                  <td className="px-3 py-2 font-mono text-xs text-brand-400">{m.model}</td>
+                  <td className="px-3 py-2 text-surface-800">{m.callCount}</td>
+                  <td className="px-3 py-2 text-surface-700">{fmtTokens(m.tokensIn + m.tokensOut)}</td>
+                  <td className="px-3 py-2 text-emerald-400">${fmt(m.cost)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
@@ -63,8 +71,8 @@ export function CostSummaryCard({ costs, loading }: CostSummaryCardProps) {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-2xl font-bold">{value}</p>
-      <p className="text-xs text-gray-400">{label}</p>
+      <p className="text-2xl font-bold text-surface-900">{value}</p>
+      <p className="text-xs text-surface-600">{label}</p>
     </div>
   );
 }

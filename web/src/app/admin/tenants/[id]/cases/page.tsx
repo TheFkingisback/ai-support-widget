@@ -2,24 +2,21 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Inbox, X } from 'lucide-react';
 import { getCases } from '@/lib/api';
 import type { Case } from '@/lib/types';
-
-const STATUS_COLORS: Record<string, string> = {
-  active: 'bg-green-900/50 text-green-400',
-  resolved: 'bg-blue-900/50 text-blue-400',
-  unresolved: 'bg-yellow-900/50 text-yellow-400',
-  escalated: 'bg-red-900/50 text-red-400',
-};
+import { PageHeader } from '@/components/ui/page-header';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonTable } from '@/components/ui/skeleton';
 
 export default function CasesPage() {
   const params = useParams();
   const tenantId = params.id as string;
   const [cases, setCases] = useState<Case[]>([]);
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [selected, setSelected] = useState<Case | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -30,94 +27,99 @@ export default function CasesPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center gap-4">
-        <Link href={`/admin/tenants/${tenantId}`} aria-label="Back to tenant details" className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white">
-          <ArrowLeft size={20} aria-hidden="true" />
-        </Link>
-        <h1 className="text-2xl font-bold">Cases</h1>
-        <select value={filter} onChange={(e) => setFilter(e.target.value)}
-          aria-label="Filter by status"
-          className="input-field ml-auto w-auto" data-testid="status-filter">
-          <option value="all">All</option>
-          <option value="active">Active</option>
-          <option value="resolved">Resolved</option>
-          <option value="unresolved">Unresolved</option>
-          <option value="escalated">Escalated</option>
-        </select>
-      </div>
+      <PageHeader title="Cases"
+        breadcrumbs={[
+          { label: 'Admin', href: '/admin/dashboard' },
+          { label: 'Tenants', href: '/admin/tenants' },
+          { label: tenantId, href: `/admin/tenants/${tenantId}` },
+          { label: 'Cases' },
+        ]}
+        actions={
+          <select value={filter} onChange={(e) => setFilter(e.target.value)}
+            aria-label="Filter by status" className="input-field w-auto" data-testid="status-filter">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="resolved">Resolved</option>
+            <option value="unresolved">Unresolved</option>
+            <option value="escalated">Escalated</option>
+          </select>
+        }
+      />
 
-      {loading ? <p className="text-gray-500" role="status">Loading...</p> : (
-        <table className="w-full text-sm" data-testid="cases-table">
-          <thead>
-            <tr className="table-header">
-              <th scope="col" className="pb-3 pr-4">Case ID</th>
-              <th scope="col" className="pb-3 pr-4">User</th>
-              <th scope="col" className="pb-3 pr-4">Status</th>
-              <th scope="col" className="pb-3 pr-4">Messages</th>
-              <th scope="col" className="pb-3 pr-4">Created</th>
-              <th scope="col" className="pb-3">Resolved</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((c) => (
-              <tr key={c.id} className="table-row cursor-pointer"
-                tabIndex={0} role="button" aria-label={`View case ${c.id}`}
-                onClick={() => setSelectedCase(c)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedCase(c); } }}>
-                <td className="py-3 pr-4 text-blue-400">{c.id}</td>
-                <td className="py-3 pr-4 text-gray-400">{c.userId}</td>
-                <td className="py-3 pr-4">
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${STATUS_COLORS[c.status] ?? ''}`}>
-                    {c.status}
-                  </span>
-                </td>
-                <td className="py-3 pr-4 text-gray-400">{c.messageCount}</td>
-                <td className="py-3 pr-4 text-gray-400">{new Date(c.createdAt).toLocaleDateString()}</td>
-                <td className="py-3 text-gray-400">
-                  {c.resolvedAt ? new Date(c.resolvedAt).toLocaleDateString() : '—'}
-                </td>
+      {loading ? <SkeletonTable rows={5} /> : filtered.length === 0 ? (
+        <EmptyState icon={Inbox} title="No cases" description="Support cases will appear here." />
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border border-surface-400/50 bg-surface-200/50">
+          <table className="w-full text-sm" data-testid="cases-table">
+            <thead>
+              <tr className="border-b border-surface-400">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Case ID</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">User</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Status</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Messages</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Created</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Resolved</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {selectedCase && (
-        <CaseDetail caseData={selectedCase} onClose={() => setSelectedCase(null)} />
-      )}
-    </div>
-  );
-}
-
-function CaseDetail({ caseData, onClose }: { caseData: Case; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-      data-testid="case-detail" role="dialog" aria-modal="true" aria-labelledby="case-detail-title"
-      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
-      <div className="w-full max-w-lg rounded-lg bg-gray-900 p-6 shadow-xl max-h-[80vh] overflow-auto">
-        <div className="mb-4 flex justify-between items-center">
-          <h2 id="case-detail-title" className="font-semibold">Case {caseData.id}</h2>
-          <button onClick={onClose} aria-label="Close case details" className="btn-secondary px-3 py-1 text-sm">Close</button>
+            </thead>
+            <tbody>
+              {filtered.map((c) => (
+                <tr key={c.id} className="border-b border-surface-400/30 cursor-pointer transition-colors hover:bg-surface-300/20"
+                  tabIndex={0} role="button" aria-label={`View case ${c.id}`}
+                  onClick={() => setSelected(c)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(c); } }}>
+                  <td className="px-4 py-3 font-mono text-xs text-brand-400">{c.id}</td>
+                  <td className="px-4 py-3 text-surface-800">{c.userId}</td>
+                  <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
+                  <td className="px-4 py-3 text-surface-700">{c.messageCount}</td>
+                  <td className="px-4 py-3 text-surface-600">{new Date(c.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-surface-600">{c.resolvedAt ? new Date(c.resolvedAt).toLocaleDateString() : '--'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <dl className="space-y-2 text-sm">
-          <Dt label="Status">{caseData.status}</Dt>
-          <Dt label="User">{caseData.userId}</Dt>
-          <Dt label="Messages">{caseData.messageCount}</Dt>
-          <Dt label="Feedback">{caseData.feedback ?? 'None'}</Dt>
-          <Dt label="Rating">{caseData.rating != null ? `${caseData.rating}/10` : 'N/A'}</Dt>
-          <Dt label="Created">{new Date(caseData.createdAt).toLocaleString()}</Dt>
-          <Dt label="Resolved">{caseData.resolvedAt ? new Date(caseData.resolvedAt).toLocaleString() : 'N/A'}</Dt>
-        </dl>
-      </div>
+      )}
+
+      {selected && <CaseModal caseData={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
 
-function Dt({ label, children }: { label: string; children: React.ReactNode }) {
+function CaseModal({ caseData, onClose }: { caseData: Case; onClose: () => void }) {
   return (
-    <div className="flex justify-between">
-      <dt className="text-gray-500">{label}</dt>
-      <dd className="text-gray-200">{children}</dd>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      role="dialog" aria-modal="true" aria-labelledby="case-modal-title"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
+      <div className="w-full max-w-lg rounded-2xl border border-surface-400/50 bg-surface-200 p-6 shadow-xl animate-slide-up">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 id="case-modal-title" className="font-semibold text-white">Case {caseData.id}</h2>
+          <button type="button" onClick={onClose} aria-label="Close"
+            className="rounded-xl p-2 text-surface-600 hover:bg-surface-300 hover:text-white">
+            <X size={18} />
+          </button>
+        </div>
+        <dl className="space-y-3 text-sm">
+          {[
+            ['Status', caseData.status],
+            ['User', caseData.userId],
+            ['Messages', String(caseData.messageCount)],
+            ['Feedback', caseData.feedback ?? 'None'],
+            ['Rating', caseData.rating != null ? `${caseData.rating}/10` : 'N/A'],
+            ['Created', new Date(caseData.createdAt).toLocaleString()],
+            ['Resolved', caseData.resolvedAt ? new Date(caseData.resolvedAt).toLocaleString() : 'N/A'],
+          ].map(([label, val]) => (
+            <div key={label} className="flex justify-between">
+              <dt className="text-surface-600">{label}</dt>
+              <dd className="text-surface-900 font-medium">{val}</dd>
+            </div>
+          ))}
+        </dl>
+        <div className="mt-5 flex justify-end">
+          <Link href={`/admin/sessions/${caseData.id}`} className="btn-primary text-xs">
+            View Full Session
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

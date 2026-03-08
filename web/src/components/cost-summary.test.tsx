@@ -4,9 +4,9 @@ import { CostSummaryCard } from './cost-summary';
 import { mockCostSummary } from '@/lib/test-helpers';
 
 describe('CostSummaryCard', () => {
-  it('shows loading state', () => {
-    render(<CostSummaryCard costs={null} loading={true} />);
-    expect(screen.getByText('Loading costs...')).toBeInTheDocument();
+  it('shows loading state as skeleton', () => {
+    const { container } = render(<CostSummaryCard costs={null} loading={true} />);
+    expect(container.querySelector('.skeleton')).toBeInTheDocument();
   });
 
   it('renders nothing when no costs and not loading', () => {

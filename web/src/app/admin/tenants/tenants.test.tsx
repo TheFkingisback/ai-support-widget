@@ -32,21 +32,19 @@ describe('Tenants Page', () => {
     );
   });
 
-  it('renders tenant list in table', async () => {
+  it('renders tenant list as cards', async () => {
     render(<TenantsPage />);
     await waitFor(() => {
       expect(screen.getByText('Acme Corp')).toBeInTheDocument();
       expect(screen.getByText('Beta Inc')).toBeInTheDocument();
     });
-    const table = screen.getByTestId('tenants-table');
-    expect(table).toBeInTheDocument();
   });
 
   it('create tenant modal validates required fields', async () => {
     render(<TenantsPage />);
     await waitFor(() => screen.getByText('Acme Corp'));
 
-    fireEvent.click(screen.getByText('Create Tenant'));
+    fireEvent.click(screen.getByText('New Tenant'));
     await waitFor(() => {
       expect(screen.getByTestId('create-tenant-modal')).toBeInTheDocument();
     });

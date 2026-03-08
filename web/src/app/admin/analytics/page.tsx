@@ -1,10 +1,15 @@
 'use client';
 import { useState, useEffect } from 'react';
+import {
+  BarChart3, CheckCircle2, MessageSquare, Clock, Star, Users,
+} from 'lucide-react';
 import { listTenants, getAnalytics, getCosts } from '@/lib/api';
 import type { Tenant, AnalyticsSummary, CostSummary } from '@/lib/types';
-import { StatsGrid } from '@/components/stats-grid';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatCard } from '@/components/ui/stat-card';
 import { IntentsChart, ErrorsChart } from '@/components/charts';
 import { CostSummaryCard } from '@/components/cost-summary';
+import { SkeletonCard } from '@/components/ui/skeleton';
 
 export default function AnalyticsPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
@@ -12,7 +17,6 @@ export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [costs, setCosts] = useState<CostSummary | null>(null);
   const [loading, setLoading] = useState(false);
-  const [costsLoading, setCostsLoading] = useState(false);
 
   useEffect(() => {
     listTenants().then((t) => {
@@ -24,54 +28,77 @@ export default function AnalyticsPage() {
   useEffect(() => {
     if (!selectedId) return;
     setLoading(true);
-    setCostsLoading(true);
-    getAnalytics(selectedId)
-      .then(setAnalytics)
-      .catch(() => setAnalytics(null))
-      .finally(() => setLoading(false));
-    getCosts(selectedId)
-      .then(setCosts)
-      .catch(() => setCosts(null))
-      .finally(() => setCostsLoading(false));
+    Promise.all([
+      getAnalytics(selectedId).catch(() => null),
+      getCosts(selectedId).catch(() => null),
+    ]).then(([a, c]) => {
+      setAnalytics(a);
+      setCosts(c);
+    }).finally(() => setLoading(false));
   }, [selectedId]);
+
+  function formatMs(ms: number): string {
+    if (ms < 1000) return `${Math.round(ms)}ms`;
+    if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`;
+    return `${(ms / 60_000).toFixed(1)}m`;
+  }
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Analytics</h1>
-        <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)}
-          aria-label="Select tenant" className="input-field w-auto" data-testid="tenant-selector">
-          {tenants.map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
-          ))}
-        </select>
-      </div>
+      <PageHeader title="Analytics" description="Performance metrics and insights"
+        breadcrumbs={[{ label: 'Admin', href: '/admin/dashboard' }, { label: 'Analytics' }]}
+        actions={
+          <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)}
+            aria-label="Select tenant" className="input-field w-auto" data-testid="tenant-selector">
+            {tenants.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+        }
+      />
 
-      {loading && <p className="text-gray-500" role="status">Loading analytics...</p>}
-
-      {analytics && (
-        <div data-testid="analytics-content">
-          <StatsGrid analytics={analytics} />
-          <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <ChartCard title="Top Intents">
-              <IntentsChart data={analytics.topIntents} />
-            </ChartCard>
-            <ChartCard title="Top Errors">
-              <ErrorsChart data={analytics.topErrors} />
-            </ChartCard>
-          </div>
-          <CostSummaryCard costs={costs} loading={costsLoading} />
+      {loading ? (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => <SkeletonCard key={i} />)}
         </div>
-      )}
-    </div>
-  );
-}
+      ) : analytics ? (
+        <div data-testid="analytics-content" className="space-y-6">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <StatCard label="Total Cases" value={String(analytics.totalCases)}
+              icon={BarChart3} accent="brand" />
+            <StatCard label="Resolution Rate"
+              value={`${(analytics.resolutionRate * 100).toFixed(1)}%`}
+              icon={CheckCircle2} accent="emerald" />
+            <StatCard label="Avg Messages"
+              value={analytics.avgMessagesPerResolution.toFixed(1)}
+              icon={MessageSquare} accent="sky" />
+            <StatCard label="Avg Time to Resolve"
+              value={formatMs(analytics.avgTimeToResolution)}
+              icon={Clock} accent="amber" />
+            <StatCard label="Avg Rating"
+              value={analytics.avgRating > 0 ? `${analytics.avgRating.toFixed(1)}/10` : 'N/A'}
+              icon={Star} accent="amber" />
+            <StatCard label="Resolved w/o Human"
+              value={String(analytics.resolvedWithoutHuman)}
+              icon={Users} accent="emerald" />
+          </div>
 
-function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="card">
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">{title}</h3>
-      {children}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="card">
+              <h3 className="mb-4 text-sm font-semibold text-surface-800">Top Intents</h3>
+              <IntentsChart data={analytics.topIntents} />
+            </div>
+            <div className="card">
+              <h3 className="mb-4 text-sm font-semibold text-surface-800">Top Errors</h3>
+              <ErrorsChart data={analytics.topErrors} />
+            </div>
+          </div>
+
+          <CostSummaryCard costs={costs} loading={false} />
+        </div>
+      ) : (
+        <p className="text-sm text-surface-600">Select a tenant to view analytics.</p>
+      )}
     </div>
   );
 }

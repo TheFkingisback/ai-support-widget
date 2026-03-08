@@ -1,24 +1,26 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Search, Building2 } from 'lucide-react';
 import { listTenants, createTenant } from '@/lib/api';
 import { CreateTenantModal } from '@/components/create-tenant-modal';
+import { PageHeader } from '@/components/ui/page-header';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonTable } from '@/components/ui/skeleton';
 import type { Tenant, CreateTenantInput } from '@/lib/types';
 
 export default function TenantsPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [search, setSearch] = useState('');
 
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await listTenants();
-      setTenants(data);
-    } catch {
-      /* error handled silently */
-    } finally {
+      setTenants(await listTenants());
+    } catch { /* handled */ } finally {
       setLoading(false);
     }
   }, []);
@@ -31,65 +33,67 @@ export default function TenantsPage() {
     return { adminApiKey: result.adminApiKey };
   }
 
+  const filtered = tenants.filter((t) =>
+    t.name.toLowerCase().includes(search.toLowerCase()) ||
+    t.id.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Tenants</h1>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus size={16} aria-hidden="true" /> Create Tenant
-        </button>
-      </div>
+      <PageHeader title="Tenants" description="Manage your platform tenants"
+        breadcrumbs={[{ label: 'Admin', href: '/admin/dashboard' }, { label: 'Tenants' }]}
+        actions={
+          <button onClick={() => setModalOpen(true)} className="btn-primary flex items-center gap-2">
+            <Plus size={16} aria-hidden="true" /> New Tenant
+          </button>
+        }
+      />
 
-      {loading ? (
-        <p className="text-gray-500" role="status">Loading...</p>
+      {!loading && tenants.length > 0 && (
+        <div className="relative mb-6">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-surface-600" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tenants..." className="input-field pl-10" />
+        </div>
+      )}
+
+      {loading ? <SkeletonTable rows={4} /> : filtered.length === 0 && tenants.length === 0 ? (
+        <EmptyState icon={Building2} title="No tenants yet"
+          description="Create your first tenant to start using the platform."
+          action={{ label: 'Create Tenant', onClick: () => setModalOpen(true) }} />
       ) : (
-        <table className="w-full text-sm" data-testid="tenants-table">
-          <thead>
-            <tr className="table-header">
-              <th scope="col" className="pb-3 pr-4">Name</th>
-              <th scope="col" className="pb-3 pr-4">Plan</th>
-              <th scope="col" className="pb-3 pr-4">Connectors</th>
-              <th scope="col" className="pb-3 pr-4">Model Policy</th>
-              <th scope="col" className="pb-3">Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tenants.map((t) => (
-              <tr key={t.id} className="table-row">
-                <td className="py-3 pr-4">
-                  <Link href={`/admin/tenants/${t.id}`} className="text-blue-400 hover:underline">
-                    {t.name}
-                  </Link>
-                </td>
-                <td className="py-3 pr-4">
-                  <PlanBadge plan={t.plan} />
-                </td>
-                <td className="py-3 pr-4 text-gray-400">{t.config.enabledConnectors.join(', ')}</td>
-                <td className="py-3 pr-4 text-gray-400">{t.config.modelPolicy}</td>
-                <td className="py-3 text-gray-400">{new Date(t.createdAt).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((t) => (
+            <Link key={t.id} href={`/admin/tenants/${t.id}`} className="card-interactive group">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600/10 text-brand-400 text-lg font-bold transition-colors group-hover:bg-brand-600/20">
+                  {t.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="truncate text-sm font-semibold text-white">{t.name}</h3>
+                  <p className="text-2xs text-surface-600 font-mono">{t.id}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <StatusBadge status={t.plan} />
+                <span className="text-xs text-surface-600">
+                  {new Date(t.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {t.config.enabledConnectors.map((c) => (
+                  <span key={c} className="rounded-md bg-surface-300 px-2 py-0.5 text-2xs text-surface-700">{c}</span>
+                ))}
+                <span className="rounded-md bg-surface-300 px-2 py-0.5 text-2xs text-surface-700">
+                  {t.config.modelPolicy}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
       )}
 
       <CreateTenantModal open={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleCreate} />
     </div>
-  );
-}
-
-function PlanBadge({ plan }: { plan: string }) {
-  const colors: Record<string, string> = {
-    starter: 'bg-gray-700 text-gray-300',
-    pro: 'bg-blue-900/50 text-blue-300',
-    enterprise: 'bg-purple-900/50 text-purple-300',
-  };
-  return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${colors[plan] ?? 'bg-gray-700'}`}>
-      {plan}
-    </span>
   );
 }

@@ -48,9 +48,7 @@ describe('Cases Browser', () => {
 
     fireEvent.click(screen.getByText('cas_001'));
     await waitFor(() => {
-      expect(screen.getByTestId('case-detail')).toBeInTheDocument();
+      expect(screen.getByText('Case cas_001')).toBeInTheDocument();
     });
-    // Should show case info
-    expect(screen.getByText('Case cas_001')).toBeInTheDocument();
   });
 });

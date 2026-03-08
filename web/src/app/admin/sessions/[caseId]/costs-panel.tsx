@@ -1,11 +1,13 @@
 'use client';
+import type { LucideIcon } from 'lucide-react';
+import { DollarSign, Cpu, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import type { LLMCostEntry } from '@/lib/types';
 
 interface Props { costs: LLMCostEntry[] }
 
 export function CostsPanel({ costs }: Props) {
   if (costs.length === 0) {
-    return <p className="text-gray-500">No LLM calls recorded for this session.</p>;
+    return <p className="py-8 text-center text-sm text-surface-600">No LLM calls recorded.</p>;
   }
 
   const totalCost = costs.reduce((s, c) => s + c.estimatedCost, 0);
@@ -14,53 +16,53 @@ export function CostsPanel({ costs }: Props) {
 
   return (
     <div>
-      <div className="mb-4 flex gap-6 rounded-lg border border-gray-800 bg-gray-900 p-4 text-sm">
-        <div>
-          <span className="text-gray-500">Total calls</span>
-          <p className="text-lg font-semibold text-gray-200">{costs.length}</p>
-        </div>
-        <div>
-          <span className="text-gray-500">Tokens in</span>
-          <p className="text-lg font-semibold text-gray-200">{totalIn.toLocaleString()}</p>
-        </div>
-        <div>
-          <span className="text-gray-500">Tokens out</span>
-          <p className="text-lg font-semibold text-gray-200">{totalOut.toLocaleString()}</p>
-        </div>
-        <div>
-          <span className="text-gray-500">Total cost</span>
-          <p className="text-lg font-semibold text-green-400">${totalCost.toFixed(4)}</p>
-        </div>
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <SummaryCard icon={Cpu} label="Total Calls" value={String(costs.length)} />
+        <SummaryCard icon={ArrowDownRight} label="Tokens In" value={totalIn.toLocaleString()} />
+        <SummaryCard icon={ArrowUpRight} label="Tokens Out" value={totalOut.toLocaleString()} />
+        <SummaryCard icon={DollarSign} label="Total Cost" value={`$${totalCost.toFixed(4)}`} accent />
       </div>
 
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-500">
-            <th className="pb-2 pr-4">Time</th>
-            <th className="pb-2 pr-4">Model</th>
-            <th className="pb-2 pr-4 text-right">Tokens In</th>
-            <th className="pb-2 pr-4 text-right">Tokens Out</th>
-            <th className="pb-2 text-right">Cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          {costs.map((c) => (
-            <tr key={c.id} className="border-t border-gray-800">
-              <td className="py-2 pr-4 text-gray-400">
-                {new Date(c.createdAt).toLocaleTimeString()}
-              </td>
-              <td className="py-2 pr-4 font-mono text-xs text-blue-400">{c.model}</td>
-              <td className="py-2 pr-4 text-right text-gray-300">
-                {c.tokensIn.toLocaleString()}
-              </td>
-              <td className="py-2 pr-4 text-right text-gray-300">
-                {c.tokensOut.toLocaleString()}
-              </td>
-              <td className="py-2 text-right text-green-400">${c.estimatedCost.toFixed(4)}</td>
+      <div className="overflow-x-auto rounded-2xl border border-surface-400/50 bg-surface-200/50">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-surface-400">
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Time</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Model</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600">Tokens In</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600">Tokens Out</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600">Cost</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {costs.map((c) => (
+              <tr key={c.id} className="border-b border-surface-400/30 transition-colors hover:bg-surface-300/20">
+                <td className="px-4 py-3 text-surface-600 whitespace-nowrap">
+                  {new Date(c.createdAt).toLocaleTimeString()}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-brand-400">{c.model}</td>
+                <td className="px-4 py-3 text-right text-surface-800">{c.tokensIn.toLocaleString()}</td>
+                <td className="px-4 py-3 text-right text-surface-800">{c.tokensOut.toLocaleString()}</td>
+                <td className="px-4 py-3 text-right text-emerald-400 font-medium">${c.estimatedCost.toFixed(4)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function SummaryCard({ icon: Icon, label, value, accent }: {
+  icon: LucideIcon; label: string; value: string; accent?: boolean;
+}) {
+  return (
+    <div className="card p-4">
+      <div className="flex items-center gap-2 mb-1">
+        <Icon size={14} className="text-surface-600" aria-hidden="true" />
+        <span className="text-xs text-surface-600">{label}</span>
+      </div>
+      <p className={`text-lg font-bold ${accent ? 'text-emerald-400' : 'text-surface-900'}`}>{value}</p>
     </div>
   );
 }

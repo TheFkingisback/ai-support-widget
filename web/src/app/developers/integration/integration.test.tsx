@@ -26,10 +26,10 @@ describe('Integration Guide', () => {
       expect(screen.getByTestId(`step-${i}`)).toBeInTheDocument();
     }
 
-    expect(screen.getByText('Create Tenant via Admin Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('Configure JWT Shared Secret')).toBeInTheDocument();
+    expect(screen.getByText('Create Tenant')).toBeInTheDocument();
+    expect(screen.getByText('Configure JWT Secret')).toBeInTheDocument();
     expect(screen.getByText('Implement 4 Endpoints')).toBeInTheDocument();
-    expect(screen.getByText('Add Widget Script Tag')).toBeInTheDocument();
+    expect(screen.getByText('Add Widget Script')).toBeInTheDocument();
     expect(screen.getByText('Test with Demo Page')).toBeInTheDocument();
     expect(screen.getByText('Go Live')).toBeInTheDocument();
   });

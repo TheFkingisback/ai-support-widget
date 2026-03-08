@@ -16,22 +16,36 @@ vi.mock('next/link', () => ({
 import DevelopersPage from './page';
 
 describe('Developer Portal', () => {
-  it('renders Quick Start section', () => {
+  it('renders hero section with title', () => {
     render(<DevelopersPage />);
 
-    expect(screen.getByTestId('quick-start')).toBeInTheDocument();
-    expect(screen.getByText('Quick Start')).toBeInTheDocument();
-    expect(screen.getByText(/Get your tenant key/)).toBeInTheDocument();
-    expect(screen.getByText(/Implement 4 API endpoints/)).toBeInTheDocument();
-    expect(screen.getByText(/your users have AI support/)).toBeInTheDocument();
+    expect(screen.getByTestId('developers-page')).toBeInTheDocument();
+    expect(screen.getByText(/Build AI Support/)).toBeInTheDocument();
+    expect(screen.getByText(/Into Any App/)).toBeInTheDocument();
   });
 
-  it('renders code examples', () => {
+  it('renders navigation cards for all documentation sections', () => {
     render(<DevelopersPage />);
 
-    expect(screen.getByTestId('code-examples')).toBeInTheDocument();
-    expect(screen.getByText('JavaScript')).toBeInTheDocument();
-    expect(screen.getByText('Python')).toBeInTheDocument();
-    expect(screen.getByText('cURL')).toBeInTheDocument();
+    expect(screen.getByText('Quick Start')).toBeInTheDocument();
+    expect(screen.getByText('Authentication')).toBeInTheDocument();
+    expect(screen.getByText('Widget SDK')).toBeInTheDocument();
+    expect(screen.getByText('API Reference')).toBeInTheDocument();
+    expect(screen.getByText('Type Definitions')).toBeInTheDocument();
+    expect(screen.getByText('Error Reference')).toBeInTheDocument();
+  });
+
+  it('renders architecture diagram', () => {
+    render(<DevelopersPage />);
+
+    expect(screen.getByText(/Support Gateway/)).toBeInTheDocument();
+    expect(screen.getByText(/Snapshot/)).toBeInTheDocument();
+  });
+
+  it('renders feature highlights', () => {
+    render(<DevelopersPage />);
+
+    expect(screen.getByText(/AI-powered diagnostics/)).toBeInTheDocument();
+    expect(screen.getByText(/Multi-tenant SaaS/)).toBeInTheDocument();
   });
 });
