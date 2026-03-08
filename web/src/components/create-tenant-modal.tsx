@@ -1,7 +1,10 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { X, Copy, Check } from 'lucide-react';
-import type { CreateTenantInput } from '@/lib/types';
+import { X, Copy, Check, ChevronDown } from 'lucide-react';
+import type { CreateTenantInput, TenantConfig } from '@/lib/types';
+import ModelPicker from './model-picker';
+
+const CONNECTORS = ['email', 'zendesk', 'jira'];
 
 interface Props {
   open: boolean;
@@ -14,6 +17,11 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
   const [plan, setPlan] = useState<CreateTenantInput['plan']>('starter');
   const [apiBaseUrl, setApiBaseUrl] = useState('');
   const [serviceToken, setServiceToken] = useState('');
+  const [modelPolicy, setModelPolicy] = useState<TenantConfig['modelPolicy']>('fast');
+  const [preferredModel, setPreferredModel] = useState<string | undefined>();
+  const [customInstructions, setCustomInstructions] = useState('');
+  const [connectors, setConnectors] = useState<string[]>(['email']);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -32,6 +40,8 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
 
   function handleClose() {
     setName(''); setPlan('starter'); setApiBaseUrl(''); setServiceToken('');
+    setModelPolicy('fast'); setPreferredModel(undefined); setCustomInstructions('');
+    setConnectors(['email']); setShowAdvanced(false);
     setErrors({}); setGeneratedKey(null); setCopied(false);
     onClose();
   }
@@ -50,12 +60,26 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
     e.preventDefault();
     if (!validate()) return;
     setSubmitting(true);
+    const config: Partial<TenantConfig> = {
+      modelPolicy,
+      enabledConnectors: connectors,
+    };
+    if (preferredModel) config.preferredModel = preferredModel;
+    if (customInstructions.trim()) config.customInstructions = customInstructions.trim();
     try {
-      const result = await onSubmit({ name: name.trim(), plan, apiBaseUrl: apiBaseUrl.trim(), serviceToken: serviceToken.trim() });
+      const result = await onSubmit({
+        name: name.trim(), plan,
+        apiBaseUrl: apiBaseUrl.trim(), serviceToken: serviceToken.trim(),
+        config,
+      });
       setGeneratedKey(result.adminApiKey);
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : 'Creation failed' });
     } finally { setSubmitting(false); }
+  }
+
+  function toggleConnector(c: string) {
+    setConnectors((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]);
   }
 
   async function copyKey() {
@@ -69,7 +93,7 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       data-testid="create-tenant-modal" role="dialog" aria-modal="true"
       aria-labelledby="create-tenant-title" ref={dialogRef} tabIndex={-1}>
-      <div className="w-full max-w-md rounded-2xl border border-surface-400/50 bg-surface-200 p-6 shadow-xl animate-slide-up">
+      <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-surface-400/50 bg-surface-200 p-6 shadow-xl animate-slide-up">
         <div className="mb-5 flex items-center justify-between">
           <h2 id="create-tenant-title" className="text-lg font-semibold text-white">
             {generatedKey ? 'Tenant Created' : 'Create Tenant'}
@@ -111,6 +135,52 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
             <Field label="Service Token" error={errors.serviceToken}>
               <input value={serviceToken} onChange={(e) => setServiceToken(e.target.value)} type="password" className="input-field" placeholder="sk_live_..." />
             </Field>
+
+            <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex w-full items-center justify-between rounded-xl bg-surface-300/50 px-4 py-2.5 text-sm font-medium text-surface-700 hover:bg-surface-300 transition-colors">
+              AI & Integration Settings
+              <ChevronDown size={16} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showAdvanced && (
+              <div className="space-y-4 rounded-xl border border-surface-400/30 bg-surface-300/20 p-4 animate-fade-in">
+                <Field label="Model Policy">
+                  <select value={modelPolicy} onChange={(e) => setModelPolicy(e.target.value as TenantConfig['modelPolicy'])}
+                    className="input-field" aria-label="Model policy">
+                    <option value="fast">Fast — optimized for speed</option>
+                    <option value="strong">Strong — best quality</option>
+                    <option value="auto">Auto — balanced</option>
+                  </select>
+                </Field>
+                <Field label="Preferred Model">
+                  <ModelPicker value={preferredModel} onChange={(id) => setPreferredModel(id)} />
+                </Field>
+                <Field label="Custom AI Instructions">
+                  <textarea value={customInstructions}
+                    onChange={(e) => setCustomInstructions(e.target.value)}
+                    maxLength={2000} rows={3}
+                    placeholder="e.g. Always respond in Portuguese. Never mention competitor products."
+                    className="input-field resize-y" />
+                  <span className="mt-1 block text-xs text-surface-600">{customInstructions.length} / 2000</span>
+                </Field>
+                <Field label="Connectors">
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Connector toggles">
+                    {CONNECTORS.map((c) => {
+                      const on = connectors.includes(c);
+                      return (
+                        <button key={c} type="button" onClick={() => toggleConnector(c)} aria-pressed={on ? true : false}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                            on ? 'bg-brand-600 text-white shadow-glow' : 'bg-surface-300 text-surface-700 hover:bg-surface-400'
+                          }`}>
+                          {c}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Field>
+              </div>
+            )}
+
             <button type="submit" disabled={submitting} className="btn-primary w-full">
               {submitting ? 'Creating...' : 'Create Tenant'}
             </button>
