@@ -92,7 +92,7 @@ export default function TenantDetailPage() {
           </Field>
         </Section>
 
-        <Section title="Configuration">
+        <Section title="Configuration" className="relative z-10">
           <NumField label="Max Context Bytes" value={config.maxContextBytes} onChange={(v) => setField('maxContextBytes', v)} />
           <NumField label="Max Event Window (hours)" value={config.maxEventWindowHours} onChange={(v) => setField('maxEventWindowHours', v)} />
           <NumField label="Max Log Lines" value={config.maxLogLines} onChange={(v) => setField('maxLogLines', v)} />
@@ -177,9 +177,9 @@ export default function TenantDetailPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className="card">
+    <div className={`card ${className ?? ''}`}>
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-surface-600">{title}</h2>
       <div className="space-y-4">{children}</div>
     </div>
