@@ -66,10 +66,28 @@ export async function registerGatewayRoutes(
         }
       }
 
+      let aiMessage: unknown = null;
+      if (orchestratorService) {
+        try {
+          const rawJwt = request.headers.authorization?.startsWith('Bearer ')
+            ? request.headers.authorization.slice(7) : undefined;
+          aiMessage = await orchestratorService.handleMessage(
+            result.case.id, tenantId, data.message, reqId, rawJwt,
+            { skipUserInsert: true },
+          );
+        } catch (err) {
+          log.warn('Orchestrator failed on case creation', reqId, {
+            caseId: result.case.id,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+      }
+
       log.info('POST /api/cases response', reqId, { caseId: result.case.id });
       return reply.code(200).send({
         case: result.case,
         snapshot: { id: result.case.snapshotId },
+        ...(aiMessage ? { aiMessage } : {}),
       });
     },
   );

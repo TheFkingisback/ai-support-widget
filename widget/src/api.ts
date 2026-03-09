@@ -7,7 +7,7 @@ export interface ApiClientConfig {
 }
 
 export interface ApiClient {
-  createCase(message: string, context?: Record<string, unknown>): Promise<{ case: Case; snapshot: { id: string } }>;
+  createCase(message: string, context?: Record<string, unknown>): Promise<{ case: Case; snapshot: { id: string }; aiMessage?: Message }>;
   getCase(caseId: string): Promise<{ case: Case; messages: Message[] }>;
   sendMessage(caseId: string, content: string): Promise<Message>;
   addFeedback(caseId: string, feedback: 'positive' | 'negative'): Promise<void>;
@@ -56,7 +56,7 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
 
   return {
     async createCase(message: string, context?: Record<string, unknown>) {
-      return request<{ case: Case; snapshot: { id: string } }>('POST', '/api/cases', {
+      return request<{ case: Case; snapshot: { id: string }; aiMessage?: Message }>('POST', '/api/cases', {
         message, ...(context ? { context } : {}),
       });
     },

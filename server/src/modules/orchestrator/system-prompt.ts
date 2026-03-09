@@ -10,6 +10,7 @@ export function buildSystemPrompt(
   requestId?: string,
   customInstructions?: string,
   previousCases?: CaseHistoryEntry[],
+  hasMcpTools?: boolean,
 ): string {
   log.debug('buildSystemPrompt: building', requestId, {
     snapshotId: snapshot.meta.snapshotId,
@@ -36,6 +37,19 @@ RULES:
 - Before closing or suggesting to close the case, ALWAYS ask: "Is there anything else I can help with?"
 - NEVER close the case without the user's explicit confirmation.
 - If the user seems satisfied, ask permission before closing.`);
+
+  // MCP tool guidance (when tools are available)
+  if (hasMcpTools) {
+    sections.push(`TOOLS:
+You have access to tools that can query and modify the host application on behalf of this user.
+- PROACTIVELY use tools when the user asks about their data (subscriptions, payments, contacts, etc.).
+- Query real-time data via tools rather than relying only on the snapshot above, which may be stale.
+- Before any destructive action (delete, pause, cancel), always ask the user to confirm first.
+- You may chain multiple tool calls to gather all needed information before answering.
+- If a tool returns an error, report the exact error to the user and suggest alternatives.
+- After performing an action (e.g. pause subscription, update contact), verify the result and tell the user what changed.
+- Prefer specific queries over broad ones (e.g. filter by status, search by name).`);
+  }
 
   // Custom tenant instructions
   if (customInstructions) {

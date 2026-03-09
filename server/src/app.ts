@@ -107,20 +107,23 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
 
   // Health check — verifies DB and Redis connectivity
   app.get('/api/health', async (_req, reply) => {
+    const timeout = <T>(p: Promise<T>, ms: number): Promise<T> =>
+      Promise.race([p, new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
     let dbOk = false;
     let redisOk = false;
     try {
       const { getDb } = await import('./shared/db.js');
       const db = getDb();
-      await db.execute(sql`SELECT 1`);
+      await timeout(db.execute(sql`SELECT 1`), 3000);
       dbOk = true;
-    } catch { /* db unreachable */ }
+    } catch { /* db unreachable or timeout */ }
     try {
       const { getRedis } = await import('./shared/redis.js');
       const redis = getRedis();
-      await redis.ping();
+      await timeout(redis.ping(), 3000);
       redisOk = true;
-    } catch { /* redis unreachable */ }
+    } catch { /* redis unreachable or timeout */ }
     const ok = dbOk && redisOk;
     return reply.code(ok ? 200 : 503).send({
       ok, version: '0.1.0', db: dbOk ? 'ok' : 'error', redis: redisOk ? 'ok' : 'error',

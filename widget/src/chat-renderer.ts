@@ -67,22 +67,7 @@ export function createCloseFlow(deps: ChatRendererDeps): HTMLElement {
 }
 
 function handleUnresolved(container: HTMLElement, deps: ChatRendererDeps): void {
-  container.innerHTML = '';
-  const msg = document.createElement('p');
-  msg.textContent = 'I\'ll keep trying to help. Please describe what\'s still wrong.';
-  container.appendChild(msg);
-
-  const closeAnyway = document.createElement('button');
-  closeAnyway.className = 'ai-close-no';
-  closeAnyway.textContent = 'Close case anyway';
-  closeAnyway.style.marginTop = '8px';
-  closeAnyway.addEventListener('click', () => showRatingStep(container, 'unresolved', deps));
-  container.appendChild(closeAnyway);
-
-  if (deps.onSendMessage) {
-    deps.onSendMessage('My issue is not resolved yet. Please try a different approach.');
-  }
-  deps.messagesEl.scrollTop = deps.messagesEl.scrollHeight;
+  showRatingStep(container, 'unresolved', deps);
 }
 
 function showRatingStep(

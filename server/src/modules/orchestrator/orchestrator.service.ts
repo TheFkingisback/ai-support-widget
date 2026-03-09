@@ -25,6 +25,7 @@ export interface OrchestratorService {
     userContent: string,
     requestId?: string,
     widgetJwt?: string,
+    opts?: { skipUserInsert?: boolean },
   ): Promise<Message>;
 
   handleAction(
@@ -59,11 +60,13 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
   } = deps;
 
   return {
-    async handleMessage(caseId, tenantId, userContent, requestId, widgetJwt) {
+    async handleMessage(caseId, tenantId, userContent, requestId, widgetJwt, opts?) {
       log.info('handleMessage: start', requestId, { caseId, tenantId });
 
       const { case: caseData, messages } = await gatewayService.getCase(caseId, tenantId, requestId);
-      await gatewayService.addMessage(caseId, tenantId, 'user', userContent, undefined, requestId);
+      if (!opts?.skipUserInsert) {
+        await gatewayService.addMessage(caseId, tenantId, 'user', userContent, undefined, requestId);
+      }
 
       let snapshot: SupportContextSnapshot | null = null;
       try {
@@ -125,7 +128,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       }
 
       const systemPrompt = processedSnapshot
-        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases)
+        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases, !!mcpOpts)
         : 'You are a helpful support assistant. Answer the user\'s question.';
 
       const allMessages = [...messages, {
@@ -172,7 +175,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         }, requestId).catch(() => {});
       }
 
-      const parsed = parseAIResponse(llmResponse.content, requestId);
+      const parsed = parseAIResponse(llmResponse.content, requestId, processedSnapshot);
       const assistantMessage = await gatewayService.addMessage(
         caseId, tenantId, 'assistant', parsed.content,
         { actions: parsed.actions, evidence: parsed.evidence, confidence: parsed.confidence },

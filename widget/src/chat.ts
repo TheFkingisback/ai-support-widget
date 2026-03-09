@@ -153,13 +153,16 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
 
     const typing = showTyping();
     try {
+      let aiMsg: Message;
       if (!caseId) {
         const result = await apiClient.createCase(text, config.context);
         caseId = result.case.id;
         config.onCaseCreated?.(caseId);
         endBtn.style.display = '';
+        aiMsg = result.aiMessage ?? await apiClient.sendMessage(caseId, text);
+      } else {
+        aiMsg = await apiClient.sendMessage(caseId, text);
       }
-      const aiMsg = await apiClient.sendMessage(caseId, text);
       typing.remove();
       const userMsg: Message = {
         id: 'local_u', caseId, role: 'user', content: text,

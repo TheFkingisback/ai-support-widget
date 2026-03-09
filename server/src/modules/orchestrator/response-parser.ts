@@ -1,4 +1,4 @@
-import type { SuggestedAction, Evidence } from '@shared/types.js';
+import type { SuggestedAction, Evidence, SupportContextSnapshot } from '@shared/types.js';
 import { log } from '../../shared/logger.js';
 
 export interface ParsedResponse {
@@ -15,6 +15,7 @@ const ACTION_PATTERNS: Array<{
 }> = [
   { regex: /\bretry\b/i, type: 'retry', labelPrefix: 'Retry' },
   { regex: /\bdocumentation\b|\bdocs\b|\bguide\b/i, type: 'open_docs', labelPrefix: 'View docs' },
+  { regex: /\bcreate\s+(?:a\s+)?ticket\b|\bsubmit\s+(?:a\s+)?ticket\b|\bopen\s+(?:a\s+)?ticket\b/i, type: 'create_ticket', labelPrefix: 'Create ticket' },
   { regex: /\brequest\s+access\b|\bcontact\s+(?:your\s+)?admin\b/i, type: 'request_access', labelPrefix: 'Request access' },
 ];
 
@@ -73,7 +74,43 @@ function extractActions(text: string): SuggestedAction[] {
   return actions;
 }
 
-function extractEvidence(text: string): Evidence[] {
+/** Build a set of valid evidence values from the snapshot */
+function buildSnapshotAllowlist(snapshot: SupportContextSnapshot): Set<string> {
+  const allowed = new Set<string>();
+
+  for (const err of snapshot.productState.activeErrors) {
+    allowed.add(`error_code:${err.errorCode}`);
+    allowed.add(`resource_id:${err.resourceId}`);
+    allowed.add(`timestamp:${err.occurredAt}`);
+  }
+
+  for (const err of snapshot.backend.errors) {
+    allowed.add(`error_code:${err.errorCode}`);
+    if (err.resourceId) allowed.add(`resource_id:${err.resourceId}`);
+    allowed.add(`timestamp:${err.ts}`);
+  }
+
+  for (const job of snapshot.backend.jobs) {
+    allowed.add(`job_id:${job.jobId}`);
+    if (job.errorCode) allowed.add(`error_code:${job.errorCode}`);
+    allowed.add(`timestamp:${job.createdAt}`);
+    allowed.add(`timestamp:${job.updatedAt}`);
+  }
+
+  for (const req of snapshot.backend.recentRequests) {
+    if (req.errorCode) allowed.add(`error_code:${req.errorCode}`);
+    if (req.resourceId) allowed.add(`resource_id:${req.resourceId}`);
+    allowed.add(`timestamp:${req.ts}`);
+  }
+
+  for (const evt of snapshot.recentActivity.events) {
+    allowed.add(`timestamp:${evt.ts}`);
+  }
+
+  return allowed;
+}
+
+function extractEvidence(text: string, allowlist?: Set<string>): Evidence[] {
   const evidence: Evidence[] = [];
   const seen = new Set<string>();
 
@@ -83,21 +120,26 @@ function extractEvidence(text: string): Evidence[] {
     while ((match = regex.exec(text)) !== null) {
       const value = match[1] ?? match[0];
       const key = `${pattern.type}:${value}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        evidence.push({ type: pattern.type, label: pattern.type, value });
-      }
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (allowlist && !allowlist.has(key)) continue;
+      evidence.push({ type: pattern.type, label: pattern.type, value });
     }
   }
 
   return evidence;
 }
 
-export function parseAIResponse(raw: string, requestId?: string): ParsedResponse {
+export function parseAIResponse(
+  raw: string,
+  requestId?: string,
+  snapshot?: SupportContextSnapshot | null,
+): ParsedResponse {
   log.debug('parseAIResponse: parsing', requestId, { rawLength: raw.length });
 
   const actions = extractActions(raw);
-  const evidence = extractEvidence(raw);
+  const allowlist = snapshot ? buildSnapshotAllowlist(snapshot) : undefined;
+  const evidence = extractEvidence(raw, allowlist);
   const confidence = estimateConfidence(raw);
 
   log.debug('parseAIResponse: done', requestId, {

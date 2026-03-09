@@ -110,9 +110,9 @@ describe('Full Flow Integration', () => {
     expect(msgRes.statusCode).toBe(200);
     const msgBody = JSON.parse(msgRes.body);
 
-    // 4. Verify LLM was called
-    expect(mockLLM.calls.length).toBe(1);
-    const llmReq = JSON.parse(mockLLM.calls[0].body);
+    // 4. Verify LLM was called (once during createCase, once during sendMessage)
+    expect(mockLLM.calls.length).toBe(2);
+    const llmReq = JSON.parse(mockLLM.calls[1].body);
     expect(llmReq.messages[0].role).toBe('system');
     expect(llmReq.messages[0].content).toContain('UPLOAD_TOO_LARGE');
 
@@ -154,9 +154,9 @@ describe('Full Flow Integration', () => {
       payload: { content: 'how do I reduce the file size?' },
     });
 
-    // Second LLM call should include prior messages
-    expect(mockLLM.calls.length).toBe(2);
-    const secondReq = JSON.parse(mockLLM.calls[1].body);
+    // LLM calls: 1 from createCase + 2 from sendMessage = 3
+    expect(mockLLM.calls.length).toBe(3);
+    const secondReq = JSON.parse(mockLLM.calls[2].body);
 
     // Should have system + initial user + assistant response + follow-up user
     // At minimum: system, user (original), user (first msg), assistant, user (follow-up)
