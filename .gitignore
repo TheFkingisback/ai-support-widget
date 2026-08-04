@@ -2,8 +2,12 @@ node_modules/
 dist/
 .next/
 .env
-.env.prod
+.env.*
+!.env.example
+!.env.*.example
 logs/
 tmp/
 *.log
+*.tsbuildinfo
+Servidor no SSdnodes.txt
 nginx/nginx.conf

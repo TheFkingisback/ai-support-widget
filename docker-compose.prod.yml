@@ -35,6 +35,8 @@ services:
       context: .
       dockerfile: Dockerfile.server
     restart: unless-stopped
+    labels:
+      ai-support-autoheal: "true"
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,13 +71,34 @@ services:
       args:
         NEXT_PUBLIC_API_URL: https://${DOMAIN}
     restart: unless-stopped
+    labels:
+      ai-support-autoheal: "true"
     depends_on:
       server:
         condition: service_healthy
     ports:
       - "127.0.0.1:3006:3000"
     environment:
+      HOSTNAME: 0.0.0.0
       NEXT_PUBLIC_API_URL: https://${DOMAIN}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    networks:
+      - aiwidget-net
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    restart: unless-stopped
+    environment:
+      AUTOHEAL_CONTAINER_LABEL: ai-support-autoheal
+      AUTOHEAL_INTERVAL: 30
+      AUTOHEAL_START_PERIOD: 60
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - aiwidget-net
 
