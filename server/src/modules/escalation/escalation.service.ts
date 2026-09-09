@@ -28,6 +28,7 @@ export interface EscalationService {
   escalate(
     caseId: string,
     tenantId: string,
+    userId: string,
     reason: string | undefined,
     requestId?: string,
   ): Promise<{ ticketId: string; ticketUrl: string }>;
@@ -53,12 +54,12 @@ export function createEscalationService(deps: EscalationDeps): EscalationService
   } = deps;
 
   return {
-    async escalate(caseId, tenantId, reason, requestId) {
-      log.info('Escalating case', requestId, { caseId, tenantId, reason });
+    async escalate(caseId, tenantId, userId, reason, requestId) {
+      log.info('Escalating case', requestId, { caseId, tenantId, userId, reason });
 
       // 1. Load case + messages
       const { case: caseData, messages } = await gatewayService.getCase(
-        caseId, tenantId, requestId,
+        caseId, tenantId, userId, requestId,
       );
 
       // 2. Load snapshot (graceful failure)
@@ -101,7 +102,7 @@ export function createEscalationService(deps: EscalationDeps): EscalationService
       });
 
       // 7. Update case status to escalated
-      await gatewayService.escalateCase(caseId, tenantId, reason, requestId);
+      await gatewayService.escalateCase(caseId, tenantId, userId, reason, requestId);
 
       log.info('Case escalated successfully', requestId, {
         caseId,

@@ -35,6 +35,7 @@ export interface GatewayService {
   addMessage(
     caseId: string,
     tenantId: string,
+    userId: string,
     role: Message['role'],
     content: string,
     opts?: {
@@ -48,12 +49,14 @@ export interface GatewayService {
   getCase(
     caseId: string,
     tenantId: string,
+    userId: string,
     requestId?: string,
   ): Promise<{ case: Case; messages: Message[] }>;
 
   addFeedback(
     caseId: string,
     tenantId: string,
+    userId: string,
     feedback: 'positive' | 'negative',
     requestId?: string,
   ): Promise<void>;
@@ -61,6 +64,7 @@ export interface GatewayService {
   closeCase(
     caseId: string,
     tenantId: string,
+    userId: string,
     resolution: 'resolved' | 'unresolved',
     rating: number,
     requestId?: string,
@@ -69,6 +73,7 @@ export interface GatewayService {
   escalateCase(
     caseId: string,
     tenantId: string,
+    userId: string,
     reason: string | undefined,
     requestId?: string,
   ): Promise<void>;
@@ -118,10 +123,10 @@ export function createGatewayService(
       return { case: toCase(caseRow[0]), message: toMessage(msgRow[0]) };
     },
 
-    async addMessage(caseId, tenantId, role, content, opts, requestId) {
-      log.info('Adding message', requestId, { caseId, tenantId, role });
+    async addMessage(caseId, tenantId, userId, role, content, opts, requestId) {
+      log.info('Adding message', requestId, { caseId, tenantId, userId, role });
 
-      const caseRow = await findCaseWithTenant(db, caseId, tenantId);
+      const caseRow = await findCaseWithTenant(db, caseId, tenantId, userId);
 
       const msgId = genId('msg');
       const now = new Date();
@@ -134,7 +139,7 @@ export function createGatewayService(
 
       await db.update(cases).set({
         messageCount: caseRow.messageCount + 1, updatedAt: now,
-      }).where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
+      }).where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)));
 
       log.info('Message added', requestId, { caseId, msgId, role });
 
@@ -143,9 +148,9 @@ export function createGatewayService(
       return toMessage(msgRow[0]);
     },
 
-    async getCase(caseId, tenantId, requestId) {
-      log.info('Getting case', requestId, { caseId, tenantId });
-      const caseRow = await findCaseWithTenant(db, caseId, tenantId);
+    async getCase(caseId, tenantId, userId, requestId) {
+      log.info('Getting case', requestId, { caseId, tenantId, userId });
+      const caseRow = await findCaseWithTenant(db, caseId, tenantId, userId);
 
       const msgRows = await db.select().from(messages)
         .where(eq(messages.caseId, caseId))
@@ -155,40 +160,40 @@ export function createGatewayService(
       return { case: toCase(caseRow), messages: msgRows.map(toMessage) };
     },
 
-    async addFeedback(caseId, tenantId, feedback, requestId) {
+    async addFeedback(caseId, tenantId, userId, feedback, requestId) {
       log.info('Adding feedback', requestId, { caseId, feedback });
-      const caseRow = await findCaseWithTenant(db, caseId, tenantId);
+      const caseRow = await findCaseWithTenant(db, caseId, tenantId, userId);
 
       await db.update(cases).set({ feedback, updatedAt: new Date() })
-        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)));
 
       await insertAudit(db, tenantId, caseRow.userId, caseId,
         'feedback_added', { feedback }, requestId);
       log.info('Feedback added', requestId, { caseId, feedback });
     },
 
-    async closeCase(caseId, tenantId, resolution, rating, requestId) {
+    async closeCase(caseId, tenantId, userId, resolution, rating, requestId) {
       log.info('Closing case', requestId, { caseId, resolution, rating });
-      const caseRow = await findCaseWithTenant(db, caseId, tenantId);
+      const caseRow = await findCaseWithTenant(db, caseId, tenantId, userId);
       const now = new Date();
       const feedback = resolution === 'resolved' ? 'positive' : 'negative';
 
       await db.update(cases).set({
         status: resolution, feedback, rating,
         resolvedAt: now, updatedAt: now,
-      }).where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
+      }).where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)));
 
       await insertAudit(db, tenantId, caseRow.userId, caseId,
         'case_closed', { resolution, rating }, requestId);
       log.info('Case closed', requestId, { caseId, resolution, rating });
     },
 
-    async escalateCase(caseId, tenantId, reason, requestId) {
+    async escalateCase(caseId, tenantId, userId, reason, requestId) {
       log.info('Escalating case', requestId, { caseId, reason });
-      const caseRow = await findCaseWithTenant(db, caseId, tenantId);
+      const caseRow = await findCaseWithTenant(db, caseId, tenantId, userId);
 
       await db.update(cases).set({ status: 'escalated', updatedAt: new Date() })
-        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)));
+        .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)));
 
       await insertAudit(db, tenantId, caseRow.userId, caseId,
         'case_escalated', { reason: reason ?? 'No reason provided' }, requestId);

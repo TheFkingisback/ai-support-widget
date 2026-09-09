@@ -42,7 +42,7 @@ describe('Message Rate Limit Boundary', () => {
       rateLimiter,
     });
 
-    token = app.jwt.sign({
+    token = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_ID, userId: USER_ID,
       userEmail: 'test@example.com', userRoles: ['user'], plan: 'pro',
     });
@@ -115,7 +115,7 @@ describe('Message Rate Limit Boundary', () => {
     }
 
     // Tenant B should still have quota
-    const tokenB = app.jwt.sign({
+    const tokenB = app.jwt.sign({ purpose: 'widget',
       tenantId: 'ten_ratelimB01', userId: 'usr_ratelimB01',
       userEmail: 'b@example.com', userRoles: ['user'], plan: 'pro',
     });

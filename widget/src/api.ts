@@ -4,6 +4,7 @@ export interface ApiClientConfig {
   apiUrl: string;
   getJwt: () => string;
   onTokenRefresh?: () => Promise<string>;
+  signal?: AbortSignal;
 }
 
 export interface ApiClient {
@@ -17,8 +18,12 @@ export interface ApiClient {
 
 export function createApiClient(config: ApiClientConfig): ApiClient {
   let jwt = config.getJwt();
+  let observedJwt = jwt;
 
   async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+    if (config.signal?.aborted) throw new Error('Support session closed');
+    const current = config.getJwt();
+    if (current !== observedJwt) { jwt = current; observedJwt = current; }
     const url = `${config.apiUrl}${path}`;
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${jwt}`,
@@ -28,6 +33,7 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
     }
 
     let res = await fetch(url, {
+      signal: config.signal,
       method,
       headers,
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -35,7 +41,9 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
 
     if (res.status === 401 && config.onTokenRefresh) {
       jwt = await config.onTokenRefresh();
+      if (config.signal?.aborted) throw new Error('Support session closed');
       res = await fetch(url, {
+      signal: config.signal,
         method,
         headers: { ...headers, Authorization: `Bearer ${jwt}` },
         body: body !== undefined ? JSON.stringify(body) : undefined,

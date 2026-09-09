@@ -7,6 +7,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { ForbiddenError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
 import type { TenantService } from './tenant.service.js';
+import { TOKEN_ISSUER, ADMIN_AUDIENCE } from '../../shared/token-policy.js';
 
 export interface AdminAuthPayload {
   role: 'super_admin' | 'tenant_admin';
@@ -65,8 +66,12 @@ export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
     // Try JWT decode first (per-tenant login flow)
     if (opts.jwtSecret) {
       try {
-        const decoded = jwt.verify(token, opts.jwtSecret, { algorithms: ['HS256'] }) as AdminAuthPayload;
-        if (decoded.role === 'super_admin' || decoded.role === 'tenant_admin') {
+        const decoded = jwt.verify(token, opts.jwtSecret, {
+          algorithms: ['HS256'], issuer: TOKEN_ISSUER, audience: ADMIN_AUDIENCE,
+        }) as jwt.JwtPayload & AdminAuthPayload;
+        if (decoded.purpose === 'admin' && typeof decoded.exp === 'number' &&
+            (decoded.role === 'super_admin' ||
+              (decoded.role === 'tenant_admin' && typeof decoded.tenantId === 'string' && decoded.tenantId.length > 0))) {
           request.adminPayload = decoded;
           log.debug('Admin auth via JWT', reqId, { role: decoded.role, tenantId: decoded.tenantId });
           return;
@@ -117,7 +122,9 @@ export function createLoginHandler(opts: AdminAuthOpts) {
     }
 
     const payload: AdminAuthPayload = { role: 'super_admin' };
-    const token = jwt.sign(payload, opts.jwtSecret, { expiresIn: '8h', algorithm: 'HS256' });
+    const token = jwt.sign({ ...payload, purpose: 'admin' }, opts.jwtSecret, {
+      expiresIn: '8h', algorithm: 'HS256', issuer: TOKEN_ISSUER, audience: ADMIN_AUDIENCE,
+    });
     log.info('Super admin login success', reqId);
     reply.header('Cache-Control', 'no-store').code(200).send({ token, role: 'super_admin' });
   };

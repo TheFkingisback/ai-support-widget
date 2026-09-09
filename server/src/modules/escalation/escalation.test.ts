@@ -309,7 +309,7 @@ describe('Escalation Service', () => {
     const mockGateway: GatewayService = {
       async createCase() { throw new Error('not needed'); },
       async addMessage(_caseId: string, _tenantId: string) { throw new Error('not needed'); },
-      async getCase(caseId, tenantId) {
+      async getCase(caseId, tenantId, userId) {
         if (mockCase.id !== caseId) throw new NotFoundError('Case', caseId);
         if (mockCase.tenantId !== tenantId) {
           throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
@@ -381,7 +381,7 @@ describe('Escalation Service', () => {
   // Test 7: escalate selects correct connector for tenant
   it('escalate selects correct connector for tenant', async () => {
     const service = createEscalationService(buildDeps());
-    await service.escalate(mockCase.id, TENANT_ID, 'Need human help');
+    await service.escalate(mockCase.id, TENANT_ID, mockCase.userId, 'Need human help');
 
     expect(connectorUsed).toBe('zendesk');
 
@@ -401,7 +401,7 @@ describe('Escalation Service', () => {
     });
 
     const service2 = createEscalationService(buildDeps());
-    await service2.escalate(emailCase.id, 'ten_emailonly', undefined);
+    await service2.escalate(emailCase.id, 'ten_emailonly', emailCase.userId, undefined);
 
     expect(connectorUsed).toBe('email');
   });
@@ -411,7 +411,7 @@ describe('Escalation Service', () => {
     const service = createEscalationService(buildDeps());
     expect(mockCase.status).toBe('active');
 
-    await service.escalate(mockCase.id, TENANT_ID, 'Need human help');
+    await service.escalate(mockCase.id, TENANT_ID, mockCase.userId, 'Need human help');
 
     expect(escalatedCases).toContain(mockCase.id);
     expect(mockCase.status).toBe('escalated');
@@ -420,7 +420,7 @@ describe('Escalation Service', () => {
   // Test 9: escalate stores ticket record in DB
   it('escalate stores ticket record in DB', async () => {
     const service = createEscalationService(buildDeps());
-    const result = await service.escalate(mockCase.id, TENANT_ID, 'Need help');
+    const result = await service.escalate(mockCase.id, TENANT_ID, mockCase.userId, 'Need help');
 
     expect(storedTickets).toHaveLength(1);
     const ticket = storedTickets[0];

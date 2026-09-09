@@ -67,7 +67,7 @@ describe('App', () => {
   });
 
   it('auth middleware extracts tenantId from valid JWT', async () => {
-    const token = app.jwt.sign({
+    const token = app.jwt.sign({ purpose: 'widget',
       tenantId: 'ten_test123',
       userId: 'usr_test456',
       userEmail: 'test@example.com',

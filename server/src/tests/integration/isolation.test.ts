@@ -49,12 +49,12 @@ describe('Tenant Isolation Integration', () => {
       snapshotService: snapshotSvc,
     });
 
-    tokenA = app.jwt.sign({
+    tokenA = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_A, userId: USER_A,
       userEmail: 'a@tenanta.com', userRoles: ['user'], plan: 'pro',
     });
 
-    tokenB = app.jwt.sign({
+    tokenB = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_B, userId: USER_B,
       userEmail: 'b@tenantb.com', userRoles: ['user'], plan: 'starter',
     });

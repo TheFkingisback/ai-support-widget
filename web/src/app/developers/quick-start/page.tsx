@@ -2,41 +2,24 @@ import Link from 'next/link';
 import { PageHeader } from '../components/page-header';
 import { CodeBlock } from '../components/code-block';
 
-const widgetSnippet = `<script src="https://cdn.yourdomain.com/ai-support-widget.js"></script>
-<script>
-  AISupportWidget.init({
-    tenantKey: 'ten_your_key',
-    jwt: await getJwtFromYourBackend(),
-    theme: 'light',
-    position: 'bottom-right',
+const widgetSnippet = `<script src="https://support-ai.pontes.uk/widget.v0.2.0.js"></script>
+<script type="module">
+  // Your application endpoint authenticates the user and builds context.
+  const res = await fetch('/api/support/bootstrap', { credentials: 'same-origin', cache: 'no-store' });
+  if (!res.ok) throw new Error('Support unavailable');
+  const data = await res.json();
+  const widget = AISupportWidget.init({
+    tenantKey: data.tenantKey, jwt: data.jwt, context: data.context,
+    apiUrl: 'https://support-ai.pontes.uk', theme: 'light', position: 'bottom-right',
   });
+  // Add onTokenRefresh using your backend; call destroy() at logout.
 </script>`;
 
 const steps = [
-  {
-    num: 1,
-    title: 'Create a Tenant',
-    desc: 'Log in to the Admin Dashboard and create a tenant. You\'ll receive a tenant key (ten_xxx) and a JWT shared secret.',
-    link: { href: '/admin', label: 'Open Admin Dashboard' },
-  },
-  {
-    num: 2,
-    title: 'Sign JWTs on Your Backend',
-    desc: 'Your backend must sign a JWT for each user session using the shared secret. The JWT payload includes tenantId, userId, userEmail, userRoles, and plan.',
-    link: { href: '/developers/authentication', label: 'Authentication Guide' },
-  },
-  {
-    num: 3,
-    title: 'Implement 4 Endpoints',
-    desc: 'Expose 4 GET endpoints that return user state, history, logs, and business rules. The widget backend calls these to build context.',
-    link: { href: '/developers/api-reference', label: 'API Reference' },
-  },
-  {
-    num: 4,
-    title: 'Embed the Widget',
-    desc: 'Add the widget script to your page and initialize it with your tenant key and JWT. That\'s it — your users now have AI-powered support.',
-    link: { href: '/developers/widget-sdk', label: 'Widget SDK Docs' },
-  },
+  { num: 1, title: 'Create a Tenant', desc: 'Choose a name and plan. Open Widget integration in the tenant settings and generate a backend integration credential.', link: { href: '/admin', label: 'Open Admin Dashboard' } },
+  { num: 2, title: 'Request Widget Sessions', desc: 'Your authenticated backend exchanges its tenant-specific credential for a 15-minute user session. Keep the credential on the server.', link: { href: '/developers/authentication', label: 'Authentication Guide' } },
+  { num: 3, title: 'Prepare Authorized Context', desc: 'Build userState, userHistory, userLogs and reviewed knowledge documents in your backend. Return them with the widget session. Separate public pull endpoints are not required for this flow.', link: { href: '/developers/types', label: 'Context Types' } },
+  { num: 4, title: 'Embed and Validate', desc: 'Load the pinned SDK, configure renewal and logout, test isolation and confirm the project MCP configuration with the operator before release.', link: { href: '/developers/widget-sdk', label: 'Widget SDK Docs' } },
 ];
 
 export default function QuickStartPage() {
@@ -46,7 +29,7 @@ export default function QuickStartPage() {
         badge="Getting Started"
         badgeColor="green"
         title="Quick Start"
-        description="Get AI-powered support running in your app in under 10 minutes. Four steps, no magic."
+        description="Prepare the tenant, session, context and widget, then validate the integration before release."
       />
 
       <div className="mb-10 space-y-6">
@@ -77,7 +60,7 @@ export default function QuickStartPage() {
       <div>
         <h2 className="mb-4 text-xl font-semibold text-white">Minimal Example</h2>
         <p className="mb-4 text-sm text-gray-400">
-          Here&apos;s everything you need on the frontend — two script tags:
+          After your backend bootstrap is implemented — two script tags:
         </p>
         <CodeBlock code={widgetSnippet} language="HTML" />
       </div>

@@ -22,6 +22,7 @@ export interface OrchestratorService {
   handleMessage(
     caseId: string,
     tenantId: string,
+    userId: string,
     userContent: string,
     requestId?: string,
     widgetJwt?: string,
@@ -31,6 +32,7 @@ export interface OrchestratorService {
   handleAction(
     caseId: string,
     tenantId: string,
+    userId: string,
     action: SuggestedAction,
     requestId?: string,
   ): Promise<string>;
@@ -60,12 +62,12 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
   } = deps;
 
   return {
-    async handleMessage(caseId, tenantId, userContent, requestId, widgetJwt, opts?) {
-      log.info('handleMessage: start', requestId, { caseId, tenantId });
+    async handleMessage(caseId, tenantId, userId, userContent, requestId, widgetJwt, opts?) {
+      log.info('handleMessage: start', requestId, { caseId, tenantId, userId });
 
-      const { case: caseData, messages } = await gatewayService.getCase(caseId, tenantId, requestId);
+      const { case: caseData, messages } = await gatewayService.getCase(caseId, tenantId, userId, requestId);
       if (!opts?.skipUserInsert) {
-        await gatewayService.addMessage(caseId, tenantId, 'user', userContent, undefined, requestId);
+        await gatewayService.addMessage(caseId, tenantId, userId, 'user', userContent, undefined, requestId);
       }
 
       let snapshot: SupportContextSnapshot | null = null;
@@ -177,7 +179,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
 
       const parsed = parseAIResponse(llmResponse.content, requestId, processedSnapshot);
       const assistantMessage = await gatewayService.addMessage(
-        caseId, tenantId, 'assistant', parsed.content,
+        caseId, tenantId, userId, 'assistant', parsed.content,
         { actions: parsed.actions, evidence: parsed.evidence, confidence: parsed.confidence },
         requestId,
       );
@@ -189,9 +191,9 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       return assistantMessage;
     },
 
-    async handleAction(caseId, tenantId, action, requestId) {
+    async handleAction(caseId, tenantId, userId, action, requestId) {
       log.info('handleAction: start', requestId, { caseId, actionType: action.type });
-      await gatewayService.getCase(caseId, tenantId, requestId);
+      await gatewayService.getCase(caseId, tenantId, userId, requestId);
       const messages: Record<string, string> = {
         retry: 'Retry action initiated. Please try the operation again.',
         open_docs: 'Opening documentation link.',

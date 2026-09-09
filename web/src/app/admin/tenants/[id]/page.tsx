@@ -6,6 +6,7 @@ import { Save, ArrowLeft, Trash2, ExternalLink } from 'lucide-react';
 import { listTenants, updateTenant, deleteTenant } from '@/lib/api';
 import type { Tenant, TenantConfig, UpdateTenantInput } from '@/lib/types';
 import ModelPicker from '@/components/model-picker';
+import { IntegrationCredentialSection } from '@/components/integration-credential-section';
 import { AdminKeySection } from '@/components/admin-key-section';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -137,6 +138,8 @@ export default function TenantDetailPage() {
             })}
           </div>
         </Section>
+
+        <IntegrationCredentialSection key={tenantId} tenantId={tenantId} />
 
         <AdminKeySection tenantId={tenantId} />
 

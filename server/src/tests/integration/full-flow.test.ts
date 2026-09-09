@@ -59,7 +59,7 @@ describe('Full Flow Integration', () => {
       rateLimiter: createInMemoryRateLimiter(), snapshotService: snapshotSvc,
       orchestratorService: orchestrator,
     });
-    token = app.jwt.sign({
+    token = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_ID, userId: USER_ID,
       userEmail: 'user@fullflow.com', userRoles: ['user'], plan: 'pro',
     });

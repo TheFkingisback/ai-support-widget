@@ -268,10 +268,10 @@ function createMockGatewayService(): GatewayService & {
       return { case: newCase, message: msg };
     },
 
-    async addMessage(caseId, tenantId, role, content, opts) {
+    async addMessage(caseId, tenantId, userId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) {
+      if (c.tenantId !== tenantId || c.userId !== userId) {
         throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       }
       const msg: Message = {
@@ -290,10 +290,10 @@ function createMockGatewayService(): GatewayService & {
       return msg;
     },
 
-    async getCase(caseId, tenantId) {
+    async getCase(caseId, tenantId, userId) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) {
+      if (c.tenantId !== tenantId || c.userId !== userId) {
         throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       }
       const msgs = _messages
@@ -302,17 +302,17 @@ function createMockGatewayService(): GatewayService & {
       return { case: c, messages: msgs };
     },
 
-    async addFeedback(caseId, tenantId, feedback) {
+    async addFeedback(caseId, tenantId, userId, feedback) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError('Forbidden');
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError('Forbidden');
       c.feedback = feedback;
     },
 
-    async escalateCase(caseId, tenantId) {
+    async escalateCase(caseId, tenantId, userId) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError('Forbidden');
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError('Forbidden');
       c.status = 'escalated';
     },
 
@@ -701,6 +701,7 @@ describe('Orchestrator service', () => {
       const result = await orchestrator.handleMessage(
         caseData.id,
         'ten_abc',
+        'usr_xyz',
         'Help me with my upload error',
         'req_test10',
       );
@@ -726,6 +727,7 @@ describe('Orchestrator service', () => {
       await orchestrator.handleMessage(
         caseData.id,
         'ten_abc',
+        'usr_xyz',
         'Why is my upload failing?',
         'req_test11',
       );
@@ -753,14 +755,15 @@ describe('Orchestrator service', () => {
       snapshotService._snapshots.set(caseData.snapshotId, { tenantId: 'ten_abc', data: snapshot });
 
       // Add some previous messages
-      await gatewayService.addMessage(caseData.id, 'ten_abc', 'assistant', 'I see your issue.');
-      await gatewayService.addMessage(caseData.id, 'ten_abc', 'user', 'Can you help?');
-      await gatewayService.addMessage(caseData.id, 'ten_abc', 'assistant', 'Yes, checking now.');
+      await gatewayService.addMessage(caseData.id, 'ten_abc', 'usr_xyz', 'assistant', 'I see your issue.');
+      await gatewayService.addMessage(caseData.id, 'ten_abc', 'usr_xyz', 'user', 'Can you help?');
+      await gatewayService.addMessage(caseData.id, 'ten_abc', 'usr_xyz', 'assistant', 'Yes, checking now.');
 
       // Now send via orchestrator
       await orchestrator.handleMessage(
         caseData.id,
         'ten_abc',
+        'usr_xyz',
         'Any update?',
         'req_test12',
       );

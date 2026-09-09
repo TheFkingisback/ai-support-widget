@@ -45,11 +45,11 @@ describe('Tenant Isolation Edge Cases', () => {
       snapshotService: snapshotSvc,
     });
 
-    tokenA = app.jwt.sign({
+    tokenA = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_A, userId: USER_A,
       userEmail: 'a@a.com', userRoles: ['user'], plan: 'pro',
     });
-    tokenB = app.jwt.sign({
+    tokenB = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_B, userId: USER_B,
       userEmail: 'b@b.com', userRoles: ['user'], plan: 'pro',
     });

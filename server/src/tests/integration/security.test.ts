@@ -65,7 +65,7 @@ describe('Security Headers & JWT MaxAge', () => {
     // Sign a token with iat 24 hours ago embedded in the payload
     const iatPast = Math.floor(Date.now() / 1000) - 24 * 60 * 60;
     const oldToken = app.jwt.sign(
-      { tenantId: TENANT, userId: USER, userEmail: 'a@test.com', userRoles: ['user'], plan: 'pro', iat: iatPast },
+      { purpose: 'widget', tenantId: TENANT, userId: USER, userEmail: 'a@test.com', userRoles: ['user'], plan: 'pro', iat: iatPast },
     );
 
     const res = await app.inject({
@@ -78,7 +78,7 @@ describe('Security Headers & JWT MaxAge', () => {
   });
 
   it('accepts a fresh JWT token', async () => {
-    const freshToken = app.jwt.sign({
+    const freshToken = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT,
       userId: USER,
       userEmail: 'a@test.com',

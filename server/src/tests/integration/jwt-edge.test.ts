@@ -39,7 +39,7 @@ describe('Malformed JWT Edge Cases', () => {
   });
 
   it('JWT with missing tenantId is handled gracefully', async () => {
-    const token = app.jwt.sign({
+    const token = app.jwt.sign({ purpose: 'widget',
       userId: 'usr_noTenant',
       userEmail: 'noTenant@example.com',
       userRoles: ['user'],
@@ -55,11 +55,11 @@ describe('Malformed JWT Edge Cases', () => {
 
     // Should still process (tenantId will be undefined in the case)
     // The key thing is it doesn't crash the server
-    expect([200, 400, 401]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(401);
   });
 
   it('JWT with missing userId is handled gracefully', async () => {
-    const token = app.jwt.sign({
+    const token = app.jwt.sign({ purpose: 'widget',
       tenantId: 'ten_noUser',
       userEmail: 'noUser@example.com',
       userRoles: ['user'],
@@ -73,11 +73,11 @@ describe('Malformed JWT Edge Cases', () => {
       payload: { message: 'No userId in JWT' },
     });
 
-    expect([200, 400, 401]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(401);
   });
 
   it('JWT with empty payload is handled gracefully', async () => {
-    const token = app.jwt.sign({});
+    const token = app.jwt.sign({ purpose: 'widget',});
 
     const res = await app.inject({
       method: 'POST',
@@ -86,7 +86,7 @@ describe('Malformed JWT Edge Cases', () => {
       payload: { message: 'Empty JWT payload' },
     });
 
-    expect([200, 400, 401]).toContain(res.statusCode);
+    expect(res.statusCode).toBe(401);
   });
 
   it('completely invalid JWT string returns 401', async () => {
@@ -104,7 +104,7 @@ describe('Malformed JWT Edge Cases', () => {
   it('JWT signed with wrong secret returns 401', async () => {
     // Build a separate app instance to sign with a different secret
     const wrongToken = app.jwt.sign(
-      { tenantId: 'ten_wrong', userId: 'usr_wrong' },
+      { purpose: 'widget', tenantId: 'ten_wrong', userId: 'usr_wrong' },
     );
     // Tamper with the signature by changing last chars
     const tampered = wrongToken.slice(0, -4) + 'xxxx';

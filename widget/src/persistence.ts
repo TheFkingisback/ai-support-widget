@@ -1,7 +1,7 @@
 const PREFIX = 'ai_support_';
 
-function key(tenantKey: string): string {
-  return `${PREFIX}${tenantKey}_caseId`;
+function key(identity: string): string {
+  return `${PREFIX}v2_${encodeURIComponent(identity)}_caseId`;
 }
 
 export function saveCaseId(tenantKey: string, caseId: string): void {

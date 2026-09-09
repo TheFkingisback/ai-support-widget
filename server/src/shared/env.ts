@@ -8,6 +8,10 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32),
+  ADMIN_JWT_SECRET: z.string().min(32),
+  WIDGET_JWT_SECRET: z.string().min(32),
+  LEGACY_WIDGET_TENANTS: z.string().default(''),
+  LEGACY_WIDGET_ACCEPT_UNTIL: z.preprocess(value => value === '' ? undefined : value, z.string().datetime().optional()),
   OPENROUTER_API_KEY: z.string().min(1),
   LOG_LEVEL: LogLevel.default('medium'),
   PORT: z.coerce.number().int().positive().default(3000),
@@ -23,6 +27,16 @@ const envSchema = z.object({
   OAUTH_TOKEN_URL: z.string().url().optional(),
   LOG_MAX_FILE_SIZE: z.coerce.number().int().positive().default(10_485_760),
   LOG_MAX_FILES: z.coerce.number().int().positive().default(5),
+}).superRefine((env, ctx) => {
+  if (new Set([env.JWT_SECRET, env.ADMIN_JWT_SECRET, env.WIDGET_JWT_SECRET]).size !== 3) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'JWT signing secrets must be distinct' });
+  }
+  if (!!env.LEGACY_WIDGET_TENANTS !== !!env.LEGACY_WIDGET_ACCEPT_UNTIL) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Legacy widget migration requires tenant IDs and an explicit deadline' });
+  }
+  if (env.LEGACY_WIDGET_ACCEPT_UNTIL && Date.parse(env.LEGACY_WIDGET_ACCEPT_UNTIL) > Date.now() + 7 * 86400_000) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Legacy widget migration cannot exceed seven days' });
+  }
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -39,14 +53,16 @@ export function getEnvSafe(): Env {
   try {
     return getEnv();
   } catch {
+    if (process.env.NODE_ENV !== 'test') return getEnv();
     const jwtSecret = process.env.JWT_SECRET ?? '';
-    if (!jwtSecret && process.env.NODE_ENV !== 'test') {
-      throw new Error('JWT_SECRET must be set — refusing to start with empty secret');
-    }
     return {
       DATABASE_URL: process.env.DATABASE_URL ?? '',
       REDIS_URL: process.env.REDIS_URL ?? '',
       JWT_SECRET: jwtSecret,
+      ADMIN_JWT_SECRET: process.env.ADMIN_JWT_SECRET ?? '',
+      WIDGET_JWT_SECRET: process.env.WIDGET_JWT_SECRET ?? '',
+      LEGACY_WIDGET_TENANTS: process.env.LEGACY_WIDGET_TENANTS ?? '',
+      LEGACY_WIDGET_ACCEPT_UNTIL: process.env.LEGACY_WIDGET_ACCEPT_UNTIL,
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ?? '',
       LOG_LEVEL: LogLevel.catch('medium').parse(process.env.LOG_LEVEL),
       PORT: Number(process.env.PORT) || 3000,

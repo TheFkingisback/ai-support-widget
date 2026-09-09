@@ -15,6 +15,7 @@ import { createModelListService } from './modules/orchestrator/model-list.servic
 import { createAdminAuth, createLoginHandler } from './modules/admin/admin-auth.js';
 import { createDbTenantStore, createDbCostStore, createDbAuditStore } from './shared/db-stores.js';
 import { createDbAnalyticsDataSource, createDbSessionDataSource } from './shared/db-data-sources.js';
+import { createSessionStore } from './modules/sessions/session.store.js';
 
 async function main() {
   const env = getEnv();
@@ -53,7 +54,7 @@ async function main() {
 
   const modelListService = createModelListService(env.OPENROUTER_API_KEY);
   const authOpts = {
-    superAdminKey: env.ADMIN_API_KEY, jwtSecret: env.JWT_SECRET, tenantService,
+    superAdminKey: env.ADMIN_API_KEY, jwtSecret: env.ADMIN_JWT_SECRET, tenantService,
     adminEmail: env.ADMIN_EMAIL, adminPasswordHash: env.ADMIN_PASSWORD_HASH,
   };
   const adminAuth = createAdminAuth(authOpts);
@@ -61,7 +62,15 @@ async function main() {
   const sessionDataSource = createDbSessionDataSource(db);
 
   const app = await buildApp({
-    jwtSecret: env.JWT_SECRET,
+    jwtSecret: env.WIDGET_JWT_SECRET,
+    legacyWidgetAuth: env.LEGACY_WIDGET_ACCEPT_UNTIL ? {
+      secret: env.JWT_SECRET, tenantIds: env.LEGACY_WIDGET_TENANTS.split(',').map(id => id.trim()).filter(Boolean),
+      acceptUntil: env.LEGACY_WIDGET_ACCEPT_UNTIL,
+    } : undefined,
+    sessionRouteOpts: {
+      store: createSessionStore(db), tenantService, widgetSecret: env.WIDGET_JWT_SECRET,
+      rateLimiter: createInMemoryRateLimiter(), adminAuth,
+    },
     gatewayService: gateway,
     rateLimiter: createInMemoryRateLimiter(),
     snapshotService: snapshotSvc,

@@ -59,7 +59,7 @@ describe('Escalation Tenant Isolation', () => {
     const mockGateway: GatewayService = {
       async createCase() { throw new Error('unused'); },
       async addMessage() { throw new Error('unused'); },
-      async getCase(caseId, tenantId) {
+      async getCase(caseId, tenantId, userId) {
         if (caseA.id !== caseId) throw new NotFoundError('Case', caseId);
         if (caseA.tenantId !== tenantId) {
           throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
@@ -114,7 +114,7 @@ describe('Escalation Tenant Isolation', () => {
     const service = createEscalationService(buildDeps());
 
     await expect(
-      service.escalate(caseA.id, TENANT_B, 'Cross-tenant escalation'),
+      service.escalate(caseA.id, TENANT_B, caseA.userId, 'Cross-tenant escalation'),
     ).rejects.toThrow(ForbiddenError);
 
     // No ticket should be created
@@ -125,7 +125,7 @@ describe('Escalation Tenant Isolation', () => {
   it('tenant A can escalate own case', async () => {
     const service = createEscalationService(buildDeps());
 
-    const result = await service.escalate(caseA.id, TENANT_A, 'Need help');
+    const result = await service.escalate(caseA.id, TENANT_A, caseA.userId, 'Need help');
 
     expect(result.ticketId).toBe('EXT-1');
     expect(storedTickets).toHaveLength(1);
@@ -137,7 +137,7 @@ describe('Escalation Tenant Isolation', () => {
     const service = createEscalationService(buildDeps());
 
     await expect(
-      service.escalate('cas_nonexistent', TENANT_A, 'Should not find'),
+      service.escalate('cas_nonexistent', TENANT_A, caseA.userId, 'Should not find'),
     ).rejects.toThrow(NotFoundError);
   });
 });

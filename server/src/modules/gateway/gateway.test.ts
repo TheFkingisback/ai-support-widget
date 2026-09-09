@@ -91,10 +91,10 @@ function createMockGatewayService(): GatewayService & {
       return { case: newCase, message: msg };
     },
 
-    async addMessage(caseId, tenantId, role, content, opts) {
+    async addMessage(caseId, tenantId, userId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) {
+      if (c.tenantId !== tenantId || c.userId !== userId) {
         throw new ForbiddenError(
           `Tenant ${tenantId} cannot access case ${caseId}`,
         );
@@ -119,10 +119,10 @@ function createMockGatewayService(): GatewayService & {
       return msg;
     },
 
-    async getCase(caseId, tenantId) {
+    async getCase(caseId, tenantId, userId) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) {
+      if (c.tenantId !== tenantId || c.userId !== userId) {
         throw new ForbiddenError(
           `Tenant ${tenantId} cannot access case ${caseId}`,
         );
@@ -138,10 +138,10 @@ function createMockGatewayService(): GatewayService & {
       return { case: c, messages: msgs };
     },
 
-    async addFeedback(caseId, tenantId, feedback) {
+    async addFeedback(caseId, tenantId, userId, feedback) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) {
+      if (c.tenantId !== tenantId || c.userId !== userId) {
         throw new ForbiddenError(
           `Tenant ${tenantId} cannot access case ${caseId}`,
         );
@@ -158,10 +158,10 @@ function createMockGatewayService(): GatewayService & {
       });
     },
 
-    async escalateCase(caseId, tenantId, reason) {
+    async escalateCase(caseId, tenantId, userId, reason) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) {
+      if (c.tenantId !== tenantId || c.userId !== userId) {
         throw new ForbiddenError(
           `Tenant ${tenantId} cannot access case ${caseId}`,
         );
@@ -214,7 +214,7 @@ describe('Gateway Module', () => {
       rateLimiter,
     });
 
-    token = app.jwt.sign({
+    token = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_ID,
       userId: USER_ID,
       userEmail: 'test@example.com',
@@ -350,7 +350,7 @@ describe('Gateway Module', () => {
     const caseId = JSON.parse(createRes.body).case.id;
 
     // Sign a token for a different tenant
-    const otherToken = app.jwt.sign({
+    const otherToken = app.jwt.sign({ purpose: 'widget',
       tenantId: 'ten_other999',
       userId: 'usr_other999',
       userEmail: 'other@example.com',

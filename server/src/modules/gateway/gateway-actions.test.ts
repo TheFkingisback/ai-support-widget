@@ -42,10 +42,10 @@ function createMockGatewayService(): GatewayService & { _cases: Case[] } {
       _messages.push(msg);
       return { case: c, message: msg };
     },
-    async addMessage(caseId, tenantId, role, content, opts) {
+    async addMessage(caseId, tenantId, userId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError('Tenant isolation');
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError('Tenant isolation');
       const msg: Message = {
         id: genId('msg'), caseId, role, content,
         actions: opts?.actions ?? [], evidence: opts?.evidence ?? [],
@@ -54,10 +54,10 @@ function createMockGatewayService(): GatewayService & { _cases: Case[] } {
       _messages.push(msg);
       return msg;
     },
-    async getCase(caseId, tenantId) {
+    async getCase(caseId, tenantId, userId) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError('Tenant isolation');
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError('Tenant isolation');
       return { case: c, messages: _messages.filter((m) => m.caseId === caseId) };
     },
     async addFeedback() {},
@@ -71,8 +71,8 @@ function createMockOrchestrator(svc: GatewayService): OrchestratorService {
     async handleMessage() {
       return {} as Message;
     },
-    async handleAction(caseId, tenantId, action) {
-      await svc.getCase(caseId, tenantId);
+    async handleAction(caseId, tenantId, userId, action) {
+      await svc.getCase(caseId, tenantId, userId);
       return `Handled ${action.type}: ${action.label}`;
     },
   };
@@ -109,7 +109,7 @@ describe('Gateway Actions Route', () => {
       orchestratorService: createMockOrchestrator(service),
     });
 
-    token = app.jwt.sign({
+    token = app.jwt.sign({ purpose: 'widget',
       tenantId: TENANT_ID,
       userId: USER_ID,
       userEmail: 'test@example.com',
@@ -189,7 +189,7 @@ describe('Gateway Actions Route', () => {
     });
     const caseId = JSON.parse(createRes.body).case.id;
 
-    const otherToken = app.jwt.sign({
+    const otherToken = app.jwt.sign({ purpose: 'widget',
       tenantId: 'ten_other999',
       userId: 'usr_other999',
       userEmail: 'other@example.com',

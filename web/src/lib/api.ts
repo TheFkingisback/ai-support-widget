@@ -168,3 +168,13 @@ export async function getSessionDetail(caseId: string): Promise<SessionDetail> {
 export async function purgeSessions(olderThanDays: number): Promise<{ purged: number; cutoff: string }> {
   return request('DELETE', '/api/admin/sessions/purge', { olderThanDays });
 }
+
+export function getIntegrationCredential(tenantId: string): Promise<{ configured: boolean; createdAt: string | null }> {
+  return request('GET', `/api/admin/tenants/${encodeURIComponent(tenantId)}/integration-credential`);
+}
+export function rotateIntegrationCredential(tenantId: string): Promise<{ credential: string; tenantId: string }> {
+  return request('POST', `/api/admin/tenants/${encodeURIComponent(tenantId)}/integration-credential`);
+}
+export function revokeIntegrationCredential(tenantId: string): Promise<{ ok: boolean }> {
+  return request('DELETE', `/api/admin/tenants/${encodeURIComponent(tenantId)}/integration-credential`);
+}

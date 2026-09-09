@@ -16,6 +16,8 @@ import { registerAdminRoutes, type AdminRouteOpts } from './modules/admin/admin.
 import { registerSessionAdminRoutes, type SessionAdminOpts } from './modules/admin/session-admin.routes.js';
 import { registerSwagger } from './shared/swagger.js';
 import { sql } from 'drizzle-orm';
+import { registerSessionRoutes, type SessionRouteOpts } from './modules/sessions/session.routes.js';
+import type { AuthOptions } from './shared/auth.js';
 
 export interface AppDeps {
   jwtSecret?: string;
@@ -26,6 +28,8 @@ export interface AppDeps {
   escalationService?: EscalationService;
   adminRouteOpts?: AdminRouteOpts;
   sessionAdminOpts?: SessionAdminOpts;
+  sessionRouteOpts?: SessionRouteOpts;
+  legacyWidgetAuth?: AuthOptions['legacy'];
 }
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
@@ -56,9 +60,15 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   }
   await app.register(cors, { origin: allowedOrigins });
 
-  const jwtSecret = opts?.jwtSecret ?? env.JWT_SECRET;
+  const jwtSecret = opts?.jwtSecret ?? env.WIDGET_JWT_SECRET;
   const jwtMaxAge = env.JWT_MAX_AGE ?? '8h';
-  await registerAuth(app, { secret: jwtSecret, maxAge: jwtMaxAge });
+  await registerAuth(app, {
+    secret: jwtSecret, maxAge: jwtMaxAge, legacy: opts?.legacyWidgetAuth,
+    verifySession: opts?.sessionRouteOpts ? async (tenantId, id) => {
+      const record = await opts.sessionRouteOpts!.store.findByTenant(tenantId);
+      return record?.id === id;
+    } : undefined,
+  });
 
   // Request logging
   app.addHook('onRequest', async (request: FastifyRequest) => {
@@ -140,6 +150,8 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
       escalationService: opts.escalationService,
     });
   }
+
+  if (opts?.sessionRouteOpts) await registerSessionRoutes(app, opts.sessionRouteOpts);
 
   // Admin routes (if opts provided)
   if (opts?.adminRouteOpts) {

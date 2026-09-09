@@ -34,11 +34,13 @@ export async function findCaseWithTenant(
   db: PostgresJsDatabase,
   caseId: string,
   tenantId: string,
+  userId: string,
 ): Promise<typeof cases.$inferSelect> {
+  if (!userId) throw new NotFoundError('Case', caseId);
   const rows = await db
     .select()
     .from(cases)
-    .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId)))
+    .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)))
     .limit(1);
 
   if (rows.length === 0) {

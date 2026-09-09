@@ -72,7 +72,7 @@ export async function registerGatewayRoutes(
           const rawJwt = request.headers.authorization?.startsWith('Bearer ')
             ? request.headers.authorization.slice(7) : undefined;
           aiMessage = await orchestratorService.handleMessage(
-            result.case.id, tenantId, data.message, reqId, rawJwt,
+            result.case.id, tenantId, userId, data.message, reqId, rawJwt,
             { skipUserInsert: true },
           );
         } catch (err) {
@@ -98,9 +98,9 @@ export async function registerGatewayRoutes(
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       const reqId = request.id as string;
-      const { tenantId } = request.authPayload;
+      const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
-      const result = await service.getCase(caseId, tenantId, reqId);
+      const result = await service.getCase(caseId, tenantId, userId, reqId);
       return reply.code(200).send(result);
     },
   );
@@ -122,14 +122,14 @@ export async function registerGatewayRoutes(
         const rawJwt = request.headers.authorization?.startsWith('Bearer ')
           ? request.headers.authorization.slice(7) : undefined;
         const aiMessage = await orchestratorService.handleMessage(
-          caseId, tenantId, msgData.content, reqId, rawJwt,
+          caseId, tenantId, userId, msgData.content, reqId, rawJwt,
         );
         return reply.code(200).send({ message: aiMessage });
       }
 
-      await service.getCase(caseId, tenantId, reqId);
+      await service.getCase(caseId, tenantId, userId, reqId);
       const message = await service.addMessage(
-        caseId, tenantId, 'user', msgData.content, undefined, reqId,
+        caseId, tenantId, userId, 'user', msgData.content, undefined, reqId,
       );
       return reply.code(200).send({ message });
     },
@@ -141,11 +141,11 @@ export async function registerGatewayRoutes(
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       const reqId = request.id as string;
-      const { tenantId } = request.authPayload;
+      const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
 
       const fbData = validateBody(feedbackBody, request.body);
-      await service.addFeedback(caseId, tenantId, fbData.feedback, reqId);
+      await service.addFeedback(caseId, tenantId, userId, fbData.feedback, reqId);
       return reply.code(200).send({ ok: true });
     },
   );

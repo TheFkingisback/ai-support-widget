@@ -9,6 +9,7 @@ export interface ChatPanelConfig {
   onClose: () => void;
   onCaseClosed?: () => void;
   context?: Record<string, unknown>;
+  getContext?: () => Record<string, unknown> | undefined;
   initialCaseId?: string;
   initialMessages?: Message[];
   onCaseCreated?: (caseId: string) => void;
@@ -155,7 +156,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
     try {
       let aiMsg: Message;
       if (!caseId) {
-        const result = await apiClient.createCase(text, config.context);
+        const result = await apiClient.createCase(text, config.getContext ? config.getContext() : config.context);
         caseId = result.case.id;
         config.onCaseCreated?.(caseId);
         endBtn.style.display = '';

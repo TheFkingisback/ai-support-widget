@@ -140,7 +140,7 @@ describe('HTTP error response format', () => {
       rateLimiter,
     });
 
-    token = app.jwt.sign({
+    token = app.jwt.sign({ purpose: 'widget',
       tenantId: 'ten_errtestA',
       userId: 'usr_errtestA',
       userEmail: 'err@test.com',

@@ -31,7 +31,7 @@ const steps = [
   {
     icon: Key,
     title: 'Configure JWT Secret',
-    desc: 'Copy the JWT shared secret from your tenant settings. Your backend must sign JWTs for each user session with this secret using HS256.',
+    desc: 'Generate a backend integration credential in the tenant settings and follow the Authentication guide to request widget sessions.',
     color: 'from-yellow-500 to-amber-500',
     link: { href: '/developers/authentication', label: 'Authentication Guide' },
   },

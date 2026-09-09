@@ -1,10 +1,10 @@
 {
   "name": "@ai-support/widget",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc && node -e \"require('esbuild').buildSync({entryPoints:['dist/widget.js'],bundle:true,format:'iife',globalName:'AISupportWidgetModule',outfile:'dist/widget.bundle.js',minify:true,footer:{js:'window.AISupportWidget=AISupportWidgetModule.AISupportWidget;'}})\"",
+    "build": "tsc && node build.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },

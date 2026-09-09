@@ -44,10 +44,10 @@ export function createMockGatewayService(): MockGateway {
       return { case: newCase, message: msg };
     },
 
-    async addMessage(caseId, tenantId, role, content, opts) {
+    async addMessage(caseId, tenantId, userId, role, content, opts) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       const now = new Date().toISOString();
       const msg: Message = {
         id: genId('msg'), caseId, role, content,
@@ -60,28 +60,28 @@ export function createMockGatewayService(): MockGateway {
       return msg;
     },
 
-    async getCase(caseId, tenantId) {
+    async getCase(caseId, tenantId, userId) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       const msgs = _messages.filter((m) => m.caseId === caseId)
         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       return { case: c, messages: msgs };
     },
 
-    async addFeedback(caseId, tenantId, feedback) {
+    async addFeedback(caseId, tenantId, userId, feedback) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       c.feedback = feedback;
       c.updatedAt = new Date().toISOString();
       _audit.push({ tenantId, userId: c.userId, caseId, action: 'feedback_added', details: { feedback } });
     },
 
-    async closeCase(caseId, tenantId, resolution, rating) {
+    async closeCase(caseId, tenantId, userId, resolution, rating) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       c.status = resolution;
       c.rating = rating;
       c.feedback = resolution === 'resolved' ? 'positive' : 'negative';
@@ -90,10 +90,10 @@ export function createMockGatewayService(): MockGateway {
       _audit.push({ tenantId, userId: c.userId, caseId, action: 'case_closed', details: { resolution, rating } });
     },
 
-    async escalateCase(caseId, tenantId, reason) {
+    async escalateCase(caseId, tenantId, userId, reason) {
       const c = _cases.find((c) => c.id === caseId);
       if (!c) throw new NotFoundError('Case', caseId);
-      if (c.tenantId !== tenantId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
+      if (c.tenantId !== tenantId || c.userId !== userId) throw new ForbiddenError(`Tenant ${tenantId} cannot access case ${caseId}`);
       c.status = 'escalated';
       c.updatedAt = new Date().toISOString();
       _audit.push({ tenantId, userId: c.userId, caseId, action: 'case_escalated', details: { reason: reason ?? 'No reason provided' } });

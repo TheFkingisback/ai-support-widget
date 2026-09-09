@@ -41,11 +41,11 @@ export async function registerExtraGatewayRoutes(
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       const reqId = request.id as string;
-      const { tenantId } = request.authPayload;
+      const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
 
       const data = validateBody(closeCaseBody, request.body);
-      await service.closeCase(caseId, tenantId, data.resolution, data.rating, reqId);
+      await service.closeCase(caseId, tenantId, userId, data.resolution, data.rating, reqId);
       return reply.code(200).send({ ok: true });
     },
   );
@@ -56,19 +56,19 @@ export async function registerExtraGatewayRoutes(
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       const reqId = request.id as string;
-      const { tenantId } = request.authPayload;
+      const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
 
       const data = validateBody(escalateBody, request.body);
 
       if (escalationService) {
         const result = await escalationService.escalate(
-          caseId, tenantId, data.reason, reqId,
+          caseId, tenantId, userId, data.reason, reqId,
         );
         return reply.code(200).send(result);
       }
 
-      await service.escalateCase(caseId, tenantId, data.reason, reqId);
+      await service.escalateCase(caseId, tenantId, userId, data.reason, reqId);
       return reply.code(200).send({
         ticketId: 'tkt_placeholder',
         ticketUrl: 'https://tickets.example.com/placeholder',
@@ -82,19 +82,19 @@ export async function registerExtraGatewayRoutes(
     { preHandler: [app.authenticate] },
     async (request, reply) => {
       const reqId = request.id as string;
-      const { tenantId } = request.authPayload;
+      const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
 
       const actionData = validateBody(actionBody, request.body);
 
       if (orchestratorService) {
         const result = await orchestratorService.handleAction(
-          caseId, tenantId, actionData.action, reqId,
+          caseId, tenantId, userId, actionData.action, reqId,
         );
         return reply.code(200).send({ result });
       }
 
-      await service.getCase(caseId, tenantId, reqId);
+      await service.getCase(caseId, tenantId, userId, reqId);
       log.info('Action received (no orchestrator)', reqId, {
         caseId,
         actionType: actionData.action.type,

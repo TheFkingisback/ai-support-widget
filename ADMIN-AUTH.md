@@ -1,3 +1,5 @@
+> Atualização de autenticação: consulte [SESSION-MIGRATION.md](SESSION-MIGRATION.md). A nova integração usa credencial por tenant e `POST /api/widget/sessions`; exemplos antigos de assinatura compartilhada são legados.
+
 # Administrator login
 
 The dashboard signs in the platform administrator using email and password.
