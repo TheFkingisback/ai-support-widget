@@ -54,8 +54,8 @@ describe('Tenants Page', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Name is required')).toBeInTheDocument();
-      expect(screen.getByText('API Base URL is required')).toBeInTheDocument();
-      expect(screen.getByText('Service token is required')).toBeInTheDocument();
+      expect(screen.queryByText('API Base URL')).not.toBeInTheDocument();
+      expect(screen.queryByText('Service Token')).not.toBeInTheDocument();
     });
   });
 });

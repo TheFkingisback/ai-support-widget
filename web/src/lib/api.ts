@@ -51,11 +51,11 @@ export interface LoginResult {
   tenantId?: string;
 }
 
-export async function adminLogin(apiKey: string): Promise<LoginResult> {
+export async function adminLogin(email: string, password: string): Promise<LoginResult> {
   const res = await fetch(`${BASE_URL}/api/admin/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiKey }),
+    body: JSON.stringify({ email: email.trim(), password }),
   });
 
   if (!res.ok) {
@@ -68,6 +68,7 @@ export async function adminLogin(apiKey: string): Promise<LoginResult> {
   if (typeof window !== 'undefined') {
     sessionStorage.setItem('admin_role', result.role);
     if (result.tenantId) sessionStorage.setItem('admin_tenant_id', result.tenantId);
+    else sessionStorage.removeItem('admin_tenant_id');
   }
   return result;
 }

@@ -14,6 +14,11 @@ fi
 # Source env for variable substitution in nginx config
 set -a; source "$ENV_FILE"; set +a
 
+# Optional private administrator credentials override the main environment file.
+if [ -f ".env.admin" ]; then
+  set -a; source ".env.admin"; set +a
+fi
+
 if [ -z "${DOMAIN:-}" ]; then
   echo "ERROR: DOMAIN not set in $ENV_FILE"
   exit 1

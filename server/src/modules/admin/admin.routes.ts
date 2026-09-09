@@ -10,11 +10,12 @@ import type { ModelListService } from '../orchestrator/model-list.service.js';
 import type { CostService } from './cost.service.js';
 
 const createTenantBody = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   plan: z.enum(['starter', 'pro', 'enterprise']),
   config: z.record(z.unknown()).optional(),
-  apiBaseUrl: z.string().url(),
-  serviceToken: z.string().min(1),
+  // Optional legacy pull integration; current push onboarding needs neither.
+  apiBaseUrl: z.string().url().optional(),
+  serviceToken: z.string().min(1).optional(),
 });
 
 const updateTenantBody = z.object({

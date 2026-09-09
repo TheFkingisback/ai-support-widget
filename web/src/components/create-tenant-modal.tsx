@@ -5,6 +5,11 @@ import type { CreateTenantInput, TenantConfig } from '@/lib/types';
 import ModelPicker from './model-picker';
 
 const CONNECTORS = ['email', 'zendesk', 'jira'];
+const PLAN_DEFAULTS = {
+  starter: { modelPolicy: 'fast', enabledConnectors: ['email'] },
+  pro: { modelPolicy: 'auto', enabledConnectors: ['email', 'zendesk'] },
+  enterprise: { modelPolicy: 'strong', enabledConnectors: ['email', 'zendesk', 'jira'] },
+} as const;
 
 interface Props {
   open: boolean;
@@ -15,18 +20,18 @@ interface Props {
 export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
   const [name, setName] = useState('');
   const [plan, setPlan] = useState<CreateTenantInput['plan']>('starter');
-  const [apiBaseUrl, setApiBaseUrl] = useState('');
-  const [serviceToken, setServiceToken] = useState('');
-  const [modelPolicy, setModelPolicy] = useState<TenantConfig['modelPolicy']>('fast');
+  const [modelPolicy, setModelPolicy] = useState<TenantConfig['modelPolicy']>();
   const [preferredModel, setPreferredModel] = useState<string | undefined>();
   const [customInstructions, setCustomInstructions] = useState('');
-  const [connectors, setConnectors] = useState<string[]>(['email']);
+  const [connectors, setConnectors] = useState<string[] | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const submittingRef = useRef(false);
+  const effectiveConnectors: readonly string[] = connectors ?? PLAN_DEFAULTS[plan].enabledConnectors;
 
   useEffect(() => { if (open) dialogRef.current?.focus(); }, [open]);
   useEffect(() => {
@@ -39,9 +44,10 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
   if (!open) return null;
 
   function handleClose() {
-    setName(''); setPlan('starter'); setApiBaseUrl(''); setServiceToken('');
-    setModelPolicy('fast'); setPreferredModel(undefined); setCustomInstructions('');
-    setConnectors(['email']); setShowAdvanced(false);
+    if (submittingRef.current) return;
+    setName(''); setPlan('starter');
+    setModelPolicy(undefined); setPreferredModel(undefined); setCustomInstructions('');
+    setConnectors(null); setShowAdvanced(false);
     setErrors({}); setGeneratedKey(null); setCopied(false);
     onClose();
   }
@@ -49,37 +55,36 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
   function validate(): boolean {
     const errs: Record<string, string> = {};
     if (!name.trim()) errs.name = 'Name is required';
-    if (!apiBaseUrl.trim()) errs.apiBaseUrl = 'API Base URL is required';
-    if (!serviceToken.trim()) errs.serviceToken = 'Service token is required';
-    try { if (apiBaseUrl.trim()) new URL(apiBaseUrl); } catch { errs.apiBaseUrl = 'Must be a valid URL'; }
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
+    if (submittingRef.current || !validate()) return;
+    submittingRef.current = true;
     setSubmitting(true);
-    const config: Partial<TenantConfig> = {
-      modelPolicy,
-      enabledConnectors: connectors,
-    };
+    const config: Partial<TenantConfig> = {};
+    if (modelPolicy) config.modelPolicy = modelPolicy;
+    if (connectors) config.enabledConnectors = connectors;
     if (preferredModel) config.preferredModel = preferredModel;
     if (customInstructions.trim()) config.customInstructions = customInstructions.trim();
     try {
       const result = await onSubmit({
         name: name.trim(), plan,
-        apiBaseUrl: apiBaseUrl.trim(), serviceToken: serviceToken.trim(),
-        config,
+        ...(Object.keys(config).length ? { config } : {}),
       });
       setGeneratedKey(result.adminApiKey);
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : 'Creation failed' });
-    } finally { setSubmitting(false); }
+    } finally { submittingRef.current = false; setSubmitting(false); }
   }
 
   function toggleConnector(c: string) {
-    setConnectors((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]);
+    setConnectors((prev) => {
+      const current: readonly string[] = prev ?? PLAN_DEFAULTS[plan].enabledConnectors;
+      return current.includes(c) ? current.filter((x) => x !== c) : [...current, c];
+    });
   }
 
   async function copyKey() {
@@ -98,7 +103,7 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
           <h2 id="create-tenant-title" className="text-lg font-semibold text-white">
             {generatedKey ? 'Tenant Created' : 'Create Tenant'}
           </h2>
-          <button type="button" onClick={handleClose} aria-label="Close dialog"
+          <button type="button" onClick={handleClose} aria-label="Close dialog" disabled={submitting}
             className="rounded-xl p-2 text-surface-600 hover:bg-surface-300 hover:text-white">
             <X size={18} aria-hidden="true" />
           </button>
@@ -118,34 +123,30 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            <p className="text-sm text-surface-600">Choose a name and plan. You can connect your application after creating the tenant.</p>
             {errors.form && <p role="alert" className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-400 ring-1 ring-red-500/20">{errors.form}</p>}
             <Field label="Name" error={errors.name}>
-              <input value={name} onChange={(e) => setName(e.target.value)} className="input-field" placeholder="Acme Corp" />
+              <input value={name} onChange={(e) => setName(e.target.value)} maxLength={200} disabled={submitting} className="input-field" placeholder="Acme Corp" />
             </Field>
             <Field label="Plan">
-              <select value={plan} onChange={(e) => setPlan(e.target.value as CreateTenantInput['plan'])} className="input-field" aria-label="Plan">
+              <select value={plan} onChange={(e) => setPlan(e.target.value as CreateTenantInput['plan'])} disabled={submitting} className="input-field" aria-label="Plan">
                 <option value="starter">Starter</option>
                 <option value="pro">Pro</option>
                 <option value="enterprise">Enterprise</option>
               </select>
             </Field>
-            <Field label="API Base URL" error={errors.apiBaseUrl}>
-              <input value={apiBaseUrl} onChange={(e) => setApiBaseUrl(e.target.value)} className="input-field" placeholder="https://api.acme.com" />
-            </Field>
-            <Field label="Service Token" error={errors.serviceToken}>
-              <input value={serviceToken} onChange={(e) => setServiceToken(e.target.value)} type="password" className="input-field" placeholder="sk_live_..." />
-            </Field>
 
             <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
+              aria-expanded={showAdvanced} aria-controls="tenant-advanced-settings"
               className="flex w-full items-center justify-between rounded-xl bg-surface-300/50 px-4 py-2.5 text-sm font-medium text-surface-700 hover:bg-surface-300 transition-colors">
-              AI & Integration Settings
+              Advanced settings (optional)
               <ChevronDown size={16} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
             </button>
 
             {showAdvanced && (
-              <div className="space-y-4 rounded-xl border border-surface-400/30 bg-surface-300/20 p-4 animate-fade-in">
+              <fieldset id="tenant-advanced-settings" disabled={submitting} className="space-y-4 rounded-xl border border-surface-400/30 bg-surface-300/20 p-4 animate-fade-in">
                 <Field label="Model Policy">
-                  <select value={modelPolicy} onChange={(e) => setModelPolicy(e.target.value as TenantConfig['modelPolicy'])}
+                  <select value={modelPolicy ?? PLAN_DEFAULTS[plan].modelPolicy} onChange={(e) => setModelPolicy(e.target.value as TenantConfig['modelPolicy'])}
                     className="input-field" aria-label="Model policy">
                     <option value="fast">Fast — optimized for speed</option>
                     <option value="strong">Strong — best quality</option>
@@ -166,7 +167,7 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
                 <Field label="Connectors">
                   <div className="flex flex-wrap gap-2" role="group" aria-label="Connector toggles">
                     {CONNECTORS.map((c) => {
-                      const on = connectors.includes(c);
+                      const on = effectiveConnectors.includes(c);
                       return (
                         <button key={c} type="button" onClick={() => toggleConnector(c)} aria-pressed={on ? true : false}
                           className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
@@ -178,7 +179,7 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
                     })}
                   </div>
                 </Field>
-              </div>
+              </fieldset>
             )}
 
             <button type="submit" disabled={submitting} className="btn-primary w-full">

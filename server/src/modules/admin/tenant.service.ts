@@ -58,7 +58,7 @@ export interface CreateTenantResult {
 export interface TenantService {
   createTenant(
     name: string, plan: string, config: Partial<TenantConfig> | undefined,
-    apiBaseUrl: string, serviceToken: string, requestId?: string,
+    apiBaseUrl?: string, serviceToken?: string, requestId?: string,
   ): Promise<CreateTenantResult>;
 
   updateTenant(
@@ -86,7 +86,7 @@ function toTenant(record: TenantRecord): Tenant {
 
 export function createTenantService(store: TenantStore): TenantService {
   return {
-    async createTenant(name, plan, config, apiBaseUrl, serviceToken, requestId) {
+    async createTenant(name, plan, config, apiBaseUrl = '', serviceToken = '', requestId) {
       if (!PLAN_DEFAULTS[plan]) {
         throw new ValidationError(`Invalid plan: ${plan}`, 'plan');
       }
@@ -101,7 +101,9 @@ export function createTenantService(store: TenantStore): TenantService {
 
       const record: TenantRecord = {
         id, name, plan, config: mergedConfig,
-        apiBaseUrl, serviceToken: encryptToken(serviceToken),
+        // Empty legacy fields represent an unconfigured pull integration.
+        // Keep existing NOT NULL columns compatible without inventing credentials.
+        apiBaseUrl, serviceToken: serviceToken ? encryptToken(serviceToken) : '',
         createdAt: now, updatedAt: now,
       };
 

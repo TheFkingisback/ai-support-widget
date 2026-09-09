@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ADMIN_PASSWORD_HASH_PATTERN } from '../modules/admin/admin-password.js';
 
 const LogLevel = z.enum(['off', 'low', 'medium', 'high', 'psycho']);
 export type LogLevel = z.infer<typeof LogLevel>;
@@ -12,6 +13,8 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   MAX_CONTEXT_BYTES: z.coerce.number().int().positive().default(5_000_000),
   ADMIN_API_KEY: z.string().min(16),
+  ADMIN_EMAIL: z.string().trim().email().transform((email) => email.toLowerCase()),
+  ADMIN_PASSWORD_HASH: z.string().regex(ADMIN_PASSWORD_HASH_PATTERN),
   CORS_ORIGINS: z.string().optional(),
   JWT_MAX_AGE: z.string().optional(),
   TOKEN_ENCRYPTION_KEY: z.string().optional(),
@@ -49,6 +52,8 @@ export function getEnvSafe(): Env {
       PORT: Number(process.env.PORT) || 3000,
       MAX_CONTEXT_BYTES: Number(process.env.MAX_CONTEXT_BYTES) || 5_000_000,
       ADMIN_API_KEY: process.env.ADMIN_API_KEY ?? '',
+      ADMIN_EMAIL: process.env.ADMIN_EMAIL?.trim().toLowerCase() ?? '',
+      ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH ?? '',
       CORS_ORIGINS: process.env.CORS_ORIGINS,
       JWT_MAX_AGE: process.env.JWT_MAX_AGE,
       TOKEN_ENCRYPTION_KEY: process.env.TOKEN_ENCRYPTION_KEY,

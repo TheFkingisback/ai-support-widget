@@ -187,6 +187,44 @@ describe('Admin Module', () => {
     if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
+  it.each([
+    ['starter', 'fast', ['email']],
+    ['pro', 'auto', ['email', 'zendesk']],
+    ['enterprise', 'strong', ['email', 'zendesk', 'jira']],
+  ] as const)('creates a %s tenant with only name and plan', async (plan, modelPolicy, connectors) => {
+    const res = await app.inject({
+      method: 'POST', url: '/api/admin/tenants',
+      headers: { authorization: `Bearer ${ADMIN_API_KEY}` },
+      payload: { name: '  New Company  ', plan },
+    });
+    expect(res.statusCode).toBe(200);
+    const { tenant, adminApiKey } = res.json();
+    expect(tenant.name).toBe('New Company');
+    expect(tenant.config.modelPolicy).toBe(modelPolicy);
+    expect(tenant.config.enabledConnectors).toEqual(connectors);
+    expect(adminApiKey).toMatch(/^tsk_/);
+    const stored = tenantStore._records.find((record) => record.id === tenant.id)!;
+    expect(stored.apiBaseUrl).toBe('');
+    expect(stored.serviceToken).toBe('');
+    expect(tenant).not.toHaveProperty('serviceToken');
+    expect((await tenantService.listTenants()).some((item) => item.id === tenant.id)).toBe(true);
+  });
+
+  it('still validates names and any supplied legacy integration values', async () => {
+    for (const payload of [
+      { name: '   ', plan: 'starter' },
+      { name: 'Company', plan: 'starter', apiBaseUrl: 'invalid-url' },
+      { name: 'Company', plan: 'starter', serviceToken: '' },
+    ]) {
+      const res = await app.inject({
+        method: 'POST', url: '/api/admin/tenants',
+        headers: { authorization: `Bearer ${ADMIN_API_KEY}` }, payload,
+      });
+      expect(res.statusCode).toBe(400);
+    }
+    expect(tenantStore._records).toHaveLength(0);
+  });
+
   // Test 1: createTenant stores tenant with encrypted serviceToken
   it('createTenant stores tenant with encrypted serviceToken', async () => {
     const res = await app.inject({

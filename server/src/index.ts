@@ -52,7 +52,10 @@ async function main() {
   });
 
   const modelListService = createModelListService(env.OPENROUTER_API_KEY);
-  const authOpts = { superAdminKey: env.ADMIN_API_KEY, jwtSecret: env.JWT_SECRET, tenantService };
+  const authOpts = {
+    superAdminKey: env.ADMIN_API_KEY, jwtSecret: env.JWT_SECRET, tenantService,
+    adminEmail: env.ADMIN_EMAIL, adminPasswordHash: env.ADMIN_PASSWORD_HASH,
+  };
   const adminAuth = createAdminAuth(authOpts);
   const loginHandler = createLoginHandler(authOpts);
   const sessionDataSource = createDbSessionDataSource(db);

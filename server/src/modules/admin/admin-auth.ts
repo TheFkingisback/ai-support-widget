@@ -1,5 +1,8 @@
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import { verifyAdminPassword } from './admin-password.js';
+import { createInMemoryRateLimiter } from '../gateway/rate-limiter.js';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { ForbiddenError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
@@ -30,6 +33,8 @@ export interface AdminAuthOpts {
   superAdminKey: string;
   jwtSecret: string;
   tenantService?: TenantService;
+  adminEmail?: string;
+  adminPasswordHash?: string;
 }
 
 /**
@@ -72,7 +77,7 @@ export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
     }
 
     // Fall back to raw super-admin key
-    if (!timingSafeEqual(token, opts.superAdminKey)) {
+    if (!opts.superAdminKey || !timingSafeEqual(token, opts.superAdminKey)) {
       log.warn('Admin auth: invalid credentials', reqId);
       throw new ForbiddenError('Invalid admin credentials');
     }
@@ -82,46 +87,38 @@ export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
   };
 }
 
-/**
- * Creates login handler: POST /api/admin/login
- * Body: { apiKey }. Auto-detects: super-admin key → super, tsk_ key → tenant admin.
- */
+const loginBody = z.object({
+  email: z.string().trim().email().max(254).transform((email) => email.toLowerCase()),
+  password: z.string().min(1).max(1024),
+}).strict();
+
+/** Email/password login for the platform administrator. API keys remain API-only. */
 export function createLoginHandler(opts: AdminAuthOpts) {
+  const limiter = createInMemoryRateLimiter();
   return async function loginHandler(
     request: FastifyRequest,
     reply: FastifyReply,
   ): Promise<void> {
     const reqId = request.id as string;
-    const body = request.body as { apiKey?: string } | undefined;
-    const apiKey = body?.apiKey;
-
-    if (!apiKey) {
-      throw new ForbiddenError('apiKey is required');
+    // This single administrator account shares a limit across all source IPs.
+    await limiter.check('admin-login', 10, 60_000, reqId);
+    const parsed = loginBody.safeParse(request.body);
+    if (!parsed.success || !opts.adminEmail || !opts.adminPasswordHash) {
+      throw new ForbiddenError('Invalid email or password');
     }
 
-    // Try super-admin key first
-    if (timingSafeEqual(apiKey, opts.superAdminKey)) {
-      const payload: AdminAuthPayload = { role: 'super_admin' };
-      const jwtToken = jwt.sign(payload, opts.jwtSecret, { expiresIn: '8h' });
-      log.info('Super admin login success', reqId);
-      reply.code(200).send({ token: jwtToken, role: 'super_admin' });
-      return;
+    const { email, password } = parsed.data;
+    // Verify even for unknown email addresses to avoid an account timing oracle.
+    const passwordMatches = await verifyAdminPassword(password, opts.adminPasswordHash);
+    const emailMatches = timingSafeEqual(email, opts.adminEmail.trim().toLowerCase());
+    if (!passwordMatches || !emailMatches) {
+      log.warn('Admin login failed', reqId);
+      throw new ForbiddenError('Invalid email or password');
     }
 
-    // Try tenant admin key (lookup by hash)
-    if (opts.tenantService) {
-      const keyHash = hashApiKey(apiKey);
-      const tenant = await opts.tenantService.findTenantByAdminKeyHash(keyHash, reqId);
-      if (tenant) {
-        const payload: AdminAuthPayload = { role: 'tenant_admin', tenantId: tenant.id };
-        const jwtToken = jwt.sign(payload, opts.jwtSecret, { expiresIn: '8h' });
-        log.info('Tenant admin login success', reqId, { tenantId: tenant.id });
-        reply.code(200).send({ token: jwtToken, role: 'tenant_admin', tenantId: tenant.id });
-        return;
-      }
-    }
-
-    log.warn('Admin login failed: no matching key', reqId);
-    throw new ForbiddenError('Invalid credentials');
+    const payload: AdminAuthPayload = { role: 'super_admin' };
+    const token = jwt.sign(payload, opts.jwtSecret, { expiresIn: '8h', algorithm: 'HS256' });
+    log.info('Super admin login success', reqId);
+    reply.header('Cache-Control', 'no-store').code(200).send({ token, role: 'super_admin' });
   };
 }

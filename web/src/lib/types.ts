@@ -90,8 +90,6 @@ export interface CreateTenantInput {
   name: string;
   plan: 'starter' | 'pro' | 'enterprise';
   config?: Partial<TenantConfig>;
-  apiBaseUrl: string;
-  serviceToken: string;
 }
 
 export interface UpdateTenantInput {

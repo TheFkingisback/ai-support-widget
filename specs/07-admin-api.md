@@ -16,8 +16,10 @@ Tables:
 - Rejects non-admin requests with 403
 
 ### 3. Tenant Service (server/src/modules/admin/tenant.service.ts)
-- `createTenant(name, plan, config, apiBaseUrl, serviceToken)` → Tenant
-  - Encrypt serviceToken before storing
+- `createTenant(name, plan, config?, apiBaseUrl?, serviceToken?)` → Tenant
+  - Dashboard onboarding requires only name and plan; AI settings are optional
+  - Legacy pull integration fields are optional and absent fields are stored as empty strings
+  - Encrypt serviceToken before storing when supplied by legacy API clients
   - Default config based on plan
   - Log INFO: tenant created
 - `updateTenant(tenantId, updates)` → Tenant

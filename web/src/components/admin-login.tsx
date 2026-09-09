@@ -8,21 +8,22 @@ interface Props {
 }
 
 export function AdminLogin({ onAuthenticated }: Props) {
-  const [key, setKey] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!key.trim()) return;
+    if (loading || !email.trim() || !password) return;
     setLoading(true);
     setError('');
 
     try {
-      await adminLogin(key.trim());
+      await adminLogin(email.trim(), password);
       onAuthenticated();
     } catch {
-      setError('Invalid API key. Please check and try again.');
+      setError('Unable to sign in. Check your email and password, or try again shortly.');
     } finally {
       setLoading(false);
     }
@@ -53,17 +54,26 @@ export function AdminLogin({ onAuthenticated }: Props) {
             </div>
           )}
 
-          <label htmlFor="api-key" className="mb-2 block text-sm font-medium text-surface-800">
-            API Key
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-surface-800">
+            Email
           </label>
           <input
-            id="api-key" type="password" value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder="Enter your admin API key"
+            id="email" name="email" type="email" value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email" autoComplete="username" required maxLength={254}
             className="input-field mb-6" autoFocus disabled={loading}
           />
+          <label htmlFor="password" className="mb-2 block text-sm font-medium text-surface-800">
+            Password
+          </label>
+          <input
+            id="password" name="password" type="password" value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your password" autoComplete="current-password" required maxLength={1024}
+            className="input-field mb-6" disabled={loading}
+          />
 
-          <button type="submit" disabled={loading || !key.trim()}
+          <button type="submit" disabled={loading || !email.trim() || !password}
             className="btn-primary flex w-full items-center justify-center gap-2">
             {loading ? (
               <span className="flex items-center gap-2">
@@ -79,7 +89,7 @@ export function AdminLogin({ onAuthenticated }: Props) {
         </form>
 
         <p className="mt-6 text-center text-xs text-surface-600">
-          Use your super-admin key or tenant admin key to sign in
+          Sign in with your administrator email and password
         </p>
       </div>
     </div>
