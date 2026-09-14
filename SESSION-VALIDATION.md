@@ -19,3 +19,9 @@ A suíte completa do SDK tinha três falhas anteriores: chamada a `client.escala
 Os testes do servidor usam fixtures e mocks de serviços; o teste de autorização do banco inspeciona o SQL gerado e o comportamento diante de consulta sem resultado. A migração SQL ainda precisa ser aplicada e homologada contra o banco do ambiente de destino. Não houve implantação em produção, migração dos backends de clientes ou homologação visual em navegador nesta etapa. As garantias de roteamento MCP por tenant e retenção integral continuam fora desta entrega.
 
 Para implantação e testes com os clientes, siga [SESSION-MIGRATION.md](SESSION-MIGRATION.md). Não use um rollback que restabeleça a aceitação de assinaturas do widget na administração.
+
+## Atualização de produção — 14 de setembro de 2026
+
+O commit `181da55` foi publicado e a migração SQL aplicada. Passaram 57 verificações de integração em produção, incluindo emissão, rotação, invalidação, separação admin/widget e autorização dos seis caminhos de conversa entre usuários e tenants. Os casos sintéticos foram removidos. Backend e painel estão saudáveis, e os bundles públicos conferem com o manifesto do SDK 0.2.0.
+
+As verificações públicas adicionais confirmaram health, admin e páginas de onboarding com HTTP 200 e emissão sem credencial com HTTP 401. Isso não substitui a homologação das aplicações clientes, que ainda precisam migrar. Consulte [PRODUCTION-RELEASE.md](PRODUCTION-RELEASE.md) para o prazo da compatibilidade, operação do release, entrega de credenciais e pendências.
