@@ -50,7 +50,7 @@ describe('App', () => {
     expect(res.statusCode).toBe(503);
     const body = JSON.parse(res.body);
     expect(body.ok).toBe(false);
-    expect(body.version).toBe('0.1.0');
+    expect(body.version).toBe('3.0.0');
   });
 
   it('auth middleware rejects invalid JWT with 401', async () => {

@@ -432,3 +432,11 @@
 - SDK 0.2.1 fixes missing escalation API and action failures; unsupported actions return 501.
 - Canonical integration/v3 guide, client-specific adapters, JSON schema and acceptance checklist; public portal redirects to current contract.
 - Validation: server 306 tests, widget 31 tests, web 37 tests, adapter 2 tests passed before final release polish.
+
+## 2026-09-15 — v3 production verified
+- Published runtime d87e664; backend/web healthy, PostgreSQL/Redis healthy.
+- Transactionally re-encrypted two historical service tokens with independent private key; old JWT runtime secret rotated; no client credentials exported or replaced.
+- 312 server + 31 SDK + 37 web + 2 adapter tests passed; production 53 checks and public HTTPS adapter/chat/CORS checks passed.
+- Individual TrackShare/Chronosfy ZIPs include definitive contract, project changes, schema, examples, prompts, SDK, acceptance and verified publication report.
+- Existing clients still need migration and credential vault handoff; MCP disabled pending individual configuration and client-side acceptance.
+- See RELEASE-V3.md for operational state and remaining limits.
