@@ -1,10 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { mcpSettings } from '@/lib/mcp-api';
+import { mcpSettings, type ActionPolicy } from '@/lib/mcp-api';
 import { getAdminRole } from '@/lib/api';
 
 /** Operator configuration for tenant-isolated read-only tools. The secret is write-only. */
 export function McpSection({ tenantId }: { tenantId: string }) {
+  const [actionPolicy, setActionPolicy] = useState<ActionPolicy | undefined>();
   const [url, setUrl] = useState(''); const [tools, setTools] = useState('');
   const [secret, setSecret] = useState(''); const [configured, setConfigured] = useState(false);
   const [busy, setBusy] = useState(true); const [error, setError] = useState('');
@@ -14,7 +15,7 @@ export function McpSection({ tenantId }: { tenantId: string }) {
     let active = true;
     mcpSettings(tenantId, 'GET').then(data => {
       if (!active) return;
-      setUrl(data.serverUrl); setTools(data.allowedTools.join('\n')); setConfigured(data.configured);
+      setActionPolicy(data.actionPolicy ?? undefined); setUrl(data.serverUrl); setTools(data.allowedTools.join('\n')); setConfigured(data.configured);
     }).catch(() => { if (active) setError('Could not load MCP configuration.'); })
       .finally(() => { if (active) setBusy(false); });
     return () => { active = false; };
@@ -24,17 +25,18 @@ export function McpSection({ tenantId }: { tenantId: string }) {
     setBusy(true); setError(''); setStatus('');
     try {
       const data = await mcpSettings(tenantId, method, method === 'PUT' ? {
-        serverUrl: url.trim(), serviceToken: secret,
+        serverUrl: url.trim(), serviceToken: secret, actionPolicy,
         allowedTools: tools.split(/[\n,]/).map(s => s.trim()).filter(Boolean),
       } : undefined);
-      setConfigured(data.configured); setUrl(data.serverUrl); setTools(data.allowedTools.join('\n')); setSecret('');
+      setConfigured(data.configured); setActionPolicy(data.actionPolicy ?? undefined); setUrl(data.serverUrl); setTools(data.allowedTools.join('\n')); setSecret('');
       setStatus(method === 'PUT' ? 'Configuration saved. Validate the client connection before release.' : 'MCP disabled for this tenant.');
     } catch (err) { setError(err instanceof Error ? err.message : 'MCP configuration failed'); }
     finally { setBusy(false); }
   }
   return <section className="card space-y-4" aria-label="Tenant MCP">
     <h2 className="text-xs font-semibold uppercase tracking-wider text-surface-600">Tenant MCP</h2>
-    <p className="text-sm">{configured ? 'Configured for this tenant only.' : 'Disabled. Chat works with supplied context.'} Only approved read-only tools are available.</p>
+    <p className="text-sm">{configured ? 'Configured for this tenant only.' : 'Disabled. Chat works with supplied context.'} Read tools must be explicitly approved.</p>
+    <p className="text-sm">Chat actions: {actionPolicy?.enabled ? "Enabled for the contracted operation; a valid signing key and human confirmation are required." : "Disabled pending joint acceptance of the action contract."}</p>
     <label className="block text-sm">Public HTTPS endpoint
       <input className="input-field mt-1" type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://app.example.com/mcp" /></label>
     <label className="block text-sm">Dedicated MCP service credential

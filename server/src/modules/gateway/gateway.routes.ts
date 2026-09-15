@@ -16,6 +16,7 @@ const createCaseBody = z.object({
 
 const addMessageBody = z.object({
   content: z.string().min(1, 'Content is required').max(5000),
+  replyToMessageId: z.string().regex(/^[a-zA-Z0-9_-]{1,200}$/).optional(),
 });
 
 const feedbackBody = z.object({
@@ -127,6 +128,7 @@ export async function registerGatewayRoutes(
           ? request.headers.authorization.slice(7) : undefined;
         const aiMessage = await orchestratorService.handleMessage(
           caseId, tenantId, userId, msgData.content, reqId, rawJwt,
+          { replyToMessageId: msgData.replyToMessageId },
         );
         return reply.code(200).send({ message: aiMessage });
       }

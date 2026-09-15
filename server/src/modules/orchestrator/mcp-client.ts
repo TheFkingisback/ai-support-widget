@@ -1,3 +1,4 @@
+import type { ActionPolicy } from '../actions/action-contract.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { log } from '../../shared/logger.js';
@@ -10,6 +11,7 @@ export interface McpClientOpts {
   serverUrl: string;
   serviceToken: string;
   allowedTools: string[];
+  actionPolicy?: ActionPolicy;
 }
 
 export interface ToolDef {
@@ -17,7 +19,7 @@ export interface ToolDef {
   function: { name: string; description: string; parameters: Record<string, unknown> };
 }
 
-function createTransport(opts: McpClientOpts, userId: string): StreamableHTTPClientTransport {
+function createTransport(opts: McpClientOpts, userId: string, actionHeaders: Record<string, string> = {}): StreamableHTTPClientTransport {
   return new StreamableHTTPClientTransport(new URL(opts.serverUrl), {
     fetch: createMcpFetch(opts.serverUrl),
     requestInit: {
@@ -25,17 +27,20 @@ function createTransport(opts: McpClientOpts, userId: string): StreamableHTTPCli
         'Authorization': `Bearer ${opts.serviceToken}`,
         'X-MCP-User-Id': userId,
         'X-MCP-Tenant-Id': opts.tenantId,
+        ...actionHeaders,
       },
     },
   });
 }
 
-async function withClient<T>(
+/** Internal transport; reserved headers may only be supplied by the action backend. */
+export async function withClient<T>(
   opts: McpClientOpts, userId: string, requestId: string | undefined,
   fn: (client: Client) => Promise<T>,
+  actionHeaders?: Record<string, string>,
 ): Promise<T> {
   const client = new Client({ name: 'ai-support-widget', version: '1.0.0' });
-  const transport = createTransport(opts, userId);
+  const transport = createTransport(opts, userId, actionHeaders);
   const start = Date.now();
 
   try {
@@ -54,7 +59,7 @@ export async function getMcpTools(
 ): Promise<ToolDef[]> {
   return withClient(opts, userId, requestId, async (client) => {
     const { tools } = await client.listTools();
-    return tools.filter(t => opts.allowedTools.includes(t.name) && t.annotations?.readOnlyHint === true).map((t) => ({
+    return tools.filter(t => !['prepare_action', 'execute_action', 'get_action_status'].includes(t.name) && opts.allowedTools.includes(t.name) && t.annotations?.readOnlyHint === true).map((t) => ({
       type: 'function' as const,
       function: {
         name: t.name,
@@ -70,7 +75,7 @@ export async function callMcpTool(
   opts: McpClientOpts, userId: string,
   toolName: string, args: Record<string, unknown>, requestId?: string,
 ): Promise<string> {
-  if (!opts.allowedTools.includes(toolName)) throw new AppError(403, 'MCP_TOOL_FORBIDDEN', 'Tool is not allowed');
+  if (['prepare_action', 'execute_action', 'get_action_status'].includes(toolName) || !opts.allowedTools.includes(toolName)) throw new AppError(403, 'MCP_TOOL_FORBIDDEN', 'Tool is not allowed');
   log.info('MCP tool call', requestId, { tenantId: opts.tenantId, tool: toolName });
 
   return withClient(opts, userId, requestId, async (client) => {

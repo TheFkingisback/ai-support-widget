@@ -4,6 +4,8 @@
 
 Este é o contrato de destino da migração. Substitui os guias anteriores para autenticação, contexto e MCP. A publicação desta versão encerra a autenticação legada imediatamente; **o prazo antigo de 21/09 não se aplica ao novo release**. Consulte `PUBLICACAO.md` no pacote para o resultado da verificação de produção. A implementação nos aplicativos clientes é responsabilidade de seus times.
 
+> Extensão de ações pelo chat: [contrato 1.1](../actions-v1/CONTRATO.md). Escrita desabilitada até aceite conjunto. As regras de sessão/contexto/leitura abaixo permanecem vigentes.
+
 [TOC]
 
 ## 1. O que muda e o que deve voltar a funcionar

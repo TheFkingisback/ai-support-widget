@@ -1,3 +1,8 @@
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { createActionService } from './modules/actions/action-service.js';
+import { createActionStore } from './modules/actions/action-store.js';
+import { actionSignerFromEnv } from './modules/actions/action-proof.js';
 import { buildApp } from './app.js';
 import { getEnv } from './shared/env.js';
 import { log, setLogLevel } from './shared/logger.js';
@@ -28,6 +33,8 @@ async function main() {
   const gateway = createGatewayService(db);
   const snapshotSvc = createSnapshotService(db, tenantService);
   const mcpStore = createMcpStore(db);
+  // Dedicated lock pool: long chat turns must not exhaust the ordinary query pool.
+  const actionLockDb = drizzle(postgres(env.DATABASE_URL, { max: 4, idle_timeout: 20 }));
 
   const costStore = createDbCostStore(db);
   const costSvc = createCostService(costStore);
@@ -39,6 +46,7 @@ async function main() {
     costRecorder: costSvc,
     tenantService,
     resolveMcp: mcpResolver(mcpStore),
+    actions: createActionService(createActionStore(db, actionLockDb), gateway, actionSignerFromEnv()),
     apiKey: env.OPENROUTER_API_KEY,
     modelPolicy: 'fast',
   });

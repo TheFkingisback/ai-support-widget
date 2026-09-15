@@ -1,7 +1,8 @@
 import { getAdminApiKey } from './api';
 
-export interface McpSettings { configured: boolean; serverUrl: string; allowedTools: string[]; updatedAt?: string }
-export interface McpInput { serverUrl: string; serviceToken: string; allowedTools: string[] }
+export interface ActionPolicy { contractVersion: 1; enabled: boolean; operations: ['reassign_session_car'] }
+export interface McpSettings { actionPolicy?: ActionPolicy | null; configured: boolean; serverUrl: string; allowedTools: string[]; updatedAt?: string }
+export interface McpInput { actionPolicy?: ActionPolicy; serverUrl: string; serviceToken: string; allowedTools: string[] }
 /** Reads/writes the selected tenant MCP integration without returning a stored credential. */
 export async function mcpSettings(tenantId: string, method: 'GET' | 'PUT' | 'DELETE', body?: McpInput): Promise<McpSettings> {
   const base = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';

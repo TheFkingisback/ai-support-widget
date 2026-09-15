@@ -1,27 +1,7 @@
-import type { ApiClient } from './api.js';
+import type { ChatPanelConfig, ChatPanel } from './chat-types.js';
+export type { ChatPanelConfig, ChatPanel } from './chat-types.js';
 import type { Message } from './types.js';
 import { renderMessage, createCloseFlow, type ChatRendererDeps } from './chat-renderer.js';
-
-export interface ChatPanelConfig {
-  apiClient: ApiClient;
-  locale: string;
-  position: 'bottom-right' | 'bottom-left';
-  onClose: () => void;
-  onCaseClosed?: () => void;
-  context?: Record<string, unknown>;
-  getContext?: () => Record<string, unknown> | undefined;
-  initialCaseId?: string;
-  initialMessages?: Message[];
-  onCaseCreated?: (caseId: string) => void;
-}
-
-export interface ChatPanel {
-  element: HTMLElement;
-  destroy(): void;
-  focus(): void;
-  hide(): void;
-  show(): void;
-}
 
 export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   const { apiClient, locale, position, onClose } = config;
@@ -82,6 +62,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
 
   let caseId: string | null = config.initialCaseId ?? null;
   let sending = false;
+  let lastAssistantMessageId: string | undefined;
   let closeFlowShown = false;
 
   // Show "End Session" when there's an active case
@@ -106,7 +87,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
     sending = true;
     const typing = showTyping();
     try {
-      const aiMsg = await apiClient.sendMessage(caseId, text);
+      const aiMsg = await apiClient.sendMessage(caseId, text, lastAssistantMessageId);
       typing.remove();
       appendRendered(aiMsg);
     } catch {
@@ -141,6 +122,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   }
 
   function appendRendered(msg: Message): void {
+    if (msg.role === 'assistant') lastAssistantMessageId = msg.id;
     messagesEl.appendChild(renderMessage(msg, getDeps()));
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
@@ -160,9 +142,9 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
         caseId = result.case.id;
         config.onCaseCreated?.(caseId);
         endBtn.style.display = '';
-        aiMsg = result.aiMessage ?? await apiClient.sendMessage(caseId, text);
+        aiMsg = result.aiMessage ?? await apiClient.sendMessage(caseId, text, lastAssistantMessageId);
       } else {
-        aiMsg = await apiClient.sendMessage(caseId, text);
+        aiMsg = await apiClient.sendMessage(caseId, text, lastAssistantMessageId);
       }
       typing.remove();
       const userMsg: Message = {

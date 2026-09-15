@@ -1,3 +1,4 @@
+import { actionPolicySchema, type ActionPolicy } from '../actions/action-contract.js';
 import { eq } from 'drizzle-orm';
 import { pgTable, text, timestamp, jsonb } from 'drizzle-orm/pg-core';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
@@ -10,9 +11,10 @@ export const tenantMcp = pgTable('tenant_mcp', {
   serverUrl: text('server_url').notNull(),
   encryptedToken: text('encrypted_token').notNull(),
   allowedTools: jsonb('allowed_tools').$type<string[]>().notNull(),
+  actionPolicy: jsonb('action_policy').$type<ActionPolicy>(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
-export type McpRecord = typeof tenantMcp.$inferSelect;
+export type McpRecord = Omit<typeof tenantMcp.$inferSelect, 'actionPolicy'> & { actionPolicy?: ActionPolicy | null };
 export interface McpStore {
   find(tenantId: string): Promise<McpRecord | null>;
   save(record: McpRecord): Promise<void>;
@@ -31,6 +33,7 @@ export function mcpResolver(store: McpStore): (tenantId: string) => Promise<McpC
   return async tenantId => {
     const record = await store.find(tenantId);
     if (!record || !record.allowedTools.length) return undefined;
-    return { tenantId, serverUrl: record.serverUrl, serviceToken: decryptToken(record.encryptedToken), allowedTools: record.allowedTools };
+    return { tenantId, serverUrl: record.serverUrl, serviceToken: decryptToken(record.encryptedToken), allowedTools: record.allowedTools,
+      ...(record.actionPolicy ? { actionPolicy: actionPolicySchema.parse(record.actionPolicy) } : {}) };
   };
 }

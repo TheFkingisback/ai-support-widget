@@ -1,3 +1,5 @@
+> Extensão de 15/09/2026: [ações MCP pelo chat, contrato 1.1](integration/actions-v1/CONTRATO.md), confirmação humana vinculada ao resumo; escrita inicialmente desligada.
+
 > **SUPERSEDED — contrato v3, 15/09/2026.** Este documento é histórico. Consulte [o contrato vigente](integration/v3/GUIA.md). O novo release encerra a compatibilidade antiga imediatamente e substitui o MCP global por configuração por tenant. O prazo antigo de 21/09 não se aplica.
 
 > Atualização de autenticação: consulte [SESSION-MIGRATION.md](SESSION-MIGRATION.md). A nova integração usa credencial por tenant e `POST /api/widget/sessions`; exemplos antigos de assinatura compartilhada são legados.

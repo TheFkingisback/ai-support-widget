@@ -1,7 +1,7 @@
 import { request as httpsRequest } from 'node:https';
 import { lookup } from 'node:dns';
 import { isIP } from 'node:net';
-import { Readable, Transform } from 'node:stream';
+import { mcpResponseStream } from './mcp-response-stream.js';
 import { ValidationError } from '../../shared/errors.js';
 
 /** Only globally routable addresses may receive a tenant's MCP credential. */
@@ -66,15 +66,9 @@ export function createMcpFetch(serverUrl: string): typeof fetch {
         for (const [key, val] of Object.entries(res.headers)) {
           if (val !== undefined) responseHeaders.set(key, Array.isArray(val) ? val.join(', ') : val);
         }
-        let bytes = 0;
-        const bounded = new Transform({ transform(chunk: Buffer, _encoding, done) {
-          bytes += chunk.length;
-          done(bytes > 262144 ? new Error('MCP response exceeds 256 KiB') : null, chunk);
-        } });
-        res.on('error', error => bounded.destroy(error));
-        bounded.on('error', () => req.destroy());
-        res.pipe(bounded);
-        const body = [204, 205, 304].includes(status) ? null : Readable.toWeb(bounded) as ReadableStream<Uint8Array>;
+        const empty = [204, 205, 304].includes(status);
+        const body = empty ? null : mcpResponseStream(res);
+        if (empty) res.resume();
         resolve(new Response(body, { status, headers: responseHeaders }));
       });
       const timer = setTimeout(() => req.destroy(new Error('MCP request timeout')), 20000);

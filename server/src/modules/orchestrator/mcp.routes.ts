@@ -1,3 +1,4 @@
+import { actionPolicySchema } from '../actions/action-contract.js';
 import { z } from 'zod';
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import type { McpStore } from './mcp-store.js';
@@ -10,7 +11,8 @@ import { validateBody } from '../../shared/validation.js';
 const body = z.object({
   serverUrl: z.string().max(2048),
   serviceToken: z.string().min(32).max(4096).regex(/^[\x21-\x7e]+$/),
-  allowedTools: z.array(z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/)).min(1).max(50),
+  actionPolicy: actionPolicySchema.optional(),
+  allowedTools: z.array(z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/).refine(n => !['prepare_action', 'execute_action', 'get_action_status'].includes(n))).min(1).max(50),
 }).strict();
 export interface McpRouteOpts {
   store: McpStore; tenantService: TenantService;
@@ -27,7 +29,7 @@ export async function registerMcpRoutes(app: FastifyInstance, opts: McpRouteOpts
   app.get<{ Params: { id: string } }>(route, { preHandler: auth }, async req => {
     await opts.tenantService.getTenant(req.params.id, req.id);
     const record = await opts.store.find(req.params.id);
-    return record ? { configured: true, serverUrl: record.serverUrl, allowedTools: record.allowedTools,
+    return record ? { configured: true, serverUrl: record.serverUrl, allowedTools: record.allowedTools, actionPolicy: record.actionPolicy ?? null,
       updatedAt: record.updatedAt.toISOString() } : { configured: false, serverUrl: '', allowedTools: [] };
   });
   app.put<{ Params: { id: string } }>(route, { preHandler: auth }, async req => {
@@ -35,7 +37,7 @@ export async function registerMcpRoutes(app: FastifyInstance, opts: McpRouteOpts
     const url = validateMcpUrl(data.serverUrl);
     await opts.tenantService.getTenant(req.params.id, req.id);
     await opts.store.save({ tenantId: req.params.id, serverUrl: url.href,
-      encryptedToken: encryptToken(data.serviceToken), allowedTools: [...new Set(data.allowedTools)], updatedAt: new Date() });
+      encryptedToken: encryptToken(data.serviceToken), allowedTools: [...new Set(data.allowedTools)], actionPolicy: data.actionPolicy ?? null, updatedAt: new Date() });
     return { ok: true };
   });
   app.delete<{ Params: { id: string } }>(route, { preHandler: auth }, async req => {

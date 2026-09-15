@@ -1,3 +1,4 @@
+import { actionProposals } from '../modules/actions/action-store.js';
 import { eq, and, desc, asc, inArray, lt, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { cases, messages, auditLog } from '../modules/gateway/gateway.schema.js';
@@ -91,7 +92,9 @@ export function createDbSessionDataSource(db: PostgresJsDatabase): SessionDataSo
     async purgeOlderThan(olderThan) {
       const cutoff = new Date(olderThan);
       const oldCases = await db.select({ id: cases.id }).from(cases)
-        .where(lt(cases.createdAt, cutoff));
+        .where(and(lt(cases.createdAt, cutoff), sql`not exists (select 1 from ${actionProposals}
+          where ${actionProposals.caseId} = ${cases.id} and ${actionProposals.tenantId} = ${cases.tenantId}
+          and ${actionProposals.state} in ('pending_confirmation', 'executing', 'unknown'))`));
       if (oldCases.length === 0) return 0;
       const ids = oldCases.map((c) => c.id);
       await db.delete(messages).where(inArray(messages.caseId, ids));

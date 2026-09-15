@@ -440,3 +440,9 @@
 - Individual TrackShare/Chronosfy ZIPs include definitive contract, project changes, schema, examples, prompts, SDK, acceptance and verified publication report.
 - Existing clients still need migration and credential vault handoff; MCP disabled pending individual configuration and client-side acceptance.
 - See RELEASE-V3.md for operational state and remaining limits.
+
+## 2026-09-15 — TrackShare MCP and human-confirmed actions
+- Adopted contract 1.1: one current proposal, exact provider summary, subsequent human confirmation bound to rendered message, first operation reassign_session_car only.
+- Implemented durable state, tenant/user/conversation scope, RSA proof, status recovery without retries, optional policy and SDK 0.2.2. Writes remain disabled pending TrackShare implementation and joint acceptance.
+- Fixed Node 20 stream cancellation race found by live MCP acceptance; isolated fixed client passed seven tools plus negative access/credential/write tests with synthetic data and cleanup.
+- Tests: 340 server including real PostgreSQL, 33 SDK, 38 web, 2 adapter; builds passed. Public read/chat verification follows deployment.

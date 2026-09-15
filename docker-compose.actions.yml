@@ -1,0 +1,11 @@
+# Optional overlay; use only after joint acceptance with the provider.
+services:
+  server:
+    environment:
+      MCP_ACTION_PRIVATE_KEY_FILE: /run/secrets/support_action_key
+      MCP_ACTION_KEY_ID: ${MCP_ACTION_KEY_ID:?Set the agreed public key identifier}
+    secrets:
+      - support_action_key
+secrets:
+  support_action_key:
+    file: ${SUPPORT_ACTION_KEY_PATH:?Set the private RSA key file outside the repository}

@@ -1,3 +1,5 @@
+import type { Message } from '../../shared/types.js';
+import type { ActionHooks } from '../actions/action-service.js';
 import type { McpClientOpts } from './mcp-client.js';
 import { getMcpTools, callMcpTool } from './mcp-client.js';
 import type { LLMMessage, ToolCall, ToolDef, LLMResponse } from './openrouter.js';
@@ -13,6 +15,7 @@ interface ToolExecOpts {
   apiKey: string;
   llmMessages: LLMMessage[];
   requestId?: string;
+  actionHooks?: ActionHooks;
 }
 
 /**
@@ -42,11 +45,15 @@ export async function fetchToolDefs(
  * 4. Repeat up to MAX_TOOL_ITERATIONS
  * 5. Return the final text response + aggregated token counts
  */
-export async function executeWithTools(opts: ToolExecOpts): Promise<LLMResponse> {
+export async function executeWithTools(opts: ToolExecOpts): Promise<LLMResponse & { actionMessage?: Message }> {
   const { mcpOpts, userId, model, apiKey, requestId } = opts;
   const messages = [...opts.llmMessages];
 
   const tools = await fetchToolDefs(mcpOpts, userId, requestId);
+  if (opts.actionHooks) {
+    try { tools.push(...await opts.actionHooks.tools()); }
+    catch { log.warn('Action catalog unavailable', requestId, { error: 'ACTION_CATALOG_UNAVAILABLE' }); }
+  }
   if (tools.length === 0) {
     messages.push({ role: 'system', content: 'No live tools are available. Clearly state this limitation; never claim a live lookup or completed action.' });
     return callLLM({ model, messages }, apiKey, requestId);
@@ -82,6 +89,16 @@ export async function executeWithTools(opts: ToolExecOpts): Promise<LLMResponse>
 
     // Execute each tool call and add results
     for (const tc of response.toolCalls) {
+      if (tc.function.name === 'prepare_action' && opts.actionHooks && tools.some(t => t.function.name === tc.function.name)) {
+        try {
+          const actionMessage = await opts.actionHooks.prepare(JSON.parse(tc.function.arguments) as unknown);
+          return { ...response, content: actionMessage.content, actionMessage,
+            tokensIn: totalTokensIn, tokensOut: totalTokensOut, estimatedCost: totalCost };
+        } catch {
+          messages.push({ role: 'tool', content: 'ACTION_PREPARATION_FAILED: No change was executed. Ask for clarification or use human support.', tool_call_id: tc.id });
+          continue;
+        }
+      }
       const result = tools.some(t => t.function.name === tc.function.name)
         ? await executeSingleTool(mcpOpts, userId, tc, requestId) : 'MCP_TOOL_FORBIDDEN';
       messages.push({ role: 'tool', content: result, tool_call_id: tc.id });
