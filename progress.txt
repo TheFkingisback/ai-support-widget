@@ -460,3 +460,11 @@
 - Updated action contract, operations guide, v3 Markdown/HTML public mirrors and release product decision/history.
 - Tests: 345 server including dedicated local PostgreSQL, 41 web passed. Server and web builds passed. SDK/adapter unchanged (previously 33 + 2 passing).
 - No deployment: previous 25-file payload is obsolete; prior upload approval remains pending. No changes to PixGw, Google or external client applications.
+
+## 2026-09-15 — Runtime 4d40be6 published and backward compatibility verified
+- User explicitly approved the 35-file/64 KB runtime package and existing support production host; transfer/build/activation completed after initial auto-review block.
+- Backup and previous images retained; migration 004 applied; server/web/PostgreSQL/Redis healthy. Existing credentials and CORS unchanged.
+- 66 production checks passed, plus public original-v3-adapter/session/chat and five configured CORS origins.
+- Original SDK 0.2.1 bytes and message format verified; two delivered v3 ZIPs retain all 16 manifest hashes each; four adapter tests passed.
+- TrackShare seven reads restored; 16 live MCP checks and full chat lap lookup passed. Two synthetic remote users/resources cleaned; closed support evidence case cas_f4ecaefe9b104c1c retained.
+- Writes remain disabled pending global signing setup, provider implementation and joint acceptance. No client code changes or credential rotation.

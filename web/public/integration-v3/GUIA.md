@@ -4,7 +4,7 @@
 
 Este é o contrato de destino da migração. Substitui os guias anteriores para autenticação, contexto e MCP. A publicação desta versão encerra a autenticação legada imediatamente; **o prazo antigo de 21/09 não se aplica ao novo release**. Consulte `PUBLICACAO.md` no pacote para o resultado da verificação de produção. A implementação nos aplicativos clientes é responsabilidade de seus times.
 
-> Extensão de ações pelo chat: [contrato 1.2](../actions-v1/CONTRATO.md). Integração genérica com configuração self-service; implementação local, publicação pendente. Escrita desabilitada até aceite da integração. As regras de sessão/contexto/leitura abaixo permanecem vigentes.
+> Extensão de ações pelo chat: [contrato 1.2](../actions-v1/CONTRATO.md). Integração genérica com configuração self-service publicada no runtime 4d40be6 em 15/09/2026. Escrita desabilitada até aceite da integração. As regras de sessão/contexto/leitura abaixo permanecem vigentes.
 
 [TOC]
 

@@ -18,7 +18,15 @@ Impacto: propostas persistentes, confirmação vinculada à versão exata aprese
 
 ## Publicação e pendências
 
-Implementação anterior registrada no commit `6f84ab7`. A correção genérica/self-service desta revisão é local e não foi publicada. O pacote anterior de 25 arquivos (147.099 bytes) ficou obsoleto; precisa ser recomposto para a revisão 1.2. A revisão automática bloqueou sua transferência e exige autorização explícita do proprietário para o payload e o servidor de destino. Publicação e teste completo pelo chat aguardam essa autorização. Conector TrackShare temporariamente desabilitado até concluir a troca do transporte. Não há chave privada de ações configurada nem escrita habilitada.
+**Publicado em produção: runtime `4d40be6`, verificado em 15/09/2026 às 16:53:47 UTC.** Servidor e painel saudáveis em `https://support-ai.pontes.uk`; banco e Redis respondendo. Migração aditiva 004 aplicada com backup e imagens anteriores preservadas. Credenciais, dados dos clientes e CORS mantidos.
+
+O pacote de 35 arquivos/64 KB foi autorizado explicitamente pelo proprietário após bloqueio inicial da revisão automática. A transferência, build e ativação foram concluídos. O release anterior `d87e664` permanece disponível para recuperação.
+
+66 verificações de produção passaram, incluindo self-service, isolamento, revogação e corpo de mensagem do SDK 0.2.1 sem `replyToMessageId`. O adaptador v3 original emitiu sessão e recebeu resposta real do modelo pela URL pública; as cinco origens configuradas passaram na verificação de CORS. SDK 0.2.1 público preservado byte a byte; aliases e manifesto agora apontam para 0.2.2.
+
+Conector TrackShare de leitura restabelecido. As sete consultas e nove verificações de catálogo/acesso/credenciais/escritas passaram no runtime publicado (16 no total), além do teste pelo chat que retornou o tempo de volta da fixture. Os dois usuários sintéticos e seus recursos no TrackShare foram removidos; a conversa sintética no suporte foi encerrada e preservada como evidência (`cas_f4ecaefe9b104c1c`). Nenhuma escrita de negócio está habilitada. A chave privada global de ações ainda não foi instalada.
+
+Os ZIPs v3 enviados a TrackShare e Chronosfy continuam compatíveis: 16 arquivos por pacote conferidos com seus manifestos e quatro testes dos adaptadores aprovados. Consulte [o complemento de compatibilidade](integration/actions-v1/COMPATIBILIDADE.md).
 
 TrackShare ainda precisa implementar o contrato de preparação, execução, estado, invalidação da proposta substituída, prova e idempotência. Depois: instalar chave pública, atualizar SDK do aplicativo e homologar permissões/estado/corridas. Só então ativar `reassign_session_car`.
 

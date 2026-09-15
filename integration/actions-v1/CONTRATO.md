@@ -1,6 +1,6 @@
 # Ações MCP pelo chat — contrato 1.2
 
-15/09/2026. Extensão genérica do contrato v3. Código compartilhado entre todos os clientes; diferenças por tenant são configurações self-service. Implementação local validada; publicação pendente. Escritas continuam desligadas em produção.
+15/09/2026. Extensão genérica do contrato v3. Código compartilhado entre todos os clientes; diferenças por tenant são configurações self-service. Runtime 4d40be6 publicado e verificado em produção em 15/09/2026. Configuração self-service disponível; escritas continuam desligadas até assinatura e homologação do provedor.
 
 ## 1. Sequência e responsabilidades
 
@@ -144,4 +144,4 @@ Este exemplo não restringe outros tenants e não é incorporado ao runtime.
 
 - 1.1: confirmação humana persistente e operação inicial limitada no código a `reassign_session_car`; configuração somente pelo operador da plataforma.
 - 1.2: removida essa especialização; operações são dados de configuração self-service, com isolamento e painel comum. Motivo: o suporte é um produto genérico. Não relaxa confirmação humana, proposta vigente, autorização remota nem idempotência.
-- Estado: implementado e testado localmente; não publicado. Homologação remota de escrita e ativação continuam pendentes por integração.
+- Estado: publicado no runtime 4d40be6 e validado em produção. Assinatura global, homologação remota de escrita e ativação continuam pendentes.

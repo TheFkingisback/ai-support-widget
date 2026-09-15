@@ -1,6 +1,6 @@
 # Operação das ações MCP — contrato 1.2
 
-Código único para todos os clientes. Preparação da infraestrutura é global; configuração de cada integração é self-service. Implementação local validada, publicação pendente; escrita desligada em produção.
+Código único para todos os clientes. Preparação da infraestrutura é global; configuração de cada integração é self-service. Runtime 4d40be6 publicado e validado em produção em 15/09/2026; escrita desligada até assinatura global e homologação do provedor.
 
 ## Instalação da plataforma
 
