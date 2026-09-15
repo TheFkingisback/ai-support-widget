@@ -480,3 +480,11 @@
 - Concurrent backend deployment detected and preserved; current-web records this release, current remains the backend release. No database, tenant, credential, MCP or server changes by this task.
 - Public HTTPS Chrome verification passed: 10 sections, all linked assets, search, keyboard tabs, clipboard, mobile menu and three aliases; no page errors. Public ZIP CRC and 15 SHA-256 entries verified; API health 200.
 - DEV-CENTER.md records product change and deployment state. Immutable SDK files retain exact bytes on Windows checkouts.
+
+## 2026-09-15 — TrackShare Actions v1 accepted in production
+- Corrected generic model instructions: approved prepare_action can propose an explicitly requested change; confirmation/execution stays in backend code.
+- Installed independent RSA signer via existing action Compose overlay and pinned its public key in TrackShare. Existing tenant/chat/MCP credentials preserved.
+- Enabled only reassign_session_car for TrackShare after provider deployment; seven read tools retained.
+- Production chat evidence cas_31922df71d4d4580: real model reads/preparation, literal provider summary, human confirmation, one car/category mutation and one audit; repeated/unbound/cancelled confirmations cannot mutate again.
+- Synthetic TrackShare resources/authentication data removed; evidence case closed without rating. Support API image d29cec8c7a8bfb9e3193fcfa06132c08b5c65211aaee7c8860bfd10ac8089805.
+- Validation: 343 server tests passed, 2 database-dependent tests skipped; TypeScript and production build passed. Preserve docker-compose.actions.yml plus /root/ai-support-secrets/actions.env on subsequent deployments.
