@@ -1,3 +1,5 @@
+> **SUPERSEDED — contrato v3, 15/09/2026.** Este documento é histórico. Consulte [o contrato vigente](integration/v3/GUIA.md). O novo release encerra a compatibilidade antiga imediatamente e substitui o MCP global por configuração por tenant. O prazo antigo de 21/09 não se aplica.
+
 # Migração de autenticação e isolamento de conversas
 
 Esta entrega implementa as etapas 1 e 2: administração com chave de assinatura própria, sessão de widget emitida por credencial de tenant, autorização por usuário em todas as operações de conversa e ciclo de vida do SDK. A migração de produção depende da aplicação do SQL e da atualização dos backends clientes. O código não migra os clientes automaticamente.

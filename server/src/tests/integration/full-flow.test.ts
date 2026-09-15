@@ -120,7 +120,7 @@ describe('Full Flow Integration', () => {
     expect(msgBody.message.role).toBe('assistant');
     expect(msgBody.message.content).toContain('UPLOAD_TOO_LARGE');
     expect(msgBody.message.evidence.length).toBeGreaterThan(0);
-    expect(msgBody.message.actions.length).toBeGreaterThan(0);
+    expect(msgBody.message.actions).toEqual([]); // No unimplemented action buttons.
 
     // Verify evidence includes error code and job id
     const evidenceTypes = msgBody.message.evidence.map((e: { type: string }) => e.type);

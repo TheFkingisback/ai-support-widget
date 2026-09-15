@@ -1,3 +1,5 @@
+> **SUPERSEDED — contrato v3, 15/09/2026.** Este documento é histórico. Consulte [o contrato vigente](integration/v3/GUIA.md). O novo release encerra a compatibilidade antiga imediatamente e substitui o MCP global por configuração por tenant. O prazo antigo de 21/09 não se aplica.
+
 > Atualização de autenticação: consulte [SESSION-MIGRATION.md](SESSION-MIGRATION.md). A nova integração usa credencial por tenant e `POST /api/widget/sessions`; exemplos antigos de assinatura compartilhada são legados.
 
 # AI Support Widget — API Contract

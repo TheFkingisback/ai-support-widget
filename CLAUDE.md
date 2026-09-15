@@ -34,7 +34,7 @@ Modular monolith. One deployable backend, one frontend app.
 - LLM: OpenRouter API (multi-model)
 - Embeddings: OpenAI text-embedding-3-small (for RAG)
 - Vector Store: pgvector (PostgreSQL extension)
-- Auth: JWT verification (tokens signed by host app)
+- Auth: platform-issued widget sessions via per-tenant integration credentials; separate admin signing key. Current contract: integration/v3/GUIA.md.
 - Test: Vitest + Supertest
 - Lint: ESLint + Prettier
 

@@ -32,7 +32,6 @@ beforeEach(async () => {
   const adminAuth = createAdminAuth({ superAdminKey: 'fixture-api-key', jwtSecret: adminSecret });
   app = await buildApp({
     jwtSecret: widgetSecret, gatewayService: gateway, rateLimiter: createInMemoryRateLimiter(),
-    legacyWidgetAuth: { secret: legacySecret, tenantIds: ['ten_old'], acceptUntil: new Date(Date.now() + 600_000).toISOString() },
     sessionRouteOpts: { store, widgetSecret, adminAuth, rateLimiter: createInMemoryRateLimiter(),
       tenantService: { getTenant: async (id: string) => ({ id }) } as TenantService },
   });
@@ -102,10 +101,10 @@ describe('Tenant-scoped session issuer', () => {
     }
     expect(records.size).toBe(0);
   });
-  it('legacy compatibility is tenant-bounded, expiring, and unavailable to admin claims', async () => {
+  it('rejects all legacy signatures immediately, regardless of their expiry', async () => {
     const make = (extra = {}) => jwt.sign({ tenantId: 'ten_old', userId: 'usr_old', ...extra }, legacySecret, { expiresIn: '1h' });
     const check = (token: string) => app.inject({ method: 'POST', url: '/api/cases', headers: headers(token), payload: { message: 'Fixture' } });
-    expect((await check(make())).statusCode).toBe(200);
+    expect((await check(make())).statusCode).toBe(401);
     expect((await check(make({ tenantId: 'ten_new' }))).statusCode).toBe(401);
     expect((await check(make({ role: 'super_admin' }))).statusCode).toBe(401);
     const token = make(); vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 601_000);

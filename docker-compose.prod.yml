@@ -45,12 +45,10 @@ services:
     environment:
       DATABASE_URL: postgres://aiwidget:${DB_PASSWORD}@postgres:5432/aiwidget
       REDIS_URL: redis://redis:6379
-      # Previous signing/encryption secret retained only for the bounded migration.
+      # Retained only to decrypt preexisting data; never accepts legacy signatures.
       JWT_SECRET: ${JWT_SECRET}
       ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:?Set a distinct ADMIN_JWT_SECRET}
       WIDGET_JWT_SECRET: ${WIDGET_JWT_SECRET:?Set a distinct WIDGET_JWT_SECRET}
-      LEGACY_WIDGET_TENANTS: ${LEGACY_WIDGET_TENANTS:-}
-      LEGACY_WIDGET_ACCEPT_UNTIL: ${LEGACY_WIDGET_ACCEPT_UNTIL:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       ADMIN_API_KEY: ${ADMIN_API_KEY}
       ADMIN_EMAIL: ${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env.prod}
@@ -58,8 +56,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-low}
       PORT: 3005
       CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
-      MCP_SERVER_URL: ${MCP_SERVER_URL}
-      MCP_SERVICE_TOKEN: ${MCP_SERVICE_TOKEN}
+      TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:?Set a private encryption key}
     ports:
       - "127.0.0.1:3005:3005"
     networks:

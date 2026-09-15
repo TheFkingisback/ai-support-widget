@@ -27,7 +27,6 @@ export interface AuthOptions {
   secret: string;
   maxAge?: string;
   verifySession?: (tenantId: string, integrationId: string) => Promise<boolean>;
-  legacy?: { secret: string; tenantIds: string[]; acceptUntil: string };
 }
 
 const identity = z.object({
@@ -49,27 +48,16 @@ export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Pro
     try {
       const token = request.headers.authorization?.match(/^Bearer (\S+)$/)?.[1];
       if (!token) throw new Error('Missing token');
-      let decoded: jwt.JwtPayload;
-      let legacy = false;
-      try {
-        decoded = jwt.verify(token, opts.secret, {
-          algorithms: ['HS256'], issuer: TOKEN_ISSUER, audience: WIDGET_AUDIENCE,
-          maxAge: opts.maxAge ?? '8h',
-        }) as jwt.JwtPayload;
-      } catch {
-        const migration = opts.legacy;
-        if (!migration || !Number.isFinite(Date.parse(migration.acceptUntil)) || Date.now() >= Date.parse(migration.acceptUntil)) throw new Error('Invalid token');
-        decoded = jwt.verify(token, migration.secret, { algorithms: ['HS256'], maxAge: '8h' }) as jwt.JwtPayload;
-        if (!migration.tenantIds.includes(decoded.tenantId) ||
-            decoded.purpose !== undefined || decoded.role !== undefined ||
-            decoded.aud !== undefined || decoded.iss !== undefined) throw new Error('Invalid legacy token');
-        legacy = true;
+      const decoded = jwt.verify(token, opts.secret, {
+        algorithms: ['HS256'], issuer: TOKEN_ISSUER, audience: WIDGET_AUDIENCE,
+        maxAge: opts.maxAge ?? '15m',
+      }) as jwt.JwtPayload;
+      if (typeof decoded !== 'object' || decoded.role !== undefined || decoded.purpose !== 'widget') {
+        throw new Error('Invalid purpose');
       }
-      if (typeof decoded !== 'object' || decoded.role !== undefined) throw new Error('Invalid purpose');
-      if (!legacy && decoded.purpose !== 'widget') throw new Error('Invalid purpose');
       const claims = identity.parse(decoded);
       if (claims.iat > Math.floor(Date.now() / 1000) || claims.exp <= claims.iat) throw new Error('Invalid lifetime');
-      if (!legacy && opts.verifySession &&
+      if (opts.verifySession &&
           (decoded.sub !== claims.userId || typeof decoded.integrationId !== 'string' ||
           !await opts.verifySession(claims.tenantId, decoded.integrationId))) throw new Error('Revoked session');
       request.authPayload = claims;

@@ -399,8 +399,8 @@ describe('Gateway Module', () => {
     expect(JSON.parse(getRes.body).case.feedback).toBe('positive');
   });
 
-  // Test 7: escalateCase changes status to 'escalated'
-  it('escalateCase changes status to escalated', async () => {
+  // No installed connector may manufacture a ticket or change the case status.
+  it('escalation without connector is explicit and leaves the case active', async () => {
     const createRes = await app.inject({
       method: 'POST',
       url: '/api/cases',
@@ -416,10 +416,10 @@ describe('Gateway Module', () => {
       payload: { reason: 'Need human help' },
     });
 
-    expect(res.statusCode).toBe(200);
+    expect(res.statusCode).toBe(501);
     const body = JSON.parse(res.body);
-    expect(body.ticketId).toBeDefined();
-    expect(body.ticketUrl).toBeDefined();
+    expect(body.error).toBe('ESCALATION_NOT_CONFIGURED');
+    expect(body.ticketId).toBeUndefined();
 
     // Verify status changed
     const getRes = await app.inject({
@@ -427,7 +427,7 @@ describe('Gateway Module', () => {
       url: `/api/cases/${caseId}`,
       headers: { authorization: `Bearer ${token}` },
     });
-    expect(JSON.parse(getRes.body).case.status).toBe('escalated');
+    expect(JSON.parse(getRes.body).case.status).toBe('active');
   });
 
   // Test 8: Rate limiter returns 429 after limit exceeded

@@ -15,6 +15,7 @@ import { createModelListService } from './modules/orchestrator/model-list.servic
 import { createAdminAuth, createLoginHandler } from './modules/admin/admin-auth.js';
 import { createDbTenantStore, createDbCostStore, createDbAuditStore } from './shared/db-stores.js';
 import { createDbAnalyticsDataSource, createDbSessionDataSource } from './shared/db-data-sources.js';
+import { createMcpStore, mcpResolver } from './modules/orchestrator/mcp-store.js';
 import { createSessionStore } from './modules/sessions/session.store.js';
 
 async function main() {
@@ -25,20 +26,11 @@ async function main() {
   const tenantStore = createDbTenantStore(db);
   const tenantService = createTenantService(tenantStore);
   const gateway = createGatewayService(db);
-  const snapshotSvc = createSnapshotService(db, {
-    baseUrl: 'unused-push-model',
-    serviceToken: 'unused-push-model',
-  });
+  const snapshotSvc = createSnapshotService(db, tenantService);
+  const mcpStore = createMcpStore(db);
 
   const costStore = createDbCostStore(db);
   const costSvc = createCostService(costStore);
-
-  const mcpOpts = env.MCP_SERVER_URL && env.MCP_SERVICE_TOKEN
-    ? { serverUrl: env.MCP_SERVER_URL, serviceToken: env.MCP_SERVICE_TOKEN }
-    : undefined;
-
-  if (mcpOpts) log.info(`MCP tools enabled → ${env.MCP_SERVER_URL}`);
-  if (env.OAUTH_TOKEN_URL) log.info(`OAuth token exchange enabled → ${env.OAUTH_TOKEN_URL}`);
 
   const orchestrator = createOrchestratorService({
     gatewayService: gateway,
@@ -46,8 +38,7 @@ async function main() {
     contextService: createContextService(),
     costRecorder: costSvc,
     tenantService,
-    mcpOpts,
-    oauthTokenUrl: env.OAUTH_TOKEN_URL,
+    resolveMcp: mcpResolver(mcpStore),
     apiKey: env.OPENROUTER_API_KEY,
     modelPolicy: 'fast',
   });
@@ -63,10 +54,7 @@ async function main() {
 
   const app = await buildApp({
     jwtSecret: env.WIDGET_JWT_SECRET,
-    legacyWidgetAuth: env.LEGACY_WIDGET_ACCEPT_UNTIL ? {
-      secret: env.JWT_SECRET, tenantIds: env.LEGACY_WIDGET_TENANTS.split(',').map(id => id.trim()).filter(Boolean),
-      acceptUntil: env.LEGACY_WIDGET_ACCEPT_UNTIL,
-    } : undefined,
+    mcpRouteOpts: { store: mcpStore, tenantService, adminAuth },
     sessionRouteOpts: {
       store: createSessionStore(db), tenantService, widgetSecret: env.WIDGET_JWT_SECRET,
       rateLimiter: createInMemoryRateLimiter(), adminAuth,

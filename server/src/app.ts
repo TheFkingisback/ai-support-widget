@@ -17,7 +17,7 @@ import { registerSessionAdminRoutes, type SessionAdminOpts } from './modules/adm
 import { registerSwagger } from './shared/swagger.js';
 import { sql } from 'drizzle-orm';
 import { registerSessionRoutes, type SessionRouteOpts } from './modules/sessions/session.routes.js';
-import type { AuthOptions } from './shared/auth.js';
+import { registerMcpRoutes, type McpRouteOpts } from './modules/orchestrator/mcp.routes.js';
 
 export interface AppDeps {
   jwtSecret?: string;
@@ -29,7 +29,7 @@ export interface AppDeps {
   adminRouteOpts?: AdminRouteOpts;
   sessionAdminOpts?: SessionAdminOpts;
   sessionRouteOpts?: SessionRouteOpts;
-  legacyWidgetAuth?: AuthOptions['legacy'];
+  mcpRouteOpts?: McpRouteOpts;
 }
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
@@ -63,7 +63,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   const jwtSecret = opts?.jwtSecret ?? env.WIDGET_JWT_SECRET;
   const jwtMaxAge = env.JWT_MAX_AGE ?? '8h';
   await registerAuth(app, {
-    secret: jwtSecret, maxAge: jwtMaxAge, legacy: opts?.legacyWidgetAuth,
+    secret: jwtSecret, maxAge: jwtMaxAge,
     verifySession: opts?.sessionRouteOpts ? async (tenantId, id) => {
       const record = await opts.sessionRouteOpts!.store.findByTenant(tenantId);
       return record?.id === id;
@@ -136,7 +136,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
     } catch { /* redis unreachable or timeout */ }
     const ok = dbOk && redisOk;
     return reply.code(ok ? 200 : 503).send({
-      ok, version: '0.1.0', db: dbOk ? 'ok' : 'error', redis: redisOk ? 'ok' : 'error',
+      ok, version: '3.0.0', db: dbOk ? 'ok' : 'error', redis: redisOk ? 'ok' : 'error',
     });
   });
 
@@ -152,6 +152,8 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   }
 
   if (opts?.sessionRouteOpts) await registerSessionRoutes(app, opts.sessionRouteOpts);
+
+  if (opts?.mcpRouteOpts) await registerMcpRoutes(app, opts.mcpRouteOpts);
 
   // Admin routes (if opts provided)
   if (opts?.adminRouteOpts) {

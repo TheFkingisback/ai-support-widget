@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { GatewayService } from './gateway.service.js';
 import type { OrchestratorService } from '../orchestrator/orchestrator.service.js';
 import type { EscalationService } from '../escalation/escalation.service.js';
+import { AppError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
 import { validateBody } from '../../shared/validation.js';
 
@@ -68,11 +69,8 @@ export async function registerExtraGatewayRoutes(
         return reply.code(200).send(result);
       }
 
-      await service.escalateCase(caseId, tenantId, userId, data.reason, reqId);
-      return reply.code(200).send({
-        ticketId: 'tkt_placeholder',
-        ticketUrl: 'https://tickets.example.com/placeholder',
-      });
+      await service.getCase(caseId, tenantId, userId, reqId);
+      throw new AppError(501, 'ESCALATION_NOT_CONFIGURED', 'No ticket connector is configured. Use the application human support channel.');
     },
   );
 
@@ -95,13 +93,7 @@ export async function registerExtraGatewayRoutes(
       }
 
       await service.getCase(caseId, tenantId, userId, reqId);
-      log.info('Action received (no orchestrator)', reqId, {
-        caseId,
-        actionType: actionData.action.type,
-      });
-      return reply.code(200).send({
-        result: `Action "${actionData.action.label}" acknowledged.`,
-      });
+      throw new AppError(501, 'ACTION_NOT_IMPLEMENTED', 'No action executor is configured');
     },
   );
 }

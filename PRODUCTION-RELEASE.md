@@ -1,3 +1,5 @@
+> **SUPERSEDED — contrato v3, 15/09/2026.** Este documento é histórico. Consulte [o contrato vigente](integration/v3/GUIA.md). O novo release encerra a compatibilidade antiga imediatamente e substitui o MCP global por configuração por tenant. O prazo antigo de 21/09 não se aplica.
+
 # Publicação de segurança — 14 de setembro de 2026
 
 O código do commit `181da55` está em produção. Foram publicados a separação entre autenticação administrativa e sessões do widget, o emissor por credencial de tenant, a autorização de conversas por proprietário e o SDK `0.2.0`.

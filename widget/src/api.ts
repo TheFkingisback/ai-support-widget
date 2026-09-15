@@ -14,6 +14,7 @@ export interface ApiClient {
   addFeedback(caseId: string, feedback: 'positive' | 'negative'): Promise<void>;
   closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating: number): Promise<void>;
   executeAction(caseId: string, action: SuggestedAction): Promise<string>;
+  escalate(caseId: string, reason?: string): Promise<{ ticketId: string; ticketUrl: string }>;
 }
 
 export function createApiClient(config: ApiClientConfig): ApiClient {
@@ -91,6 +92,9 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
         'POST', `/api/cases/${caseId}/actions`, { action },
       );
       return data.result;
+    },
+    async escalate(caseId: string, reason?: string) {
+      return request<{ ticketId: string; ticketUrl: string }>('POST', `/api/cases/${caseId}/escalate`, { reason });
     },
   };
 }

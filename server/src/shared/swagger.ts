@@ -10,7 +10,7 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
       info: {
         title: 'AI Support Widget API',
         description: 'API for the AI Support Widget — embeddable AI support for SaaS apps.',
-        version: '0.1.0',
+        version: '3.0.0',
       },
       servers: [
         { url: 'http://localhost:3000', description: 'Local development' },
@@ -21,7 +21,7 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'JWT',
-            description: 'JWT signed by the host application',
+            description: '15-minute widget JWT from POST /api/widget/sessions. Host-signed JWTs are rejected.',
           },
           adminAuth: {
             type: 'http',

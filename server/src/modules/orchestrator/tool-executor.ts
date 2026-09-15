@@ -28,7 +28,7 @@ export async function fetchToolDefs(
     return await getMcpTools(mcpOpts, userId, requestId);
   } catch (err) {
     log.warn('Failed to fetch MCP tools, continuing without', requestId, {
-      error: err instanceof Error ? err.message : String(err),
+      error: 'MCP_CATALOG_UNAVAILABLE',
     });
     return [];
   }
@@ -48,6 +48,7 @@ export async function executeWithTools(opts: ToolExecOpts): Promise<LLMResponse>
 
   const tools = await fetchToolDefs(mcpOpts, userId, requestId);
   if (tools.length === 0) {
+    messages.push({ role: 'system', content: 'No live tools are available. Clearly state this limitation; never claim a live lookup or completed action.' });
     return callLLM({ model, messages }, apiKey, requestId);
   }
 
@@ -81,7 +82,8 @@ export async function executeWithTools(opts: ToolExecOpts): Promise<LLMResponse>
 
     // Execute each tool call and add results
     for (const tc of response.toolCalls) {
-      const result = await executeSingleTool(mcpOpts, userId, tc, requestId);
+      const result = tools.some(t => t.function.name === tc.function.name)
+        ? await executeSingleTool(mcpOpts, userId, tc, requestId) : 'MCP_TOOL_FORBIDDEN';
       messages.push({ role: 'tool', content: result, tool_call_id: tc.id });
     }
   }
@@ -110,11 +112,11 @@ async function executeSingleTool(
   requestId?: string,
 ): Promise<string> {
   try {
-    const args = JSON.parse(tc.function.arguments) as Record<string, unknown>;
-    return await callMcpTool(mcpOpts, userId, tc.function.name, args, requestId);
+    const args: unknown = JSON.parse(tc.function.arguments);
+    if (!args || typeof args !== 'object' || Array.isArray(args)) return 'MCP_INVALID_ARGUMENTS';
+    return await callMcpTool(mcpOpts, userId, tc.function.name, args as Record<string, unknown>, requestId);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log.error('MCP tool execution failed', requestId, { tool: tc.function.name, error: msg });
-    return `Error executing tool ${tc.function.name}: ${msg}`;
+    log.error('MCP tool execution failed', requestId, { tool: tc.function.name, error: 'MCP_TOOL_FAILED' });
+    return 'MCP_TOOL_FAILED: No successful result was obtained. Do not claim completion.';
   }
 }

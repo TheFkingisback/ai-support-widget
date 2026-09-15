@@ -1,10 +1,15 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import { log } from '../../shared/logger.js';
+import { createMcpFetch } from './mcp-network.js';
+import { safeText } from '../context/safe-content.js';
+import { AppError } from '../../shared/errors.js';
 
 export interface McpClientOpts {
+  tenantId: string;
   serverUrl: string;
   serviceToken: string;
+  allowedTools: string[];
 }
 
 export interface ToolDef {
@@ -14,10 +19,12 @@ export interface ToolDef {
 
 function createTransport(opts: McpClientOpts, userId: string): StreamableHTTPClientTransport {
   return new StreamableHTTPClientTransport(new URL(opts.serverUrl), {
+    fetch: createMcpFetch(opts.serverUrl),
     requestInit: {
       headers: {
         'Authorization': `Bearer ${opts.serviceToken}`,
         'X-MCP-User-Id': userId,
+        'X-MCP-Tenant-Id': opts.tenantId,
       },
     },
   });
@@ -47,7 +54,7 @@ export async function getMcpTools(
 ): Promise<ToolDef[]> {
   return withClient(opts, userId, requestId, async (client) => {
     const { tools } = await client.listTools();
-    return tools.map((t) => ({
+    return tools.filter(t => opts.allowedTools.includes(t.name) && t.annotations?.readOnlyHint === true).map((t) => ({
       type: 'function' as const,
       function: {
         name: t.name,
@@ -63,14 +70,20 @@ export async function callMcpTool(
   opts: McpClientOpts, userId: string,
   toolName: string, args: Record<string, unknown>, requestId?: string,
 ): Promise<string> {
-  log.info('MCP tool call', requestId, { tool: toolName, args });
+  if (!opts.allowedTools.includes(toolName)) throw new AppError(403, 'MCP_TOOL_FORBIDDEN', 'Tool is not allowed');
+  log.info('MCP tool call', requestId, { tenantId: opts.tenantId, tool: toolName });
 
   return withClient(opts, userId, requestId, async (client) => {
+    const catalog = await client.listTools();
+    if (!catalog.tools.some(t => t.name === toolName && t.annotations?.readOnlyHint === true)) {
+      throw new AppError(403, 'MCP_TOOL_FORBIDDEN', 'Only approved read-only tools are supported');
+    }
     const result = await client.callTool({ name: toolName, arguments: args });
+    if (result.isError) throw new AppError(502, 'MCP_TOOL_ERROR', 'The client tool reported a failure');
     const content = result.content as Array<{ type: string; text?: string }> | undefined;
     if (Array.isArray(content)) {
-      return content.filter((c) => c.type === 'text').map((c) => c.text ?? '').join('\n');
+      return safeText(content.filter((c) => c.type === 'text').map((c) => c.text ?? '').join('\n')).slice(0, 32000);
     }
-    return JSON.stringify(result);
+    return safeText(JSON.stringify(result)).slice(0, 32000);
   });
 }

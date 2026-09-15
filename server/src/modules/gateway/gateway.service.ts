@@ -2,6 +2,7 @@ import { eq, and, asc } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { cases, messages } from './gateway.schema.js';
 import { NotFoundError } from '../../shared/errors.js';
+import { safeText } from '../context/safe-content.js';
 import { log } from '../../shared/logger.js';
 import { genId, toCase, findCaseWithTenant, insertAudit } from './gateway.helpers.js';
 import type {
@@ -93,6 +94,7 @@ export function createGatewayService(
 ): GatewayService {
   return {
     async createCase(tenantId, userId, firstMessage, requestId) {
+      firstMessage = safeText(firstMessage);
       log.info('Creating case', requestId, { tenantId, userId });
 
       const caseId = genId('cas');
@@ -124,6 +126,7 @@ export function createGatewayService(
     },
 
     async addMessage(caseId, tenantId, userId, role, content, opts, requestId) {
+      content = safeText(content);
       log.info('Adding message', requestId, { caseId, tenantId, userId, role });
 
       const caseRow = await findCaseWithTenant(db, caseId, tenantId, userId);

@@ -21,21 +21,24 @@ const envSchema = z.object({
   ADMIN_PASSWORD_HASH: z.string().regex(ADMIN_PASSWORD_HASH_PATTERN),
   CORS_ORIGINS: z.string().optional(),
   JWT_MAX_AGE: z.string().optional(),
-  TOKEN_ENCRYPTION_KEY: z.string().optional(),
+  TOKEN_ENCRYPTION_KEY: z.string().min(32).optional(),
   MCP_SERVER_URL: z.string().url().optional(),
   MCP_SERVICE_TOKEN: z.string().optional(),
   OAUTH_TOKEN_URL: z.string().url().optional(),
   LOG_MAX_FILE_SIZE: z.coerce.number().int().positive().default(10_485_760),
   LOG_MAX_FILES: z.coerce.number().int().positive().default(5),
 }).superRefine((env, ctx) => {
+  if (!env.TOKEN_ENCRYPTION_KEY || [env.JWT_SECRET, env.ADMIN_JWT_SECRET, env.WIDGET_JWT_SECRET].includes(env.TOKEN_ENCRYPTION_KEY)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'A distinct TOKEN_ENCRYPTION_KEY is required' });
+  }
   if (new Set([env.JWT_SECRET, env.ADMIN_JWT_SECRET, env.WIDGET_JWT_SECRET]).size !== 3) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'JWT signing secrets must be distinct' });
   }
-  if (!!env.LEGACY_WIDGET_TENANTS !== !!env.LEGACY_WIDGET_ACCEPT_UNTIL) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Legacy widget migration requires tenant IDs and an explicit deadline' });
+  if (env.LEGACY_WIDGET_TENANTS || env.LEGACY_WIDGET_ACCEPT_UNTIL) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Legacy widget authentication is retired; remove legacy variables' });
   }
-  if (env.LEGACY_WIDGET_ACCEPT_UNTIL && Date.parse(env.LEGACY_WIDGET_ACCEPT_UNTIL) > Date.now() + 7 * 86400_000) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Legacy widget migration cannot exceed seven days' });
+  if (env.MCP_SERVER_URL || env.MCP_SERVICE_TOKEN || env.OAUTH_TOKEN_URL) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Global MCP and OAuth exchange are retired; configure MCP per tenant' });
   }
 });
 

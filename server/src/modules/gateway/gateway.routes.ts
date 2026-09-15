@@ -47,6 +47,7 @@ export async function registerGatewayRoutes(
       await rateLimiter.check(`create:${tenantId}:${userId}`, 10, 60_000, reqId);
 
       const data = validateBody(createCaseBody, request.body);
+      await snapshotService?.prepareContext?.(tenantId, userId, data.context);
       const result = await service.createCase(tenantId, userId, data.message, reqId);
 
       if (snapshotService) {
@@ -54,15 +55,17 @@ export async function registerGatewayRoutes(
           const snapshot = await snapshotService.buildSnapshot(
             tenantId, userId, result.case.id, reqId, data.context,
           );
+          result.case.snapshotId = snapshot.meta.snapshotId;
           log.info('Snapshot generated for case', reqId, {
             caseId: result.case.id,
             snapshotId: snapshot.meta.snapshotId,
           });
         } catch (err) {
-          log.warn('Snapshot generation failed, continuing without', reqId, {
+          log.warn('Snapshot generation failed', reqId, {
             caseId: result.case.id,
             error: err instanceof Error ? err.message : String(err),
           });
+          throw err;
         }
       }
 
@@ -80,6 +83,7 @@ export async function registerGatewayRoutes(
             caseId: result.case.id,
             error: err instanceof Error ? err.message : String(err),
           });
+          throw err;
         }
       }
 

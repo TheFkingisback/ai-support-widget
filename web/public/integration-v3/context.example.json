@@ -1,0 +1,26 @@
+{
+  "userState": {
+    "userId": "usr_usuario_autenticado",
+    "tenantId": "ten_do_projeto",
+    "roles": [
+      "member"
+    ],
+    "plan": "standard",
+    "featuresEnabled": [],
+    "entities": [],
+    "activeErrors": [],
+    "limitsReached": []
+  },
+  "userHistory": {
+    "windowHours": 24,
+    "events": []
+  },
+  "userLogs": {
+    "recentRequests": [],
+    "jobs": [],
+    "errors": []
+  },
+  "knowledgePack": {
+    "docs": []
+  }
+}

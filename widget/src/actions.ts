@@ -5,9 +5,10 @@ export interface ActionHandlers {
   onOpenDocs: (action: SuggestedAction) => void;
   onRequestAccess: (action: SuggestedAction) => Promise<void>;
   onCustom: (action: SuggestedAction) => Promise<void>;
+  onCreateTicket?: (action: SuggestedAction) => Promise<void>;
 }
 
-const DESTRUCTIVE_TYPES = new Set<string>();
+const DESTRUCTIVE_TYPES = new Set<string>(['create_ticket', 'request_access', 'custom']);
 
 /** Renders suggested action buttons below AI messages */
 export function renderActions(
@@ -24,10 +25,15 @@ export function renderActions(
     btn.textContent = action.label;
 
     btn.addEventListener('click', () => {
+      const execute = () => { void dispatchAction(action, handlers).catch(() => {
+        const error = document.createElement('p'); error.setAttribute('role', 'alert');
+        error.textContent = 'This action is unavailable. Use the application or its human support channel.';
+        container.appendChild(error);
+      }); };
       if (DESTRUCTIVE_TYPES.has(action.type)) {
-        showConfirmation(panelEl, action.label, () => dispatchAction(action, handlers));
+        showConfirmation(panelEl, action.label, execute);
       } else {
-        dispatchAction(action, handlers);
+        execute();
       }
     });
 
@@ -37,20 +43,23 @@ export function renderActions(
   return container;
 }
 
-function dispatchAction(action: SuggestedAction, handlers: ActionHandlers): void {
+async function dispatchAction(action: SuggestedAction, handlers: ActionHandlers): Promise<void> {
   switch (action.type) {
     case 'retry':
-      handlers.onRetry(action);
+      await handlers.onRetry(action);
       break;
     case 'open_docs': {
       handlers.onOpenDocs(action);
       break;
     }
     case 'request_access':
-      handlers.onRequestAccess(action);
+      await handlers.onRequestAccess(action);
+      break;
+    case 'create_ticket':
+      await (handlers.onCreateTicket ?? handlers.onCustom)(action);
       break;
     default:
-      handlers.onCustom(action);
+      await handlers.onCustom(action);
   }
 }
 

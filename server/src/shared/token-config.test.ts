@@ -9,6 +9,7 @@ async function configure() {
     JWT_SECRET: 'legacy-fixture-secret-at-least-32-characters',
     ADMIN_JWT_SECRET: 'admin-fixture-secret-at-least-32-characters',
     WIDGET_JWT_SECRET: 'widget-fixture-secret-at-least-32-characters',
+    TOKEN_ENCRYPTION_KEY: 'encryption-fixture-independent-32-characters',
     OPENROUTER_API_KEY: 'fixture-only', ADMIN_API_KEY: 'fixture-admin-api-key',
     ADMIN_EMAIL: 'admin@example.com', ADMIN_PASSWORD_HASH: await hashAdminPassword('fixture-password'),
     LEGACY_WIDGET_TENANTS: '', LEGACY_WIDGET_ACCEPT_UNTIL: '',
@@ -28,10 +29,15 @@ describe('Production signing configuration', () => {
     await configure(); vi.stubEnv('ADMIN_JWT_SECRET', '');
     expect(() => getEnvSafe()).toThrow();
   });
-  it('requires a deadline and bounds the legacy migration window', async () => {
+  it('requires an independent encryption key', async () => {
+    await configure(); vi.stubEnv('TOKEN_ENCRYPTION_KEY', process.env.JWT_SECRET!);
+    expect(() => getEnv()).toThrow(/distinct TOKEN_ENCRYPTION_KEY/);
+    vi.stubEnv('TOKEN_ENCRYPTION_KEY', ''); expect(() => getEnv()).toThrow();
+  });
+  it('refuses any attempt to re-enable retired legacy authentication', async () => {
     await configure(); vi.stubEnv('LEGACY_WIDGET_TENANTS', 'ten_old');
-    expect(() => getEnv()).toThrow(/deadline/);
+    expect(() => getEnv()).toThrow(/retired/);
     vi.stubEnv('LEGACY_WIDGET_ACCEPT_UNTIL', new Date(Date.now() + 8 * 86400_000).toISOString());
-    expect(() => getEnv()).toThrow(/seven days/);
+    expect(() => getEnv()).toThrow(/retired/);
   });
 });

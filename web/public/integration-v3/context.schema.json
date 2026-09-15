@@ -1,0 +1,403 @@
+{
+  "type": "object",
+  "properties": {
+    "userState": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "tenantId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 4096
+          },
+          "maxItems": 30
+        },
+        "plan": {
+          "$ref": "#/properties/userState/properties/roles/items"
+        },
+        "featuresEnabled": {
+          "type": "array",
+          "items": {
+            "$ref": "#/properties/userState/properties/roles/items"
+          },
+          "maxItems": 100
+        },
+        "profile": {
+          "type": "object",
+          "properties": {
+            "fullName": {
+              "$ref": "#/properties/userState/properties/roles/items"
+            },
+            "email": {
+              "$ref": "#/properties/userState/properties/roles/items"
+            },
+            "country": {
+              "$ref": "#/properties/userState/properties/roles/items"
+            }
+          },
+          "additionalProperties": false
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "id": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "description": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "status": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": {},
+                "default": {}
+              }
+            },
+            "required": [
+              "type",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 100
+        },
+        "activeErrors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "errorCode": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "errorClass": {
+                "type": "string",
+                "enum": [
+                  "validation",
+                  "permission",
+                  "infra",
+                  "business"
+                ]
+              },
+              "retryable": {
+                "type": "boolean"
+              },
+              "userActionable": {
+                "type": "boolean"
+              },
+              "resourceId": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "occurredAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "errorCode",
+              "errorClass",
+              "retryable",
+              "userActionable",
+              "resourceId",
+              "occurredAt"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 100
+        },
+        "limitsReached": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "current": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "limit",
+              "current",
+              "max"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "userId",
+        "tenantId",
+        "roles",
+        "plan",
+        "featuresEnabled",
+        "entities",
+        "activeErrors",
+        "limitsReached"
+      ],
+      "additionalProperties": false
+    },
+    "userHistory": {
+      "type": "object",
+      "properties": {
+        "windowHours": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 720
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ts": {
+                "$ref": "#/properties/userState/properties/activeErrors/items/properties/occurredAt"
+              },
+              "event": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "page": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "elementId": {
+                "anyOf": [
+                  {
+                    "$ref": "#/properties/userState/properties/roles/items"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
+              },
+              "intent": {
+                "$ref": "#/properties/userHistory/properties/events/items/properties/elementId"
+              },
+              "correlationRequestId": {
+                "$ref": "#/properties/userHistory/properties/events/items/properties/elementId"
+              }
+            },
+            "required": [
+              "ts",
+              "event",
+              "page"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "windowHours",
+        "events"
+      ],
+      "additionalProperties": false
+    },
+    "userLogs": {
+      "type": "object",
+      "properties": {
+        "recentRequests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ts": {
+                "$ref": "#/properties/userState/properties/activeErrors/items/properties/occurredAt"
+              },
+              "route": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "httpStatus": {
+                "type": "integer"
+              },
+              "errorCode": {
+                "$ref": "#/properties/userHistory/properties/events/items/properties/elementId"
+              },
+              "resourceId": {
+                "$ref": "#/properties/userHistory/properties/events/items/properties/elementId"
+              },
+              "timingMs": {
+                "type": "number"
+              },
+              "requestId": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              }
+            },
+            "required": [
+              "ts",
+              "route",
+              "httpStatus",
+              "timingMs",
+              "requestId"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 1000
+        },
+        "jobs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "jobId": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "queue": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "queued",
+                  "running",
+                  "succeeded",
+                  "failed",
+                  "canceled"
+                ]
+              },
+              "errorCode": {
+                "$ref": "#/properties/userHistory/properties/events/items/properties/elementId"
+              },
+              "lastStage": {
+                "$ref": "#/properties/userHistory/properties/events/items/properties/elementId"
+              },
+              "createdAt": {
+                "$ref": "#/properties/userState/properties/activeErrors/items/properties/occurredAt"
+              },
+              "updatedAt": {
+                "$ref": "#/properties/userState/properties/activeErrors/items/properties/occurredAt"
+              },
+              "durationMs": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "jobId",
+              "queue",
+              "status",
+              "createdAt",
+              "updatedAt",
+              "durationMs"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 100
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ts": {
+                "$ref": "#/properties/userState/properties/activeErrors/items/properties/occurredAt"
+              },
+              "errorCode": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "errorClass": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "route": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "requestId": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "resourceId": {
+                "$ref": "#/properties/userHistory/properties/events/items/properties/elementId"
+              }
+            },
+            "required": [
+              "ts",
+              "errorCode",
+              "errorClass",
+              "route",
+              "requestId"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 1000
+        }
+      },
+      "required": [
+        "recentRequests",
+        "jobs",
+        "errors"
+      ],
+      "additionalProperties": false
+    },
+    "knowledgePack": {
+      "type": "object",
+      "properties": {
+        "docs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "title": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "content": {
+                "type": "string",
+                "maxLength": 32000
+              },
+              "category": {
+                "$ref": "#/properties/userState/properties/roles/items"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "content",
+              "category"
+            ],
+            "additionalProperties": false
+          },
+          "maxItems": 50
+        }
+      },
+      "required": [
+        "docs"
+      ],
+      "additionalProperties": false
+    },
+    "businessRules": {
+      "type": "object",
+      "additionalProperties": {}
+    }
+  },
+  "required": [
+    "userState",
+    "userHistory",
+    "userLogs"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
