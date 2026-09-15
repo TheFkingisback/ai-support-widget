@@ -446,3 +446,9 @@
 - Implemented durable state, tenant/user/conversation scope, RSA proof, status recovery without retries, optional policy and SDK 0.2.2. Writes remain disabled pending TrackShare implementation and joint acceptance.
 - Fixed Node 20 stream cancellation race found by live MCP acceptance; isolated fixed client passed seven tools plus negative access/credential/write tests with synthetic data and cleanup.
 - Tests: 340 server including real PostgreSQL, 33 SDK, 38 web, 2 adapter; builds passed. Public read/chat verification follows deployment.
+
+## 2026-09-15 — Deployment approval pending
+- Implementation commit: 6f84ab7. Private full-repository upload rejected by automatic approval review.
+- Prepared restricted runtime/public-assets patch: 25 files, 147099 bytes. Verified existing support host by Compose project/package and identical public/internal SDK SHA-256.
+- Review still requires explicit user authorization for that payload/destination. Requested it; no deployment or migration performed.
+- TrackShare MCP temporarily disabled after transport failure; fixed client passed all 16 live read/access checks in an isolated process. Writes disabled; ordinary chat context remains available.

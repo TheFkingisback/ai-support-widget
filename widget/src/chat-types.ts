@@ -21,4 +21,3 @@ export interface ChatPanel {
   hide(): void;
   show(): void;
 }
-
