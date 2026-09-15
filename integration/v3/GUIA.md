@@ -4,7 +4,7 @@
 
 Este é o contrato de destino da migração. Substitui os guias anteriores para autenticação, contexto e MCP. A publicação desta versão encerra a autenticação legada imediatamente; **o prazo antigo de 21/09 não se aplica ao novo release**. Consulte `PUBLICACAO.md` no pacote para o resultado da verificação de produção. A implementação nos aplicativos clientes é responsabilidade de seus times.
 
-> Extensão de ações pelo chat: [contrato 1.1](../actions-v1/CONTRATO.md). Escrita desabilitada até aceite conjunto. As regras de sessão/contexto/leitura abaixo permanecem vigentes.
+> Extensão de ações pelo chat: [contrato 1.2](../actions-v1/CONTRATO.md). Integração genérica com configuração self-service; implementação local, publicação pendente. Escrita desabilitada até aceite da integração. As regras de sessão/contexto/leitura abaixo permanecem vigentes.
 
 [TOC]
 
@@ -23,7 +23,7 @@ O backend do seu aplicativo solicita uma sessão temporária à plataforma. O na
 | Falha de contexto pode usar prompt genérico | Falha explícita; nenhuma conversa com resposta aparente de sucesso |
 | Ações genéricas / ticket placeholder | Sem botões sugeridos de ações não implementadas; rotas retornam 501 quando indisponíveis |
 
-O chat e o MCP têm aceites separados. Não marcar “integração concluída” só porque o widget aparece. A primeira entrega pode ser chat com contexto e MCP desligado. Não há suporte a escrita via MCP neste contrato; fluxos que alteram dados devem permanecer no aplicativo.
+O chat e o MCP têm aceites separados. Não marcar “integração concluída” só porque o widget aparece. A primeira entrega pode ser chat com contexto e MCP desligado. A base v3 é de leitura. Escrita pelo chat requer a extensão de ações 1.2 e SDK 0.2.2, ainda pendentes de publicação; até sua ativação, alterações permanecem no aplicativo.
 
 ## 2. Ambientes, responsáveis e informações necessárias
 
@@ -31,7 +31,8 @@ Plataforma: `https://support-ai.pontes.uk`. Emissor: `POST /api/widget/sessions`
 
 | Responsável | Entrega |
 |---|---|
-| Operador da plataforma | Tenant, credencial de sessão, CORS, modelo/prompt e eventual cadastro MCP |
+| Operador da plataforma | Cadastro comercial do tenant e infraestrutura compartilhada, CORS e disponibilidade de modelos |
+| Administrador do tenant | Configuração self-service das credenciais de integração, MCP, consultas e operações da extensão 1.2 |
 | Backend cliente | Autenticação, identidade estável, emissor, consultas autorizadas e projeção do contexto |
 | Frontend cliente | Montagem, coleta, renovação, cleanup, CSP, canal humano e tratamento de falhas |
 | Dono do MCP | Credencial exclusiva, autorização por usuário/recurso, catálogo e testes |
@@ -50,7 +51,7 @@ Homologação deve usar outro tenant e credencial, com dados sintéticos. O ID d
 | `SUPPORT_MCP_TENANT_ID` | Mesmo tenant do suporte | Backend MCP, para validar o cabeçalho delegado |
 | JWT temporário | Emissor da plataforma | Memória do widget; 900 segundos |
 
-O operador abre `/admin`, entra com seu próprio email/senha, seleciona o tenant e abre **Widget integration → Generate integration credential / Replace credential**. O valor só aparece na emissão. Ele deve ser salvo diretamente no cofre acordado. O cliente não recebe conta de superadministrador. `tsk_` é chave administrativa e não serve no emissor.
+O operador abre `/admin`, entra com seu próprio email/senha, seleciona o tenant e abre **Widget integration → Generate integration credential / Replace credential**. O valor só aparece na emissão. Ele deve ser salvo diretamente no cofre acordado. Na extensão self-service 1.2, o cliente abre `/admin` → **Configure your tenant integration** com sua chave administrativa `tsk_` e usa **Integration settings → Widget integration** para fazer essas operações no próprio tenant. Não recebe conta de superadministrador. `tsk_` não serve no emissor; não é credencial do widget nem do MCP.
 
 **Etapa obrigatória de entrega:** registrar cofre/segredo de destino, responsável que tem acesso, horário da instalação e emissão de teste aprovada. Um JSON ou ZIP sem credencial não configura o backend. O pacote contém placeholders por decisão de segurança, não um segredo utilizável. O operador e o responsável do backend concluem essa etapa antes da ativação.
 
@@ -174,9 +175,9 @@ Sessões e contexto são no-store. Excluir rotas de suporte dos caches da PWA, p
 
 ## 12. MCP por tenant: cadastro e transporte
 
-MCP é opcional. Com cadastro ausente, o chat usa somente contexto. Para habilitar: o cliente fornece endpoint HTTPS público na porta 443, credencial dedicada e nomes exatos de ferramentas de leitura. O operador seleciona o tenant → **Tenant MCP**, preenche endpoint, credencial e lista → **Save MCP**. O segredo fica criptografado e não é retornado. Alterar configuração exige informar o segredo novamente. **Disable MCP** remove o cadastro desse tenant.
+MCP é opcional. Com cadastro ausente, o chat usa somente contexto. Para habilitar: o cliente fornece endpoint HTTPS público na porta 443, credencial dedicada e nomes exatos de ferramentas de leitura. O administrador do tenant usa **Integration settings → Tenant MCP**, preenche endpoint, credencial e lista → **Save MCP**. O operador da plataforma também pode acessar o mesmo painel pelo cadastro do tenant. O segredo fica criptografado e não é retornado. Alterar configuração exige informar o segredo novamente. **Disable MCP** remove o cadastro desse tenant.
 
-API equivalente do operador: GET/PUT/DELETE `/api/admin/tenants/:id/mcp`. PUT recebe `{serverUrl,serviceToken,allowedTools}`. Somente superadministrador configura MCP. Salvar não prova conectividade nem instala ferramentas. A lista inicial fica vazia/desligada até revisão e teste do cliente; configurações globais não são importadas automaticamente.
+API equivalente: GET/PUT/DELETE `/api/admin/tenants/:id/mcp`. PUT recebe `{serverUrl,serviceToken,allowedTools,actionPolicy?}`. Na extensão 1.2, o administrador do tenant configura somente sua própria integração; credenciais de outro tenant são recusadas. Não há nomes de operações de cliente fixos no código. A extensão também define a consulta self-service da chave pública de confirmação. Salvar não prova conectividade nem instala ferramentas. A lista inicial fica vazia/desligada até revisão e teste do cliente; configurações globais não são importadas automaticamente.
 
 O transporte é **Streamable HTTP**, não stdio e não SSE legado. Suportar inicialização, tools/list e tools/call com o SDK MCP. Endpoints devem responder dentro de 20 segundos, sem redirecionamento, compressão obrigatória, query secreta ou autenticação interativa. Respostas de transporte são limitadas a 256 KiB; texto de ferramenta usado pelo modelo, a 32.000 caracteres. URLs/DNS privados, loopback e metadados de nuvem são recusados; endereços DNS são validados ao abrir o socket.
 
@@ -202,7 +203,7 @@ Cada ferramenta deve ter descrição objetiva, schema fechado, limites/paginaç�
 
 Quando a ferramenta retornar `isError: true`, a plataforma trata como falha. Não reportar sucesso antes de resultado verificável. Ausência/falha de catálogo permite resposta limitada por contexto com instrução explícita de indisponibilidade. O modelo não deve alegar consulta ao vivo, alteração ou criação de chamado sem evidência.
 
-Token exchange OAuth e fallback para token de serviço global foram retirados do runtime. Este contrato usa somente a credencial MCP por tenant. Mutações com confirmação, OAuth delegado e novas integrações exigem outro contrato; não estão implicitamente habilitadas pelo prompt.
+Token exchange OAuth e fallback para token de serviço global foram retirados do runtime. Este contrato usa somente a credencial MCP por tenant. Mutações com confirmação seguem a extensão 1.2; OAuth delegado e outros protocolos exigem contrato próprio; não estão implicitamente habilitadas pelo prompt.
 
 ## 15. Modelo, prompt e conhecimento
 
@@ -250,7 +251,7 @@ Não usar apenas HTTP 200 como aceite: verificar conteúdo da resposta e snapsho
 
 ## 18. Publicação, corte e recuperação
 
-Ordem do cliente: instalar credenciais no cofre → implementar backend e projeção → publicar frontend/SDK → testar chat → revisar/publicar MCP → operador cadastrar e testar ferramentas → registrar aceite. Manter a feature flag desligada enquanto o bootstrap ou a identidade estiverem incorretos.
+Ordem do cliente: instalar credenciais no cofre → implementar backend e projeção → publicar frontend/SDK → testar chat → revisar/publicar MCP → administrador do tenant cadastrar e testar ferramentas → registrar aceite. Manter a feature flag desligada enquanto o bootstrap ou a identidade estiverem incorretos.
 
 Não reativar assinaturas legadas nem encaminhamento MCP global para recuperar disponibilidade. Se houver falha, desabilitar temporariamente o widget ou MCP do tenant afetado e manter o canal humano enquanto corrige o adaptador. Não apagar conversas para contornar um 404 de proprietário.
 

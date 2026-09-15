@@ -1,3 +1,4 @@
+import { assertSelfServiceScope } from './self-service-scope.js';
 import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
@@ -39,7 +40,7 @@ export interface AdminAuthOpts {
 }
 
 /**
- * Creates dual-mode admin auth: accepts JWT (per-tenant) or raw key (super-admin).
+ * Accepts scoped admin JWTs, tenant self-service keys, or the platform administrator key.
  * Backward-compatible: passing a plain string creates legacy super-admin-only auth.
  */
 export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
@@ -72,6 +73,7 @@ export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
         if (decoded.purpose === 'admin' && typeof decoded.exp === 'number' &&
             (decoded.role === 'super_admin' ||
               (decoded.role === 'tenant_admin' && typeof decoded.tenantId === 'string' && decoded.tenantId.length > 0))) {
+          assertSelfServiceScope(decoded, request);
           request.adminPayload = decoded;
           log.debug('Admin auth via JWT', reqId, { role: decoded.role, tenantId: decoded.tenantId });
           return;
@@ -79,6 +81,15 @@ export function createAdminAuth(optsOrKey: string | AdminAuthOpts) {
       } catch {
         // Not a valid JWT — fall through to raw key check
       }
+    }
+
+    if (/^tsk_[A-Za-z0-9_-]{32}$/.test(token) && opts.tenantService) {
+      const tenant = await opts.tenantService.findTenantByAdminKeyHash(hashApiKey(token), reqId);
+      if (!tenant) throw new ForbiddenError('Invalid admin credentials');
+      const actor: AdminAuthPayload = { role: 'tenant_admin', tenantId: tenant.id };
+      assertSelfServiceScope(actor, request);
+      request.adminPayload = actor;
+      return;
     }
 
     // Fall back to raw super-admin key

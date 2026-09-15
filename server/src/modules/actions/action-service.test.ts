@@ -3,6 +3,16 @@ import { fixture } from './action-fixtures.test-helper.js';
 import { createActionService } from './action-service.js';
 
 describe('Human-confirmed generic actions', () => {
+  it.each(['change_delivery_date', 'rename_workspace'])('executes configured operation %s without client-specific code', async operation => {
+    const f = await fixture(); f.mcp.actionPolicy!.operations = [operation];
+    f.remote.call.mockResolvedValueOnce({ ...f.proposal(), operation });
+    const shown = await f.service.hooks(f.p, f.mcp)!.prepare({ operation, arguments: { resourceId: 'r1' } });
+    await f.service.respond(await f.turn(shown.id));
+    expect(f.records[0].proposal.operation).toBe(operation); expect(f.records[0].state).toBe('completed');
+    const count = f.remote.call.mock.calls.length;
+    await expect(f.prepare()).rejects.toThrow('Operation is not enabled');
+    expect(f.remote.call.mock.calls.length).toBe(count);
+  });
   it('presents the exact provider summary and executes only after a subsequent human reply to it', async () => {
     const f = await fixture(); const shown = await f.prepare();
     expect(shown.content).toContain(f.records[0].proposal.summary);

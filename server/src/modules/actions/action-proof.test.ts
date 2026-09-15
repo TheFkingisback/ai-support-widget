@@ -17,6 +17,8 @@ describe('Independent action confirmation proof', () => {
     expect(claims).toMatchObject({ aud: f.mcp.serverUrl, tenantId: f.p.tenantId, sub: f.p.userId,
       conversationId: f.p.caseId, actionId: record.proposal.actionId, summaryHash: record.proposal.summaryHash,
       argumentsHash: record.proposal.argumentsHash, messageId: 'human_1', presentedMessageId: record.presentedMessageId, jti: 'jti_1' });
+    expect(signer.verification?.publicKeyPem).toBe(publicKey.export({ type: 'spki', format: 'pem' }).toString());
+    expect(JSON.stringify(signer.verification)).not.toContain('PRIVATE');
     expect(claims.exp - claims.iat).toBeLessThanOrEqual(60);
     expect(claims.exp * 1000).toBeLessThanOrEqual(Date.parse(record.proposal.expiresAt));
     expect(token).not.toContain(f.mcp.serviceToken);

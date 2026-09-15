@@ -21,7 +21,7 @@ describe('MCP tenant configuration', () => {
     expect(await resolve('unknown')).toBeUndefined();
     await store.remove('a'); expect(await resolve('a')).toBeUndefined();
   });
-  it('restricts configuration to operator, validates endpoint, and never returns the credential', async () => {
+  it('allows own tenant configuration, validates endpoint, and never returns the credential', async () => {
     const records = new Map<string, McpRecord>();
     const store: McpStore = { find: async id => records.get(id) ?? null, save: async r => { records.set(r.tenantId, r); }, remove: async id => { records.delete(id); } };
     const app = Fastify();
@@ -29,7 +29,8 @@ describe('MCP tenant configuration', () => {
     await registerMcpRoutes(app, { store, tenantService: { getTenant: vi.fn().mockResolvedValue({ id: 'a' }) } as unknown as TenantService,
       adminAuth: async req => { req.adminPayload = req.headers.authorization === 'operator' ? { role: 'super_admin' } : { role: 'tenant_admin', tenantId: 'a' }; } });
     const url = '/api/admin/tenants/a/mcp'; const payload = { serverUrl: 'https://a.example.com/mcp', serviceToken: 's'.repeat(40), allowedTools: ['read_a'] };
-    expect((await app.inject({ method: 'PUT', url, payload })).statusCode).toBe(403);
+    expect((await app.inject({ method: 'PUT', url, payload })).statusCode).toBe(200);
+    expect((await app.inject({ method: 'PUT', url: '/api/admin/tenants/b/mcp', payload })).statusCode).toBe(403);
     expect((await app.inject({ method: 'PUT', url, payload, headers: { authorization: 'operator' } })).statusCode).toBe(200);
     const read = await app.inject({ url, headers: { authorization: 'operator' } });
     expect(read.headers['cache-control']).toBe('no-store'); expect(read.body).not.toContain(payload.serviceToken);

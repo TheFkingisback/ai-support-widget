@@ -1,4 +1,5 @@
 'use client';
+import { TenantLogin } from './tenant-login';
 import { useState } from 'react';
 import { Shield, ArrowRight, AlertCircle } from 'lucide-react';
 import { adminLogin } from '@/lib/api';
@@ -88,6 +89,7 @@ export function AdminLogin({ onAuthenticated }: Props) {
           </button>
         </form>
 
+        <TenantLogin onAuthenticated={onAuthenticated} />
         <p className="mt-6 text-center text-xs text-surface-600">
           Sign in with your administrator email and password
         </p>

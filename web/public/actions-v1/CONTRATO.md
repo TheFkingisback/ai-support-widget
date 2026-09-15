@@ -1,18 +1,18 @@
-# Ações MCP pelo chat — contrato 1.1
+# Ações MCP pelo chat — contrato 1.2
 
-15/09/2026. Extensão do contrato v3 adotada pelo proprietário. Implementação do suporte preparada e testada; **escritas desabilitadas até implementação e homologação conjunta com TrackShare**. Não acrescenta telas nem regras de carros ao suporte.
+15/09/2026. Extensão genérica do contrato v3. Código compartilhado entre todos os clientes; diferenças por tenant são configurações self-service. Implementação local validada; publicação pendente. Escritas continuam desligadas em produção.
 
 ## 1. Sequência e responsabilidades
 
-1. Configurar e homologar sete consultas: `get_user_uploads`, `get_upload_file_details`, `get_user_sessions`, `get_session_laps`, `get_user_cars`, `get_download_status`, `get_error_diagnosis`.
-2. Implementar escrita como funcionalidade nova dos dois lados. Primeira e única operação habilitável: `reassign_session_car`.
+1. O administrador do tenant configura e homologa suas consultas no painel.
+2. O provedor implementa o protocolo genérico de ações. O tenant configura os nomes das operações disponíveis e habilita escrita após validar a integração.
 
-| Suporte | TrackShare |
+| Suporte, igual para todos | Sistema do cliente / provedor MCP |
 |---|---|
-| Identidade autenticada, conector por tenant, apresentação literal e confirmação pelo código | Propriedade dos recursos, conta ativa, permissões e regras de carros/sessões |
+| Identidade autenticada, conector por tenant, apresentação literal e confirmação pelo código | Propriedade dos recursos, conta ativa, permissões e regras de negócio |
 | Persistência, trava da conversa, prova assinada e consulta de resultado incerto | Proposta vigente, cancelamento da substituída, execução transacional e idempotência |
 
-`get_matching_sessions` concede acesso e não integra a lista de leitura. A ferramenta direta `reassign_session_car` também não é exposta ao modelo.
+Não há operação de cliente fixa no código, condição por nome de cliente ou deploy exclusivo para cadastrar uma integração. O modelo pode preparar somente operações configuradas; não modifica a configuração nem emite autorização humana. Operações de escrita direta não devem ser cadastradas como consultas.
 
 ## 2. Preparação e proposta única
 
@@ -32,20 +32,20 @@ Resposta em `structuredContent`, ou um único bloco `text` com JSON:
 ```typescript
 {
   contractVersion: 1, actionId: string, status: 'pending_confirmation',
-  operation: 'reassign_session_car', summary: string,
+  operation: string, summary: string,
   argumentsHash: string, summaryHash: string, expiresAt: string
 }
 ```
 
 IDs: 1–200 caracteres alfanuméricos, `_` ou `-`. Hashes SHA-256 hexadecimais minúsculos. `summaryHash` usa bytes UTF-8 do resumo exato, sem normalização. `argumentsHash` é calculado pelo provedor sobre os argumentos persistidos e permanece opaco ao suporte. Expiração ISO-8601 UTC no futuro, no máximo cinco minutos após preparação.
 
-**Uma proposta pendente por tenant/pessoa/conversa.** Antes de preparar outra, o suporte cancela localmente a anterior. TrackShare também cancela atomicamente a anterior no backend e nunca reutiliza IDs. Preparação não altera dados de negócio. Preparar e executar devem usar a mesma trava no provedor. Proposta substituída nunca executa, mesmo com prova ainda válida.
+**Uma proposta pendente por tenant/pessoa/conversa.** Antes de preparar outra, o suporte cancela localmente a anterior. O provedor também cancela atomicamente a anterior no backend e nunca reutiliza IDs. Preparação não altera dados de negócio. Preparar e executar devem usar a mesma trava no provedor. Proposta substituída nunca executa, mesmo com prova ainda válida.
 
 Propostas em execução ou com resultado desconhecido bloqueiam nova preparação até reconciliação.
 
 ## 3. Resumo exato e confirmação humana
 
-TrackShare gera `summary` com os efeitos exatos e os recursos envolvidos. Texto simples de 1–4.000 caracteres, sem segredos, URLs internas ou controles de direção. Se a sanitização do suporte alteraria o resumo, a proposta é rejeitada; nunca apresentar versão modificada para confirmar.
+O provedor gera `summary` com os efeitos exatos e os recursos envolvidos. Texto simples de 1–4.000 caracteres, sem segredos, URLs internas ou controles de direção. Se a sanitização do suporte alteraria o resumo, a proposta é rejeitada; nunca apresentar versão modificada para confirmar.
 
 O suporte grava e apresenta o resumo literalmente, com instruções separadas de confirmar/cancelar, e persiste o ID dessa mensagem. Não chama o modelo para reescrever o resumo.
 
@@ -65,7 +65,7 @@ Outro texto invalida a proposta pendente antes de seguir ao modelo: esclarecimen
 
 ## 4. Execução e prova
 
-`execute_action` recebe somente `{actionId}`. Backend do suporte acrescenta `X-MCP-Confirmation`: JWT RS256, `typ: support-action+jwt`, `kid` de chave confiável. Privada exclusiva das ações, separada das chaves admin/widget. A pública deve ser instalada no TrackShare antes de ativar. Não confiar em `jku`, `x5u` ou `jwk` fornecidos pela prova.
+`execute_action` recebe somente `{actionId}`. Backend do suporte acrescenta `X-MCP-Confirmation`: JWT RS256, `typ: support-action+jwt`, `kid` de chave confiável. Privada exclusiva das ações, separada das chaves admin/widget. A pública deve ser instalada no provedor antes de ativar. Não confiar em `jku`, `x5u` ou `jwk` fornecidos pela prova.
 
 ```typescript
 {
@@ -77,7 +77,7 @@ Outro texto invalida a proposta pendente antes de seguir ao modelo: esclarecimen
 }
 ```
 
-Validade máxima 60 segundos, nunca após a proposta. TrackShare valida assinatura, algoritmo, chave, emissor, audiência e todos os vínculos. Consome a autorização de forma idempotente e revalida conta, propriedade, permissões, estado e regras **no momento da execução**, em transação. Mudança relevante retorna `conflict` e exige nova proposta. Não basta a permissão conferida na preparação.
+Validade máxima 60 segundos, nunca após a proposta. O provedor valida assinatura, algoritmo, chave, emissor, audiência e todos os vínculos. Consome a autorização de forma idempotente e revalida conta, propriedade, permissões, estado e regras **no momento da execução**, em transação. Mudança relevante retorna `conflict` e exige nova proposta. Não basta a permissão conferida na preparação.
 
 Prova não é enviada ao modelo/widget nem registrada em logs ou no banco de propostas. O suporte persiste confirmação e estado `executing` antes da chamada remota.
 
@@ -98,15 +98,23 @@ Prova não é enviada ao modelo/widget nem registrada em logs ou no banco de pro
 
 `get_action_status` recebe `{actionId}` com os mesmos cabeçalhos de identidade/conversa. Após timeout, queda ou reinício, consultar estado. **Nunca reenviar automaticamente `execute_action`.** Enquanto a resposta não for terminal, gravar `unknown`, informar incerteza e bloquear nova proposta. A próxima mensagem humana repete somente a consulta de estado.
 
-Cancelar pendência impede a prova. Proposta remota sem prova não executa e expira. Cancelamento após início não promete desfazer alteração. Idempotência e travas entre preparação/execução são obrigatórias no TrackShare, mesmo com a proteção do suporte.
+Cancelar pendência impede a prova. Proposta remota sem prova não executa e expira. Cancelamento após início não promete desfazer alteração. Idempotência e travas entre preparação/execução são obrigatórias no provedor, mesmo com a proteção do suporte.
 
 ## 6. Configuração e persistência
 
-Cadastro MCP do tenant aceita `actionPolicy` opcional:
+O administrador do tenant abre `/admin` → **Configure your tenant integration**, informa sua chave administrativa `tsk_` e acessa **Integration settings → Tenant MCP**. Essa chave é distinta da credencial do widget e da credencial MCP. Não concede administração da plataforma nem acesso a outros tenants. A chave existente é emitida no cadastro do tenant; não há conta ou senha de cliente específica no código.
+
+No painel, o tenant configura endpoint HTTPS público, credencial dedicada, consultas permitidas e nomes das operações; pode habilitar/desabilitar ações e remover o conector. Não é necessário pedir alteração de código ou edição manual de banco para essas configurações. O mesmo painel permite gerar, substituir e revogar sua credencial de integração do widget. O cadastro comercial inicial do tenant e a instalação da plataforma continuam sendo tarefas de operação.
+
+API self-service: GET/PUT/DELETE `/api/admin/tenants/:id/mcp`, limitada ao próprio tenant. A credencial MCP é armazenada criptografada, nunca retornada; para alterar a configuração, informar novamente. PUT recebe `serverUrl`, `serviceToken`, `allowedTools` e `actionPolicy` opcional:
 
 ```json
-{"contractVersion":1,"enabled":false,"operations":["reassign_session_car"]}
+{"contractVersion":1,"enabled":false,"operations":["change_delivery_date"]}
 ```
+
+Nomes de operação: 1–64 caracteres alfanuméricos, `_` ou `-`, até 50 nomes distintos. Política habilitada exige pelo menos um nome. O cadastro atual exige também pelo menos uma consulta. Esses nomes precisam existir no provedor; salvar configuração não implementa nem homologa o serviço remoto.
+
+GET inclui `actionVerification` com `keyId`, `algorithm`, `issuer` e `publicKeyPem`, ou `null` quando a plataforma não tem assinatura instalada. O painel disponibiliza somente a chave pública para o cliente instalar no seu provedor. A privada é configuração única da infraestrutura compartilhada, nunca por cliente e nunca exposta ao tenant. Sem assinatura, o painel bloqueia a ativação e PUT com `enabled:true` retorna 503 `ACTION_SIGNING_UNAVAILABLE`; consultas continuam configuráveis.
 
 Ausência de política ou chave privada mantém escrita desligada. PUT sem `actionPolicy` desabilita ações; o painel preserva a política ao editar consultas. Não se habilitam operações por sugestão do modelo.
 
@@ -116,9 +124,24 @@ Propostas terminais acompanham o expurgo da conversa. Conversas com proposta pen
 
 ## 7. Aceite antes da primeira escrita
 
-- Sete consultas com dados sintéticos, identidade delegada, recurso alheio negado, credencial/tenant inválidos, erros e indisponibilidade.
+- Consultas configuradas com dados sintéticos, identidade delegada, recurso alheio negado, credencial/tenant inválidos, erros e indisponibilidade.
 - Resumo literal; substituição; confirmação atrasada; citação/autoaprovação recusadas; expiração e cancelamento.
 - Renovação JWT; reinício; concorrência; falha após executar; consulta de resultado sem duplicar.
-- TrackShare: permissão revogada, conta bloqueada, estado alterado, corrida prepare/execute e repetição de prova.
+- Provedor: permissão revogada, conta bloqueada, estado alterado, corrida prepare/execute e repetição de prova.
 
-Testes locais do suporte não certificam os controles do TrackShare. Habilitar `reassign_session_car` somente após aceite conjunto. A experiência permanece inteiramente pelo chat.
+Testes locais do suporte não certificam os controles do provedor. Habilitar as operações configuradas somente após aceite da integração. A experiência permanece inteiramente pelo chat.
+
+## 8. Exemplo de configuração: TrackShare
+
+Este exemplo não restringe outros tenants e não é incorporado ao runtime.
+
+- Primeiro homologar as sete consultas: `get_user_uploads`, `get_upload_file_details`, `get_user_sessions`, `get_session_laps`, `get_user_cars`, `get_download_status`, `get_error_diagnosis`.
+- `get_matching_sessions` concede acesso: permanece fora da lista de leitura. A ferramenta direta `reassign_session_car` também fica fora dessa lista.
+- Depois da implementação e homologação do protocolo de ações no TrackShare, o próprio tenant configura `operations: ["reassign_session_car"]`. Assim somente troca de carro fica habilitada para esse cliente na primeira etapa.
+- Toda regra de carro/sessão continua no TrackShare. Outro cliente pode configurar outras operações implementadas no seu próprio MCP, sem mudar o código do suporte.
+
+## 9. Histórico da decisão
+
+- 1.1: confirmação humana persistente e operação inicial limitada no código a `reassign_session_car`; configuração somente pelo operador da plataforma.
+- 1.2: removida essa especialização; operações são dados de configuração self-service, com isolamento e painel comum. Motivo: o suporte é um produto genérico. Não relaxa confirmação humana, proposta vigente, autorização remota nem idempotência.
+- Estado: implementado e testado localmente; não publicado. Homologação remota de escrita e ativação continuam pendentes por integração.

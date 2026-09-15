@@ -452,3 +452,11 @@
 - Prepared restricted runtime/public-assets patch: 25 files, 147099 bytes. Verified existing support host by Compose project/package and identical public/internal SDK SHA-256.
 - Review still requires explicit user authorization for that payload/destination. Requested it; no deployment or migration performed.
 - TrackShare MCP temporarily disabled after transport failure; fixed client passed all 16 live read/access checks in an isolated process. Writes disabled; ordinary chat context remains available.
+
+## 2026-09-15 — Generic MCP and tenant self-service (contract 1.2)
+- Removed the client-specific operation literal; operation names are validated per-tenant configuration, with no customer branches or deployments.
+- Existing tenant administration key opens the shared integration settings; own MCP CRUD and widget credential management, no global admin access.
+- Added public action verification metadata; action enablement fails closed when platform signing is unavailable. Private signing material stays global infrastructure configuration.
+- Updated action contract, operations guide, v3 Markdown/HTML public mirrors and release product decision/history.
+- Tests: 345 server including dedicated local PostgreSQL, 41 web passed. Server and web builds passed. SDK/adapter unchanged (previously 33 + 2 passing).
+- No deployment: previous 25-file payload is obsolete; prior upload approval remains pending. No changes to PixGw, Google or external client applications.

@@ -58,7 +58,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Admin navigation">
-        {NAV_GROUPS.map((group) => (
+        {(role === 'tenant_admin' ? [{ label: 'Settings', items: [{ href: '/admin', label: 'Integration settings', icon: Building2 }] }] : NAV_GROUPS).map((group) => (
           <NavGroup key={group.label} group={group} pathname={pathname}
             onNavigate={() => setMobileOpen(false)} />
         ))}

@@ -94,7 +94,7 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
         tools: () => remote.tools(o, p, requestId),
         async prepare(raw) {
           const args = actionArguments.parse(raw);
-          if (!o.actionPolicy!.operations.includes(args.operation as 'reassign_session_car')) {
+          if (!o.actionPolicy!.operations.includes(args.operation)) {
             throw new AppError(403, 'ACTION_OPERATION_FORBIDDEN', 'Operation is not enabled');
           }
           const previous = await store.latest(p);

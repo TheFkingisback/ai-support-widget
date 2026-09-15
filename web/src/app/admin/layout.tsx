@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { TenantSelfService } from '@/components/tenant-self-service';
 import { Sidebar } from '@/components/sidebar';
 import { AdminLogin } from '@/components/admin-login';
-import { getAdminApiKey, clearAdminApiKey, listTenants } from '@/lib/api';
+import { getAdminApiKey, clearAdminApiKey, listTenants, getAdminRole } from '@/lib/api';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -43,7 +44,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </a>
       <Sidebar />
       <main id="main-content" className="flex-1 overflow-auto bg-surface-50 p-8">
-        <div className="mx-auto max-w-7xl">{children}</div>
+        <div className="mx-auto max-w-7xl">{getAdminRole() === 'tenant_admin' ? <TenantSelfService /> : children}</div>
       </main>
     </div>
   );

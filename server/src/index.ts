@@ -33,6 +33,7 @@ async function main() {
   const gateway = createGatewayService(db);
   const snapshotSvc = createSnapshotService(db, tenantService);
   const mcpStore = createMcpStore(db);
+  const actionSigner = actionSignerFromEnv();
   // Dedicated lock pool: long chat turns must not exhaust the ordinary query pool.
   const actionLockDb = drizzle(postgres(env.DATABASE_URL, { max: 4, idle_timeout: 20 }));
 
@@ -46,7 +47,7 @@ async function main() {
     costRecorder: costSvc,
     tenantService,
     resolveMcp: mcpResolver(mcpStore),
-    actions: createActionService(createActionStore(db, actionLockDb), gateway, actionSignerFromEnv()),
+    actions: createActionService(createActionStore(db, actionLockDb), gateway, actionSigner),
     apiKey: env.OPENROUTER_API_KEY,
     modelPolicy: 'fast',
   });
@@ -62,7 +63,7 @@ async function main() {
 
   const app = await buildApp({
     jwtSecret: env.WIDGET_JWT_SECRET,
-    mcpRouteOpts: { store: mcpStore, tenantService, adminAuth },
+    mcpRouteOpts: { store: mcpStore, tenantService, adminAuth, actionVerification: actionSigner?.verification },
     sessionRouteOpts: {
       store: createSessionStore(db), tenantService, widgetSecret: env.WIDGET_JWT_SECRET,
       rateLimiter: createInMemoryRateLimiter(), adminAuth,
