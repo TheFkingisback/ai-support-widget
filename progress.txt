@@ -474,3 +474,9 @@
 - Updated canonical v3 guide/controller/manifest and public mirrors; old immutable SDK assets and client ZIPs preserved. Product decision: DEV-CENTER.md.
 - Validation: 41 web + 2 adapter tests passed; production Next build passed; Chrome desktop/mobile navigation, ten documentation routes, internal downloads, clipboard, aliases and accessibility checked.
 - Prepared web-only production patch: 38 files, 72074 bytes; server/db/tenant configuration untouched. Publication pending verification.
+
+## 2026-09-15 — Dev Center published
+- Web-only release 97441e4 activated after isolated candidate checks; image dc8e2595519005afb95ea61077785f0995030630a8682cde0331d6867f18a33f. Backup and prior web image preserved.
+- Concurrent backend deployment detected and preserved; current-web records this release, current remains the backend release. No database, tenant, credential, MCP or server changes by this task.
+- Public HTTPS Chrome verification passed: 10 sections, all linked assets, search, keyboard tabs, clipboard, mobile menu and three aliases; no page errors. Public ZIP CRC and 15 SHA-256 entries verified; API health 200.
+- DEV-CENTER.md records product change and deployment state. Immutable SDK files retain exact bytes on Windows checkouts.

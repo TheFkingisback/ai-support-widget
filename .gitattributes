@@ -1,0 +1,2 @@
+# Keep immutable, hashed SDK downloads byte-for-byte across platforms.
+**/widget.v*.js -text
