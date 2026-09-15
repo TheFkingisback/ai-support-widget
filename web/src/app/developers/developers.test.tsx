@@ -1,51 +1,36 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/developers',
-  useParams: () => ({}),
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
-vi.mock('next/link', () => ({
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
-    <a href={href} {...props}>{children}</a>
-  ),
-}));
-
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import DevelopersPage from './page';
-
-describe('Developer Portal', () => {
-  it('renders hero section with title', () => {
+import { CodeBlock } from './components/code-block';
+import { DocSearch } from './components/doc-search';
+vi.mock('next/navigation', () => ({ usePathname: () => '/developers' }));
+describe('Dev Center', () => {
+  it('links to the current integration paths and switches the session example', () => {
     render(<DevelopersPage />);
-
-    expect(screen.getByTestId('developers-page')).toBeInTheDocument();
-    expect(screen.getByText(/Build AI Support/)).toBeInTheDocument();
-    expect(screen.getByText(/Into Any App/)).toBeInTheDocument();
+    expect(screen.getByRole('heading',{level:1})).toHaveTextContent('Seu produto.');
+    expect(screen.getByRole('link',{name:/Começar a integrar/})).toHaveAttribute('href','/developers/quick-start');
+    expect(screen.getByRole('link',{name:/Conecte seu MCP/})).toHaveAttribute('href','/developers/mcp');
+    fireEvent.click(screen.getByRole('tab',{name:'Resposta 200'}));
+    expect(screen.getByRole('tabpanel')).toHaveTextContent('"expiresIn": 900');
   });
-
-  it('renders navigation cards for all documentation sections', () => {
-    render(<DevelopersPage />);
-
-    expect(screen.getByText('Quick Start')).toBeInTheDocument();
-    expect(screen.getByText('Authentication')).toBeInTheDocument();
-    expect(screen.getByText('Widget SDK')).toBeInTheDocument();
-    expect(screen.getByText('API Reference')).toBeInTheDocument();
-    expect(screen.getByText('Type Definitions')).toBeInTheDocument();
-    expect(screen.getByText('Error Reference')).toBeInTheDocument();
+  it('reports clipboard failure without pretending the copy succeeded', async () => {
+    Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:vi.fn().mockRejectedValue(new Error('denied'))}});
+    render(<CodeBlock code="fixture" />);fireEvent.click(screen.getByRole('button',{name:'Copiar código'}));
+    expect(await screen.findByText('Selecione o código para copiar')).toBeInTheDocument();
   });
-
-  it('renders architecture diagram', () => {
-    render(<DevelopersPage />);
-
-    expect(screen.getByText(/Support Gateway/)).toBeInTheDocument();
-    expect(screen.getByText(/Snapshot/)).toBeInTheDocument();
+  it('copies the exact displayed code', async () => {
+    const write=vi.fn().mockResolvedValue(undefined);Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:write}});
+    render(<CodeBlock code={'first\nsecond'} />);fireEvent.click(screen.getByRole('button',{name:'Copiar código'}));
+    await waitFor(()=>expect(write).toHaveBeenCalledWith('first\nsecond'));
+    expect(await screen.findByText('Copiado')).toBeInTheDocument();
   });
-
-  it('renders feature highlights', () => {
-    render(<DevelopersPage />);
-
-    expect(screen.getByText(/AI-powered diagnostics/)).toBeInTheDocument();
-    expect(screen.getByText(/Multi-tenant SaaS/)).toBeInTheDocument();
+  it('searches with accents and handles empty results', () => {
+    HTMLDialogElement.prototype.showModal=vi.fn();render(<DocSearch/>);
+    fireEvent.click(screen.getByRole('button',{name:/Buscar na documentação/}));
+    fireEvent.change(screen.getByLabelText('Termo da busca'),{target:{value:'autenticacao'}});
+    expect(screen.getByText('Autenticação')).toBeInTheDocument();
+    expect(screen.queryByText('Downloads')).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Termo da busca'),{target:{value:'no-match-123'}});
+    expect(screen.getByText(/Nenhum resultado/)).toBeInTheDocument();
   });
 });

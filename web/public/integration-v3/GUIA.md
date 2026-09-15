@@ -1,6 +1,6 @@
 # Integração do suporte · contrato v3.0
 
-**Edição de 15/09/2026 · SDK 0.2.1 · manual para backend, frontend e operação**
+**Edição de 15/09/2026 · SDK 0.2.2 · manual para backend, frontend e operação**
 
 Este é o contrato de destino da migração. Substitui os guias anteriores para autenticação, contexto e MCP. A publicação desta versão encerra a autenticação legada imediatamente; **o prazo antigo de 21/09 não se aplica ao novo release**. Consulte `PUBLICACAO.md` no pacote para o resultado da verificação de produção. A implementação nos aplicativos clientes é responsabilidade de seus times.
 
@@ -23,11 +23,11 @@ O backend do seu aplicativo solicita uma sessão temporária à plataforma. O na
 | Falha de contexto pode usar prompt genérico | Falha explícita; nenhuma conversa com resposta aparente de sucesso |
 | Ações genéricas / ticket placeholder | Sem botões sugeridos de ações não implementadas; rotas retornam 501 quando indisponíveis |
 
-O chat e o MCP têm aceites separados. Não marcar “integração concluída” só porque o widget aparece. A primeira entrega pode ser chat com contexto e MCP desligado. A base v3 é de leitura. Escrita pelo chat requer a extensão de ações 1.2 e SDK 0.2.2, ainda pendentes de publicação; até sua ativação, alterações permanecem no aplicativo.
+O chat e o MCP têm aceites separados. Não marcar “integração concluída” só porque o widget aparece. A primeira entrega pode ser chat com contexto e MCP desligado. A base v3 é de leitura. Escrita pelo chat requer a extensão de ações 1.2 e SDK 0.2.2, publicados; a ativação depende de assinatura e homologação da integração; até sua ativação, alterações permanecem no aplicativo.
 
 ## 2. Ambientes, responsáveis e informações necessárias
 
-Plataforma: `https://support-ai.pontes.uk`. Emissor: `POST /api/widget/sessions`. SDK: `https://support-ai.pontes.uk/widget.v0.2.1.js`. Manifesto: `https://support-ai.pontes.uk/widget.manifest.json`. Use o ID de tenant do anexo individual; **não recrie um tenant existente**.
+Plataforma: `https://support-ai.pontes.uk`. Emissor: `POST /api/widget/sessions`. SDK: `https://support-ai.pontes.uk/widget.v0.2.2.js`. Manifesto: `https://support-ai.pontes.uk/widget.manifest.json`. Use o ID de tenant do seu projeto, disponível no painel; **não recrie um tenant existente**.
 
 | Responsável | Entrega |
 |---|---|
@@ -128,7 +128,7 @@ Cada novo caso requer `context.userState`, `context.userHistory` e `context.user
 | errors do backend | ts, errorCode, errorClass string, route, requestId; resourceId pode ser null |
 | docs | Até 50; content até 32.000 caracteres, demais textos até 4.096 |
 
-Datas são strings ISO-8601 com timezone; serializar Date no backend. Não inventar updatedAt, durationMs, retryable ou categorias para apenas passar no schema: usar a origem real ou omitir o registro e informar a indisponibilidade da fonte. O anexo do seu projeto aponta os mapeamentos necessários.
+Datas são strings ISO-8601 com timezone; serializar Date no backend. Não inventar updatedAt, durationMs, retryable ou categorias para apenas passar no schema: usar a origem real ou omitir o registro e informar a indisponibilidade da fonte. Registre os mapeamentos específicos do seu projeto no aceite.
 
 Teto do contexto enviado: **262.144 bytes UTF-8 (256 KiB)**. O HTTP completo continua limitado a 1.048.576 bytes. O orçamento do snapshot é `min(maxContextBytes do tenant, 262144)`. Se nem a parte essencial couber, a solicitação falha; reduzir metadados/documentos no backend. Sugerimos começar com 48 KiB, dez entidades e conhecimento curto.
 
@@ -142,7 +142,7 @@ Novos snapshots passam por validação, redação, redução e orçamento antes 
 
 O contexto é um snapshot do início da conversa, não uma consulta em tempo real. Informar timestamps e fontes. `updateContext()` vale para o próximo caso; para dados atuais durante uma conversa, usar ferramenta de leitura homologada.
 
-## 9. Frontend e SDK 0.2.1
+## 9. Frontend e SDK 0.2.2
 
 Servir o SDK fixado do pacote ou da URL pública. Conferir SHA-256 com `widget.manifest.json`. Evitar script duplicado, versão flutuante e cache de JWT. O controlador de referência em `widget-controller.mjs` monta após bootstrap, aguarda onOpen, renova e impede montagem tardia após logout.
 
@@ -261,4 +261,4 @@ A plataforma mantém registros históricos; sua retenção/expurgo integral aind
 
 Devolver nome do projeto, tenant, backend/frontend commits, data UTC, SDK/hash, credencial instalada (sim/não, sem valor), chat aprovado, MCP aprovado/desligado, testes negativos, canal humano e pendências. Não concluir com “parece funcionar”.
 
-O pacote contém este guia em HTML/Markdown, anexo específico, schema do servidor, fixture mínima, adaptador do emissor, autenticação MCP, controlador frontend, SDK, prompt, testes isolados, checklist e manifesto SHA-256. Contratos novos não são endpoints já implementados no aplicativo cliente: os anexos apontam exatamente as alterações necessárias.
+O kit público contém este guia em Markdown, schema do servidor, fixture mínima, adaptador do emissor, autenticação MCP, controlador frontend, SDK, prompt, testes isolados, checklist, contrato de ações e manifesto SHA-256. Pacotes individuais podem acrescentar anexos específicos. Os exemplos não implementam automaticamente os endpoints do aplicativo cliente. A versão navegável está em https://support-ai.pontes.uk/developers.

@@ -1,36 +1,13 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/developers/integration',
-  useParams: () => ({}),
-  useRouter: () => ({ push: vi.fn() }),
-}));
-
-vi.mock('next/link', () => ({
-  default: ({ href, children, ...props }: { href: string; children: React.ReactNode }) => (
-    <a href={href} {...props}>{children}</a>
-  ),
-}));
-
 import IntegrationGuidePage from './page';
-
-describe('Integration Guide', () => {
-  it('renders all 6 steps', () => {
-    render(<IntegrationGuidePage />);
-
-    expect(screen.getByTestId('integration-page')).toBeInTheDocument();
-    expect(screen.getByText('Integration Guide')).toBeInTheDocument();
-
-    for (let i = 1; i <= 6; i++) {
-      expect(screen.getByTestId(`step-${i}`)).toBeInTheDocument();
-    }
-
-    expect(screen.getByText('Create Tenant')).toBeInTheDocument();
-    expect(screen.getByText('Configure JWT Secret')).toBeInTheDocument();
-    expect(screen.getByText('Implement 4 Endpoints')).toBeInTheDocument();
-    expect(screen.getByText('Add Widget Script')).toBeInTheDocument();
-    expect(screen.getByText('Test with Demo Page')).toBeInTheDocument();
-    expect(screen.getByText('Go Live')).toBeInTheDocument();
+describe('Integration acceptance guide', () => {
+  it('requires real response, isolation and a separate MCP acceptance', () => {
+    render(<IntegrationGuidePage/>);
+    expect(screen.getByRole('heading',{level:1,name:'Homologação'})).toBeInTheDocument();
+    expect(screen.getByText(/O aceite do chat é separado do aceite do MCP/)).toBeInTheDocument();
+    expect(screen.getByText(/Contexto válido, snapshot correspondente e resposta real/)).toBeInTheDocument();
+    expect(screen.getByRole('link',{name:/Baixar formulário/})).toHaveAttribute('href','/integration-v3/ACEITE.md');
+    expect(screen.queryByText('Implement 4 Endpoints')).not.toBeInTheDocument();
   });
 });

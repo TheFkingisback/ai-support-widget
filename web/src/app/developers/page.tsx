@@ -1,180 +1,19 @@
 import Link from 'next/link';
-import {
-  Rocket, Shield, Puzzle, Server,
-  Code2, AlertTriangle, Map, Zap,
-  GitBranch, Lock, BarChart3, Globe,
-} from 'lucide-react';
-
-const navCards = [
-  {
-    href: '/developers/quick-start',
-    icon: Rocket,
-    title: 'Quick Start',
-    desc: 'Get up and running in under 10 minutes',
-    color: 'from-green-500/20 to-emerald-500/20 border-green-500/20',
-    iconColor: 'text-green-400',
-  },
-  {
-    href: '/developers/authentication',
-    icon: Shield,
-    title: 'Authentication',
-    desc: 'JWT signing, token lifecycle, and security',
-    color: 'from-yellow-500/20 to-amber-500/20 border-yellow-500/20',
-    iconColor: 'text-yellow-400',
-  },
-  {
-    href: '/developers/widget-sdk',
-    icon: Puzzle,
-    title: 'Widget SDK',
-    desc: 'Configuration, theming, and event hooks',
-    color: 'from-purple-500/20 to-violet-500/20 border-purple-500/20',
-    iconColor: 'text-purple-400',
-  },
-  {
-    href: '/developers/api-reference',
-    icon: Server,
-    title: 'API Reference',
-    desc: 'Every endpoint, parameter, and response',
-    color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/20',
-    iconColor: 'text-blue-400',
-  },
-  {
-    href: '/developers/types',
-    icon: Code2,
-    title: 'Type Definitions',
-    desc: 'TypeScript interfaces and schemas',
-    color: 'from-cyan-500/20 to-teal-500/20 border-cyan-500/20',
-    iconColor: 'text-cyan-400',
-  },
-  {
-    href: '/developers/error-reference',
-    icon: AlertTriangle,
-    title: 'Error Reference',
-    desc: 'Error codes, handling, and retry logic',
-    color: 'from-red-500/20 to-pink-500/20 border-red-500/20',
-    iconColor: 'text-red-400',
-  },
+import { ArrowRight, ArrowUpRight, Fingerprint, Braces, Blocks, Workflow, ShieldCheck, Package, Terminal, Layers3 } from 'lucide-react';
+import { ExampleTabs } from './components/example-tabs';
+const paths=[
+  {title:'Comece a integração',desc:'Prepare a identidade, emita uma sessão e abra a primeira conversa.',href:'quick-start',icon:Terminal,tag:'01 / PRIMEIROS PASSOS'},
+  {title:'Dê contexto à IA',desc:'Estado, histórico e logs autorizados, em um contrato claro.',href:'types',icon:Layers3,tag:'02 / CONTEXTO'},
+  {title:'Conecte seu MCP',desc:'Consulte seu sistema e prepare ações com confirmação humana.',href:'mcp',icon:Workflow,tag:'03 / FERRAMENTAS'},
 ];
-
-const features = [
-  { icon: Zap, text: 'AI-powered diagnostics with evidence-based responses' },
-  { icon: GitBranch, text: 'Multi-tenant SaaS with full data isolation' },
-  { icon: Lock, text: 'Enterprise-grade security with PII redaction' },
-  { icon: BarChart3, text: 'Built-in analytics, CSAT, and cost tracking' },
-  { icon: Globe, text: 'Embeddable anywhere with Shadow DOM isolation' },
-  { icon: Map, text: '6-step integration with zero dependencies' },
-];
-
+const resources=[{title:'Autenticação',desc:'Sessões de 15 minutos e credenciais por tenant.',href:'authentication',icon:Fingerprint},{title:'Referência da API',desc:'Requisições, respostas e limites do contrato.',href:'api-reference',icon:Braces},{title:'Widget SDK',desc:'Instalação, callbacks e ciclo de vida.',href:'widget-sdk',icon:Blocks},{title:'Homologação',desc:'Da primeira resposta à publicação verificada.',href:'integration',icon:ShieldCheck}];
 export default function DevelopersPage() {
-  return (
-    <div data-testid="developers-page">
-      {/* Hero */}
-      <div className="relative mb-16 overflow-hidden rounded-2xl border border-gray-800/50 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-950/30 p-8 sm:p-12">
-        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl" />
-        <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-purple-500/5 blur-3xl" />
-        <div className="relative">
-          <span className="mb-4 inline-block rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
-            Developer Portal
-          </span>
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Build AI Support
-            <br />
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-              Into Any App
-            </span>
-          </h1>
-          <p className="mb-8 max-w-xl text-lg leading-relaxed text-gray-400">
-            Embed intelligent, context-aware support that diagnoses real problems
-            using your system&apos;s actual state. Not a chatbot — an investigator.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/developers/quick-start" className="btn-primary">
-              Get Started
-            </Link>
-            <Link href="/developers/integration" className="btn-secondary">
-              Integration Guide
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Feature highlights */}
-      <div className="mb-16">
-        <h2 className="mb-6 text-sm font-semibold uppercase tracking-widest text-gray-500">
-          Why developers choose this
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((f) => {
-            const Icon = f.icon;
-            return (
-              <div key={f.text} className="flex items-start gap-3 rounded-lg p-3">
-                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-blue-400" aria-hidden="true" />
-                <span className="text-sm text-gray-300">{f.text}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Navigation cards */}
-      <div className="mb-16">
-        <h2 className="mb-6 text-sm font-semibold uppercase tracking-widest text-gray-500">
-          Documentation
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {navCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <Link
-                key={card.href}
-                href={card.href}
-                className={`group rounded-xl border bg-gradient-to-br p-5 transition-all
-                  hover:scale-[1.02] hover:shadow-lg hover:shadow-black/20 ${card.color}`}
-              >
-                <Icon className={`mb-3 h-6 w-6 ${card.iconColor}`} aria-hidden="true" />
-                <h3 className="mb-1 font-semibold text-white group-hover:text-blue-300">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-gray-400">{card.desc}</p>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Architecture overview */}
-      <div className="mb-16">
-        <h2 className="mb-6 text-sm font-semibold uppercase tracking-widest text-gray-500">
-          Architecture
-        </h2>
-        <ArchitectureDiagram />
-      </div>
-    </div>
-  );
-}
-
-function ArchitectureDiagram() {
-  return (
-    <div className="overflow-x-auto rounded-xl border border-gray-800 bg-[#0d1117] p-6">
-      <pre className="text-center text-xs leading-relaxed text-gray-400 sm:text-sm">
-{`┌──────────────┐     ┌───────────────────┐     ┌──────────────────────────┐
-│              │     │                   │     │    Support Gateway        │
-│   Host App   │────▶│   Widget SDK      │────▶│    (Fastify)             │
-│              │     │   (JS embed)      │     │                          │
-└──────────────┘     └───────────────────┘     └─────────┬────────────────┘
-                                                         │
-                                               ┌─────────┴─────────┐
-                                               │                   │
-                                        ┌──────┴───────┐   ┌──────┴────────┐
-                                        │  Snapshot     │   │  AI           │
-                                        │  Builder      │   │  Orchestrator │
-                                        └──────┬───────┘   └──────┬────────┘
-                                               │                  │
-                                        ┌──────┴───────┐   ┌──────┴────────┐
-                                        │  Client APIs  │   │  OpenRouter   │
-                                        │  Knowledge    │   │  LLM          │
-                                        └──────────────┘   └───────────────┘`}
-      </pre>
-    </div>
-  );
+  return <div data-testid="developers-page">
+    <div className="dc-announcement"><span>CONTRATO V3</span> O guia da integração atual, do backend ao chat.<Link href="/developers/changelog">O que mudou <ArrowRight size={14}/></Link></div>
+    <section className="dc-hero"><div className="dc-hero-copy"><p className="dc-eyebrow"><span/>DOCUMENTAÇÃO PARA QUEM CONSTRÓI</p><h1>Seu produto.<br/>Todo o contexto.<br/><em>Um suporte melhor.</em></h1><p>Conecte a IA ao que acontece no seu sistema. Integre sessões, contexto e ferramentas com um contrato pensado para o seu time.</p><div className="dc-hero-actions"><Link className="dc-button" href="/developers/quick-start">Começar a integrar <ArrowRight size={17}/></Link><Link className="dc-text-link" href="/developers/downloads">Baixar o kit <Package size={16}/></Link></div><div className="dc-hero-labels"><span>SDK 0.2.2</span><i/> JavaScript · REST · MCP</div></div><ExampleTabs/></section>
+    <section className="dc-flow" aria-label="Fluxo de integração">{[{icon:Fingerprint,n:'01',t:'Seu aplicativo',s:'Autentica a pessoa'},{icon:Layers3,n:'02',t:'Contexto autorizado',s:'Explica o que aconteceu'},{icon:Workflow,n:'03',t:'AI Support',s:'Responde com evidências'}].map((x,i)=><div className="dc-flow-node" key={x.n}><x.icon size={22}/><span><small>{x.n}</small><strong>{x.t}</strong><p>{x.s}</p></span>{i<2&&<ArrowRight className="dc-flow-arrow" size={18}/>}</div>)}</section>
+    <section className="dc-start"><div className="dc-section-heading"><div><p className="dc-eyebrow">DO PRIMEIRO PASSO À PRODUÇÃO</p><h2>Encontre seu ponto de partida.</h2></div><span>Três caminhos. Uma integração.</span></div><div className="dc-path-grid">{paths.map(x=><Link className="dc-path-card" key={x.href} href={'/developers/'+x.href}><div><x.icon size={24}/><ArrowUpRight size={20}/></div><small>{x.tag}</small><h3>{x.title}</h3><p>{x.desc}</p></Link>)}</div></section>
+    <section className="dc-resources"><div><p className="dc-eyebrow">TENHA A REFERÊNCIA À MÃO</p><h2>Menos adivinhação.<br/>Mais implementação.</h2><p>Exemplos copiáveis, schemas e orientações que acompanham o contrato publicado.</p><Link className="dc-text-link" href="/developers/downloads">Explorar downloads <ArrowRight size={16}/></Link></div><div className="dc-resource-grid">{resources.map(x=><Link href={'/developers/'+x.href} key={x.href}><x.icon size={20}/><span><h3>{x.title}</h3><p>{x.desc}</p></span><ArrowUpRight size={15}/></Link>)}</div></section>
+    <section className="dc-bottom-callout"><div><span className="dc-eyebrow">PRONTO PARA CONECTAR?</span><h2>Configure sua integração no painel.</h2><p>Gerencie a credencial do widget, o conector MCP e as consultas do seu projeto.</p></div><Link className="dc-button" href="/admin">Abrir painel <ArrowUpRight size={17}/></Link></section>
+  </div>;
 }

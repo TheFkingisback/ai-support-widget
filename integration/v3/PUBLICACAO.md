@@ -1,7 +1,7 @@
-# Publicação do contrato v3
+# Contrato v3 e SDK 0.2.2
 
-Release de 15/09/2026. O endpoint `/api/health` identifica o servidor como versão 3.0.0; o manifesto identifica o SDK 0.2.1. A publicação deste contrato encerra a aceitação legada imediatamente.
-
-Os pacotes individuais entregues aos clientes contêm o relatório de verificação de produção com horário e revisão publicados. Esta cópia pública descreve o contrato e não certifica a implementação de nenhum cliente.
-
-A integração de cada aplicativo depende da instalação de sua credencial no backend, adequação ao schema de contexto e aceite de ponta a ponta. MCP permanece desligado até o cadastro individual e a homologação de ferramentas. Consulte o operador para o estado do seu tenant; nunca envie segredos em relatórios.
+A documentação navegável está em https://support-ai.pontes.uk/developers.
+A plataforma oferece sessões por tenant, contexto push e configuração MCP self-service.
+SDK atual: 0.2.2. SDK 0.2.1 preservado para chat e consultas; confirmação de escrita exige 0.2.2.
+Escrita depende de assinatura configurada, implementação e homologação do provedor. O kit não a ativa.
+A publicação da plataforma não certifica a integração de um aplicativo. Registrar o aceite específico em ACEITE.md.

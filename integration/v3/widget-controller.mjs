@@ -1,7 +1,7 @@
 let sdkPromise;
 
 /** Load the pinned local SDK once. The host must never load a second SDK version. */
-export function loadSdk(src = '/vendor/ai-support/widget.v0.2.1.js') {
+export function loadSdk(src = '/vendor/ai-support/widget.v0.2.2.js') {
   if (sdkPromise) return sdkPromise;
   if (window.AISupportWidget) return Promise.reject(new Error('Unexpected SDK already loaded'));
   sdkPromise = new Promise((resolve, reject) => {

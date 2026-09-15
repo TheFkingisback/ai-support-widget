@@ -2,7 +2,7 @@
 const nextConfig = {
   output: 'standalone',
   async redirects() {
-    return [{ source: '/developers/:path*', destination: '/integration-v3/INICIAR.html', permanent: false }];
+    return [{ source: '/integration-v3/INICIAR.html', destination: '/developers', permanent: false }, { source: '/devcenter', destination: '/developers', permanent: false }, { source: '/docs', destination: '/developers', permanent: false }];
   },
 };
 module.exports = nextConfig;

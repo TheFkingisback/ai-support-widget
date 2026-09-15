@@ -1,0 +1,14 @@
+import type { Article } from './model';
+export const article: Article = {
+  slug: "types",
+  title: "Contexto e schemas",
+  category: "CONSTRUA",
+  summary: "Envie os dados certos, com identidade e limites definidos.",
+  keywords: "json snapshot userState userHistory userLogs schema",
+  sections: [
+    {"id": "snapshot", "title": "Contexto que explica o problema", "text": ["O contexto é uma projeção autorizada dos dados do aplicativo no começo da conversa. O servidor valida, reduz e redige padrões conhecidos de segredos antes de persistir o snapshot. Isso complementa a seleção de dados feita pelo seu backend."]},
+    {"id": "shape", "title": "Três blocos obrigatórios", "text": ["userState.userId e userState.tenantId precisam corresponder à sessão emitida. Não envie o formato interno de snapshot no lugar do contexto push."], "code": "{\n  \"userState\": {\n    \"userId\": \"usr_usuario_autenticado\",\n    \"tenantId\": \"ten_do_projeto\",\n    \"roles\": [\n      \"member\"\n    ],\n    \"plan\": \"standard\",\n    \"featuresEnabled\": [],\n    \"entities\": [],\n    \"activeErrors\": [],\n    \"limitsReached\": []\n  },\n  \"userHistory\": {\n    \"windowHours\": 24,\n    \"events\": []\n  },\n  \"userLogs\": {\n    \"recentRequests\": [],\n    \"jobs\": [],\n    \"errors\": []\n  },\n  \"knowledgePack\": {\n    \"docs\": []\n  }\n}", "language": "JSON"},
+    {"id": "limits", "title": "Campos e limites", "text": ["O orçamento total de contexto é de até 262.144 bytes UTF-8, sujeito ao limite menor configurado para o tenant. Datas devem ter timezone. Use os limites do JSON Schema para validar o corpo completo."], "rows": [["Campo", "Regra"], ["entities / activeErrors / limitsReached", "Até 100 itens em cada lista"], ["activeErrors.errorClass", "validation, permission, infra ou business"], ["userHistory.windowHours", "Maior que zero; até 720 horas"], ["events / recentRequests / errors", "Até 1.000 itens em cada lista"], ["jobs.status", "queued, running, succeeded, failed ou canceled"], ["knowledgePack.docs", "Até 50 documentos; conteúdo até 32.000 caracteres cada"]], "links": [{"label": "Baixar JSON Schema", "href": "/integration-v3/context.schema.json"}, {"label": "Baixar contexto mínimo", "href": "/integration-v3/context.example.json"}]},
+    {"id": "freshness", "title": "Atualidade e privacidade", "text": ["Registre fonte e horário reais. Não transforme sucesso de envio em pagamento confirmado, nem logs de ações em requisições HTTP fictícias. Informe quais fontes estão indisponíveis.", "updateContext vale para o próximo caso. Para consultar dados atuais durante a conversa, configure uma ferramenta MCP de leitura.", "Não envie tokens, cookies, strings de conexão, URLs assinadas, exportações completas ou dados de outras pessoas. Um campo retentionDays não comprova que o expurgo operacional esteja configurado."]},
+  ],
+};

@@ -468,3 +468,9 @@
 - Original SDK 0.2.1 bytes and message format verified; two delivered v3 ZIPs retain all 16 manifest hashes each; four adapter tests passed.
 - TrackShare seven reads restored; 16 live MCP checks and full chat lap lookup passed. Two synthetic remote users/resources cleaned; closed support evidence case cas_f4ecaefe9b104c1c retained.
 - Writes remain disabled pending global signing setup, provider implementation and joint acceptance. No client code changes or credential rotation.
+
+## 2026-09-15 — Dev Center v3
+- Replaced the developers wildcard redirect and obsolete pages with a responsive public documentation portal, search, keyboard navigation, copyable examples, API/MCP references and a generic SDK 0.2.2 kit.
+- Updated canonical v3 guide/controller/manifest and public mirrors; old immutable SDK assets and client ZIPs preserved. Product decision: DEV-CENTER.md.
+- Validation: 41 web + 2 adapter tests passed; production Next build passed; Chrome desktop/mobile navigation, ten documentation routes, internal downloads, clipboard, aliases and accessibility checked.
+- Prepared web-only production patch: 38 files, 72074 bytes; server/db/tenant configuration untouched. Publication pending verification.

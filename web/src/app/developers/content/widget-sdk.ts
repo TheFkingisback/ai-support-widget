@@ -1,0 +1,14 @@
+import type { Article } from './model';
+export const article: Article = {
+  slug: "widget-sdk",
+  title: "Widget SDK",
+  category: "PRIMEIROS PASSOS",
+  summary: "Instalação, configuração e ciclo de vida do SDK 0.2.2.",
+  keywords: "react javascript frontend logout destroy",
+  sections: [
+    {"id": "install", "title": "Instale uma versão fixada", "text": ["Baixe o SDK e confira seu SHA-256. Sirva o arquivo no seu domínio ou carregue a URL pública versionada. Uma única versão deve ser carregada por página."], "code": "<script src=\"https://support-ai.pontes.uk/widget.v0.2.2.js\"></script>", "language": "HTML", "links": [{"label": "SDK e manifesto", "href": "/developers/downloads"}]},
+    {"id": "configure", "title": "Monte na sessão autenticada", "text": ["Os callbacks abaixo são do seu aplicativo. Eles devem usar a sessão atual, validar as respostas e tratar indisponibilidade. Inicialize somente depois do bootstrap autorizado."], "code": "// Depois de autenticar e revalidar a pessoa no seu backend.\n// Estes callbacks são implementados pelo seu aplicativo.\nconst data = await fetchAuthenticatedBootstrap();\nconst widget = AISupportWidget.init({\n  apiUrl: 'https://support-ai.pontes.uk',\n  tenantKey: data.tenantKey,\n  jwt: data.jwt,\n  context: data.context,\n  locale: 'pt-BR',\n  theme: 'light',\n  position: 'bottom-right',\n  onTokenRefresh: async () =>\n    (await fetchAuthenticatedBootstrap()).jwt,\n  onOpen: async () =>\n    widget.updateContext(await fetchAuthorizedContext()),\n});\n// No logout, troca de pessoa/organização/papel e unmount:\n// widget.destroy();", "language": "JavaScript"},
+    {"id": "options", "title": "Configuração e métodos", "text": ["tenantKey, jwt, apiUrl e context compõem a configuração de integração. O contexto precisa acompanhar cada novo caso."], "rows": [["Campo / método", "Função"], ["theme / position / brandColor", "Tema, posição e cor do widget"], ["onTokenRefresh", "Retorna um novo JWT da mesma identidade"], ["onOpen", "Atualiza o contexto antes da abertura"], ["open() / close()", "Abre / fecha a interface"], ["updateJwt(jwt)", "Atualiza a sessão da mesma pessoa"], ["updateContext(context)", "Atualiza o contexto do próximo caso"], ["destroy()", "Aborta requisições e remove instância e persistência local"]]},
+    {"id": "lifecycle", "title": "React, navegação e PWA", "text": ["Monte em useEffect com callbacks estáveis e identidade como dependência. Execute destroy no cleanup e imediatamente no logout. Contexto e sessões não devem entrar no cache da PWA ou em ferramentas de replay."], "note": "Shadow DOM isola estilos, mas a CSP precisa permitir o carregamento e o estilo usado pelo SDK. Não remova a política inteira para fazê-lo funcionar.", "links": [{"label": "Baixar controlador de referência", "href": "/integration-v3/widget-controller.mjs"}]},
+  ],
+};

@@ -4,7 +4,7 @@ import { McpSection } from './mcp-section';
 import { mcpSettings } from '@/lib/mcp-api';
 vi.mock('@/lib/api', () => ({ getAdminRole: () => 'tenant_admin', getAdminTenantId: () => 'ten_a' }));
 vi.mock('@/lib/mcp-api', () => ({ mcpSettings: vi.fn() }));
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => { vi.clearAllMocks(); });
 const base = { configured: true, serverUrl: 'https://example.com/mcp', allowedTools: ['read_a'] };
 describe('Self-service MCP action policy', () => {
   it('allows the tenant to configure a generic operation and read its public verification key', async () => {
