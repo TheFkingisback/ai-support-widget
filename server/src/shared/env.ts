@@ -23,6 +23,8 @@ const envSchema = z.object({
   WORKSPACE_PUBLIC_ORIGIN: z.string().url().refine(value => new URL(value).origin === value).optional(),
   POSTMARK_SERVER_TOKEN: z.preprocess(value => value === '' ? undefined : value, z.string().min(1).optional()),
   POSTMARK_FROM: z.preprocess(value => value === '' ? undefined : value, z.string().email().optional()),
+  TURN_QUEUE_MODE: z.enum(['off', 'inline', 'producer', 'worker']).optional(),
+  TURN_WORKER_CONCURRENCY: z.coerce.number().int().positive().optional(),
   JWT_MAX_AGE: z.string().optional(),
   TOKEN_ENCRYPTION_KEY: z.string().min(32).optional(),
   MCP_SERVER_URL: z.string().url().optional(),

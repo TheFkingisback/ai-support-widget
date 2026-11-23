@@ -35,7 +35,10 @@ candidate=$(docker run -d --rm --publish 127.0.0.1::3000 "$web_image")
 stop_candidate() { docker stop "$candidate" >/dev/null 2>&1 || true; }
 trap stop_candidate EXIT
 address=$(docker port "$candidate" 3000/tcp)
-curl -fsS --retry 15 --retry-connrefused --retry-delay 1 "http://$address/" > /dev/null
+if ! curl -fsS --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 "http://$address/" > /dev/null; then
+  docker logs --tail 30 "$candidate"
+  exit 1
+fi
 curl -fsS "http://$address/signup" > /dev/null
 curl -fsS "http://$address/downloads/ai-support-starter.zip" > /dev/null
 stop_candidate
@@ -46,7 +49,8 @@ trap - EXIT
 db_id=$(docker ps -q --filter "label=com.docker.compose.project=$project" --filter label=com.docker.compose.service=postgres)
 server_id=$(docker ps -q --filter "label=com.docker.compose.project=$project" --filter label=com.docker.compose.service=server)
 web_id=$(docker ps -q --filter "label=com.docker.compose.project=$project" --filter label=com.docker.compose.service=web)
-[[ -n "$db_id" && -n "$server_id" && -n "$web_id" ]]
+redis_id=$(docker ps -q --filter "label=com.docker.compose.project=$project" --filter label=com.docker.compose.service=redis)
+[[ -n "$db_id" && -n "$server_id" && -n "$web_id" && -n "$redis_id" ]]
 
 backup="/root/ops-backups/$id"
 mkdir -p "$backup"
@@ -61,9 +65,10 @@ if [[ ! -L "$release/.env.prod" ]]; then ln -s "$private_env" "$release/.env.pro
 compose=(docker compose -p "$project" --env-file "$private_env" --env-file "$action_env")
 if [[ -f "$mail_env" ]]; then compose+=(--env-file "$mail_env"); fi
 
-for migration in "$release"/server/src/migrations/00{5,6}-*.sql; do
+for migration in "$release"/server/src/migrations/00{5,6,7}-*.sql; do
   docker exec -i "$db_id" psql -v ON_ERROR_STOP=1 -1 -U aiwidget -d aiwidget < "$migration"
 done
+docker exec "$redis_id" redis-cli CONFIG SET appendonly yes maxmemory-policy noeviction maxmemory 0 | grep -qx OK
 
 activate() {
   "${compose[@]}" -f "$release/docker-compose.prod.yml" -f "$release/docker-compose.actions.yml" \

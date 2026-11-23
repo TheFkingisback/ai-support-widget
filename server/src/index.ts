@@ -11,6 +11,7 @@ import { createGatewayService } from './modules/gateway/gateway.service.js';
 import { createSnapshotService } from './modules/snapshot/snapshot.service.js';
 import { createContextService } from './modules/context/context.service.js';
 import { createOrchestratorService } from './modules/orchestrator/orchestrator.service.js';
+import { createQueuedOrchestrator } from './modules/orchestrator/queued-orchestrator.js';
 import { createTenantService } from './modules/admin/tenant.service.js';
 import { createAnalyticsService } from './modules/admin/analytics.service.js';
 import { createAuditService } from './modules/admin/audit.service.js';
@@ -53,6 +54,15 @@ async function main() {
     apiKey: env.OPENROUTER_API_KEY,
     modelPolicy: 'fast',
   });
+  const queueMode = env.TURN_QUEUE_MODE ?? 'off';
+  const queue = queueMode === 'off' ? undefined : await createQueuedOrchestrator(orchestrator, env.REDIS_URL, queueMode, env.TURN_WORKER_CONCURRENCY ?? 8);
+  if (queueMode === 'worker' && queue) {
+    log.info('Support turn worker is ready');
+    const shutdown = () => { void queue.close().finally(() => process.exit(0)); };
+    process.once('SIGTERM', shutdown);
+    process.once('SIGINT', shutdown);
+    return;
+  }
 
   const modelListService = createModelListService(env.OPENROUTER_API_KEY);
   const authOpts = {
@@ -80,7 +90,7 @@ async function main() {
     gatewayService: gateway,
     turnIdempotency: createTurnIdempotency(db),
     snapshotService: snapshotSvc,
-    orchestratorService: orchestrator,
+    orchestratorService: queue?.service ?? orchestrator,
     adminRouteOpts: {
       tenantService,
       analyticsService: createAnalyticsService(createDbAnalyticsDataSource(db)),
@@ -95,6 +105,11 @@ async function main() {
   });
 
   await app.listen({ port: env.PORT, host: '0.0.0.0' });
+  if (queue) {
+    const shutdown = () => { void app.close().finally(() => queue.close()).finally(() => process.exit(0)); };
+    process.once('SIGTERM', shutdown);
+    process.once('SIGINT', shutdown);
+  }
   log.info(`Server running on port ${env.PORT}`);
 }
 

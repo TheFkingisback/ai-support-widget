@@ -19,7 +19,7 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory-policy noeviction
     volumes:
       - redisdata:/data
     networks:
@@ -59,9 +59,12 @@ services:
       WORKSPACE_PUBLIC_ORIGIN: https://${DOMAIN}
       POSTMARK_SERVER_TOKEN: ${POSTMARK_SERVER_TOKEN:-}
       POSTMARK_FROM: ${POSTMARK_FROM:-}
+      TURN_QUEUE_MODE: ${TURN_QUEUE_MODE:-inline}
+      TURN_WORKER_CONCURRENCY: ${TURN_WORKER_CONCURRENCY:-8}
       TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:?Set a private encryption key}
     ports:
       - "127.0.0.1:3005:3005"
+    stop_grace_period: 2m
     networks:
       - aiwidget-net
     healthcheck:

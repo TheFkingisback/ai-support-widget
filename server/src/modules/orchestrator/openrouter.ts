@@ -114,8 +114,6 @@ export async function callLLM(
         signal: controller.signal,
       });
 
-      clearTimeout(timeout);
-
       if (res.status >= 500 && attempt === 0) {
         log.warn('callLLM: 5xx error, retrying', requestId, { status: res.status });
         lastError = new Error(`OpenRouter returned ${res.status}`);
@@ -144,7 +142,6 @@ export async function callLLM(
 
       return { content, model, tokensIn, tokensOut, latencyMs, estimatedCost: cost, toolCalls };
     } catch (err) {
-      clearTimeout(timeout);
       if (err instanceof LLMError) throw err;
       lastError = err instanceof Error ? err : new Error(String(err));
 
@@ -157,6 +154,8 @@ export async function callLLM(
         log.warn('callLLM: error, retrying', requestId, { error: lastError.message });
         continue;
       }
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

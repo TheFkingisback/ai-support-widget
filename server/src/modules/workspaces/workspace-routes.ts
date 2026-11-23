@@ -7,6 +7,7 @@ import { createIntegrationCredential, issueWidgetSession } from '../sessions/ses
 import type { SessionStore } from '../sessions/session.store.js';
 import type { WorkspaceMail } from './workspace-mail.js';
 import { hash, secret, sessionDuration, type WorkspaceStore } from './workspace-store.js';
+import { registerWorkspaceOperations } from './workspace-operations.js';
 
 const prefix = '/api/workspace';
 const cookie = '__Host-support_workspace';
@@ -129,5 +130,6 @@ export async function registerWorkspaceRoutes(app: FastifyInstance, options: Wor
       await store.removeOrigin(tenant, new URL(origin).origin);
       return { origins: await store.listOrigins(tenant) };
     });
+    registerWorkspaceOperations(api, options, account);
   }, { prefix });
 }

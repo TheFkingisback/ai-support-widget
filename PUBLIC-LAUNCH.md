@@ -12,6 +12,8 @@ Use the source from the verified Git commit in a new `/root/ai-support-releases/
 
 Check the public home, demo, starter ZIP, signup, Dev Center, and API health after activation. With Postmark configured, verify delivery to an authorized test inbox and complete the workflow through workspace creation and a sandbox reply. Verify staging origin DNS and credential issuance using a test environment you control.
 
+The launch deployment runs a Redis-backed conversation queue with append-only persistence. Inline mode runs producers and workers in each application process. For separate processes, use `TURN_QUEUE_MODE=producer` on API hosts and `TURN_QUEUE_MODE=worker` on worker hosts. Both roles need the same Redis, database, and token-encryption configuration. Monitor worker errors, queue age, memory, and provider latency. Workspaces can invite developers and support teammates and view conversation history by environment.
+
 ## Local verification
 
 Run `bash scripts/verify-release.sh` from the repository. Set `WORKSPACE_TEST_DATABASE_URL` and `ACTION_TEST_DATABASE_URL` to a dedicated local PostgreSQL database named `aiwidget_dev` to include the database-backed tests. Rebuild the pinned SDK with `npm run build --workspace @ai-support/widget` and refresh the starter ZIP with [the packaging script](integration/starter/package.ps1).

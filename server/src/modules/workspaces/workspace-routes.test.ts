@@ -27,7 +27,7 @@ describe.skipIf(!database)('Self-service workspaces on PostgreSQL', () => {
     sql = postgres(database!, { connection: { search_path: schema } });
     const migrations = await sql.reserve();
     try {
-      for (const file of ['001-init.sql', '002-integration-credentials.sql', '003-tenant-mcp.sql', '004-action-proposals.sql', '005-workspaces.sql', '006-turn-idempotency.sql']) {
+      for (const file of ['001-init.sql', '002-integration-credentials.sql', '003-tenant-mcp.sql', '004-action-proposals.sql', '005-workspaces.sql', '006-turn-idempotency.sql', '007-workspace-team.sql']) {
         await migrations.unsafe(await readFile(new URL(`../../migrations/${file}`, import.meta.url), 'utf8'));
       }
     } finally { migrations.release(); }
@@ -103,5 +103,21 @@ describe.skipIf(!database)('Self-service workspaces on PostgreSQL', () => {
     expect(await turns.run(scope, execute)).toEqual({ count: 1 });
     await expect(turns.run({ ...scope, input: { message: 'Changed' } }, execute)).rejects.toMatchObject({ errorCode: 'TURN_ID_CONFLICT' });
     expect(await turns.run({ ...scope, tenantId: 'ten_other' }, execute)).toEqual({ count: 2 });
+  });
+
+  it('accepts a scoped team invitation and removes the member and their sessions', async () => {
+    const owner = await register('owner@sample.invalid', 'Team Test');
+    const email = 'member@sample.invalid';
+    const invitation = await app.inject({ method: 'POST', url: '/api/workspace/team', headers: owner, payload: { email, role: 'support' } });
+    expect(invitation.statusCode).toBe(202);
+    const token = new URLSearchParams(new URL(linkByEmail.get(email)!).hash.slice(1)).get('confirm');
+    const confirmation = await app.inject({ method: 'POST', url: '/api/workspace/confirm', headers: { origin: publicOrigin }, payload: { token } });
+    expect(confirmation.statusCode).toBe(200);
+    const headers = { origin: publicOrigin, cookie: String(confirmation.headers['set-cookie']).split(';')[0] };
+    expect((await app.inject({ url: '/api/workspace', headers })).json().role).toBe('support');
+    expect((await app.inject({ method: 'POST', url: '/api/workspace/environments/production/credential', headers })).statusCode).toBe(403);
+    expect((await app.inject({ url: '/api/workspace/conversations?env=production', headers })).json()).toEqual({ conversations: [], next: null });
+    expect((await app.inject({ method: 'DELETE', url: '/api/workspace/team', headers: owner, payload: { email } })).statusCode).toBe(200);
+    expect((await app.inject({ url: '/api/workspace', headers })).statusCode).toBe(401);
   });
 });

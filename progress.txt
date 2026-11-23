@@ -488,3 +488,9 @@
 - Production chat evidence cas_31922df71d4d4580: real model reads/preparation, literal provider summary, human confirmation, one car/category mutation and one audit; repeated/unbound/cancelled confirmations cannot mutate again.
 - Synthetic TrackShare resources/authentication data removed; evidence case closed without rating. Support API image d29cec8c7a8bfb9e3193fcfa06132c08b5c65211aaee7c8860bfd10ac8089805.
 - Validation: 343 server tests passed, 2 database-dependent tests skipped; TypeScript and production build passed. Preserve docker-compose.actions.yml plus /root/ai-support-secrets/actions.env on subsequent deployments.
+
+## 2026-11-23 — Free public launch and workspace operations
+- Replaced the landing page and demo, shipped the runnable starter and SDK 0.2.3, and added email sign-in, workspace provisioning, environment configuration, team invitations, and conversation history.
+- Added database migrations for clean installs, workspace data, and duplicate turn requests. Updated the production builds and added release verification, backup, and rollback commands.
+- Removed product-level session and conversation ceilings. Added a Redis-backed conversation queue with independent producer and worker modes and validated 24 concurrent synthetic turns with two workers.
+- Validation before activation included 349 server, 41 web, 33 widget, and 2 adapter tests, application builds, browser verification of the starter, and Postmark's test API. Real email delivery requires separately configured Postmark credentials.

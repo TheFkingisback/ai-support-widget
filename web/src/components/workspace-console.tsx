@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { workspaceApi, type Workspace } from '@/lib/workspace-api';
 import { WorkspaceEnvironmentPanel } from './workspace-environment';
+import { WorkspaceConversations, WorkspaceTeam } from './workspace-operations';
 
 type WidgetInstance = { open(): Promise<void>; destroy(): void };
 type WidgetHost = Window & { AISupportWidget?: { init(config: Record<string, unknown>): WidgetInstance } };
@@ -76,7 +77,11 @@ export function WorkspaceConsole() {
       <button disabled={opening} type="button" className="rounded-lg bg-teal-300 px-4 py-2 font-semibold text-slate-950 disabled:opacity-50" onClick={() => void openSandbox()}>{opening ? 'Opening…' : 'Open sandbox chat'}</button>
     </section>
     {error && <p role="alert" className="text-rose-200">{error}</p>}
-    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-semibold">Connect your application</h2><Link className="text-teal-300 underline" href="/developers/quick-start">Integration instructions</Link><button type="button" className="text-teal-300 underline" onClick={() => void reload().catch(failure => setError(failure.message))}>Refresh status</button></div>
-    <div className="grid gap-4 md:grid-cols-2"><WorkspaceEnvironmentPanel env="staging" data={workspace.staging} reload={reload} /><WorkspaceEnvironmentPanel env="production" data={workspace.production} reload={reload} /></div>
+    {workspace.role !== 'support' && <>
+      <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-semibold">Connect your application</h2><Link className="text-teal-300 underline" href="/developers/quick-start">Integration instructions</Link><button type="button" className="text-teal-300 underline" onClick={() => void reload().catch(failure => setError(failure.message))}>Refresh status</button></div>
+      <div className="grid gap-4 md:grid-cols-2"><WorkspaceEnvironmentPanel env="staging" data={workspace.staging} reload={reload} /><WorkspaceEnvironmentPanel env="production" data={workspace.production} reload={reload} /></div>
+    </>}
+    <WorkspaceConversations />
+    {workspace.role === 'owner' && <WorkspaceTeam />}
   </div>;
 }
