@@ -1,5 +1,6 @@
 import type { Evidence } from './types.js';
 import { widgetCopy } from './copy.js';
+import { localeInfo } from '@ai-support/shared/locales';
 
 /** Renders evidence blocks inline in AI messages */
 export function renderEvidence(evidenceList: Evidence[], locale: string): HTMLElement {
@@ -26,13 +27,14 @@ export function renderEvidence(evidenceList: Evidence[], locale: string): HTMLEl
       });
     } else if (ev.type === 'timestamp') {
       const date = new Date(ev.value);
-      const formatted = date.toLocaleString(locale);
+      const formatted = date.toLocaleString(localeInfo(locale).formatting);
       badge.textContent = `${ev.label}: ${formatted}`;
     } else if (ev.type === 'log_excerpt') {
       badge.textContent = ev.value;
     } else {
       badge.textContent = `${ev.label}: ${ev.value}`;
     }
+    badge.dir = 'auto';
 
     container.appendChild(badge);
   }

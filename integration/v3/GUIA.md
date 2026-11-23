@@ -1,10 +1,10 @@
 # Integração do suporte · contrato v3.0
 
-**Edição de 15/09/2026 · SDK 0.2.2 · manual para backend, frontend e operação**
+**Edição de 23/11/2026 · SDK 0.2.4 · manual para backend, frontend e operação**
 
 Este é o contrato de destino da migração. Substitui os guias anteriores para autenticação, contexto e MCP. A publicação desta versão encerra a autenticação legada imediatamente; **o prazo antigo de 21/09 não se aplica ao novo release**. Consulte `PUBLICACAO.md` no pacote para o resultado da verificação de produção. A implementação nos aplicativos clientes é responsabilidade de seus times.
 
-> Extensão de ações pelo chat: [contrato 1.2](../actions-v1/CONTRATO.md). Integração genérica com configuração self-service publicada no runtime 4d40be6 em 15/09/2026. Escrita desabilitada até aceite da integração. As regras de sessão/contexto/leitura abaixo permanecem vigentes.
+> Extensão de ações pelo chat: [contrato 1.2](../actions-v1/CONTRATO.md). Integração genérica com configuração self-service publicada no runtime 4d40be6 em 23/11/2026. Escrita desabilitada até aceite da integração. As regras de sessão/contexto/leitura abaixo permanecem vigentes.
 
 [TOC]
 
@@ -23,11 +23,11 @@ O backend do seu aplicativo solicita uma sessão temporária à plataforma. O na
 | Falha de contexto pode usar prompt genérico | Falha explícita; nenhuma conversa com resposta aparente de sucesso |
 | Ações genéricas / ticket placeholder | Sem botões sugeridos de ações não implementadas; rotas retornam 501 quando indisponíveis |
 
-O chat e o MCP têm aceites separados. Não marcar “integração concluída” só porque o widget aparece. A primeira entrega pode ser chat com contexto e MCP desligado. A base v3 é de leitura. Escrita pelo chat requer a extensão de ações 1.2 e SDK 0.2.2, publicados; a ativação depende de assinatura e homologação da integração; até sua ativação, alterações permanecem no aplicativo.
+O chat e o MCP têm aceites separados. Não marcar “integração concluída” só porque o widget aparece. A primeira entrega pode ser chat com contexto e MCP desligado. A base v3 é de leitura. Escrita pelo chat requer a extensão de ações 1.2 e SDK 0.2.4, publicados; a ativação depende de assinatura e homologação da integração; até sua ativação, alterações permanecem no aplicativo.
 
 ## 2. Ambientes, responsáveis e informações necessárias
 
-Plataforma: `https://support-ai.pontes.uk`. Emissor: `POST /api/widget/sessions`. SDK: `https://support-ai.pontes.uk/widget.v0.2.2.js`. Manifesto: `https://support-ai.pontes.uk/widget.manifest.json`. Use o ID de tenant do seu projeto, disponível no painel; **não recrie um tenant existente**.
+Plataforma: `https://support-ai.pontes.uk`. Emissor: `POST /api/widget/sessions`. SDK: `https://support-ai.pontes.uk/widget.v0.2.4.js`. Manifesto: `https://support-ai.pontes.uk/widget.manifest.json`. Use o ID de tenant do seu projeto, disponível no painel; **não recrie um tenant existente**.
 
 | Responsável | Entrega |
 |---|---|
@@ -142,7 +142,7 @@ Novos snapshots passam por validação, redação, redução e orçamento antes 
 
 O contexto é um snapshot do início da conversa, não uma consulta em tempo real. Informar timestamps e fontes. `updateContext()` vale para o próximo caso; para dados atuais durante uma conversa, usar ferramenta de leitura homologada.
 
-## 9. Frontend e SDK 0.2.2
+## 9. Frontend e SDK 0.2.4
 
 Servir o SDK fixado do pacote ou da URL pública. Conferir SHA-256 com `widget.manifest.json`. Evitar script duplicado, versão flutuante e cache de JWT. O controlador de referência em `widget-controller.mjs` monta após bootstrap, aguarda onOpen, renova e impede montagem tardia após logout.
 

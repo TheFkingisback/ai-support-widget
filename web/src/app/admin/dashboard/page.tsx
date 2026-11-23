@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
@@ -93,10 +94,9 @@ function RecentSessions({ sessions }: { sessions: SessionSummary[] }) {
   return (
     <div className="card">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-surface-800">Recent Sessions</h2>
+        <h2 className="text-sm font-semibold text-surface-800"><L>{"Recent Sessions"}</L></h2>
         <Link href="/admin/sessions"
-          className="flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300">
-          View all <ArrowRight size={12} />
+          className="flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300"><L>{"View all"}</L>{" "}<ArrowRight size={12} />
         </Link>
       </div>
       <div className="space-y-2">
@@ -114,7 +114,7 @@ function RecentSessions({ sessions }: { sessions: SessionSummary[] }) {
           </Link>
         ))}
         {sessions.length === 0 && (
-          <p className="py-4 text-center text-sm text-surface-600">No sessions yet</p>
+          <p className="py-4 text-center text-sm text-surface-600"><L>{"No sessions yet"}</L></p>
         )}
       </div>
     </div>
@@ -125,10 +125,9 @@ function TenantsList({ tenants }: { tenants: Tenant[] }) {
   return (
     <div className="card">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-surface-800">Tenants</h2>
+        <h2 className="text-sm font-semibold text-surface-800"><L>{"Tenants"}</L></h2>
         <Link href="/admin/tenants"
-          className="flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300">
-          Manage <ArrowRight size={12} />
+          className="flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300"><L>{"Manage"}</L>{" "}<ArrowRight size={12} />
         </Link>
       </div>
       <div className="space-y-2">

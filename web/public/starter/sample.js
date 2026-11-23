@@ -5,6 +5,16 @@
   const encode = value => btoa(JSON.stringify(value)).replaceAll('=', '').replaceAll('+', '-').replaceAll('/', '_');
   const jwt = `${encode({ alg: 'none' })}.${encode({ tenantId, userId, sub: userId })}.fixture`;
   const status = document.getElementById('status');
+  const preferred = new URLSearchParams(window.location.search).get('lang') || navigator.language || 'en-US';
+  const locale = window.AISupportWidget?.localization?.(preferred);
+  const copy = locale?.messages ?? {};
+  if (locale) {
+    document.documentElement.lang = locale.locale;
+    document.documentElement.dir = locale.dir;
+    document.querySelectorAll('[data-copy]').forEach(element => {
+      if (copy[element.dataset.copy]) element.textContent = copy[element.dataset.copy];
+    });
+  }
   const context = {
     userState: { tenantId, userId, roles: ['member'], plan: 'standard', featuresEnabled: [], entities: [], activeErrors: [], limitsReached: [] },
     userHistory: { windowHours: 24, events: [] },
@@ -12,7 +22,7 @@
   };
   const time = '2026-01-12T14:08:00Z';
   const caseData = { id: 'cas_sample', tenantId, userId, status: 'active', snapshotId: 'scs_sample', createdAt: time, updatedAt: time, resolvedAt: null, messageCount: 2, feedback: null };
-  const reply = { id: 'msg_sample', caseId: caseData.id, role: 'assistant', content: 'The import stopped at row 42 of customers.csv. The email column is empty on that row. Add the missing email, then upload the CSV again.', actions: [], evidence: [{ type: 'job_id', label: 'Import', value: 'import_1042' }, { type: 'error_code', label: 'Error', value: 'INVALID_EMAIL' }, { type: 'timestamp', label: 'Failed at', value: time }], confidence: null, createdAt: time };
+  const reply = { id: 'msg_sample', caseId: caseData.id, role: 'assistant', content: copy.sampleAnswer ?? 'The import stopped at row 42 of customers.csv. The email column is empty on that row. Add the missing email, then upload the CSV again.', actions: [], evidence: [{ type: 'job_id', label: copy.sampleImport ?? 'Import', value: 'import_1042' }, { type: 'error_code', label: copy.sampleError ?? 'Error', value: 'INVALID_EMAIL' }, { type: 'timestamp', label: copy.sampleTime ?? 'Failed at', value: time }], confidence: null, createdAt: time };
   let messages = [];
   const originalFetch = window.fetch.bind(window);
   // This sample runs in its own window. Only its synthetic requests are intercepted.
@@ -25,6 +35,7 @@
       return Response.json(url.pathname.endsWith('/messages') ? { message: reply } : { case: caseData, snapshot: { id: caseData.snapshotId }, aiMessage: reply });
     }
     if (url.pathname.endsWith('/cas_sample')) return Response.json({ case: caseData, messages });
+    if (url.pathname.endsWith('/suggestions')) return Response.json({ id: 'idea_sample' }, { status: 201 });
     return Response.json({ ok: true });
   };
   let widget;
@@ -33,14 +44,16 @@
       status.textContent = 'The widget script could not load. Check the SDK URL and reload the page.';
       return;
     }
-    widget = window.AISupportWidget.init({ apiUrl, tenantKey: tenantId, jwt, context, theme: 'light' });
+    widget = window.AISupportWidget.init({ apiUrl, tenantKey: tenantId, jwt, context, theme: 'light', locale: locale?.locale });
+    document.getElementById('open').disabled = false;
+    document.getElementById('reset').disabled = false;
   }
   document.getElementById('open').addEventListener('click', () => { void widget?.open(); });
   document.getElementById('reset').addEventListener('click', () => {
     widget?.destroy();
     messages = [];
     mount();
-    if (widget) status.textContent = 'Sample reset.';
+    if (widget) status.textContent = copy.sampleResetDone ?? 'Sample reset.';
   });
   mount();
 })();

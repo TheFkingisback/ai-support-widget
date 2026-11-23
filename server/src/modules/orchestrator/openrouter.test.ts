@@ -4,7 +4,7 @@ import { resolveModel } from './openrouter.js';
 describe('resolveModel', () => {
   it('returns fast model for fast policy', () => {
     const model = resolveModel('fast');
-    expect(model).toBe('anthropic/claude-sonnet-4');
+    expect(model).toBe('google/gemini-2.5-flash');
   });
 
   it('returns strong model for strong policy', () => {
@@ -14,7 +14,7 @@ describe('resolveModel', () => {
 
   it('returns fast model for auto policy', () => {
     const model = resolveModel('auto');
-    expect(model).toBe('anthropic/claude-sonnet-4');
+    expect(model).toBe('google/gemini-2.5-flash');
   });
 
   it('returns preferredModel when provided, ignoring policy', () => {
@@ -34,6 +34,6 @@ describe('resolveModel', () => {
 
   it('falls back to policy when preferredModel is empty string', () => {
     const model = resolveModel('fast', '');
-    expect(model).toBe('anthropic/claude-sonnet-4');
+    expect(model).toBe('google/gemini-2.5-flash');
   });
 });

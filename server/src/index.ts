@@ -21,10 +21,12 @@ import { createAdminAuth, createLoginHandler } from './modules/admin/admin-auth.
 import { createDbTenantStore, createDbCostStore, createDbAuditStore } from './shared/db-stores.js';
 import { createDbAnalyticsDataSource, createDbSessionDataSource } from './shared/db-data-sources.js';
 import { createMcpStore, mcpResolver } from './modules/orchestrator/mcp-store.js';
+import { createMcpSettings } from './modules/orchestrator/mcp.routes.js';
 import { createSessionStore } from './modules/sessions/session.store.js';
 import { createWorkspaceStore } from './modules/workspaces/workspace-store.js';
 import { createWorkspaceMail } from './modules/workspaces/workspace-mail.js';
 import { createTurnIdempotency } from './modules/gateway/turn-idempotency.js';
+import { createSuggestionStore } from './modules/workspaces/suggestions.js';
 
 async function main() {
   const env = getEnv();
@@ -73,9 +75,12 @@ async function main() {
   const loginHandler = createLoginHandler(authOpts);
   const sessionDataSource = createDbSessionDataSource(db);
   const sessionStore = createSessionStore(db);
+  const suggestions = createSuggestionStore(db);
   const workspaceOpts = env.WORKSPACE_PUBLIC_ORIGIN ? {
     store: createWorkspaceStore(db), sessions: sessionStore, widgetSecret: env.WIDGET_JWT_SECRET,
     publicOrigin: env.WORKSPACE_PUBLIC_ORIGIN,
+    suggestions,
+    mcp: createMcpSettings({ store: mcpStore, tenantService, actionVerification: actionSigner?.verification }),
     mail: env.POSTMARK_SERVER_TOKEN && env.POSTMARK_FROM
       ? createWorkspaceMail(env.POSTMARK_SERVER_TOKEN, env.POSTMARK_FROM) : undefined,
   } : undefined;
@@ -88,6 +93,7 @@ async function main() {
     },
     workspaceOpts,
     gatewayService: gateway,
+    suggestions,
     turnIdempotency: createTurnIdempotency(db),
     snapshotService: snapshotSvc,
     orchestratorService: queue?.service ?? orchestrator,

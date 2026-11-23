@@ -1,13 +1,11 @@
+import { L } from '@/lib/localization';
 import { EndpointCard } from '../components/endpoint-card';
 
 export function ClientEndpoints() {
   return (
     <div className="space-y-4">
       <div className="mb-6 rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4 text-sm text-yellow-200">
-        <strong className="text-yellow-400">Important:</strong> These endpoints are called
-        server-to-server by the Support Gateway using the service token you provided
-        during tenant setup. They must return JSON.
-      </div>
+        <strong className="text-yellow-400"><L>{"Important:"}</L></strong><L>{"These endpoints are called server-to-server by the Support Gateway using the service token you provided during tenant setup. They must return JSON."}</L></div>
 
       <EndpointCard
         method="GET"

@@ -5,6 +5,8 @@ import { getStyles } from './styles.js';
 import { createApiClient, type ApiClient } from './api.js';
 import { createChatPanel, type ChatPanel } from './chat.js';
 import { saveCaseId, loadCaseId, clearCaseId } from './persistence.js';
+import { defaultLocale, localeInfo, matchLocale } from '@ai-support/shared/locales';
+import { messagesFor } from '@ai-support/shared/messages';
 
 export interface WidgetInstance {
   open(): Promise<void>;
@@ -19,6 +21,11 @@ export interface WidgetInstance {
 export class AISupportWidget {
   private static instance: WidgetInstance | null = null;
 
+  static localization(input?: string) {
+    const info = localeInfo(input);
+    return { ...info, messages: messagesFor(info.locale) };
+  }
+
   static init(config: WidgetConfig): WidgetInstance {
     if (AISupportWidget.instance) {
       AISupportWidget.instance.destroy();
@@ -26,7 +33,8 @@ export class AISupportWidget {
 
     const theme = config.theme ?? 'light';
     const position = config.position ?? 'bottom-right';
-    const locale = config.locale ?? 'en-US';
+    const locale = matchLocale(config.locale) ?? matchLocale(document.documentElement.lang)
+      ?? navigator.languages?.map(matchLocale).find(Boolean) ?? defaultLocale;
     const copy = widgetCopy(locale);
     let handoffUrl: string | undefined;
     try {
@@ -49,6 +57,8 @@ export class AISupportWidget {
     // Create host element and shadow DOM
     const host = document.createElement('div');
     host.id = 'ai-support-widget';
+    host.lang = locale;
+    host.dir = localeInfo(locale).dir;
     document.body.appendChild(host);
 
     const shadow = host.attachShadow({ mode: 'open' });
@@ -62,6 +72,7 @@ export class AISupportWidget {
     let jwt = config.jwt;
     const apiClient: ApiClient = createApiClient({
       apiUrl: config.apiUrl,
+      locale,
       getJwt: () => jwt,
       signal: abort.signal,
       onTokenRefresh: config.onTokenRefresh

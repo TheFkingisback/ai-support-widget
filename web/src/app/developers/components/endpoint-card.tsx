@@ -1,5 +1,6 @@
 'use client';
 
+import { L } from '@/lib/localization';
 import { useState, useCallback } from 'react';
 import { ChevronDown, Copy, Check } from 'lucide-react';
 
@@ -56,14 +57,14 @@ export function EndpointCard({ method, path, description, params, body, response
 
         {params && params.length > 0 && (
           <div className="mb-4">
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Parameters</h4>
+            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500"><L>{"Parameters"}</L></h4>
             <div className="space-y-1.5">
               {params.map((p) => (
                 <div key={p.name} className="flex items-baseline gap-3 text-sm">
                   <code className="text-blue-400">{p.name}</code>
                   <span className="text-[11px] text-gray-600">{p.type}</span>
                   {p.required && (
-                    <span className="text-[10px] font-medium text-red-400">required</span>
+                    <span className="text-[10px] font-medium text-red-400"><L>{"required"}</L></span>
                   )}
                   <span className="text-gray-500">{p.desc}</span>
                 </div>
@@ -74,7 +75,7 @@ export function EndpointCard({ method, path, description, params, body, response
 
         {body && (
           <div className="mb-4">
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500">Request Body</h4>
+            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500"><L>{"Request Body"}</L></h4>
             <pre className="rounded-lg bg-[#0d1117] p-3 text-xs text-gray-300 overflow-x-auto">{body}</pre>
           </div>
         )}
@@ -87,14 +88,13 @@ export function EndpointCard({ method, path, description, params, body, response
             className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`}
             aria-hidden="true"
           />
-          {expanded ? 'Hide' : 'Show'} response
-        </button>
+          {expanded ? 'Hide' : 'Show'}<L>{"response"}</L></button>
       </div>
 
       {expanded && (
         <div className="border-t border-gray-800 bg-[#0d1117]">
           <div className="flex items-center justify-between border-b border-gray-800/50 px-4 py-2">
-            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">Response</span>
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500"><L>{"Response"}</L></span>
             <button
               onClick={copyResponse}
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300"

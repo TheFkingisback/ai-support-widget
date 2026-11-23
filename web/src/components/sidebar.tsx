@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -48,8 +49,8 @@ export function Sidebar() {
           <Shield size={16} className="text-white" />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-bold text-white tracking-tight">AI Support</span>
-          <span className="text-2xs text-surface-600">Admin Console</span>
+          <span className="text-sm font-bold text-white tracking-tight"><L>{"AI Support"}</L></span>
+          <span className="text-2xs text-surface-600"><L>{"Admin Console"}</L></span>
         </div>
         <button onClick={() => setMobileOpen(false)}
           className="ml-auto text-surface-600 hover:text-white md:hidden" aria-label="Close menu">
@@ -80,8 +81,7 @@ export function Sidebar() {
         </div>
         <button onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-surface-600 transition-all hover:bg-surface-300 hover:text-surface-800">
-          <LogOut size={16} aria-hidden="true" /> Sign Out
-        </button>
+          <LogOut size={16} aria-hidden="true" /><L>{"Sign Out"}</L></button>
       </div>
     </div>
   );

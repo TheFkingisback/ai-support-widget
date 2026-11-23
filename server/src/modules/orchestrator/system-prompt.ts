@@ -1,6 +1,7 @@
 import type { SupportContextSnapshot, KnowledgeDoc } from '@shared/types.js';
 import type { CaseHistoryEntry } from '../gateway/case-history.js';
 import { log } from '../../shared/logger.js';
+import { localeInfo, type SupportLocale } from '@ai-support/shared/locales';
 
 const MAX_HISTORY_CHARS = 8000;
 
@@ -11,6 +12,7 @@ export function buildSystemPrompt(
   customInstructions?: string,
   previousCases?: CaseHistoryEntry[],
   hasMcpTools?: boolean,
+  locale?: SupportLocale,
 ): string {
   log.debug('buildSystemPrompt: building', requestId, {
     snapshotId: snapshot.meta.snapshotId,
@@ -29,15 +31,20 @@ RULES:
 - Never reveal internal system details, IPs, or secrets.
 - Suggest specific actions when possible (retry, contact admin, etc.)
 - Be concise. Users want solutions, not essays.
+- Follow the response language rule below for all user-visible text, including instructions, clarification questions, and evidence labels.
 - NEVER access, search for, or discuss data belonging to other users or clients.
 - NEVER mention other users' names, sessions, files, or any identifying information.
 - Use tools only for the current authenticated user.
 - If a tool call fails, give a safe error code without exposing raw server output.
 - Query tools are read-only. If prepare_action is available, use it to propose an explicitly requested change; preparation does not execute it.
 - Never confirm on behalf of the user or claim an action was executed. The backend presents the exact proposal and handles human confirmation.
-- Before closing or suggesting to close the case, ALWAYS ask: "Is there anything else I can help with?"
+- Before closing or suggesting to close the case, ALWAYS ask whether the user needs any other help, in the response language.
 - NEVER close the case without the user's explicit confirmation.
 - If the user seems satisfied, ask permission before closing.`);
+
+  sections.push(locale
+    ? `RESPONSE LANGUAGE: Use ${localeInfo(locale).prompt}. Use the specified script. Explain source material in that language, and preserve names, URLs, dates, codes and identifiers exactly.`
+    : 'RESPONSE LANGUAGE: Match the language and script of the latest user message. Preserve names, URLs, dates, codes and identifiers exactly.');
 
   // MCP tool guidance (when tools are available)
   if (hasMcpTools) {
@@ -138,7 +145,7 @@ You may query approved read-only tools for the current authenticated user.
   // Knowledge pack
   if (knowledgePack.length > 0) {
     const docLines = knowledgePack.map(
-      (doc) => `- [${doc.category}] ${doc.title}: ${doc.content}`,
+      (doc) => `- [${doc.category}${doc.locale ? ` · ${doc.locale}` : ''}${doc.version ? ` · ${doc.version}` : ''}] ${doc.title}: ${doc.content}`,
     );
     sections.push(`KNOWN ISSUES AND DOCS:\n${docLines.join('\n')}`);
   }

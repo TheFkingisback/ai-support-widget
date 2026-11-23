@@ -19,6 +19,34 @@ export interface McpRouteOpts {
   store: McpStore; tenantService: TenantService; actionVerification?: ActionVerification;
   adminAuth: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
 }
+export function createMcpSettings(opts: Omit<McpRouteOpts, 'adminAuth'>) {
+  return {
+    async get(tenantId: string, requestId?: string) {
+      await opts.tenantService.getTenant(tenantId, requestId);
+      const record = await opts.store.find(tenantId);
+      const actionVerification = opts.actionVerification ?? null;
+      return record ? { actionVerification, configured: true, serverUrl: record.serverUrl, allowedTools: record.allowedTools,
+        actionPolicy: record.actionPolicy ?? null, updatedAt: record.updatedAt.toISOString() }
+        : { actionVerification, configured: false, serverUrl: '', allowedTools: [] };
+    },
+    async replace(tenantId: string, payload: unknown, requestId?: string) {
+      const data = validateBody(body, payload);
+      if (data.actionPolicy?.enabled && !opts.actionVerification) {
+        throw new AppError(503, 'ACTION_SIGNING_UNAVAILABLE', 'Human-confirmed actions are not available on this platform yet');
+      }
+      const url = validateMcpUrl(data.serverUrl);
+      await opts.tenantService.getTenant(tenantId, requestId);
+      await opts.store.save({ tenantId, serverUrl: url.href, encryptedToken: encryptToken(data.serviceToken),
+        allowedTools: [...new Set(data.allowedTools)], actionPolicy: data.actionPolicy ?? null, updatedAt: new Date() });
+      return { ok: true };
+    },
+    async remove(tenantId: string, requestId?: string) {
+      await opts.tenantService.getTenant(tenantId, requestId);
+      await opts.store.remove(tenantId);
+      return { ok: true };
+    },
+  };
+}
 /** Self-service MCP configuration scoped to the authenticated tenant. Credentials are write-only and separate from widget signing. */
 export async function registerMcpRoutes(app: FastifyInstance, opts: McpRouteOpts): Promise<void> {
   const route = '/api/admin/tenants/:id/mcp';
@@ -31,26 +59,8 @@ export async function registerMcpRoutes(app: FastifyInstance, opts: McpRouteOpts
     }
     reply.header('Cache-Control', 'no-store');
   };
-  app.get<{ Params: { id: string } }>(route, { preHandler: auth }, async req => {
-    await opts.tenantService.getTenant(req.params.id, req.id);
-    const record = await opts.store.find(req.params.id);
-    const actionVerification = opts.actionVerification ?? null;
-    return record ? { actionVerification, configured: true, serverUrl: record.serverUrl, allowedTools: record.allowedTools, actionPolicy: record.actionPolicy ?? null,
-      updatedAt: record.updatedAt.toISOString() } : { actionVerification, configured: false, serverUrl: '', allowedTools: [] };
-  });
-  app.put<{ Params: { id: string } }>(route, { preHandler: auth }, async req => {
-    const data = validateBody(body, req.body);
-    if (data.actionPolicy?.enabled && !opts.actionVerification) {
-      throw new AppError(503, 'ACTION_SIGNING_UNAVAILABLE', 'Human-confirmed actions are not available on this platform yet');
-    }
-    const url = validateMcpUrl(data.serverUrl);
-    await opts.tenantService.getTenant(req.params.id, req.id);
-    await opts.store.save({ tenantId: req.params.id, serverUrl: url.href,
-      encryptedToken: encryptToken(data.serviceToken), allowedTools: [...new Set(data.allowedTools)], actionPolicy: data.actionPolicy ?? null, updatedAt: new Date() });
-    return { ok: true };
-  });
-  app.delete<{ Params: { id: string } }>(route, { preHandler: auth }, async req => {
-    await opts.tenantService.getTenant(req.params.id, req.id);
-    await opts.store.remove(req.params.id); return { ok: true };
-  });
+  const settings = createMcpSettings(opts);
+  app.get<{ Params: { id: string } }>(route, { preHandler: auth }, req => settings.get(req.params.id, req.id));
+  app.put<{ Params: { id: string } }>(route, { preHandler: auth }, req => settings.replace(req.params.id, req.body, req.id));
+  app.delete<{ Params: { id: string } }>(route, { preHandler: auth }, req => settings.remove(req.params.id, req.id));
 }

@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect } from 'react';
 import {
   BarChart3, CheckCircle2, MessageSquare, Clock, Star, Users,
@@ -85,11 +86,11 @@ export default function AnalyticsPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="card">
-              <h3 className="mb-4 text-sm font-semibold text-surface-800">Top Intents</h3>
+              <h3 className="mb-4 text-sm font-semibold text-surface-800"><L>{"Top Intents"}</L></h3>
               <IntentsChart data={analytics.topIntents} />
             </div>
             <div className="card">
-              <h3 className="mb-4 text-sm font-semibold text-surface-800">Top Errors</h3>
+              <h3 className="mb-4 text-sm font-semibold text-surface-800"><L>{"Top Errors"}</L></h3>
               <ErrorsChart data={analytics.topErrors} />
             </div>
           </div>
@@ -97,7 +98,7 @@ export default function AnalyticsPage() {
           <CostSummaryCard costs={costs} loading={false} />
         </div>
       ) : (
-        <p className="text-sm text-surface-600">Select a tenant to view analytics.</p>
+        <p className="text-sm text-surface-600"><L>{"Select a tenant to view analytics."}</L></p>
       )}
     </div>
   );

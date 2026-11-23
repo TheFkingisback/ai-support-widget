@@ -12,7 +12,8 @@ export function createBootstrapHandler({ authenticate, collectContext, issueSess
       if (context?.userState?.userId !== user.userId || context?.userState?.tenantId !== session.tenantKey) {
         return Response.json({ error: 'CONTEXT_IDENTITY_MISMATCH' }, { status: 403, headers });
       }
-      return Response.json({ ...session, context }, { headers });
+      const locale = typeof user.locale === 'string' && user.locale.length <= 100 ? user.locale : undefined;
+      return Response.json({ ...session, context, ...(locale ? { locale } : {}) }, { headers });
     } catch {
       return Response.json({ error: 'SUPPORT_BOOTSTRAP_UNAVAILABLE' }, { status: 503, headers });
     }

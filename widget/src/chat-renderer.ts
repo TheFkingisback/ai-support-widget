@@ -21,6 +21,7 @@ export function renderMessage(msg: Message, deps: ChatRendererDeps): HTMLElement
   el.dataset.messageId = msg.id;
 
   const textEl = document.createElement('span');
+  textEl.dir = 'auto';
   textEl.textContent = msg.content;
   el.appendChild(textEl);
 

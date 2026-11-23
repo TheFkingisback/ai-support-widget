@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState } from 'react';
 import { Copy, Check, KeyRound } from 'lucide-react';
 import { resetTenantKey } from '@/lib/api';
@@ -37,13 +38,11 @@ export function AdminKeySection({ tenantId }: Props) {
 
   return (
     <div className="card">
-      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-600">
-        Admin API Key
-      </h2>
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Admin API Key"}</L></h2>
       <div className="space-y-3">
         {newKey ? (
           <div className="space-y-3 animate-fade-in">
-            <p className="text-sm text-amber-400">Save this key now. It will not be shown again.</p>
+            <p className="text-sm text-amber-400"><L>{"Save this key now. It will not be shown again."}</L></p>
             <div className="flex items-center gap-2">
               <code className="flex-1 break-all rounded-xl bg-surface-300 px-4 py-3 text-sm text-emerald-400">
                 {newKey}
@@ -56,14 +55,10 @@ export function AdminKeySection({ tenantId }: Props) {
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-xs text-surface-600">
-              Generate a new admin key. The previous key will stop working immediately.
-            </p>
+            <p className="text-xs text-surface-600"><L>{"Generate a new admin key. The previous key will stop working immediately."}</L></p>
             {error && <p className="text-sm text-red-400" role="alert">{error}</p>}
             {confirming && (
-              <p className="text-sm text-amber-400 animate-fade-in" role="alert">
-                Are you sure? The current key will be invalidated.
-              </p>
+              <p className="text-sm text-amber-400 animate-fade-in" role="alert"><L>{"Are you sure? The current key will be invalidated."}</L></p>
             )}
             <button type="button" onClick={handleReset} disabled={resetting}
               className="btn-danger flex items-center gap-2">

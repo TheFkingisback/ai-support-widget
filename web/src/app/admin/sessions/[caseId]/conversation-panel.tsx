@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import type { Message } from '@/lib/types';
 
 interface Props { messages: Message[] }
@@ -17,7 +18,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 export function ConversationPanel({ messages }: Props) {
   if (messages.length === 0) {
-    return <p className="py-8 text-center text-sm text-surface-600">No messages in this session.</p>;
+    return <p className="py-8 text-center text-sm text-surface-600"><L>{"No messages in this session."}</L></p>;
   }
 
   return (
@@ -55,8 +56,7 @@ export function ConversationPanel({ messages }: Props) {
           )}
 
           {m.confidence !== null && (
-            <div className="mt-2 text-xs text-surface-600">
-              Confidence: {(m.confidence * 100).toFixed(0)}%
+            <div className="mt-2 text-xs text-surface-600"><L>{"Confidence:"}</L>{" "}{(m.confidence * 100).toFixed(0)}%
             </div>
           )}
         </div>

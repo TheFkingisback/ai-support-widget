@@ -2,8 +2,10 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { AppError, ForbiddenError } from '../../shared/errors.js';
 import { validateBody } from '../../shared/validation.js';
-import type { WorkspaceOptions } from './workspace-routes.js';
+import { localeSchema, type WorkspaceOptions } from './workspace-routes.js';
 import { secret, type WorkspaceStore } from './workspace-store.js';
+import { defaultLocale, matchLocale } from '@ai-support/shared/locales';
+import { suggestionId, suggestionStatus } from './suggestions.js';
 
 const email = z.string().email().max(254).toLowerCase();
 const environment = z.enum(['sandbox', 'staging', 'production']);
@@ -20,15 +22,30 @@ export function registerWorkspaceOperations(api: FastifyInstance, options: Works
   function tenant(current: Account, env: z.output<typeof environment>) {
     return current[`${env}_id`];
   }
+  if (options.suggestions) {
+    const suggestions = options.suggestions;
+    api.get('/suggestions', async request => {
+      const current = await account(request);
+      const { env, before } = validateBody(z.object({ env: environment, before: suggestionId.optional() }), request.query);
+      return suggestions.list(tenant(current, env), before);
+    });
+    api.patch('/suggestions/:id', async request => {
+      const current = await owner(request);
+      const { id } = validateBody(z.object({ id: suggestionId }), request.params);
+      const { env, status } = validateBody(z.object({ env: environment, status: suggestionStatus }).strict(), request.body);
+      return suggestions.setStatus(tenant(current, env), id, status);
+    });
+  }
   api.get('/team', async request => ({ members: await store.members((await owner(request)).id) }));
   api.post('/team', async (request, reply) => {
     const current = await owner(request);
-    const invite = validateBody(z.object({ email, role: z.enum(['developer', 'support']) }).strict(), request.body);
+    const invite = validateBody(z.object({ email, role: z.enum(['developer', 'support']), locale: localeSchema.optional() }).strict(), request.body);
     if (invite.email === current.email) throw new AppError(409, 'WORKSPACE_OWNER_EXISTS', 'This email already owns your workspace');
     if (!mail) throw new AppError(503, 'WORKSPACE_MAIL_UNAVAILABLE', 'Workspace invitations are currently unavailable.');
     const token = secret();
-    await store.saveLink(token, invite.email, current.name, new Date(Date.now() + 20 * 60_000), { workspaceId: current.id, role: invite.role });
-    try { await mail.send(invite.email, `${publicOrigin}/signup#confirm=${token}`); }
+    const locale = invite.locale ?? matchLocale(current.locale) ?? defaultLocale;
+    await store.saveLink(token, invite.email, current.name, new Date(Date.now() + 20 * 60_000), { workspaceId: current.id, role: invite.role }, locale);
+    try { await mail.send(invite.email, `${publicOrigin}/signup?lang=${locale}#confirm=${token}`, locale, true); }
     catch {
       await store.deleteLink(token);
       throw new AppError(503, 'WORKSPACE_MAIL_UNAVAILABLE', 'The invitation could not be sent. Try again shortly.');

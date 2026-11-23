@@ -1,17 +1,21 @@
 import { AppError } from '../../shared/errors.js';
+import { messagesFor } from '@ai-support/shared/messages';
+import type { SupportLocale } from '@ai-support/shared/locales';
 
 export interface WorkspaceMail {
-  send(email: string, url: string): Promise<void>;
+  send(email: string, url: string, locale?: SupportLocale, invitation?: boolean): Promise<void>;
 }
 
 export function createWorkspaceMail(apiKey: string, from: string): WorkspaceMail {
   return {
-    async send(email, url) {
+    async send(email, url, locale, invitation) {
+      const copy = messagesFor(locale);
       const reply = await fetch('https://api.postmarkapp.com/email', {
         method: 'POST',
         headers: { 'X-Postmark-Server-Token': apiKey, Accept: 'application/json', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ From: from, To: email, Subject: 'Sign in to AI Support Widget',
-          TextBody: `Open this one-time link to sign in and verify your email. It expires in 20 minutes.\n\n${url}`,
+        body: JSON.stringify({ From: `Support AI <${from}>`, To: email,
+          Subject: invitation ? copy.inviteSubject : copy.accessSubject,
+          TextBody: `${invitation ? copy.inviteBody : copy.accessBody}\n\n${url}`,
           TrackOpens: false, TrackLinks: 'None', MessageStream: 'outbound' }),
         signal: AbortSignal.timeout(10_000),
       });

@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -87,9 +88,9 @@ export default function TenantDetailPage() {
           <Field label="Plan">
             <select value={plan} onChange={(e) => setPlan(e.target.value as Tenant['plan'])}
               className="input-field" aria-label="Plan">
-              <option value="starter">Starter</option>
-              <option value="pro">Pro</option>
-              <option value="enterprise">Enterprise</option>
+              <option value="starter"><L>{"Starter"}</L></option>
+              <option value="pro"><L>{"Pro"}</L></option>
+              <option value="enterprise"><L>{"Enterprise"}</L></option>
             </select>
           </Field>
         </Section>
@@ -103,9 +104,9 @@ export default function TenantDetailPage() {
           <Field label="Model Policy">
             <select value={config.modelPolicy} onChange={(e) => setField('modelPolicy', e.target.value as TenantConfig['modelPolicy'])}
               className="input-field" aria-label="Model policy">
-              <option value="fast">Fast</option>
-              <option value="strong">Strong</option>
-              <option value="auto">Auto</option>
+              <option value="fast"><L>{"Fast"}</L></option>
+              <option value="strong"><L>{"Strong"}</L></option>
+              <option value="auto"><L>{"Auto"}</L></option>
             </select>
           </Field>
           <Field label="Preferred Model">
@@ -148,8 +149,7 @@ export default function TenantDetailPage() {
         <Section title="Quick Links">
           <Link href={`/admin/tenants/${tenantId}/cases`}
             className="flex items-center gap-2 text-sm text-brand-400 hover:text-brand-300 transition-colors">
-            <ExternalLink size={14} /> Browse Cases
-          </Link>
+            <ExternalLink size={14} /><L>{"Browse Cases"}</L></Link>
         </Section>
       </div>
 
@@ -158,23 +158,22 @@ export default function TenantDetailPage() {
           className="btn-primary flex items-center gap-2 px-6">
           <Save size={16} /> {saving ? 'Saving...' : 'Save Changes'}
         </button>
-        {saved && <span role="status" className="text-sm text-emerald-400 animate-fade-in">Saved!</span>}
+        {saved && <span role="status" className="text-sm text-emerald-400 animate-fade-in"><L>{"Saved!"}</L></span>}
         {deleteError && <span className="text-sm text-red-400">{deleteError}</span>}
         <div className="ml-auto">
           {confirmDelete ? (
             <div className="flex items-center gap-2 animate-fade-in">
-              <span className="text-sm text-red-400">Confirm delete?</span>
+              <span className="text-sm text-red-400"><L>{"Confirm delete?"}</L></span>
               <button type="button" className="btn-danger px-4 py-2 text-xs" onClick={async () => {
                 try { await deleteTenant(tenantId); router.push('/admin/tenants'); }
                 catch (err) { setDeleteError(err instanceof Error ? err.message : 'Failed'); }
-              }}>Delete</button>
-              <button type="button" onClick={() => setConfirmDelete(false)} className="btn-secondary px-4 py-2 text-xs">Cancel</button>
+              }}><L>{"Delete"}</L></button>
+              <button type="button" onClick={() => setConfirmDelete(false)} className="btn-secondary px-4 py-2 text-xs"><L>{"Cancel"}</L></button>
             </div>
           ) : (
             <button type="button" onClick={() => setConfirmDelete(true)}
               className="btn-danger flex items-center gap-1.5">
-              <Trash2 size={14} /> Delete Tenant
-            </button>
+              <Trash2 size={14} /><L>{"Delete Tenant"}</L></button>
           )}
         </div>
       </div>

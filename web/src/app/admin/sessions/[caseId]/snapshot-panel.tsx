@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState } from 'react';
 import { ChevronDown, Database } from 'lucide-react';
 import type { SnapshotData } from '@/lib/types';
@@ -22,17 +23,14 @@ export function SnapshotPanel({ snapshot }: Props) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-surface-500 bg-surface-200/30 px-8 py-16 text-center">
         <Database size={32} className="mb-3 text-surface-600" />
-        <p className="text-sm text-surface-600">
-          No context was received from the host app for this session.
-        </p>
+        <p className="text-sm text-surface-600"><L>{"No context was received from the host app for this session."}</L></p>
       </div>
     );
   }
 
   return (
     <div className="space-y-2">
-      <p className="mb-4 text-xs text-surface-600">
-        Snapshot <strong className="text-surface-800 font-mono">{snapshot.meta.snapshotId}</strong>
+      <p className="mb-4 text-xs text-surface-600"><L>{"Snapshot"}</L>{" "}<strong className="text-surface-800 font-mono">{snapshot.meta.snapshotId}</strong>
         {' '}-- {new Date(snapshot.meta.createdAt).toLocaleString()}
       </p>
 

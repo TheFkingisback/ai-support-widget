@@ -7,6 +7,7 @@ import type { KnowledgeService } from '../knowledge/knowledge.service.js';
 import type { TenantService } from '../admin/tenant.service.js';
 import type { CostRecorder } from '../admin/cost.service.js';
 import type { McpClientOpts } from './mcp-client.js';
+import type { SupportLocale } from '@ai-support/shared/locales';
 
 export interface OrchestratorService {
   handleMessage(
@@ -16,7 +17,7 @@ export interface OrchestratorService {
     userContent: string,
     requestId?: string,
     widgetJwt?: string,
-    opts?: { skipUserInsert?: boolean; replyToMessageId?: string },
+    opts?: { skipUserInsert?: boolean; replyToMessageId?: string; locale?: SupportLocale },
   ): Promise<Message>;
 
   handleAction(

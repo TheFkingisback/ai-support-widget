@@ -370,6 +370,15 @@
               },
               "category": {
                 "$ref": "#/properties/userState/properties/roles/items"
+              },
+              "locale": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 100
+              },
+              "version": {
+                "type": "string",
+                "maxLength": 100
               }
             },
             "required": [

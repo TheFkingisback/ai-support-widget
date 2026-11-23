@@ -8,11 +8,17 @@ import type { SessionStore } from '../sessions/session.store.js';
 import type { WorkspaceMail } from './workspace-mail.js';
 import { hash, secret, sessionDuration, type WorkspaceStore } from './workspace-store.js';
 import { registerWorkspaceOperations } from './workspace-operations.js';
+import { defaultLocale, matchAcceptLanguage, matchLocale } from '@ai-support/shared/locales';
+import { messagesFor } from '@ai-support/shared/messages';
+import type { createMcpSettings } from '../orchestrator/mcp.routes.js';
+import type { createSuggestionStore } from './suggestions.js';
 
 const prefix = '/api/workspace';
 const cookie = '__Host-support_workspace';
 const suffix = 'Path=/; HttpOnly; Secure; SameSite=Lax';
-const authBody = z.object({ email: z.string().trim().email().max(254).toLowerCase(), name: z.string().trim().min(1).max(100).optional() }).strict();
+export const localeSchema = z.string().max(100).refine(value => Boolean(matchLocale(value)), 'Unsupported locale').transform(value => matchLocale(value)!);
+const authBody = z.object({ email: z.string().trim().email().max(254).toLowerCase(), name: z.string().trim().min(1).max(100).optional(),
+  locale: localeSchema.optional() }).strict();
 const confirmBody = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) }).strict();
 const environment = z.enum(['staging', 'production']);
 const originBody = z.object({ origin: z.string().trim().max(255).url().refine(value => {
@@ -28,6 +34,8 @@ export interface WorkspaceOptions {
   publicOrigin: string;
   widgetSecret: string;
   mail?: WorkspaceMail;
+  mcp?: ReturnType<typeof createMcpSettings>;
+  suggestions?: ReturnType<typeof createSuggestionStore>;
   lookup?: typeof resolveTxt;
 }
 
@@ -50,12 +58,12 @@ export async function registerWorkspaceRoutes(app: FastifyInstance, options: Wor
       if (!current) throw new UnauthorizedError('Sign in to your workspace');
       return current;
     }
-    async function manage(request: FastifyRequest) {
-      const current = await account(request);
+    function environmentTenant(request: FastifyRequest, current: Awaited<ReturnType<typeof account>>) {
       if (current.role === 'support') throw new ForbiddenError('This role cannot change the installation');
       const env = validateBody(environment, (request.params as { env: string }).env);
       return env === 'staging' ? current.staging_id : current.production_id;
     }
+    async function manage(request: FastifyRequest) { return environmentTenant(request, await account(request)); }
     function setSession(reply: FastifyReply, session: string, ttl: number) {
       reply.header('Set-Cookie', `${cookie}=${session}; ${suffix}; Max-Age=${ttl}`);
     }
@@ -65,9 +73,10 @@ export async function registerWorkspaceRoutes(app: FastifyInstance, options: Wor
       if (!mail) throw new AppError(503, 'WORKSPACE_MAIL_UNAVAILABLE', 'Email sign-in is currently unavailable');
       const data = validateBody(authBody, request.body);
       const token = secret();
-      await store.saveLink(token, data.email, data.name ?? 'My workspace', new Date(Date.now() + 20 * 60_000));
+      const locale = data.locale ?? matchAcceptLanguage(request.headers['accept-language']) ?? defaultLocale;
+      await store.saveLink(token, data.email, data.name ?? messagesFor(locale).workspaceDefault, new Date(Date.now() + 20 * 60_000), undefined, locale);
       try {
-        await mail.send(data.email, `${publicOrigin}/signup#confirm=${token}`);
+        await mail.send(data.email, `${publicOrigin}/signup?lang=${locale}#confirm=${token}`, locale);
       } catch {
         await store.deleteLink(token);
         throw new AppError(503, 'WORKSPACE_MAIL_UNAVAILABLE', 'The sign-in email could not be sent. Try again shortly.');
@@ -90,8 +99,14 @@ export async function registerWorkspaceRoutes(app: FastifyInstance, options: Wor
       const [staging, production, sandbox] = await Promise.all([
         store.integrationStatus(current.staging_id), store.integrationStatus(current.production_id), store.integrationStatus(current.sandbox_id),
       ]);
-      return { name: current.name, email: current.email, role: current.role, sandbox: { hasAnswer: sandbox.hasAnswer },
+      return { name: current.name, email: current.email, role: current.role, locale: current.locale, sandbox: { hasAnswer: sandbox.hasAnswer },
         staging: { ...staging, tenantId: current.staging_id }, production: { ...production, tenantId: current.production_id } };
+    });
+    api.put('/locale', async request => {
+      const current = await account(request);
+      const { locale } = validateBody(z.object({ locale: localeSchema }).strict(), request.body);
+      await store.setLocale(current.email, current.id, locale);
+      return { ok: true };
     });
     api.post('/sandbox/session', async request => {
       const current = await account(request);
@@ -130,6 +145,19 @@ export async function registerWorkspaceRoutes(app: FastifyInstance, options: Wor
       await store.removeOrigin(tenant, new URL(origin).origin);
       return { origins: await store.listOrigins(tenant) };
     });
+
+    if (options.mcp) {
+      const mcp = options.mcp;
+      const configPath = '/environments/:env/mcp';
+      async function mcpTenant(request: FastifyRequest) {
+        const current = await account(request);
+        if (current.role !== 'owner') throw new ForbiddenError('Only the workspace owner can configure MCP');
+        return environmentTenant(request, current);
+      }
+      api.get(configPath, async request => mcp.get(await mcpTenant(request), request.id));
+      api.put(configPath, async request => mcp.replace(await mcpTenant(request), request.body, request.id));
+      api.delete(configPath, async request => mcp.remove(await mcpTenant(request), request.id));
+    }
     registerWorkspaceOperations(api, options, account);
   }, { prefix });
 }

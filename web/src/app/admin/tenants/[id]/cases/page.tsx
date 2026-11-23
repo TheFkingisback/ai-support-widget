@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -37,11 +38,11 @@ export default function CasesPage() {
         actions={
           <select value={filter} onChange={(e) => setFilter(e.target.value)}
             aria-label="Filter by status" className="input-field w-auto" data-testid="status-filter">
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="resolved">Resolved</option>
-            <option value="unresolved">Unresolved</option>
-            <option value="escalated">Escalated</option>
+            <option value="all"><L>{"All Status"}</L></option>
+            <option value="active"><L>{"Active"}</L></option>
+            <option value="resolved"><L>{"Resolved"}</L></option>
+            <option value="unresolved"><L>{"Unresolved"}</L></option>
+            <option value="escalated"><L>{"Escalated"}</L></option>
           </select>
         }
       />
@@ -53,12 +54,12 @@ export default function CasesPage() {
           <table className="w-full text-sm" data-testid="cases-table">
             <thead>
               <tr className="border-b border-surface-400">
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Case ID</th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">User</th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Status</th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Messages</th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Created</th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Resolved</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Case ID"}</L></th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"User"}</L></th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Status"}</L></th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Messages"}</L></th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Created"}</L></th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Resolved"}</L></th>
               </tr>
             </thead>
             <tbody>
@@ -92,7 +93,7 @@ function CaseModal({ caseData, onClose }: { caseData: Case; onClose: () => void 
       onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
       <div className="w-full max-w-lg rounded-2xl border border-surface-400/50 bg-surface-200 p-6 shadow-xl animate-slide-up">
         <div className="mb-5 flex items-center justify-between">
-          <h2 id="case-modal-title" className="font-semibold text-white">Case {caseData.id}</h2>
+          <h2 id="case-modal-title" className="font-semibold text-white"><L>{"Case"}</L>{" "}{caseData.id}</h2>
           <button type="button" onClick={onClose} aria-label="Close"
             className="rounded-xl p-2 text-surface-600 hover:bg-surface-300 hover:text-white">
             <X size={18} />
@@ -115,9 +116,7 @@ function CaseModal({ caseData, onClose }: { caseData: Case; onClose: () => void 
           ))}
         </dl>
         <div className="mt-5 flex justify-end">
-          <Link href={`/admin/sessions/${caseData.id}`} className="btn-primary text-xs">
-            View Full Session
-          </Link>
+          <Link href={`/admin/sessions/${caseData.id}`} className="btn-primary text-xs"><L>{"View Full Session"}</L></Link>
         </div>
       </div>
     </div>

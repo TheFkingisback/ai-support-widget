@@ -142,6 +142,11 @@ export function getStyles(theme: 'light' | 'dark', brandColor?: string): string 
       transition: background .15s ease-in-out;
     }
     .ai-rating button:hover { background: var(--ai-support-primary); color: #fff; }
+    .ai-suggestion { padding: 4px 12px 10px; border-top: 1px solid var(--ai-support-border); font-size: 13px; }
+    .ai-suggestion summary { cursor: pointer; padding-block: 5px; }
+    .ai-suggestion form { display: grid; justify-items: start; gap: 6px; }
+    .ai-suggestion textarea { width: 100%; min-height: 44px; resize: vertical; padding: 6px; font: inherit; }
+    .ai-suggestion button { padding: 5px 10px; border-radius: 6px; border: 0; color: white; background: var(--ai-support-primary); cursor: pointer; }
     .ai-widget-input {
       display: flex; padding: 10px 12px; gap: 8px;
       border-top: 1px solid var(--ai-support-border);

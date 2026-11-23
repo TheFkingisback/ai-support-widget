@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { MessageCircle } from 'lucide-react';
+import { L, LanguagePicker } from '@/lib/localization';
 
 export function MarketingHeader() {
   return (
@@ -10,9 +11,10 @@ export function MarketingHeader() {
           Support AI
         </Link>
         <nav aria-label="Main" className="flex flex-wrap items-center gap-5 text-sm text-slate-300">
-          <Link href="/demo" className="hover:text-teal-300">Demo</Link>
-          <Link href="/developers" className="hover:text-teal-300">Developers</Link>
-          <Link href="/signup" className="hover:text-teal-300">Sign in</Link>
+          <Link href="/demo" className="hover:text-teal-300"><L>{"Demo"}</L></Link>
+          <Link href="/developers" className="hover:text-teal-300"><L>{"Developers"}</L></Link>
+          <Link href="/signup" className="hover:text-teal-300"><L>{"Sign in"}</L></Link>
+          <LanguagePicker />
         </nav>
       </div>
     </header>

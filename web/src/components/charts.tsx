@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const THEME = {
@@ -14,7 +15,7 @@ interface IntentsProps {
 
 export function IntentsChart({ data }: IntentsProps) {
   const items = data.slice(0, 8);
-  if (items.length === 0) return <p className="py-8 text-center text-sm text-surface-600">No data</p>;
+  if (items.length === 0) return <p className="py-8 text-center text-sm text-surface-600"><L>{"No data"}</L></p>;
 
   return (
     <div data-testid="intents-chart" className="h-64 w-full" role="img"
@@ -40,7 +41,7 @@ interface ErrorsProps {
 
 export function ErrorsChart({ data }: ErrorsProps) {
   const items = data.slice(0, 8);
-  if (items.length === 0) return <p className="py-8 text-center text-sm text-surface-600">No data</p>;
+  if (items.length === 0) return <p className="py-8 text-center text-sm text-surface-600"><L>{"No data"}</L></p>;
 
   return (
     <div data-testid="errors-chart" className="h-64 w-full" role="img"

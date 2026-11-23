@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect, useRef } from 'react';
 import { X, Copy, Check, ChevronDown } from 'lucide-react';
 import type { CreateTenantInput, TenantConfig } from '@/lib/types';
@@ -111,7 +112,7 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
 
         {generatedKey ? (
           <div className="space-y-4">
-            <p className="text-sm text-amber-400">Save this key now. It will not be shown again.</p>
+            <p className="text-sm text-amber-400"><L>{"Save this key now. It will not be shown again."}</L></p>
             <div className="flex items-center gap-2">
               <code className="flex-1 break-all rounded-xl bg-surface-300 px-4 py-3 text-sm text-emerald-400">{generatedKey}</code>
               <button type="button" onClick={copyKey} aria-label="Copy key"
@@ -119,28 +120,26 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
                 {copied ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
               </button>
             </div>
-            <button type="button" onClick={handleClose} className="btn-primary w-full">Done</button>
+            <button type="button" onClick={handleClose} className="btn-primary w-full"><L>{"Done"}</L></button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-sm text-surface-600">Choose a name and plan. You can connect your application after creating the tenant.</p>
+            <p className="text-sm text-surface-600"><L>{"Choose a name and plan. You can connect your application after creating the tenant."}</L></p>
             {errors.form && <p role="alert" className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-400 ring-1 ring-red-500/20">{errors.form}</p>}
             <Field label="Name" error={errors.name}>
               <input value={name} onChange={(e) => setName(e.target.value)} maxLength={200} disabled={submitting} className="input-field" placeholder="Acme Corp" />
             </Field>
             <Field label="Plan">
               <select value={plan} onChange={(e) => setPlan(e.target.value as CreateTenantInput['plan'])} disabled={submitting} className="input-field" aria-label="Plan">
-                <option value="starter">Starter</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
+                <option value="starter"><L>{"Starter"}</L></option>
+                <option value="pro"><L>{"Pro"}</L></option>
+                <option value="enterprise"><L>{"Enterprise"}</L></option>
               </select>
             </Field>
 
             <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
               aria-expanded={showAdvanced} aria-controls="tenant-advanced-settings"
-              className="flex w-full items-center justify-between rounded-xl bg-surface-300/50 px-4 py-2.5 text-sm font-medium text-surface-700 hover:bg-surface-300 transition-colors">
-              Advanced settings (optional)
-              <ChevronDown size={16} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+              className="flex w-full items-center justify-between rounded-xl bg-surface-300/50 px-4 py-2.5 text-sm font-medium text-surface-700 hover:bg-surface-300 transition-colors"><L>{"Advanced settings (optional)"}</L><ChevronDown size={16} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
             </button>
 
             {showAdvanced && (
@@ -148,9 +147,9 @@ export function CreateTenantModal({ open, onClose, onSubmit }: Props) {
                 <Field label="Model Policy">
                   <select value={modelPolicy ?? PLAN_DEFAULTS[plan].modelPolicy} onChange={(e) => setModelPolicy(e.target.value as TenantConfig['modelPolicy'])}
                     className="input-field" aria-label="Model policy">
-                    <option value="fast">Fast — optimized for speed</option>
-                    <option value="strong">Strong — best quality</option>
-                    <option value="auto">Auto — balanced</option>
+                    <option value="fast"><L>{"Fast — optimized for speed"}</L></option>
+                    <option value="strong"><L>{"Strong — best quality"}</L></option>
+                    <option value="auto"><L>{"Auto — balanced"}</L></option>
                   </select>
                 </Field>
                 <Field label="Preferred Model">

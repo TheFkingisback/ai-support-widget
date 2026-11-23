@@ -2,6 +2,7 @@ import type { Case, Message, SuggestedAction, ApiError } from './types.js';
 
 export interface ApiClientConfig {
   apiUrl: string;
+  locale?: string;
   getJwt: () => string;
   onTokenRefresh?: () => Promise<string>;
   signal?: AbortSignal;
@@ -13,6 +14,7 @@ export interface ApiClient {
   sendMessage(caseId: string, content: string, replyToMessageId?: string, clientTurnId?: string): Promise<Message>;
   addFeedback(caseId: string, feedback: 'positive' | 'negative'): Promise<void>;
   closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating?: number): Promise<void>;
+  submitSuggestion(caseId: string, content: string): Promise<{ id: string }>;
   executeAction(caseId: string, action: SuggestedAction): Promise<string>;
   escalate(caseId: string, reason?: string): Promise<{ ticketId: string; ticketUrl: string }>;
 }
@@ -67,6 +69,7 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
     async createCase(message: string, context?: Record<string, unknown>, clientTurnId?: string) {
       return request<{ case: Case; snapshot: { id: string }; aiMessage?: Message }>('POST', '/api/cases', {
         message, ...(context ? { context } : {}), ...(clientTurnId ? { clientTurnId } : {}),
+        ...(config.locale ? { locale: config.locale } : {}),
       });
     },
 
@@ -77,6 +80,7 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
     async sendMessage(caseId: string, content: string, replyToMessageId?: string, clientTurnId?: string) {
       const data = await request<{ message: Message }>('POST', `/api/cases/${caseId}/messages`, {
         content, ...(replyToMessageId ? { replyToMessageId } : {}), ...(clientTurnId ? { clientTurnId } : {}),
+        ...(config.locale ? { locale: config.locale } : {}),
       });
       return data.message;
     },
@@ -85,8 +89,11 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
       await request<{ ok: true }>('POST', `/api/cases/${caseId}/feedback`, { feedback });
     },
 
-    async closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating: number) {
+    async closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating?: number) {
       await request<{ ok: true }>('POST', `/api/cases/${caseId}/close`, { resolution, rating });
+    },
+    submitSuggestion(caseId: string, content: string) {
+      return request<{ id: string }>('POST', `/api/cases/${caseId}/suggestions`, { content });
     },
 
     async executeAction(caseId: string, action: SuggestedAction) {

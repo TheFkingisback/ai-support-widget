@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Building2 } from 'lucide-react';
@@ -44,8 +45,7 @@ export default function TenantsPage() {
         breadcrumbs={[{ label: 'Admin', href: '/admin/dashboard' }, { label: 'Tenants' }]}
         actions={
           <button onClick={() => setModalOpen(true)} className="btn-primary flex items-center gap-2">
-            <Plus size={16} aria-hidden="true" /> New Tenant
-          </button>
+            <Plus size={16} aria-hidden="true" /><L>{"New Tenant"}</L></button>
         }
       />
 

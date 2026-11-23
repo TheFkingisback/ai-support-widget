@@ -59,6 +59,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   inputBar.setAttribute('aria-label', copy.composer);
   const input = document.createElement('input');
   input.type = 'text';
+  input.dir = 'auto';
   input.placeholder = copy.placeholder;
   input.setAttribute('aria-label', copy.messageLabel);
   const sendBtn = document.createElement('button');
@@ -71,10 +72,49 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   panel.appendChild(messagesEl);
   panel.appendChild(inputBar);
 
+  const suggestion = document.createElement('details');
+  suggestion.className = 'ai-suggestion';
+  const summary = document.createElement('summary');
+  summary.textContent = copy.suggest;
+  const ideaForm = document.createElement('form');
+  const idea = document.createElement('textarea');
+  idea.dir = 'auto';
+  idea.required = true;
+  idea.maxLength = 2000;
+  idea.placeholder = copy.suggestPrompt;
+  idea.setAttribute('aria-label', copy.suggestPrompt);
+  const submitIdea = document.createElement('button');
+  submitIdea.type = 'submit';
+  submitIdea.textContent = copy.suggestSend;
+  const ideaStatus = document.createElement('span');
+  ideaStatus.setAttribute('role', 'status');
+  ideaForm.append(idea, submitIdea, ideaStatus);
+  suggestion.append(summary, ideaForm);
+  panel.appendChild(suggestion);
+
   let caseId: string | null = config.initialCaseId ?? null;
   let sending = false;
   let lastAssistantMessageId: string | undefined;
   let closeFlowShown = false;
+  suggestion.hidden = !caseId;
+  ideaForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    const content = idea.value.trim();
+    if (!content || !caseId || submitIdea.disabled) return;
+    submitIdea.disabled = true;
+    idea.readOnly = true;
+    ideaStatus.textContent = '';
+    try {
+      await apiClient.submitSuggestion(caseId, content);
+      ideaStatus.textContent = copy.suggestSent;
+      idea.value = '';
+    } catch {
+      ideaStatus.textContent = copy.suggestFailed;
+    } finally {
+      submitIdea.disabled = false;
+      idea.readOnly = false;
+    }
+  });
 
   // Show "End Session" when there's an active case
   if (caseId) endBtn.style.display = '';
@@ -155,6 +195,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
       if (!caseId) {
         const result = await apiClient.createCase(text, config.getContext ? config.getContext() : config.context, turnId);
         caseId = result.case.id;
+        suggestion.hidden = false;
         config.onCaseCreated?.(caseId);
         endBtn.style.display = '';
         aiMsg = result.aiMessage ?? await apiClient.sendMessage(caseId, text, lastAssistantMessageId);
@@ -192,7 +233,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
 
   sendBtn.addEventListener('click', handleSend);
   input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleSend();
+    if (e.key === 'Enter' && !e.isComposing) handleSend();
   });
 
   panel.addEventListener('keydown', (e) => {

@@ -1,5 +1,7 @@
 'use client';
 
+import { L, useLocale, useT } from '@/lib/localization';
+import { localeInfo, locales, matchLocale } from '@ai-support/shared/locales';
 import { useEffect, useState, type FormEvent } from 'react';
 import { workspaceApi, type ConversationEnvironment, type TeamMember, type WorkspaceConversation, type WorkspaceTranscript } from '@/lib/workspace-api';
 
@@ -7,6 +9,8 @@ const panel = 'space-y-4 rounded-xl border border-slate-700 bg-[#131d27] p-5';
 const control = 'rounded border border-slate-600 bg-slate-900 px-3 py-2 text-sm disabled:opacity-50';
 
 export function WorkspaceTeam() {
+  const locale = useLocale();
+  const t = useT();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
@@ -24,30 +28,35 @@ export function WorkspaceTeam() {
   }
   function invite(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const role = new FormData(event.currentTarget).get('role') === 'developer' ? 'developer' : 'support';
-    void run(async () => { await workspaceApi.invite(email, role); setEmail(''); setStatus('Invitation sent. The member appears after accepting by email.'); });
+    const data = new FormData(event.currentTarget);
+    const role = data.get('role') === 'developer' ? 'developer' : 'support';
+    const recipientLocale = matchLocale(data.get('locale')) ?? locale;
+    void run(async () => { await workspaceApi.invite(email, role, recipientLocale); setEmail(''); setStatus('Invitation sent. The member appears after accepting by email.'); });
   }
   return <section className={panel} aria-label="Workspace team">
-    <h2 className="text-xl font-semibold">Workspace team</h2>
+    <h2 className="text-xl font-semibold"><L>{"Workspace team"}</L></h2>
     <form className="flex flex-wrap items-end gap-3" onSubmit={invite}>
-      <label className="grid gap-2 text-sm">Email<input className={control} type="email" maxLength={254} required value={email} onChange={event => setEmail(event.target.value)} /></label>
-      <label className="grid gap-2 text-sm">Role<select name="role" className={control}><option value="developer">Developer</option><option value="support">Support</option></select></label>
-      <button type="submit" className={control} disabled={busy}>Invite</button>
+      <label className="grid gap-2 text-sm"><L>{"Email"}</L><input className={control} type="email" maxLength={254} required value={email} onChange={event => setEmail(event.target.value)} /></label>
+      <label className="grid gap-2 text-sm"><L>{"Role"}</L><select name="role" className={control}><option value="developer"><L>{"Developer"}</L></option><option value="support"><L>{"Support"}</L></option></select></label>
+      <label className="grid gap-2 text-sm"><L>{"Invitation language"}</L><select name="locale" className={control} defaultValue=""><option value="">{t('Current language')}</option>{Object.entries(locales).map(([tag, entry]) => <option key={tag} value={tag} lang={tag}>{entry.name}</option>)}</select></label>
+      <button type="submit" className={control} disabled={busy}><L>{"Invite"}</L></button>
     </form>
     <ul className="space-y-2 text-sm">{members.map(member => <li className="flex flex-wrap items-center gap-3 border-t border-slate-700 pt-2" key={member.email}>
       <span className="break-all">{member.email}</span><span className="mr-auto capitalize text-slate-300">{member.role}</span>
       {member.role !== 'owner' && (removing === member.email
         ? <><button type="button" className={control} disabled={busy} onClick={() => void run(async () => {
           await workspaceApi.removeMember(member.email); setMembers(items => items.filter(item => item.email !== member.email)); setRemoving(''); setStatus('Member removed.');
-        })}>Confirm removal</button><button type="button" onClick={() => setRemoving('')}>Cancel</button></>
-        : <button type="button" className={control} onClick={() => setRemoving(member.email)}>Remove member</button>)}
+        })}><L>{"Confirm removal"}</L></button><button type="button" onClick={() => setRemoving('')}><L>{"Cancel"}</L></button></>
+        : <button type="button" className={control} onClick={() => setRemoving(member.email)}><L>{"Remove member"}</L></button>)}
     </li>)}</ul>
-    {status && <p role="status" className="text-teal-200">{status}</p>}
-    {error && <p role="alert" className="text-rose-200">{error}</p>}
+    {status && <p role="status" className="text-teal-200">{t(status)}</p>}
+    {error && <p role="alert" className="text-rose-200">{t(error)}</p>}
   </section>;
 }
 
 export function WorkspaceConversations() {
+  const locale = useLocale();
+  const t = useT();
   const [env, setEnv] = useState<ConversationEnvironment>('production');
   const [items, setItems] = useState<WorkspaceConversation[]>([]);
   const [next, setNext] = useState<string | null>(null);
@@ -66,20 +75,20 @@ export function WorkspaceConversations() {
   }, [env]);
 
   return <section className={panel} aria-label="Workspace conversations">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold">Conversations</h2>
-      <label className="flex items-center gap-2 text-sm">Environment<select className={control} value={env} onChange={event => setEnv(event.target.value as ConversationEnvironment)}>
-        <option value="production">Production</option><option value="staging">Staging</option><option value="sandbox">Sandbox</option>
+    <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold"><L>{"Conversations"}</L></h2>
+      <label className="flex items-center gap-2 text-sm"><L>{"Environment"}</L><select className={control} value={env} onChange={event => setEnv(event.target.value as ConversationEnvironment)}>
+        <option value="production"><L>{"Production"}</L></option><option value="staging"><L>{"Staging"}</L></option><option value="sandbox"><L>{"Sandbox"}</L></option>
       </select></label></div>
-    {loading ? <p role="status">Loading conversations…</p> : items.length === 0 && !error && <p className="text-slate-300">No conversations in this environment yet.</p>}
+    {loading ? <p role="status"><L>{"Loading conversations…"}</L></p> : items.length === 0 && !error && <p className="text-slate-300"><L>{"No conversations in this environment yet."}</L></p>}
     {!!items.length && <ul className="space-y-2 text-sm">{items.map(item => <li key={item.id}><button type="button" className={control} onClick={() => void workspaceApi.transcript(env, item.id).then(setTranscript, failure => setError(failure.message))}>
-      {item.status} · {new Date(item.created_at).toLocaleString()} · {item.id}
+      {t(item.status)} · {new Date(item.created_at).toLocaleString(localeInfo(locale).formatting)} · {item.id}
     </button></li>)}</ul>}
     {next && !loading && <button className={control} type="button" onClick={() => void workspaceApi.conversations(env, next).then(result => {
       setItems(previous => [...previous, ...result.conversations]); setNext(result.next);
-    }, failure => setError(failure.message))}>Load more</button>}
+    }, failure => setError(failure.message))}><L>{"Load more"}</L></button>}
     {transcript && <article className="space-y-3 rounded border border-slate-700 p-4"><h3 className="break-all font-semibold">{transcript.id}</h3>
-      {transcript.messages.map(message => <div key={message.id}><p className="text-sm font-semibold capitalize text-teal-200">{message.role}</p><p className="whitespace-pre-wrap break-words text-slate-200">{message.content}</p></div>)}
+      {transcript.messages.map(message => <div key={message.id}><p className="text-sm font-semibold capitalize text-teal-200">{t(message.role)}</p><p dir="auto" className="whitespace-pre-wrap break-words text-slate-200">{message.content}</p></div>)}
     </article>}
-    {error && <p role="alert" className="text-rose-200">{error}</p>}
+    {error && <p role="alert" className="text-rose-200">{t(error)}</p>}
   </section>;
 }

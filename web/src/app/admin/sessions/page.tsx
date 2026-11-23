@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MessageSquare, Database, Cpu, DollarSign, Trash2, Search } from 'lucide-react';
@@ -46,11 +47,11 @@ export default function SessionsPage() {
         actions={
           <select value={filter} onChange={(e) => setFilter(e.target.value)}
             aria-label="Filter by status" className="input-field w-auto">
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="resolved">Resolved</option>
-            <option value="unresolved">Unresolved</option>
-            <option value="escalated">Escalated</option>
+            <option value="all"><L>{"All Status"}</L></option>
+            <option value="active"><L>{"Active"}</L></option>
+            <option value="resolved"><L>{"Resolved"}</L></option>
+            <option value="unresolved"><L>{"Unresolved"}</L></option>
+            <option value="escalated"><L>{"Escalated"}</L></option>
           </select>
         }
       />
@@ -66,7 +67,7 @@ export default function SessionsPage() {
           <input type="number" min={1} max={365} value={purgeDays}
             onChange={(e) => setPurgeDays(Number(e.target.value))}
             className="w-14 bg-transparent py-2.5 text-center text-sm text-surface-900 outline-none" aria-label="Days" />
-          <span className="text-xs text-surface-600">days</span>
+          <span className="text-xs text-surface-600"><L>{"days"}</L></span>
           <button type="button" onClick={handlePurge} disabled={purging}
             className="btn-danger py-1.5 px-3 text-xs">
             {purging ? '...' : 'Purge'}
@@ -92,17 +93,15 @@ export default function SessionsPage() {
                   {new Date(s.createdAt).toLocaleString()}
                 </span>
               </div>
-              <p className="mt-2 text-sm text-surface-700">User: {s.userId}</p>
+              <p className="mt-2 text-sm text-surface-700"><L>{"User:"}</L>{" "}{s.userId}</p>
               <div className="mt-3 flex gap-5 text-xs text-surface-600">
                 <span className="flex items-center gap-1.5">
-                  <MessageSquare size={13} /> {s.messageCount} msgs
-                </span>
+                  <MessageSquare size={13} /> {s.messageCount}<L>{"msgs"}</L></span>
                 <span className="flex items-center gap-1.5">
                   <Database size={13} /> {s.hasSnapshot ? 'Context' : 'No context'}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Cpu size={13} /> {s.llmCalls} LLM calls
-                </span>
+                  <Cpu size={13} /> {s.llmCalls}<L>{"LLM calls"}</L></span>
                 <span className="flex items-center gap-1.5">
                   <DollarSign size={13} /> ${s.totalCost.toFixed(4)}
                 </span>

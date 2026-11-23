@@ -174,6 +174,8 @@ export interface KnowledgeDoc {
   title: string;
   content: string;
   category: string;
+  locale?: string;
+  version?: string;
 }
 
 export interface ChangelogEntry {

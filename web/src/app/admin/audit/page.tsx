@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect } from 'react';
 import { ScrollText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { listTenants, getAuditLog } from '@/lib/api';
@@ -60,11 +61,11 @@ export default function AuditPage() {
             <table className="w-full text-sm" data-testid="audit-table">
               <thead>
                 <tr className="border-b border-surface-400">
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Timestamp</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">User</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Action</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Case</th>
-                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Details</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Timestamp"}</L></th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"User"}</L></th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Action"}</L></th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Case"}</L></th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Details"}</L></th>
                 </tr>
               </thead>
               <tbody>
@@ -91,20 +92,17 @@ export default function AuditPage() {
           </div>
 
           <nav className="mt-4 flex items-center justify-between" aria-label="Pagination">
-            <span className="text-sm text-surface-600">{total} entries total</span>
+            <span className="text-sm text-surface-600">{total} <L>{"entries total"}</L></span>
             <div className="flex items-center gap-2">
               <button type="button" onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1} aria-label="Previous page"
                 className="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
-                <ChevronLeft size={14} /> Prev
-              </button>
-              <span className="px-3 py-1.5 text-sm text-surface-700" aria-current="page">
-                Page {page}
+                <ChevronLeft size={14} /><L>{"Prev"}</L></button>
+              <span className="px-3 py-1.5 text-sm text-surface-700" aria-current="page"><L>{"Page"}</L>{" "}{page}
               </span>
               <button type="button" onClick={() => setPage((p) => p + 1)}
                 disabled={!hasMore} aria-label="Next page"
-                className="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs">
-                Next <ChevronRight size={14} />
+                className="btn-secondary flex items-center gap-1 px-3 py-1.5 text-xs"><L>{"Next"}</L>{" "}<ChevronRight size={14} />
               </button>
             </div>
           </nav>

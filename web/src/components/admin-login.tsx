@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { TenantLogin } from './tenant-login';
 import { useState } from 'react';
 import { Shield, ArrowRight, AlertCircle } from 'lucide-react';
@@ -41,8 +42,8 @@ export function AdminLogin({ onAuthenticated }: Props) {
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 shadow-glow">
             <Shield size={28} className="text-white" />
           </div>
-          <h1 className="text-xl font-bold text-white">AI Support Admin</h1>
-          <p className="mt-1 text-sm text-surface-600">Sign in to manage your platform</p>
+          <h1 className="text-xl font-bold text-white"><L>{"AI Support Admin"}</L></h1>
+          <p className="mt-1 text-sm text-surface-600"><L>{"Sign in to manage your platform"}</L></p>
         </div>
 
         <form onSubmit={handleSubmit}
@@ -55,18 +56,14 @@ export function AdminLogin({ onAuthenticated }: Props) {
             </div>
           )}
 
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-surface-800">
-            Email
-          </label>
+          <label htmlFor="email" className="mb-2 block text-sm font-medium text-surface-800"><L>{"Email"}</L></label>
           <input
             id="email" name="email" type="email" value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email" autoComplete="username" required maxLength={254}
             className="input-field mb-6" autoFocus disabled={loading}
           />
-          <label htmlFor="password" className="mb-2 block text-sm font-medium text-surface-800">
-            Password
-          </label>
+          <label htmlFor="password" className="mb-2 block text-sm font-medium text-surface-800"><L>{"Password"}</L></label>
           <input
             id="password" name="password" type="password" value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -78,21 +75,16 @@ export function AdminLogin({ onAuthenticated }: Props) {
             className="btn-primary flex w-full items-center justify-center gap-2">
             {loading ? (
               <span className="flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Verifying...
-              </span>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /><L>{"Verifying..."}</L></span>
             ) : (
-              <span className="flex items-center gap-2">
-                Sign In <ArrowRight size={16} />
+              <span className="flex items-center gap-2"><L>{"Sign In"}</L>{" "}<ArrowRight size={16} />
               </span>
             )}
           </button>
         </form>
 
         <TenantLogin onAuthenticated={onAuthenticated} />
-        <p className="mt-6 text-center text-xs text-surface-600">
-          Sign in with your administrator email and password
-        </p>
+        <p className="mt-6 text-center text-xs text-surface-600"><L>{"Sign in with your administrator email and password"}</L></p>
       </div>
     </div>
   );

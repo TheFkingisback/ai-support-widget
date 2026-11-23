@@ -9,17 +9,23 @@ import { log } from '../../shared/logger.js';
 import { validateBody } from '../../shared/validation.js';
 import { registerExtraGatewayRoutes } from './gateway-extra.routes.js';
 import type { TurnIdempotency } from './turn-idempotency.js';
+import { matchLocale } from '@ai-support/shared/locales';
+import type { createSuggestionStore } from '../workspaces/suggestions.js';
+
+const supportLocale = z.string().max(100).refine(value => Boolean(matchLocale(value)), 'Unsupported locale').transform(value => matchLocale(value)!);
 
 const createCaseBody = z.object({
   message: z.string().min(1, 'Message is required').max(5000),
   context: z.record(z.string(), z.unknown()).optional(),
   clientTurnId: z.string().uuid().optional(),
+  locale: supportLocale.optional(),
 });
 
 const addMessageBody = z.object({
   content: z.string().min(1, 'Content is required').max(5000),
   replyToMessageId: z.string().regex(/^[a-zA-Z0-9_-]{1,200}$/).optional(),
   clientTurnId: z.string().uuid().optional(),
+  locale: supportLocale.optional(),
 });
 
 const feedbackBody = z.object({
@@ -33,6 +39,7 @@ interface RouteOpts {
   orchestratorService?: OrchestratorService;
   escalationService?: EscalationService;
   turnIdempotency?: TurnIdempotency;
+  suggestions?: ReturnType<typeof createSuggestionStore>;
 }
 
 export async function registerGatewayRoutes(
@@ -40,6 +47,16 @@ export async function registerGatewayRoutes(
   opts: RouteOpts,
 ): Promise<void> {
   const { service, rateLimiter, snapshotService, orchestratorService, escalationService, turnIdempotency } = opts;
+  if (opts.suggestions) {
+    const suggestions = opts.suggestions;
+    app.post<{ Params: { caseId: string } }>('/api/cases/:caseId/suggestions', { preHandler: [app.authenticate] }, async (request, reply) => {
+      const { tenantId, userId } = request.authPayload;
+      const { caseId } = request.params;
+      const { content } = validateBody(z.object({ content: z.string().trim().min(1).max(2000) }).strict(), request.body);
+      await service.getCase(caseId, tenantId, userId, request.id);
+      return reply.code(201).send(await suggestions.submit(tenantId, caseId, content));
+    });
+  }
 
   // POST /api/cases
   app.post(
@@ -82,7 +99,7 @@ export async function registerGatewayRoutes(
             ? request.headers.authorization.slice(7) : undefined;
           aiMessage = await orchestratorService.handleMessage(
             result.case.id, tenantId, userId, data.message, reqId, rawJwt,
-            { skipUserInsert: true },
+            { skipUserInsert: true, ...(data.locale ? { locale: data.locale } : {}) },
           );
         } catch (err) {
           log.warn('Orchestrator failed on case creation', reqId, {
@@ -139,7 +156,7 @@ export async function registerGatewayRoutes(
           ? request.headers.authorization.slice(7) : undefined;
         const aiMessage = await orchestratorService.handleMessage(
           caseId, tenantId, userId, msgData.content, reqId, rawJwt,
-          { replyToMessageId: msgData.replyToMessageId },
+          { replyToMessageId: msgData.replyToMessageId, ...(msgData.locale ? { locale: msgData.locale } : {}) },
         );
         return { message: aiMessage };
       }

@@ -17,7 +17,7 @@ export const navigation = [
     "slug": "widget-sdk",
     "title": "Widget SDK",
     "category": "PRIMEIROS PASSOS",
-    "summary": "Instalação, configuração e ciclo de vida do SDK 0.2.2.",
+    "summary": "Instalação, configuração e ciclo de vida do SDK 0.2.4.",
     "keywords": "react javascript frontend logout destroy"
   },
   {
@@ -67,6 +67,6 @@ export const navigation = [
     "title": "Versões e mudanças",
     "category": "RECURSOS",
     "summary": "O que está publicado e o que exige ativação.",
-    "keywords": "changelog migração v3 0.2.2 0.2.1"
+    "keywords": "changelog migração v3 0.2.4 0.2.1"
   }
 ] as const;

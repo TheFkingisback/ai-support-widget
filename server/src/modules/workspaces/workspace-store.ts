@@ -20,18 +20,19 @@ type Workspace = {
   staging_id: string;
   production_id: string;
   sandbox_id: string;
+  locale: string | null;
 };
 type OriginRow = { origin: string; challenge: string; verified_at: Date | null };
 
-const workspaceFields = sql`w.id, w.name, w.staging_id, w.production_id, w.sandbox_id, a.email, a.role`;
+const workspaceFields = sql`w.id, w.name, w.staging_id, w.production_id, w.sandbox_id, a.email, a.role, a.locale`;
 
 export function createWorkspaceStore(db: PostgresJsDatabase) {
   const credentials = createSessionStore(db);
   return {
-    async saveLink(token: string, email: string, workspaceName: string, expiresAt: Date, invitation?: Invite) {
+    async saveLink(token: string, email: string, workspaceName: string, expiresAt: Date, invitation?: Invite, locale?: string) {
       await db.execute(sql`delete from workspace_login_links where expires_at < now()`);
-      await db.execute(sql`insert into workspace_login_links (token_hash, email, workspace_name, expires_at, invited_workspace_id, invited_role)
-        values (${hash(token)}, ${email}, ${workspaceName}, ${expiresAt.toISOString()}, ${invitation?.workspaceId ?? null}, ${invitation?.role ?? null})`);
+      await db.execute(sql`insert into workspace_login_links (token_hash, email, workspace_name, expires_at, invited_workspace_id, invited_role, locale)
+        values (${hash(token)}, ${email}, ${workspaceName}, ${expiresAt.toISOString()}, ${invitation?.workspaceId ?? null}, ${invitation?.role ?? null}, ${locale ?? null})`);
     },
     async deleteLink(token: string) {
       await db.execute(sql`delete from workspace_login_links where token_hash = ${hash(token)}`);
@@ -39,8 +40,8 @@ export function createWorkspaceStore(db: PostgresJsDatabase) {
     async consumeLink(token: string, requestId: string) {
       const session = secret();
       const workspace = await db.transaction(async tx => {
-        const [link] = await tx.execute<{ email: string; workspace_name: string; invited_workspace_id: string | null; invited_role: Invite['role'] | null }>(sql`delete from workspace_login_links
-          where token_hash = ${hash(token)} and expires_at > now() returning email, workspace_name, invited_workspace_id, invited_role`);
+        const [link] = await tx.execute<{ email: string; workspace_name: string; invited_workspace_id: string | null; invited_role: Invite['role'] | null; locale: string | null }>(sql`delete from workspace_login_links
+          where token_hash = ${hash(token)} and expires_at > now() returning email, workspace_name, invited_workspace_id, invited_role, locale`);
         if (!link) throw new UnauthorizedError('This link has expired or was already used. Request a new link.');
         await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${link.email}, 7191))`);
         let [account] = await tx.execute<Workspace>(sql`select ${workspaceFields} from workspace_accounts a
@@ -50,8 +51,8 @@ export function createWorkspaceStore(db: PostgresJsDatabase) {
             throw new ConflictError('This email already belongs to a different workspace', 'WORKSPACE_MEMBERSHIP_CONFLICT');
           }
           if (!account) {
-            await tx.execute(sql`insert into workspace_accounts (email, workspace_id, role)
-              values (${link.email}, ${link.invited_workspace_id}, ${link.invited_role})`);
+            await tx.execute(sql`insert into workspace_accounts (email, workspace_id, role, locale)
+              values (${link.email}, ${link.invited_workspace_id}, ${link.invited_role}, ${link.locale})`);
             [account] = await tx.execute<Workspace>(sql`select ${workspaceFields} from workspace_accounts a
               join workspaces w on a.workspace_id = w.id where a.email = ${link.email}`);
           }
@@ -63,10 +64,10 @@ export function createWorkspaceStore(db: PostgresJsDatabase) {
           const sandbox = await service.createTenant(`${link.workspace_name} · Sandbox`, 'starter', undefined, '', '', requestId);
           const id = `wsp_${randomUUID()}`;
           account = { id, name: link.workspace_name, email: link.email, role: 'owner', staging_id: staging.tenant.id,
-            production_id: production.tenant.id, sandbox_id: sandbox.tenant.id };
+            production_id: production.tenant.id, sandbox_id: sandbox.tenant.id, locale: link.locale };
           await tx.execute(sql`insert into workspaces (id, name, staging_id, production_id, sandbox_id)
             values (${id}, ${account.name}, ${account.staging_id}, ${account.production_id}, ${account.sandbox_id})`);
-          await tx.execute(sql`insert into workspace_accounts (email, workspace_id) values (${account.email}, ${id})`);
+          await tx.execute(sql`insert into workspace_accounts (email, workspace_id, locale) values (${account.email}, ${id}, ${link.locale})`);
           await createSessionStore(tx).replace({ tenantId: account.sandbox_id, id: `sandbox_${randomUUID()}`,
             tokenHash: hash(secret()), createdAt: new Date() });
         }
@@ -85,6 +86,9 @@ export function createWorkspaceStore(db: PostgresJsDatabase) {
     },
     async signOut(token: string) {
       await db.execute(sql`delete from workspace_sessions where token_hash = ${hash(token)}`);
+    },
+    async setLocale(email: string, workspaceId: string, locale: string) {
+      await db.execute(sql`update workspace_accounts set locale = ${locale} where email = ${email} and workspace_id = ${workspaceId}`);
     },
     async listOrigins(tenantId: string) {
       return db.execute<OriginRow>(sql`select origin, challenge, verified_at from workspace_origins

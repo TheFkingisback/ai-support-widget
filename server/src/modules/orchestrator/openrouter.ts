@@ -52,7 +52,7 @@ interface OpenRouterResponse {
 }
 
 const MODEL_MAP: Record<string, string> = {
-  fast: 'anthropic/claude-sonnet-4',
+  fast: 'google/gemini-2.5-flash',
   strong: 'anthropic/claude-sonnet-4.5',
 };
 
@@ -66,6 +66,7 @@ export function resolveModel(
 }
 
 const COST_PER_1K: Record<string, { input: number; output: number }> = {
+  'google/gemini-2.5-flash': { input: 0.0003, output: 0.0025 },
   'anthropic/claude-sonnet-4': { input: 0.003, output: 0.015 },
   'anthropic/claude-sonnet-4.5': { input: 0.005, output: 0.025 },
 };

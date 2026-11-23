@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getSessionDetail } from '@/lib/api';
@@ -24,7 +25,7 @@ export default function SessionDetailPage() {
   }, [caseId]);
 
   if (loading) return <div className="skeleton h-96 w-full rounded-2xl" />;
-  if (!data) return <p className="text-red-400">Session not found.</p>;
+  if (!data) return <p className="text-red-400"><L>{"Session not found."}</L></p>;
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'conversation', label: `Conversation (${data.messages.length})` },
@@ -44,9 +45,9 @@ export default function SessionDetailPage() {
           <div className="flex items-center gap-3">
             <StatusBadge status={data.case.status} />
             <div className="text-xs text-surface-600">
-              <span>User: <strong className="text-surface-800">{data.case.userId}</strong></span>
+              <span><L>{"User:"}</L>{" "}<strong className="text-surface-800">{data.case.userId}</strong></span>
               <span className="mx-2">|</span>
-              <span>Tenant: <strong className="text-surface-800">{data.case.tenantId}</strong></span>
+              <span><L>{"Tenant:"}</L>{" "}<strong className="text-surface-800">{data.case.tenantId}</strong></span>
             </div>
           </div>
         }

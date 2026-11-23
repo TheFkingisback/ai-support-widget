@@ -2,11 +2,16 @@ import { z } from 'zod';
 import { ValidationError, ForbiddenError } from '../../shared/errors.js';
 import { validateBody } from '../../shared/validation.js';
 import { redactContent } from '../context/safe-content.js';
+import { matchLocale } from '@ai-support/shared/locales';
 
 const text = z.string().max(4096);
 const nullable = text.nullable().default(null);
 const date = z.string().datetime({ offset: true });
-const doc = z.object({ id: text, title: text, content: z.string().max(32000), category: text });
+const doc = z.object({
+  id: text, title: text, content: z.string().max(32000), category: text,
+  locale: z.string().max(100).refine(value => Boolean(matchLocale(value)), 'Unsupported locale').optional(),
+  version: z.string().max(100).optional(),
+});
 export const pushContextSchema = z.object({
   userState: z.object({
     userId: z.string().min(1).max(200), tenantId: z.string().min(1).max(200),

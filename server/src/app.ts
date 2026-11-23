@@ -34,6 +34,7 @@ export interface AppDeps {
   mcpRouteOpts?: McpRouteOpts;
   workspaceOpts?: WorkspaceOptions;
   turnIdempotency?: TurnIdempotency;
+  suggestions?: WorkspaceOptions['suggestions'];
 }
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
@@ -162,6 +163,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
       orchestratorService: opts.orchestratorService,
       escalationService: opts.escalationService,
       turnIdempotency: opts.turnIdempotency,
+      suggestions: opts.suggestions,
     });
   }
 

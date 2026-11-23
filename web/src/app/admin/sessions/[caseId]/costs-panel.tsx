@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import type { LucideIcon } from 'lucide-react';
 import { DollarSign, Cpu, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import type { LLMCostEntry } from '@/lib/types';
@@ -7,7 +8,7 @@ interface Props { costs: LLMCostEntry[] }
 
 export function CostsPanel({ costs }: Props) {
   if (costs.length === 0) {
-    return <p className="py-8 text-center text-sm text-surface-600">No LLM calls recorded.</p>;
+    return <p className="py-8 text-center text-sm text-surface-600"><L>{"No LLM calls recorded."}</L></p>;
   }
 
   const totalCost = costs.reduce((s, c) => s + c.estimatedCost, 0);
@@ -27,11 +28,11 @@ export function CostsPanel({ costs }: Props) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-surface-400">
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Time</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600">Model</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600">Tokens In</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600">Tokens Out</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600">Cost</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Time"}</L></th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Model"}</L></th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Tokens In"}</L></th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Tokens Out"}</L></th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-surface-600"><L>{"Cost"}</L></th>
             </tr>
           </thead>
           <tbody>

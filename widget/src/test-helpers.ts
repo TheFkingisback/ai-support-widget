@@ -11,6 +11,8 @@ export function createMockApiClient(overrides?: Partial<ApiClient>): ApiClient {
     }),
     sendMessage: vi.fn().mockResolvedValue(mockAssistantMessage()),
     addFeedback: vi.fn().mockResolvedValue(undefined),
+    closeCase: vi.fn().mockResolvedValue(undefined),
+    submitSuggestion: vi.fn().mockResolvedValue({ id: 'idea_test' }),
     escalate: vi.fn().mockResolvedValue({
       ticketId: 'tkt_123',
       ticketUrl: 'https://tickets.example.com/tkt_123',

@@ -11,6 +11,7 @@ import { parseAIResponse } from './response-parser.js';
 import { getFullCaseHistory } from '../gateway/case-history.js';
 import { getDb } from '../../shared/db.js';
 import { log } from '../../shared/logger.js';
+import { selectLocalizedDocuments } from './localized-docs.js';
 
 const DEFAULT_MAX_MESSAGES = 20;
 const DEFAULT_MAX_BYTES = 5_000_000;
@@ -35,7 +36,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       if (deps.actions && humanMessage) {
         if (caseData.status !== 'active') throw new AppError(409, 'ACTION_CASE_CLOSED', 'Conversation is no longer active');
         const actionReply = await deps.actions.respond({ principal: { caseId, tenantId, userId }, mcp: mcpOpts,
-          message: humanMessage, previousMessages: messages, replyToMessageId: opts?.replyToMessageId, requestId });
+          message: humanMessage, previousMessages: messages, replyToMessageId: opts?.replyToMessageId, requestId, locale: opts?.locale });
         if (actionReply) return actionReply;
       }
 
@@ -88,7 +89,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
           });
         }
       }
-      const allDocs = [...knowledgeDocs, ...runbooks];
+      const allDocs = selectLocalizedDocuments([...knowledgeDocs, ...runbooks], opts?.locale);
 
       let previousCases: Awaited<ReturnType<typeof getFullCaseHistory>> = [];
       try {
@@ -102,7 +103,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       }
 
       const systemPrompt = processedSnapshot
-        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases, !!mcpOpts)
+        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases, !!mcpOpts, opts?.locale)
         : 'You are a helpful support assistant. Answer the user\'s question.';
 
       const allMessages = [...messages, {
@@ -122,7 +123,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       // Use tool-augmented loop if MCP is configured, otherwise plain LLM call
       const llmResponse = mcpOpts
         ? await executeWithTools({
-            actionHooks: deps.actions?.hooks({ caseId, tenantId, userId }, mcpOpts, requestId),
+            actionHooks: deps.actions?.hooks({ caseId, tenantId, userId }, mcpOpts, requestId, opts?.locale),
             mcpOpts: mcpOpts, userId: caseData.userId, model, apiKey, llmMessages, requestId,
           })
         : await callLLM({ model, messages: llmMessages }, apiKey, requestId);

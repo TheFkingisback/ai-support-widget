@@ -1,4 +1,5 @@
 'use client';
+import { L, LanguagePicker } from '@/lib/localization';
 import { useState, useEffect } from 'react';
 import { TenantSelfService } from '@/components/tenant-self-service';
 import { Sidebar } from '@/components/sidebar';
@@ -26,25 +27,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex min-h-screen items-center justify-center bg-surface-0">
         <div className="flex flex-col items-center gap-3 animate-fade-in">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-surface-400 border-t-brand-500" />
-          <p className="text-sm text-surface-600">Loading...</p>
+          <p className="text-sm text-surface-600"><L>{"Loading..."}</L></p>
         </div>
       </div>
     );
   }
 
   if (!authenticated) {
-    return <AdminLogin onAuthenticated={() => setAuthenticated(true)} />;
+    return <><div className="fixed end-4 top-4 z-10"><LanguagePicker /></div><AdminLogin onAuthenticated={() => setAuthenticated(true)} /></>;
   }
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-0">
       <a href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-xl focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white">
-        Skip to main content
-      </a>
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-xl focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white"><L>{"Skip to main content"}</L></a>
       <Sidebar />
       <main id="main-content" className="flex-1 overflow-auto bg-surface-50 p-8">
-        <div className="mx-auto max-w-7xl">{getAdminRole() === 'tenant_admin' ? <TenantSelfService /> : children}</div>
+        <div className="mx-auto max-w-7xl"><div className="mb-4 flex justify-end"><LanguagePicker /></div>{getAdminRole() === 'tenant_admin' ? <TenantSelfService /> : children}</div>
       </main>
     </div>
   );

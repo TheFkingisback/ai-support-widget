@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { useState, useEffect, useRef } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { listModels } from '@/lib/api';
@@ -67,8 +68,8 @@ export default function ModelPicker({ value, onChange }: Props) {
               placeholder="Search models..." className="input-field text-sm" aria-label="Search models" autoFocus />
           </div>
           <ul className="max-h-64 overflow-y-auto p-1" role="listbox" aria-label="Model list">
-            {loading && <li role="presentation" className="px-3 py-2 text-sm text-surface-600">Loading...</li>}
-            {!loading && filtered.length === 0 && <li role="presentation" className="px-3 py-2 text-sm text-surface-600">No models found</li>}
+            {loading && <li role="presentation" className="px-3 py-2 text-sm text-surface-600"><L>{"Loading..."}</L></li>}
+            {!loading && filtered.length === 0 && <li role="presentation" className="px-3 py-2 text-sm text-surface-600"><L>{"No models found"}</L></li>}
             {filtered.map((m) => (
               <li key={m.id} role="option" aria-selected={m.id === value ? true : false} tabIndex={0}
                 onClick={() => { onChange(m.id); setOpen(false); setSearch(''); }}
@@ -79,8 +80,8 @@ export default function ModelPicker({ value, onChange }: Props) {
                 <div className="font-medium">{m.name}</div>
                 <div className="flex items-center gap-2 text-xs opacity-70">
                   <span>{m.provider}</span>
-                  <span>{fmtPrice(m.promptPricing)}/tok in</span>
-                  <span>{fmtPrice(m.completionPricing)}/tok out</span>
+                  <span>{fmtPrice(m.promptPricing)}<L>{"/tok in"}</L></span>
+                  <span>{fmtPrice(m.completionPricing)}<L>{"/tok out"}</L></span>
                 </div>
               </li>
             ))}

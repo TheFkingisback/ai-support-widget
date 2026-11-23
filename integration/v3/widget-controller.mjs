@@ -1,7 +1,7 @@
 let sdkPromise;
 
 /** Load the pinned local SDK once. The host must never load a second SDK version. */
-export function loadSdk(src = '/vendor/ai-support/widget.v0.2.2.js') {
+export function loadSdk(src = '/vendor/ai-support/widget.v0.2.4.js') {
   if (sdkPromise) return sdkPromise;
   if (window.AISupportWidget) return Promise.reject(new Error('Unexpected SDK already loaded'));
   sdkPromise = new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ export function mountSupport({ apiUrl, bootstrap, getContext, onUnavailable, ens
       if (disposed) return { status: 'cancelled' };
       instance = window.AISupportWidget.init({
         apiUrl, tenantKey: data.tenantKey, jwt: data.jwt, context: data.context,
-        locale: 'pt-BR', theme: 'light', position: 'bottom-right', brandColor: '#0f766e',
+        locale: data.locale, theme: 'light', position: 'bottom-right', brandColor: '#0f766e',
         onTokenRefresh: async () => {
           const next = await bootstrap(abort.signal);
           if (disposed || next.tenantKey !== data.tenantKey) throw new Error('Support session changed');

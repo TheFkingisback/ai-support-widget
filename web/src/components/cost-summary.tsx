@@ -1,4 +1,5 @@
 'use client';
+import { L } from '@/lib/localization';
 import { DollarSign } from 'lucide-react';
 import type { CostSummary } from '@/lib/types';
 
@@ -27,8 +28,7 @@ export function CostSummaryCard({ costs, loading }: Props) {
         <div className="rounded-xl bg-amber-500/10 p-2 text-amber-400">
           <DollarSign size={18} />
         </div>
-        <h3 className="text-sm font-semibold text-surface-800">
-          LLM Costs -- {costs.month}
+        <h3 className="text-sm font-semibold text-surface-800"><L>{"LLM Costs --"}</L>{" "}{costs.month}
         </h3>
       </div>
 
@@ -45,10 +45,10 @@ export function CostSummaryCard({ costs, loading }: Props) {
             aria-label={`Cost breakdown by model for ${costs.month}`}>
             <thead>
               <tr className="border-b border-surface-400/30 text-left text-xs text-surface-600">
-                <th scope="col" className="px-3 py-2">Model</th>
-                <th scope="col" className="px-3 py-2">Calls</th>
-                <th scope="col" className="px-3 py-2">Tokens</th>
-                <th scope="col" className="px-3 py-2">Cost</th>
+                <th scope="col" className="px-3 py-2"><L>{"Model"}</L></th>
+                <th scope="col" className="px-3 py-2"><L>{"Calls"}</L></th>
+                <th scope="col" className="px-3 py-2"><L>{"Tokens"}</L></th>
+                <th scope="col" className="px-3 py-2"><L>{"Cost"}</L></th>
               </tr>
             </thead>
             <tbody>

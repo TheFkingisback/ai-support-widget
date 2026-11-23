@@ -1,12 +1,15 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 
+const manifest = JSON.parse(await readFile(new URL('widget.manifest.json', import.meta.url), 'utf8'));
+
 const files = {
   '/': ['starter/index.html', 'text/html; charset=utf-8'],
   '/starter/index.html': ['starter/index.html', 'text/html; charset=utf-8'],
   '/starter/sample.css': ['starter/sample.css', 'text/css; charset=utf-8'],
   '/starter/sample.js': ['starter/sample.js', 'text/javascript; charset=utf-8'],
-  '/widget.v0.2.3.js': ['widget.v0.2.3.js', 'text/javascript; charset=utf-8'],
+  [`/${manifest.file}`]: [manifest.file, 'text/javascript; charset=utf-8'],
+  '/widget.manifest.json': ['widget.manifest.json', 'application/json; charset=utf-8'],
 };
 const port = 4173;
 createServer(async (request, response) => {
