@@ -12,9 +12,6 @@ http {
     gzip_types text/plain text/css application/json application/javascript text/xml;
     gzip_min_length 256;
 
-    # Rate limiting zone
-    limit_req_zone $binary_remote_addr zone=api:10m rate=30r/s;
-
     # Upstream backends
     upstream server_backend {
         server server:3005;
@@ -49,8 +46,6 @@ http {
 
         # API routes → server backend
         location /api/ {
-            limit_req zone=api burst=50 nodelay;
-
             proxy_pass http://server_backend;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;

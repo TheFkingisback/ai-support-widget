@@ -1,4 +1,5 @@
 import type { Evidence } from './types.js';
+import { widgetCopy } from './copy.js';
 
 /** Renders evidence blocks inline in AI messages */
 export function renderEvidence(evidenceList: Evidence[], locale: string): HTMLElement {
@@ -15,7 +16,7 @@ export function renderEvidence(evidenceList: Evidence[], locale: string): HTMLEl
       badge.textContent = `${ev.label}: ${ev.value}`;
       badge.setAttribute('role', 'button');
       badge.setAttribute('tabindex', '0');
-      badge.setAttribute('aria-label', `Copy ${ev.label}: ${ev.value}`);
+      badge.setAttribute('aria-label', `${widgetCopy(locale).copy} ${ev.label}: ${ev.value}`);
       const copyValue = () => {
         navigator.clipboard.writeText(ev.value).catch(() => {});
       };

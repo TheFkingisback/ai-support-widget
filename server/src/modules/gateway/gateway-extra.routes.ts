@@ -9,7 +9,7 @@ import { validateBody } from '../../shared/validation.js';
 
 const closeCaseBody = z.object({
   resolution: z.enum(['resolved', 'unresolved']),
-  rating: z.number().int().min(1).max(10),
+  rating: z.number().int().min(1).max(10).optional(),
 });
 
 const escalateBody = z.object({
@@ -20,7 +20,7 @@ const actionBody = z.object({
   action: z.object({
     type: z.enum(['retry', 'open_docs', 'create_ticket', 'request_access', 'custom']),
     label: z.string().min(1),
-    payload: z.record(z.unknown()).default({}),
+    payload: z.record(z.string(), z.unknown()).default({}),
   }),
 });
 
@@ -46,7 +46,7 @@ export async function registerExtraGatewayRoutes(
       const { caseId } = request.params;
 
       const data = validateBody(closeCaseBody, request.body);
-      await service.closeCase(caseId, tenantId, userId, data.resolution, data.rating, reqId);
+      await service.closeCase(caseId, tenantId, userId, data.resolution, data.rating ?? null, reqId);
       return reply.code(200).send({ ok: true });
     },
   );

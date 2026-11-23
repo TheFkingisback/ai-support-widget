@@ -10,7 +10,7 @@ describe('Chat confirmation binding', () => {
     document.body.appendChild(panel.element);
     const input = panel.element.querySelector('input')!; input.value = 'confirmar';
     panel.element.querySelector<HTMLButtonElement>('.ai-widget-input button')!.click();
-    await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledWith('cas_1', 'confirmar', 'proposal_message'));
+    await vi.waitFor(() => expect(api.sendMessage).toHaveBeenCalledWith('cas_1', 'confirmar', 'proposal_message', expect.any(String)));
     panel.destroy();
   });
   it('preserves the proposal binding when refreshing the session token', async () => {

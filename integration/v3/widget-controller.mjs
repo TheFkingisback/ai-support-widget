@@ -31,10 +31,13 @@ export function mountSupport({ apiUrl, bootstrap, getContext, onUnavailable, ens
   const abort = new AbortController();
   let instance;
   let disposed = false;
-  const ready = (async () => {
+  const at = (stage, work) => Promise.resolve().then(work).catch(() => {
+    throw { stage, code: stage === 'sdk' ? 'SUPPORT_SDK_UNAVAILABLE' : 'SUPPORT_BOOTSTRAP_UNAVAILABLE' };
+  });
+  const outcome = (async () => {
     try {
-      const [data] = await Promise.all([bootstrap(abort.signal), ensureSdk()]);
-      if (disposed) return;
+      const [data] = await Promise.all([at('bootstrap', () => bootstrap(abort.signal)), at('sdk', ensureSdk)]);
+      if (disposed) return { status: 'cancelled' };
       instance = window.AISupportWidget.init({
         apiUrl, tenantKey: data.tenantKey, jwt: data.jwt, context: data.context,
         locale: 'pt-BR', theme: 'light', position: 'bottom-right', brandColor: '#0f766e',
@@ -49,12 +52,17 @@ export function mountSupport({ apiUrl, bootstrap, getContext, onUnavailable, ens
           instance?.updateContext(context);
         },
       });
-    } catch {
-      if (!disposed) onUnavailable();
+      return { status: 'mounted' };
+    } catch (failure) {
+      if (disposed) return { status: 'cancelled' };
+      const error = failure?.code ? failure : { stage: 'mount', code: 'SUPPORT_MOUNT_FAILED' };
+      onUnavailable?.(error);
+      return { status: 'failed', ...error };
     }
   })();
   return {
-    ready,
+    ready: outcome.then(() => undefined),
+    outcome,
     destroy() { disposed = true; abort.abort(); instance?.destroy(); instance = undefined; },
   };
 }

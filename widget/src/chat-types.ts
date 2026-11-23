@@ -6,6 +6,7 @@ export interface ChatPanelConfig {
   locale: string;
   position: 'bottom-right' | 'bottom-left';
   onClose: () => void;
+  handoffUrl?: string;
   onCaseClosed?: () => void;
   context?: Record<string, unknown>;
   getContext?: () => Record<string, unknown> | undefined;

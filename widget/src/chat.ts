@@ -1,36 +1,47 @@
 import type { ChatPanelConfig, ChatPanel } from './chat-types.js';
+import { widgetCopy } from './copy.js';
 export type { ChatPanelConfig, ChatPanel } from './chat-types.js';
 import type { Message } from './types.js';
 import { renderMessage, createCloseFlow, type ChatRendererDeps } from './chat-renderer.js';
 
 export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   const { apiClient, locale, position, onClose } = config;
+  const copy = widgetCopy(locale);
   const isLeft = position === 'bottom-left';
 
   const panel = document.createElement('div');
   panel.className = `ai-widget-panel${isLeft ? ' left' : ''}`;
   panel.setAttribute('role', 'dialog');
-  panel.setAttribute('aria-label', 'Support chat');
+  panel.setAttribute('aria-label', copy.chat);
 
   // Header
   const header = document.createElement('div');
   header.className = 'ai-widget-header';
   const title = document.createElement('h2');
   title.className = 'ai-widget-header-title';
-  title.textContent = 'Support';
+  title.textContent = copy.support;
   title.id = 'ai-widget-title';
   panel.setAttribute('aria-labelledby', 'ai-widget-title');
   const closeBtn = document.createElement('button');
   closeBtn.className = 'ai-close-btn';
   closeBtn.textContent = '\u2715';
-  closeBtn.setAttribute('aria-label', 'Minimize support chat');
+  closeBtn.setAttribute('aria-label', copy.minimize);
   closeBtn.addEventListener('click', onClose);
   const endBtn = document.createElement('button');
   endBtn.className = 'ai-end-btn';
-  endBtn.textContent = 'End Session';
-  endBtn.setAttribute('aria-label', 'End support session');
+  endBtn.textContent = copy.end;
+  endBtn.setAttribute('aria-label', copy.endLabel);
   endBtn.style.display = 'none';
   header.appendChild(title);
+  if (config.handoffUrl) {
+    const support = document.createElement('a');
+    support.href = config.handoffUrl;
+    support.textContent = copy.humanHelp;
+    support.className = 'ai-widget-handoff';
+    support.target = '_blank';
+    support.rel = 'noopener noreferrer';
+    header.appendChild(support);
+  }
   header.appendChild(endBtn);
   header.appendChild(closeBtn);
 
@@ -39,20 +50,20 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
   messagesEl.className = 'ai-widget-messages';
   messagesEl.setAttribute('role', 'log');
   messagesEl.setAttribute('aria-live', 'polite');
-  messagesEl.setAttribute('aria-label', 'Chat messages');
+  messagesEl.setAttribute('aria-label', copy.messages);
 
   // Input
   const inputBar = document.createElement('div');
   inputBar.className = 'ai-widget-input';
   inputBar.setAttribute('role', 'form');
-  inputBar.setAttribute('aria-label', 'Send a message');
+  inputBar.setAttribute('aria-label', copy.composer);
   const input = document.createElement('input');
   input.type = 'text';
-  input.placeholder = 'Describe your issue...';
-  input.setAttribute('aria-label', 'Type your message');
+  input.placeholder = copy.placeholder;
+  input.setAttribute('aria-label', copy.messageLabel);
   const sendBtn = document.createElement('button');
-  sendBtn.textContent = 'Send';
-  sendBtn.setAttribute('aria-label', 'Send message');
+  sendBtn.textContent = copy.send;
+  sendBtn.setAttribute('aria-label', copy.sendLabel);
   inputBar.appendChild(input);
   inputBar.appendChild(sendBtn);
 
@@ -94,7 +105,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
       typing.remove();
       const errEl = document.createElement('div');
       errEl.className = 'ai-msg system';
-      errEl.textContent = 'Failed to get response. Please try again.';
+      errEl.textContent = copy.responseFailed;
       messagesEl.appendChild(errEl);
     } finally {
       sending = false;
@@ -115,7 +126,7 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
     el.className = 'ai-typing';
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
-    el.textContent = 'AI is thinking...';
+    el.textContent = copy.thinking;
     messagesEl.appendChild(el);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return el;
@@ -127,24 +138,28 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
+  let previousDraft: { text: string; id?: string } | undefined;
   async function handleSend(): Promise<void> {
     const text = input.value.trim();
     if (!text || sending) return;
+    if (previousDraft?.text !== text) previousDraft = { text, id: globalThis.crypto?.randomUUID?.() };
+    const turnId = previousDraft.id;
     sending = true;
     sendBtn.setAttribute('disabled', '');
-    input.value = '';
+    input.readOnly = true;
+    messagesEl.querySelector('[data-send-error]')?.remove();
 
     const typing = showTyping();
     try {
       let aiMsg: Message;
       if (!caseId) {
-        const result = await apiClient.createCase(text, config.getContext ? config.getContext() : config.context);
+        const result = await apiClient.createCase(text, config.getContext ? config.getContext() : config.context, turnId);
         caseId = result.case.id;
         config.onCaseCreated?.(caseId);
         endBtn.style.display = '';
         aiMsg = result.aiMessage ?? await apiClient.sendMessage(caseId, text, lastAssistantMessageId);
       } else {
-        aiMsg = await apiClient.sendMessage(caseId, text, lastAssistantMessageId);
+        aiMsg = await apiClient.sendMessage(caseId, text, lastAssistantMessageId, turnId);
       }
       typing.remove();
       const userMsg: Message = {
@@ -153,14 +168,24 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
       };
       appendRendered(userMsg);
       appendRendered(aiMsg);
+      input.value = '';
+      previousDraft = undefined;
     } catch {
       typing.remove();
       const errEl = document.createElement('div');
       errEl.className = 'ai-msg system';
-      errEl.textContent = 'Failed to send message. Please try again.';
+      errEl.dataset.sendError = '';
+      errEl.setAttribute('role', 'status');
+      errEl.textContent = copy.sendFailed + ' ';
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.textContent = copy.retry;
+      retry.addEventListener('click', () => void handleSend());
+      errEl.appendChild(retry);
       messagesEl.appendChild(errEl);
     } finally {
       sending = false;
+      input.readOnly = false;
       sendBtn.removeAttribute('disabled');
     }
   }

@@ -8,11 +8,11 @@ export interface ApiClientConfig {
 }
 
 export interface ApiClient {
-  createCase(message: string, context?: Record<string, unknown>): Promise<{ case: Case; snapshot: { id: string }; aiMessage?: Message }>;
+  createCase(message: string, context?: Record<string, unknown>, clientTurnId?: string): Promise<{ case: Case; snapshot: { id: string }; aiMessage?: Message }>;
   getCase(caseId: string): Promise<{ case: Case; messages: Message[] }>;
-  sendMessage(caseId: string, content: string, replyToMessageId?: string): Promise<Message>;
+  sendMessage(caseId: string, content: string, replyToMessageId?: string, clientTurnId?: string): Promise<Message>;
   addFeedback(caseId: string, feedback: 'positive' | 'negative'): Promise<void>;
-  closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating: number): Promise<void>;
+  closeCase(caseId: string, resolution: 'resolved' | 'unresolved', rating?: number): Promise<void>;
   executeAction(caseId: string, action: SuggestedAction): Promise<string>;
   escalate(caseId: string, reason?: string): Promise<{ ticketId: string; ticketUrl: string }>;
 }
@@ -64,9 +64,9 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
   }
 
   return {
-    async createCase(message: string, context?: Record<string, unknown>) {
+    async createCase(message: string, context?: Record<string, unknown>, clientTurnId?: string) {
       return request<{ case: Case; snapshot: { id: string }; aiMessage?: Message }>('POST', '/api/cases', {
-        message, ...(context ? { context } : {}),
+        message, ...(context ? { context } : {}), ...(clientTurnId ? { clientTurnId } : {}),
       });
     },
 
@@ -74,8 +74,10 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
       return request<{ case: Case; messages: Message[] }>('GET', `/api/cases/${caseId}`);
     },
 
-    async sendMessage(caseId: string, content: string, replyToMessageId?: string) {
-      const data = await request<{ message: Message }>('POST', `/api/cases/${caseId}/messages`, { content, ...(replyToMessageId ? { replyToMessageId } : {}) });
+    async sendMessage(caseId: string, content: string, replyToMessageId?: string, clientTurnId?: string) {
+      const data = await request<{ message: Message }>('POST', `/api/cases/${caseId}/messages`, {
+        content, ...(replyToMessageId ? { replyToMessageId } : {}), ...(clientTurnId ? { clientTurnId } : {}),
+      });
       return data.message;
     },
 

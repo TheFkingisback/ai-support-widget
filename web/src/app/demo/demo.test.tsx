@@ -14,10 +14,8 @@ describe('Widget Demo Page', () => {
     render(<DemoPage />);
 
     expect(screen.getByTestId('demo-page')).toBeInTheDocument();
-    expect(screen.getByText('Widget Demo')).toBeInTheDocument();
-    // Shows integration code
-    expect(screen.getByText(/AISupportWidget\.init/)).toBeInTheDocument();
-    // Shows the host app content area
-    expect(screen.getByText('Host application content area')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Widget demo' })).toBeInTheDocument();
+    expect(screen.getByTitle('Interactive widget in a sample workspace')).toHaveAttribute('src', '/starter/index.html');
+    expect(screen.getByRole('link', { name: 'Download the local starter' })).toHaveAttribute('href', '/downloads/ai-support-starter.zip');
   });
 });

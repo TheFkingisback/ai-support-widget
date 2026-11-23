@@ -11,7 +11,6 @@ import { createGatewayService } from './modules/gateway/gateway.service.js';
 import { createSnapshotService } from './modules/snapshot/snapshot.service.js';
 import { createContextService } from './modules/context/context.service.js';
 import { createOrchestratorService } from './modules/orchestrator/orchestrator.service.js';
-import { createInMemoryRateLimiter } from './modules/gateway/rate-limiter.js';
 import { createTenantService } from './modules/admin/tenant.service.js';
 import { createAnalyticsService } from './modules/admin/analytics.service.js';
 import { createAuditService } from './modules/admin/audit.service.js';
@@ -22,6 +21,9 @@ import { createDbTenantStore, createDbCostStore, createDbAuditStore } from './sh
 import { createDbAnalyticsDataSource, createDbSessionDataSource } from './shared/db-data-sources.js';
 import { createMcpStore, mcpResolver } from './modules/orchestrator/mcp-store.js';
 import { createSessionStore } from './modules/sessions/session.store.js';
+import { createWorkspaceStore } from './modules/workspaces/workspace-store.js';
+import { createWorkspaceMail } from './modules/workspaces/workspace-mail.js';
+import { createTurnIdempotency } from './modules/gateway/turn-idempotency.js';
 
 async function main() {
   const env = getEnv();
@@ -60,16 +62,23 @@ async function main() {
   const adminAuth = createAdminAuth(authOpts);
   const loginHandler = createLoginHandler(authOpts);
   const sessionDataSource = createDbSessionDataSource(db);
+  const sessionStore = createSessionStore(db);
+  const workspaceOpts = env.WORKSPACE_PUBLIC_ORIGIN ? {
+    store: createWorkspaceStore(db), sessions: sessionStore, widgetSecret: env.WIDGET_JWT_SECRET,
+    publicOrigin: env.WORKSPACE_PUBLIC_ORIGIN,
+    mail: env.POSTMARK_SERVER_TOKEN && env.POSTMARK_FROM
+      ? createWorkspaceMail(env.POSTMARK_SERVER_TOKEN, env.POSTMARK_FROM) : undefined,
+  } : undefined;
 
   const app = await buildApp({
     jwtSecret: env.WIDGET_JWT_SECRET,
     mcpRouteOpts: { store: mcpStore, tenantService, adminAuth, actionVerification: actionSigner?.verification },
     sessionRouteOpts: {
-      store: createSessionStore(db), tenantService, widgetSecret: env.WIDGET_JWT_SECRET,
-      rateLimiter: createInMemoryRateLimiter(), adminAuth,
+      store: sessionStore, tenantService, widgetSecret: env.WIDGET_JWT_SECRET, adminAuth,
     },
+    workspaceOpts,
     gatewayService: gateway,
-    rateLimiter: createInMemoryRateLimiter(),
+    turnIdempotency: createTurnIdempotency(db),
     snapshotService: snapshotSvc,
     orchestratorService: orchestrator,
     adminRouteOpts: {
@@ -80,6 +89,7 @@ async function main() {
       loginHandler,
       modelListService,
       costService: costSvc,
+      getCasesByTenant: createDbAnalyticsDataSource(db).getCasesByTenant,
     },
     sessionAdminOpts: { dataSource: sessionDataSource, adminAuth },
   });

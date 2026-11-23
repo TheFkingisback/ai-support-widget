@@ -67,7 +67,7 @@ export interface GatewayService {
     tenantId: string,
     userId: string,
     resolution: 'resolved' | 'unresolved',
-    rating: number,
+    rating: number | null,
     requestId?: string,
   ): Promise<void>;
 

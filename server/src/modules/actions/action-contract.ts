@@ -10,7 +10,7 @@ export const actionPolicySchema = z.object({
 export type ActionPolicy = z.infer<typeof actionPolicySchema>;
 export interface Principal { tenantId: string; userId: string; caseId: string }
 export const actionArguments = z.object({
-  operation: operationName, arguments: z.record(z.unknown()),
+  operation: operationName, arguments: z.record(z.string(), z.unknown()),
 }).strict();
 export const digest = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
 const id = z.string().regex(/^[a-zA-Z0-9_-]{1,200}$/);

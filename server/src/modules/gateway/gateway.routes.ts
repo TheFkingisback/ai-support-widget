@@ -8,15 +8,18 @@ import type { EscalationService } from '../escalation/escalation.service.js';
 import { log } from '../../shared/logger.js';
 import { validateBody } from '../../shared/validation.js';
 import { registerExtraGatewayRoutes } from './gateway-extra.routes.js';
+import type { TurnIdempotency } from './turn-idempotency.js';
 
 const createCaseBody = z.object({
   message: z.string().min(1, 'Message is required').max(5000),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
+  clientTurnId: z.string().uuid().optional(),
 });
 
 const addMessageBody = z.object({
   content: z.string().min(1, 'Content is required').max(5000),
   replyToMessageId: z.string().regex(/^[a-zA-Z0-9_-]{1,200}$/).optional(),
+  clientTurnId: z.string().uuid().optional(),
 });
 
 const feedbackBody = z.object({
@@ -25,17 +28,18 @@ const feedbackBody = z.object({
 
 interface RouteOpts {
   service: GatewayService;
-  rateLimiter: RateLimiter;
+  rateLimiter?: RateLimiter;
   snapshotService?: SnapshotService;
   orchestratorService?: OrchestratorService;
   escalationService?: EscalationService;
+  turnIdempotency?: TurnIdempotency;
 }
 
 export async function registerGatewayRoutes(
   app: FastifyInstance,
   opts: RouteOpts,
 ): Promise<void> {
-  const { service, rateLimiter, snapshotService, orchestratorService, escalationService } = opts;
+  const { service, rateLimiter, snapshotService, orchestratorService, escalationService, turnIdempotency } = opts;
 
   // POST /api/cases
   app.post(
@@ -45,9 +49,10 @@ export async function registerGatewayRoutes(
       const reqId = request.id as string;
       const { tenantId, userId } = request.authPayload;
 
-      await rateLimiter.check(`create:${tenantId}:${userId}`, 10, 60_000, reqId);
+      await rateLimiter?.check(`create:${tenantId}:${userId}`, 10, 60_000, reqId);
 
       const data = validateBody(createCaseBody, request.body);
+      async function createTurn() {
       await snapshotService?.prepareContext?.(tenantId, userId, data.context);
       const result = await service.createCase(tenantId, userId, data.message, reqId);
 
@@ -89,11 +94,16 @@ export async function registerGatewayRoutes(
       }
 
       log.info('POST /api/cases response', reqId, { caseId: result.case.id });
-      return reply.code(200).send({
+      return {
         case: result.case,
         snapshot: { id: result.case.snapshotId },
         ...(aiMessage ? { aiMessage } : {}),
-      });
+      };
+      }
+      const response = data.clientTurnId && turnIdempotency
+        ? await turnIdempotency.run({ tenantId, userId, clientId: data.clientTurnId, operation: 'create', input: data }, createTurn)
+        : await createTurn();
+      return reply.code(200).send(response);
     },
   );
 
@@ -119,10 +129,11 @@ export async function registerGatewayRoutes(
       const { tenantId, userId } = request.authPayload;
       const { caseId } = request.params;
 
-      await rateLimiter.check(`msg:${tenantId}:${userId}`, 30, 60_000, reqId);
+      await rateLimiter?.check(`msg:${tenantId}:${userId}`, 30, 60_000, reqId);
 
       const msgData = validateBody(addMessageBody, request.body);
 
+      async function addTurn() {
       if (orchestratorService) {
         const rawJwt = request.headers.authorization?.startsWith('Bearer ')
           ? request.headers.authorization.slice(7) : undefined;
@@ -130,14 +141,19 @@ export async function registerGatewayRoutes(
           caseId, tenantId, userId, msgData.content, reqId, rawJwt,
           { replyToMessageId: msgData.replyToMessageId },
         );
-        return reply.code(200).send({ message: aiMessage });
+        return { message: aiMessage };
       }
 
       await service.getCase(caseId, tenantId, userId, reqId);
       const message = await service.addMessage(
         caseId, tenantId, userId, 'user', msgData.content, undefined, reqId,
       );
-      return reply.code(200).send({ message });
+      return { message };
+      }
+      const response = msgData.clientTurnId && turnIdempotency
+        ? await turnIdempotency.run({ tenantId, userId, clientId: msgData.clientTurnId, operation: caseId, input: msgData }, addTurn)
+        : await addTurn();
+      return reply.code(200).send(response);
     },
   );
 

@@ -13,7 +13,7 @@ export const pushContextSchema = z.object({
     roles: z.array(text).max(30), plan: text, featuresEnabled: z.array(text).max(100),
     profile: z.object({ fullName: text.optional(), email: text.optional(), country: text.optional() }).optional(),
     entities: z.array(z.object({ type: text, id: text.optional(), description: text.optional(), status: text,
-      metadata: z.record(z.unknown()).default({}) })).max(100),
+      metadata: z.record(z.string(), z.unknown()).default({}) })).max(100),
     activeErrors: z.array(z.object({ errorCode: text, errorClass: z.enum(['validation','permission','infra','business']),
       retryable: z.boolean(), userActionable: z.boolean(), resourceId: text, occurredAt: date })).max(100),
     limitsReached: z.array(z.object({ limit: text, current: z.number(), max: z.number() })).max(100),
@@ -29,7 +29,7 @@ export const pushContextSchema = z.object({
     errors: z.array(z.object({ ts: date, errorCode: text, errorClass: text, route: text, requestId: text, resourceId: nullable })).max(1000),
   }),
   knowledgePack: z.object({ docs: z.array(doc).max(50) }).optional(),
-  businessRules: z.record(z.unknown()).optional(),
+  businessRules: z.record(z.string(), z.unknown()).optional(),
 });
 export type PushContext = z.infer<typeof pushContextSchema>;
 /** Validates the push-only contract and rejects mismatched identities before persistence. */

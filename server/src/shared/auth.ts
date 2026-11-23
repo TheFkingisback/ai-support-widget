@@ -18,15 +18,14 @@ declare module 'fastify' {
 }
 
 declare module '@fastify/jwt' {
-  interface FastifyJWT {
-    payload: WidgetAuthPayload;
-  }
+  interface FastifyJWT { payload: WidgetAuthPayload; }
 }
 
 export interface AuthOptions {
   secret: string;
   maxAge?: string;
   verifySession?: (tenantId: string, integrationId: string) => Promise<boolean>;
+  verifyOrigin?: (origin: string, tenantId: string) => Promise<boolean>;
 }
 
 const identity = z.object({
@@ -43,7 +42,6 @@ export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Pro
     sign: { iss: TOKEN_ISSUER, aud: WIDGET_AUDIENCE, expiresIn: '15m' },
     verify: { maxAge: opts.maxAge ?? '8h', algorithms: ['HS256'] },
   });
-
   app.decorate('authenticate', async function (request: FastifyRequest, _reply: FastifyReply) {
     try {
       const token = request.headers.authorization?.match(/^Bearer (\S+)$/)?.[1];
@@ -60,6 +58,8 @@ export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Pro
       if (opts.verifySession &&
           (decoded.sub !== claims.userId || typeof decoded.integrationId !== 'string' ||
           !await opts.verifySession(claims.tenantId, decoded.integrationId))) throw new Error('Revoked session');
+      if (request.headers.origin && opts.verifyOrigin &&
+          !await opts.verifyOrigin(request.headers.origin, claims.tenantId)) throw new Error('Unverified browser origin');
       request.authPayload = claims;
       log.debug('Auth verified', request.requestId, {
         tenantId: decoded.tenantId,

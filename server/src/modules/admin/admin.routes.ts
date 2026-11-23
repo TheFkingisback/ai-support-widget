@@ -12,7 +12,7 @@ import type { CostService } from './cost.service.js';
 const createTenantBody = z.object({
   name: z.string().trim().min(1).max(200),
   plan: z.enum(['starter', 'pro', 'enterprise']),
-  config: z.record(z.unknown()).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
   // Optional legacy pull integration; current push onboarding needs neither.
   apiBaseUrl: z.string().url().optional(),
   serviceToken: z.string().min(1).optional(),
@@ -21,7 +21,7 @@ const createTenantBody = z.object({
 const updateTenantBody = z.object({
   name: z.string().min(1).max(200).optional(),
   plan: z.enum(['starter', 'pro', 'enterprise']).optional(),
-  config: z.record(z.unknown()).optional(),
+  config: z.record(z.string(), z.unknown()).optional(),
 });
 
 const paginationQuery = z.object({

@@ -48,6 +48,7 @@ export function getStyles(theme: 'light' | 'dark', brandColor?: string): string 
       background: var(--ai-support-primary); color: #fff;
     }
     .ai-widget-header-title { flex: 1; font-weight: 600; font-size: 15px; margin: 0; }
+    .ai-widget-handoff { color: inherit; font-size: 12px; text-decoration: underline; }
     .ai-widget-header button {
       background: none; border: none; color: #fff; cursor: pointer;
       font-size: 13px; padding: 4px 8px; border-radius: 4px; opacity: .9;

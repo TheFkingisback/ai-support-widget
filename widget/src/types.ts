@@ -12,6 +12,7 @@ export interface WidgetConfig {
   onOpen?: () => Promise<void> | void;
   /** Brand color override for primary theme color (hex). */
   brandColor?: string;
+  handoffUrl?: string;
 }
 
 /** Case returned by the gateway */

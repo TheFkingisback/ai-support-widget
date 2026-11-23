@@ -18,6 +18,8 @@ import { registerSwagger } from './shared/swagger.js';
 import { sql } from 'drizzle-orm';
 import { registerSessionRoutes, type SessionRouteOpts } from './modules/sessions/session.routes.js';
 import { registerMcpRoutes, type McpRouteOpts } from './modules/orchestrator/mcp.routes.js';
+import { registerWorkspaceRoutes, type WorkspaceOptions } from './modules/workspaces/workspace-routes.js';
+import type { TurnIdempotency } from './modules/gateway/turn-idempotency.js';
 
 export interface AppDeps {
   jwtSecret?: string;
@@ -30,6 +32,8 @@ export interface AppDeps {
   sessionAdminOpts?: SessionAdminOpts;
   sessionRouteOpts?: SessionRouteOpts;
   mcpRouteOpts?: McpRouteOpts;
+  workspaceOpts?: WorkspaceOptions;
+  turnIdempotency?: TurnIdempotency;
 }
 
 export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
@@ -58,7 +62,15 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   if (!env.CORS_ORIGINS) {
     log.warn('CORS_ORIGINS not set — restricting to localhost. Set CORS_ORIGINS in production.');
   }
-  await app.register(cors, { origin: allowedOrigins });
+  const workspace = opts?.workspaceOpts;
+  if (workspace) allowedOrigins.push(workspace.publicOrigin);
+  async function allowOrigin(origin: string, tenantId?: string) {
+    return allowedOrigins.includes(origin) || Boolean(workspace && await workspace.store.isVerifiedOrigin(origin, tenantId));
+  }
+  await app.register(cors, { origin(origin, callback) {
+    if (!origin) return callback(null, false);
+    void allowOrigin(origin).then(allowed => callback(null, allowed), () => callback(null, false));
+  } });
 
   const jwtSecret = opts?.jwtSecret ?? env.WIDGET_JWT_SECRET;
   const jwtMaxAge = env.JWT_MAX_AGE ?? '8h';
@@ -68,6 +80,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
       const record = await opts.sessionRouteOpts!.store.findByTenant(tenantId);
       return record?.id === id;
     } : undefined,
+    verifyOrigin: workspace ? allowOrigin : undefined,
   });
 
   // Request logging
@@ -141,19 +154,21 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
   });
 
   // Gateway routes (if service provided)
-  if (opts?.gatewayService && opts.rateLimiter) {
+  if (opts?.gatewayService) {
     await registerGatewayRoutes(app, {
       service: opts.gatewayService,
       rateLimiter: opts.rateLimiter,
       snapshotService: opts.snapshotService,
       orchestratorService: opts.orchestratorService,
       escalationService: opts.escalationService,
+      turnIdempotency: opts.turnIdempotency,
     });
   }
 
   if (opts?.sessionRouteOpts) await registerSessionRoutes(app, opts.sessionRouteOpts);
 
   if (opts?.mcpRouteOpts) await registerMcpRoutes(app, opts.mcpRouteOpts);
+  if (workspace) await registerWorkspaceRoutes(app, workspace);
 
   // Admin routes (if opts provided)
   if (opts?.adminRouteOpts) {

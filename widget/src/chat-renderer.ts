@@ -1,6 +1,7 @@
 import type { Message, SuggestedAction } from './types.js';
 import type { ApiClient } from './api.js';
 import { renderEvidence } from './evidence.js';
+import { widgetCopy } from './copy.js';
 import { renderActions, type ActionHandlers } from './actions.js';
 
 export interface ChatRendererDeps {
@@ -29,7 +30,7 @@ export function renderMessage(msg: Message, deps: ChatRendererDeps): HTMLElement
 
   if (msg.actions.length > 0) {
     const handlers = createActionHandlers(deps);
-    el.appendChild(renderActions(msg.actions, handlers, deps.panelEl));
+    el.appendChild(renderActions(msg.actions, handlers, deps.panelEl, deps.locale));
   }
 
   return el;
@@ -37,11 +38,12 @@ export function renderMessage(msg: Message, deps: ChatRendererDeps): HTMLElement
 
 /** Creates the close-case flow UI (called when user clicks "End Session") */
 export function createCloseFlow(deps: ChatRendererDeps): HTMLElement {
+  const copy = widgetCopy(deps.locale);
   const container = document.createElement('div');
   container.className = 'ai-case-close';
 
   const question = document.createElement('p');
-  question.textContent = 'Was your issue resolved?';
+  question.textContent = copy.resolved;
   container.appendChild(question);
 
   const btns = document.createElement('div');
@@ -49,13 +51,13 @@ export function createCloseFlow(deps: ChatRendererDeps): HTMLElement {
 
   const yesBtn = document.createElement('button');
   yesBtn.className = 'ai-close-yes';
-  yesBtn.textContent = 'Yes';
-  yesBtn.setAttribute('aria-label', 'Issue was resolved');
+  yesBtn.textContent = copy.yes;
+  yesBtn.setAttribute('aria-label', copy.resolvedLabel);
 
   const noBtn = document.createElement('button');
   noBtn.className = 'ai-close-no';
-  noBtn.textContent = 'No';
-  noBtn.setAttribute('aria-label', 'Issue was not resolved');
+  noBtn.textContent = copy.no;
+  noBtn.setAttribute('aria-label', copy.unresolvedLabel);
 
   yesBtn.addEventListener('click', () => showRatingStep(container, 'resolved', deps));
   noBtn.addEventListener('click', () => handleUnresolved(container, deps));
@@ -75,9 +77,10 @@ function showRatingStep(
   resolution: 'resolved' | 'unresolved',
   deps: ChatRendererDeps,
 ): void {
+  const copy = widgetCopy(deps.locale);
   container.innerHTML = '';
   const label = document.createElement('p');
-  label.textContent = 'How would you rate this experience? (1-10)';
+  label.textContent = copy.rating;
   container.appendChild(label);
 
   const ratingRow = document.createElement('div');
@@ -85,30 +88,36 @@ function showRatingStep(
   for (let i = 1; i <= 10; i++) {
     const btn = document.createElement('button');
     btn.textContent = String(i);
-    btn.setAttribute('aria-label', `Rate ${i} out of 10`);
+    btn.setAttribute('aria-label', copy.rateLabel(i));
     btn.addEventListener('click', () => submitClose(container, resolution, i, deps));
     ratingRow.appendChild(btn);
   }
   container.appendChild(ratingRow);
+  const skip = document.createElement('button');
+  skip.type = 'button';
+  skip.textContent = copy.skipRating;
+  skip.addEventListener('click', () => void submitClose(container, resolution, undefined, deps));
+  container.appendChild(skip);
   deps.messagesEl.scrollTop = deps.messagesEl.scrollHeight;
 }
 
 async function submitClose(
   container: HTMLElement,
   resolution: 'resolved' | 'unresolved',
-  rating: number,
+  rating: number | undefined,
   deps: ChatRendererDeps,
 ): Promise<void> {
+  const copy = widgetCopy(deps.locale);
   container.innerHTML = '';
   const loading = document.createElement('p');
-  loading.textContent = 'Closing case...';
+  loading.textContent = copy.closing;
   container.appendChild(loading);
 
   try {
     await deps.apiClient.closeCase(deps.caseId, resolution, rating);
     container.innerHTML = '';
     const thanks = document.createElement('p');
-    thanks.textContent = 'Thanks for your feedback! Case closed.';
+    thanks.textContent = copy.closed;
     container.appendChild(thanks);
     if (deps.onCaseClosed) {
       setTimeout(() => deps.onCaseClosed!(), 2000);
@@ -116,8 +125,13 @@ async function submitClose(
   } catch {
     container.innerHTML = '';
     const err = document.createElement('p');
-    err.textContent = 'Failed to close case. Please try again.';
+    err.textContent = copy.closeFailed;
     container.appendChild(err);
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.textContent = copy.retry;
+    retry.addEventListener('click', () => void submitClose(container, resolution, rating, deps));
+    container.appendChild(retry);
   }
 }
 

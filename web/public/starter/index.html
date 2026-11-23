@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Support Widget sample workspace</title>
+<link rel="stylesheet" href="/starter/sample.css">
+<script defer src="/widget.v0.2.3.js"></script>
+<script defer src="/starter/sample.js"></script>
+<main>
+  <div class="buttons"><button type="button" id="open">Open support chat</button><button type="button" id="reset">Reset sample</button></div>
+  <p class="eyebrow">Sample workspace</p>
+  <h1>Customer imports</h1>
+  <p>Try the support widget with a fictional import. The reply and its evidence come from a local fixture.</p>
+  <section aria-label="Import activity">
+    <span>customers.csv <small>import_1042</small></span>
+    <strong>Failed</strong>
+  </section>
+  <p>Suggested message <b>Why did my import fail?</b></p>
+  <p role="status" id="status"></p>
+</main>
+</html>

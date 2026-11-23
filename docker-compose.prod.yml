@@ -56,6 +56,9 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-low}
       PORT: 3005
       CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
+      WORKSPACE_PUBLIC_ORIGIN: https://${DOMAIN}
+      POSTMARK_SERVER_TOKEN: ${POSTMARK_SERVER_TOKEN:-}
+      POSTMARK_FROM: ${POSTMARK_FROM:-}
       TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY:?Set a private encryption key}
     ports:
       - "127.0.0.1:3005:3005"

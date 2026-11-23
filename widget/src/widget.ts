@@ -1,4 +1,5 @@
 import { sessionIdentity } from './session-identity.js';
+import { widgetCopy } from './copy.js';
 import type { WidgetConfig } from './types.js';
 import { getStyles } from './styles.js';
 import { createApiClient, type ApiClient } from './api.js';
@@ -26,6 +27,14 @@ export class AISupportWidget {
     const theme = config.theme ?? 'light';
     const position = config.position ?? 'bottom-right';
     const locale = config.locale ?? 'en-US';
+    const copy = widgetCopy(locale);
+    let handoffUrl: string | undefined;
+    try {
+      if (config.handoffUrl) {
+        const url = new URL(config.handoffUrl, window.location.href);
+        if (url.protocol === 'https:' && !url.username && !url.password) handoffUrl = url.href;
+      }
+    } catch { /* invalid handoff destination */ }
     const tenantKey = config.tenantKey;
     const identity = sessionIdentity(config.jwt, tenantKey);
     let disposed = false;
@@ -68,7 +77,7 @@ export class AISupportWidget {
     const fab = document.createElement('button');
     fab.className = `ai-widget-fab${isLeft ? ' left' : ''}`;
     fab.textContent = '\u{1F4AC}';
-    fab.setAttribute('aria-label', 'Open support chat');
+    fab.setAttribute('aria-label', copy.open);
     fab.setAttribute('aria-expanded', 'false');
     fab.setAttribute('aria-haspopup', 'dialog');
     shadow.appendChild(fab);
@@ -84,14 +93,14 @@ export class AISupportWidget {
       }
       panelVisible = false;
       fab.setAttribute('aria-expanded', 'false');
-      fab.setAttribute('aria-label', 'Open support chat');
+      fab.setAttribute('aria-label', copy.open);
     }
 
     function showPanel(panel: ChatPanel): void {
       shadow.appendChild(panel.element);
       panelVisible = true;
       fab.setAttribute('aria-expanded', 'true');
-      fab.setAttribute('aria-label', 'Minimize support chat');
+      fab.setAttribute('aria-label', copy.minimize);
       panel.focus();
     }
 
@@ -103,7 +112,7 @@ export class AISupportWidget {
         chatPanel.show();
         panelVisible = true;
         fab.setAttribute('aria-expanded', 'true');
-        fab.setAttribute('aria-label', 'Minimize support chat');
+        fab.setAttribute('aria-label', copy.minimize);
         chatPanel.focus();
         return;
       }
@@ -117,7 +126,7 @@ export class AISupportWidget {
           if (disposed || generation !== version) return;
           if (caseData.status === 'active' && sessionIdentity(jwt, tenantKey) === identity) {
             chatPanel = createChatPanel({
-              apiClient, locale, position,
+              apiClient, locale, position, handoffUrl,
               onClose: minimize, onCaseClosed: handleCaseClosed,
               getContext: () => config.context,
               initialCaseId: storedCaseId,
@@ -137,7 +146,7 @@ export class AISupportWidget {
 
       if (disposed || generation !== version) return;
       chatPanel = createChatPanel({
-        apiClient, locale, position,
+        apiClient, locale, position, handoffUrl,
         onClose: minimize, onCaseClosed: handleCaseClosed,
         getContext: () => config.context,
         onCaseCreated: saveStored,
@@ -158,7 +167,7 @@ export class AISupportWidget {
       }
       panelVisible = false;
       fab.setAttribute('aria-expanded', 'false');
-      fab.setAttribute('aria-label', 'Open support chat');
+      fab.setAttribute('aria-label', copy.open);
       fab.focus();
     }
 
@@ -170,7 +179,7 @@ export class AISupportWidget {
       }
       panelVisible = false;
       fab.setAttribute('aria-expanded', 'false');
-      fab.setAttribute('aria-label', 'Open support chat');
+      fab.setAttribute('aria-label', copy.open);
       fab.focus();
     }
 
@@ -187,7 +196,7 @@ export class AISupportWidget {
       if (panelVisible) {
         minimize();
       } else {
-        void open().catch(() => { fab.setAttribute('aria-label', 'Support unavailable. Try again.'); });
+        void open().catch(() => { fab.setAttribute('aria-label', copy.unavailable); });
       }
     });
 

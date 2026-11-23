@@ -35,13 +35,13 @@ envsubst '${DOMAIN}' < nginx/nginx.conf.template > nginx/nginx.conf
 echo "→ Building images..."
 docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" build
 
-echo "→ Starting services..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d
+echo "→ Starting database and cache..."
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d postgres redis
 
 # ── Wait for DB to be healthy ──────────────────────────────────
 echo "→ Waiting for PostgreSQL..."
 for i in $(seq 1 30); do
-  if docker compose -f "$COMPOSE_FILE" exec -T postgres pg_isready -U aiwidget > /dev/null 2>&1; then
+  if docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T postgres pg_isready -U aiwidget > /dev/null 2>&1; then
     echo "  PostgreSQL is ready."
     break
   fi
@@ -55,23 +55,30 @@ done
 
 # ── Enable pgvector extension ──────────────────────────────────
 echo "→ Enabling pgvector extension..."
-docker compose -f "$COMPOSE_FILE" exec -T postgres \
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T postgres \
   psql -U aiwidget -d aiwidget -c "CREATE EXTENSION IF NOT EXISTS vector;"
 
 # ── Run migrations ─────────────────────────────────────────────
 echo "→ Running database migrations..."
-docker compose -f "$COMPOSE_FILE" exec -T postgres \
-  psql -U aiwidget -d aiwidget < server/src/migrations/001-init.sql
+for migration in server/src/migrations/*.sql; do
+  echo "  Applying ${migration##*/}"
+  docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T postgres \
+    psql -v ON_ERROR_STOP=1 -1 -U aiwidget -d aiwidget < "$migration"
+done
+
+echo "→ Starting application services..."
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --wait server web autoheal
 
 # ── Health check ───────────────────────────────────────────────
 echo "→ Checking service health..."
 sleep 5
 
-if docker compose -f "$COMPOSE_FILE" exec -T server \
+if docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T server \
   wget -qO- http://localhost:3005/api/health 2>/dev/null | grep -q '"ok":true'; then
   echo "  Server: healthy"
 else
-  echo "  Server: NOT healthy (may still be starting)"
+  echo "  Server: NOT healthy"
+  exit 1
 fi
 
 # ── Status ─────────────────────────────────────────────────────
