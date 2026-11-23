@@ -506,3 +506,7 @@
 - Updated the homepage, interactive examples, demo, signup, data page, and metadata to focus on customer onboarding, everyday support, and access to the support team.
 - Activated web release `61e06a1423bf`. The API kept running on `c3cce44f584c` and public signup remained available. The previous web image is retained for rollback.
 - All 41 web tests passed. Public browser checks covered the homepage scenarios, SDK demo and reset, and signup at 1440, 390, and 320 pixels. The published SDK and starter ZIP matched the repository checksums.
+
+## 2026-11-23 — Dedicated Postmark sending domain activated
+- Added `ai-support.pontes.uk` to Postmark and verified its DKIM and custom Return-Path. Compared the Cloudflare zone before and after the additions and confirmed the existing `pontes.uk` Microsoft 365 records were intact.
+- Activated `no-reply@ai-support.pontes.uk` on the Support AI API. Verified the new sender, public signup, one-time confirmation, workspace provisioning, and a developer invitation in production through Postmark's test addresses. Removed the synthetic workspace and tenant records.

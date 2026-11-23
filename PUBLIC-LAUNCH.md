@@ -6,6 +6,8 @@ The site, starter, workspace, sandbox, and application integration are free. The
 
 The workspace sends one-time links through Postmark’s transactional `outbound` stream. Configure `POSTMARK_SERVER_TOKEN` and `POSTMARK_FROM` in `/root/ai-support-secrets/workspaces.env` on the Support AI host. Use the Server API Token for the selected transactional server and a sender address verified in Postmark. Keep that file readable only by the deployment owner. The release script loads it as a private Compose environment file. Email signup reports its availability through `GET /api/workspace/availability`.
 
+The production sender is `no-reply@ai-support.pontes.uk`. Postmark uses its DKIM TXT selector under `_domainkey.ai-support.pontes.uk` and the DNS-only CNAME `pm-bounces.ai-support.pontes.uk` pointing to `pm.mtasv.net`. Keep the existing Microsoft 365 records for `pontes.uk` intact when maintaining these records.
+
 ## Release and recovery
 
 Use the source from the verified Git commit in a new `/root/ai-support-releases/launch-<commit>` directory. Run `bash scripts/release-support.sh` to build candidate images and check the web image locally. Add `--activate` to back up PostgreSQL, apply additive migrations, update the existing service containers, and check both services. The script preserves the action-signing overlay and keeps the previous images and database backup in `/root/ops-backups/launch-<commit>`. Successful activation updates the `current` and `current-web` pointers.
