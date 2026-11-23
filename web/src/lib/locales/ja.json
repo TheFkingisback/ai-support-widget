@@ -750,6 +750,7 @@
   "No ideas yet.": "まだアイデアはありません。",
   "Planned": "計画済み",
   "Product ideas": "製品アイデア",
+  "Submit ideas from the widget. Workspace members can view them by environment, and the owner can update their status.": "ウィジェットからアイデアを送信できます。ワークスペースのメンバーは環境ごとにアイデアを確認でき、オーナーはステータスを更新できます。",
   "Production MCP and actions": "本番MCPとアクション",
   "Shipped": "出荷済み",
   "Staging MCP and actions": "ステージングMCPとアクション",

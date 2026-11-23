@@ -750,6 +750,7 @@
   "No ideas yet.": "এখনও কোনো ধারণা নেই।",
   "Planned": "পরিকল্পিত",
   "Product ideas": "পণ্যের ধারণা",
+  "Submit ideas from the widget. Workspace members can view them by environment, and the owner can update their status.": "উইজেট থেকে আইডিয়া পাঠান। ওয়ার্কস্পেসের সদস্যরা পরিবেশ অনুযায়ী সেগুলো দেখতে পারেন এবং মালিক সেগুলোর অবস্থা পরিবর্তন করতে পারেন।",
   "Production MCP and actions": "প্রোডাকশন এমসিপি এবং অ্যাকশন",
   "Shipped": "চালু করা হয়েছে",
   "Staging MCP and actions": "স্টেজিং এমসিপি এবং অ্যাকশন",
