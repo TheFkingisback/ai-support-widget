@@ -96,7 +96,7 @@ Resposta 200: `{"jwt":"<JWT>","tenantKey":"ten_do_projeto","expiresIn":900}`. Va
 
 Não enviar tenantId, tenantKey, userName, role, purpose, exp ou outros campos no corpo. A credencial determina o tenant. A identidade vem da sessão/banco, não de query/body do browser. O emissor não aceita JWT de usuário, chave administrativa ou segredo antigo em lugar de `sik_`.
 
-Limites de emissão: 120/min por IP percebido pelo servidor e 300/min por tenant, em memória da instância. Não emitir a cada render/mensagem. O backend pode reutilizar uma sessão ainda válida da mesma pessoa/sessão/empresa/permissões, com expiração antecipada e invalidação nas mudanças. Para maior volume, combinar capacidade com a operação; um plano comercial maior não altera sozinho esses limitadores.
+O emissor público funciona sem cotas de uso por projeto. Reutilize uma sessão ainda válida da mesma pessoa, empresa e permissões, com expiração antecipada e invalidação nas mudanças.
 
 ## 6. Contexto obrigatório e identidade correta
 
