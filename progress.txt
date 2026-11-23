@@ -510,3 +510,10 @@
 ## 2026-11-23 — Dedicated Postmark sending domain activated
 - Added `ai-support.pontes.uk` to Postmark and verified its DKIM and custom Return-Path. Compared the Cloudflare zone before and after the additions and confirmed the existing `pontes.uk` Microsoft 365 records were intact.
 - Activated `no-reply@ai-support.pontes.uk` on the Support AI API. Verified the new sender, public signup, one-time confirmation, workspace provisioning, and a developer invitation in production through Postmark's test addresses. Removed the synthetic workspace and tenant records.
+
+## 2026-11-23 — Multilingual self-service release
+
+- Activated runtime `f31edacf7908` with SDK 0.2.4 and migrations 008–009. The free workspace now supports scoped MCP and signed action policy configuration, and a product ideas inbox by environment.
+- Matched 21 languages across 24 variants in the locale registry, site, workspace, Developer Center, email, widget, and API. The model receives the requested locale and selects matching approved knowledge excerpts. Fast and auto now default to Gemini 2.5 Flash after the previous default returned HTTP 404.
+- Verified Postmark signup and developer invitation, live DNS, staging credential issuance, grounded model responses across all 24 variants, user isolation, retry, optional rating, scoped ideas, and owner-only MCP/action configuration. Cleaned up the synthetic workspace and DNS record.
+- Published one matching set of starter, controller, SDK and ZIP assets. Added separate integrity verification for the two archives alongside the SDK manifest. Browser checks passed for 24 localized homepages and seven localized widget demos. PartyHost.ai acceptance remains dependent on its app, approved guides, provider and physical phones.

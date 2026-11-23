@@ -1,0 +1,15 @@
+{
+    "sdkVersion":  "0.2.4",
+    "archives":  {
+                     "kit":  {
+                                 "file":  "ai-support-integration-v3-sdk-0.2.4.zip",
+                                 "bytes":  57564,
+                                 "sha256":  "f3a8b77955461dfcde1766dae8d3cf341e11df8875e832d625d661642950c093"
+                             },
+                     "starter":  {
+                                     "file":  "ai-support-starter.zip",
+                                     "bytes":  45126,
+                                     "sha256":  "3e656a6cfdef4b371bbd1114d6b4e94baf38578e68d2e64326920cee743bf0da"
+                                 }
+                 }
+}

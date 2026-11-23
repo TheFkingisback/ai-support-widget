@@ -36,7 +36,9 @@ $files = @(
     (Join-Path $public 'widget.manifest.json')
 )
 Copy-Item -LiteralPath $files -Destination $stage
-Write-ReleaseZip $stage (Join-Path $public 'downloads/ai-support-starter.zip')
+$downloads = Join-Path $public 'downloads'
+$starterArchive = Join-Path $downloads 'ai-support-starter.zip'
+Write-ReleaseZip $stage $starterArchive
 
 $integration = Join-Path $root 'integration/v3'
 $mirror = Join-Path $public 'integration-v3'
@@ -51,7 +53,9 @@ foreach ($input in $inputs) {
 }
 Copy-Item -LiteralPath (Join-Path $integration 'widget-controller.mjs') -Destination (Join-Path $mirror "widget-controller.v$($manifest.version).mjs") -Force
 Copy-Item -LiteralPath $target -Destination $kit
+Copy-Item -LiteralPath $target -Destination $integration
 Copy-Item -LiteralPath (Join-Path $public 'widget.manifest.json') -Destination $kit
+Copy-Item -LiteralPath (Join-Path $public 'widget.manifest.json') -Destination $integration -Force
 Copy-Item -LiteralPath (Join-Path $public 'widget.manifest.json') -Destination (Join-Path $mirror 'widget.manifest.json') -Force
 Copy-Item -LiteralPath $target -Destination $mirror
 $entries = @(Get-ChildItem -LiteralPath $kit -File | Sort-Object Name | ForEach-Object {
@@ -59,4 +63,17 @@ $entries = @(Get-ChildItem -LiteralPath $kit -File | Sort-Object Name | ForEach-
 })
 $json = @{sdkVersion=$manifest.version;files=$entries} | ConvertTo-Json -Depth 4
 [IO.File]::WriteAllText((Join-Path $kit 'package.manifest.json'),$json+[Environment]::NewLine,[Text.UTF8Encoding]::new($false))
-Write-ReleaseZip $kit (Join-Path $public "downloads/ai-support-integration-v3-sdk-$($manifest.version).zip")
+$kitArchive = Join-Path $downloads "ai-support-integration-v3-sdk-$($manifest.version).zip"
+Write-ReleaseZip $kit $kitArchive
+$archives = [ordered]@{}
+foreach ($name in @('kit', 'starter')) {
+    $path = if ($name -eq 'kit') { $kitArchive } else { $starterArchive }
+    $file = Get-Item -LiteralPath $path
+    $archives[$name] = [ordered]@{
+        file = $file.Name
+        bytes = $file.Length
+        sha256 = (Get-FileHash -LiteralPath $path).Hash.ToLowerInvariant()
+    }
+}
+$downloadManifest = [ordered]@{sdkVersion = $manifest.version; archives = $archives} | ConvertTo-Json -Depth 4
+[IO.File]::WriteAllText((Join-Path $downloads 'release-manifest.json'), $downloadManifest + "`n", [Text.UTF8Encoding]::new($false))

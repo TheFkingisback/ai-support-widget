@@ -14,7 +14,17 @@ Use the source from the verified Git commit in a new `/root/ai-support-releases/
 
 Check the public home, demo, starter ZIP, signup, Dev Center, and API health after activation. With Postmark configured, verify delivery to an authorized test inbox and complete the workflow through workspace creation and a sandbox reply. Verify staging origin DNS and credential issuance using a test environment you control.
 
+Use the [release page](https://support-ai.pontes.uk/developers/downloads) for the current set of integration files. `/widget.manifest.json` verifies the versioned JavaScript asset. `/downloads/release-manifest.json` verifies the starter and complete ZIP separately.
+
 The launch deployment runs a Redis-backed conversation queue with append-only persistence. Inline mode runs producers and workers in each application process. For separate processes, use `TURN_QUEUE_MODE=producer` on API hosts and `TURN_QUEUE_MODE=worker` on worker hosts. Both roles need the same Redis, database, and token-encryption configuration. Monitor worker errors, queue age, memory, and provider latency. Workspaces can invite developers and support teammates and view conversation history by environment.
+
+## Language and staging acceptance
+
+The [locale registry](shared/locales.mjs) covers 21 languages in 24 variants. The site matches the browser on first visit and remembers the selected variant. Workspaces apply the account preference to sign-in and invitations. Applications can pass the current user's locale to the widget, which includes it with case and message requests. To provide localized evidence, send approved excerpts in each supported language with matching document IDs and versions.
+
+On 23 November 2026, the public flow passed account creation and invitation through Postmark, staging DNS verification, and issuance of a fifteen-minute session credential. Synthetic support cases produced grounded replies for all 24 variants with the real OpenRouter model. The run also checked user isolation, stable turn retries, closure with and without a rating, ideas isolated by environment, and owner-only configuration of MCP and signed actions. Test workspaces and the temporary DNS TXT record were removed.
+
+Production browser checks covered all 24 homepage variants at phone width, preference persistence, and seven representative variants in the hosted widget demo, including RTL and both Serbian scripts. PartyHost.ai still needs to run its acceptance with its own approved manuals, roles, MCP provider, and physical phones, including the invitation flow from WhatsApp.
 
 ## Local verification
 
