@@ -494,3 +494,6 @@
 - Added database migrations for clean installs, workspace data, and duplicate turn requests. Updated the production builds and added release verification, backup, and rollback commands.
 - Removed product-level session and conversation ceilings. Added a Redis-backed conversation queue with independent producer and worker modes and validated 24 concurrent synthetic turns with two workers.
 - Validation before activation included 349 server, 41 web, 33 widget, and 2 adapter tests, application builds, browser verification of the starter, and Postmark's test API. Real email delivery requires separately configured Postmark credentials.
+- Activated runtime `c3cce44f584c` on `https://support-ai.pontes.uk`. PostgreSQL backup and rollback images are retained. The live API reported healthy PostgreSQL and Redis, with append-only Redis persistence enabled.
+- The homepage, demo, Dev Center, signup page, workspace, and starter ZIP responded on public HTTPS. The live SDK matched the release checksum, and the demo answered and reset in desktop and mobile browsers.
+- Public signup availability is `false` pending a Postmark Server API Token and verified sender address. The live signup and invitation email workflows remain pending.
