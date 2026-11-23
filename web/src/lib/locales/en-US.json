@@ -806,5 +806,13 @@
   "{ \"ok\": true }": "{ \"ok\": true }",
   "{ \"reason\": \"Need manual account adjustment\" }": "{ \"reason\": \"Need manual account adjustment\" }",
   "{count} resultado": "{count} result",
-  "{count} resultados": "{count} results"
+  "{count} resultados": "{count} results",
+  "Seu aplicativo": "Your application",
+  "Autentica a pessoa": "Authenticates the user",
+  "Contexto autorizado": "Authorized context",
+  "Explica o que aconteceu": "Explains what happened",
+  "Responde com evid?ncias": "Answers with evidence",
+  "Selecione o c?digo para copiar": "Select the code to copy",
+  "CONTEXTO": "CONTEXT",
+  "FERRAMENTAS": "TOOLS"
 }

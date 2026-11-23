@@ -1,5 +1,5 @@
 'use client';
-import { L } from '@/lib/localization';
+import { L, useT } from '@/lib/localization';
 import { TenantLogin } from './tenant-login';
 import { useState } from 'react';
 import { Shield, ArrowRight, AlertCircle } from 'lucide-react';
@@ -10,6 +10,7 @@ interface Props {
 }
 
 export function AdminLogin({ onAuthenticated }: Props) {
+  const t = useT();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -52,7 +53,7 @@ export function AdminLogin({ onAuthenticated }: Props) {
           {error && (
             <div className="mb-6 flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-400 ring-1 ring-red-500/20 animate-fade-in" role="alert">
               <AlertCircle size={16} className="shrink-0" />
-              {error}
+              {t(error)}
             </div>
           )}
 
@@ -60,14 +61,14 @@ export function AdminLogin({ onAuthenticated }: Props) {
           <input
             id="email" name="email" type="email" value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email" autoComplete="username" required maxLength={254}
+            placeholder={t('Enter your email')} autoComplete="username" required maxLength={254}
             className="input-field mb-6" autoFocus disabled={loading}
           />
           <label htmlFor="password" className="mb-2 block text-sm font-medium text-surface-800"><L>{"Password"}</L></label>
           <input
             id="password" name="password" type="password" value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password" autoComplete="current-password" required maxLength={1024}
+            placeholder={t('Enter your password')} autoComplete="current-password" required maxLength={1024}
             className="input-field mb-6" disabled={loading}
           />
 

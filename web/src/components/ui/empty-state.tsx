@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import { L } from '@/lib/localization';
 
 interface Props {
   icon: LucideIcon;
@@ -13,11 +14,11 @@ export function EmptyState({ icon: Icon, title, description, action }: Props) {
       <div className="mb-4 rounded-2xl bg-surface-300 p-4">
         <Icon size={32} className="text-surface-600" aria-hidden="true" />
       </div>
-      <h3 className="mb-1 text-lg font-semibold text-surface-900">{title}</h3>
-      <p className="mb-6 max-w-sm text-sm text-surface-700">{description}</p>
+      <h3 className="mb-1 text-lg font-semibold text-surface-900"><L>{title}</L></h3>
+      <p className="mb-6 max-w-sm text-sm text-surface-700"><L>{description}</L></p>
       {action && (
         <button onClick={action.onClick} className="btn-primary">
-          {action.label}
+          <L>{action.label}</L>
         </button>
       )}
     </div>

@@ -33,7 +33,7 @@ export function WorkspaceTeam() {
     const recipientLocale = matchLocale(data.get('locale')) ?? locale;
     void run(async () => { await workspaceApi.invite(email, role, recipientLocale); setEmail(''); setStatus('Invitation sent. The member appears after accepting by email.'); });
   }
-  return <section className={panel} aria-label="Workspace team">
+  return <section className={panel} aria-label={t('Workspace team')}>
     <h2 className="text-xl font-semibold"><L>{"Workspace team"}</L></h2>
     <form className="flex flex-wrap items-end gap-3" onSubmit={invite}>
       <label className="grid gap-2 text-sm"><L>{"Email"}</L><input className={control} type="email" maxLength={254} required value={email} onChange={event => setEmail(event.target.value)} /></label>
@@ -42,7 +42,7 @@ export function WorkspaceTeam() {
       <button type="submit" className={control} disabled={busy}><L>{"Invite"}</L></button>
     </form>
     <ul className="space-y-2 text-sm">{members.map(member => <li className="flex flex-wrap items-center gap-3 border-t border-slate-700 pt-2" key={member.email}>
-      <span className="break-all">{member.email}</span><span className="mr-auto capitalize text-slate-300">{member.role}</span>
+      <span className="break-all">{member.email}</span><span className="mr-auto capitalize text-slate-300">{t(member.role)}</span>
       {member.role !== 'owner' && (removing === member.email
         ? <><button type="button" className={control} disabled={busy} onClick={() => void run(async () => {
           await workspaceApi.removeMember(member.email); setMembers(items => items.filter(item => item.email !== member.email)); setRemoving(''); setStatus('Member removed.');
@@ -74,7 +74,7 @@ export function WorkspaceConversations() {
     return () => { active = false; };
   }, [env]);
 
-  return <section className={panel} aria-label="Workspace conversations">
+  return <section className={panel} aria-label={t('Workspace conversations')}>
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold"><L>{"Conversations"}</L></h2>
       <label className="flex items-center gap-2 text-sm"><L>{"Environment"}</L><select className={control} value={env} onChange={event => setEnv(event.target.value as ConversationEnvironment)}>
         <option value="production"><L>{"Production"}</L></option><option value="staging"><L>{"Staging"}</L></option><option value="sandbox"><L>{"Sandbox"}</L></option>

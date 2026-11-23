@@ -1,3 +1,5 @@
+import { L } from '@/lib/localization';
+
 interface Props {
   title: string;
   description?: string;
@@ -14,9 +16,9 @@ export function PageHeader({ title, description, actions, breadcrumbs }: Props) 
             <span key={i} className="flex items-center gap-1.5">
               {i > 0 && <span className="text-surface-500">/</span>}
               {b.href ? (
-                <a href={b.href} className="transition-colors hover:text-surface-800">{b.label}</a>
+                <a href={b.href} className="transition-colors hover:text-surface-800"><L>{b.label}</L></a>
               ) : (
-                <span className="text-surface-800">{b.label}</span>
+                <span className="text-surface-800"><L>{b.label}</L></span>
               )}
             </span>
           ))}
@@ -24,9 +26,9 @@ export function PageHeader({ title, description, actions, breadcrumbs }: Props) 
       )}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">{title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white"><L>{title}</L></h1>
           {description && (
-            <p className="mt-1 text-sm text-surface-600">{description}</p>
+            <p className="mt-1 text-sm text-surface-600"><L>{description}</L></p>
           )}
         </div>
         {actions && <div className="flex items-center gap-3">{actions}</div>}

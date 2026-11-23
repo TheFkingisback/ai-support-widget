@@ -23,17 +23,21 @@ for (const tag of ['ar', 'arz', 'ur']) assert.equal(localeInfo(tag).dir, 'rtl');
 const widget = tags.map(tag => messagesFor(tag));
 assert.equal(new Set(widget).size, tags.length, 'Each signed locale needs a separate widget and mail catalog');
 const webSource = JSON.parse(await readFile(new URL('../web/src/lib/locales/en-US.json', import.meta.url), 'utf8'));
+const tokens = value => (value.match(/\{[\w]+\}/g) || []).sort();
 for (const [index, tag] of tags.entries()) {
   const messages = widget[index];
   assert.deepEqual(Object.keys(messages).sort(), Object.keys(widget[0]).sort(), tag);
   assert.ok(Object.values(messages).every(value => value.trim().length > 0), tag);
   for (const [key, source] of Object.entries(widget[0])) {
-    const tokens = value => (value.match(/\{[\w]+\}/g) || []).sort();
     assert.deepEqual(tokens(messages[key]), tokens(source), `${tag}/${key}`);
   }
   const web = JSON.parse(await readFile(new URL(`../web/src/lib/locales/${tag}.json`, import.meta.url), 'utf8'));
   assert.deepEqual(Object.keys(web).sort(), Object.keys(webSource).sort(), tag);
   assert.ok(web['Get started free'] && web['Email me a sign-in link'] && web['Product ideas'], tag);
+  for (const [key, value] of Object.entries(web)) {
+    assert.ok(value.trim(), `${tag}/${key}`);
+    assert.deepEqual(tokens(value), tokens(webSource[key]), `${tag}/${key}`);
+  }
 }
 assert.match(messagesFor('sr-Cyrl').support, /\p{Script=Cyrillic}/u);
 assert.doesNotMatch(messagesFor('sr-Latn').support, /\p{Script=Cyrillic}/u);
