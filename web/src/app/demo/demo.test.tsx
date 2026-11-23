@@ -10,12 +10,13 @@ vi.mock('next/navigation', () => ({
 import DemoPage from './page';
 
 describe('Widget Demo Page', () => {
-  it('renders demo page with widget embed instructions', () => {
+  it('renders the demo, starter kit, and signup link', () => {
     render(<DemoPage />);
 
     expect(screen.getByTestId('demo-page')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Widget demo' })).toBeInTheDocument();
-    expect(screen.getByTitle('Interactive widget in a sample workspace')).toHaveAttribute('src', '/starter/index.html');
-    expect(screen.getByRole('link', { name: 'Download the local starter' })).toHaveAttribute('href', '/downloads/ai-support-starter.zip');
+    expect(screen.getByRole('heading', { name: 'See Support AI in action' })).toBeInTheDocument();
+    expect(screen.getByTitle('Support chat in a sample product')).toHaveAttribute('src', '/starter/index.html');
+    expect(screen.getByRole('link', { name: 'Download the starter kit' })).toHaveAttribute('href', '/downloads/ai-support-starter.zip');
+    expect(screen.getByRole('link', { name: 'Get started free' })).toHaveAttribute('href', '/signup');
   });
 });

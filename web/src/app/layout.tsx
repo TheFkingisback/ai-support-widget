@@ -2,8 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AI Support Widget · In-app support for SaaS',
-  description: 'Answer support questions with the product activity and evidence behind them.',
+  title: 'Support AI | AI Customer Support for SaaS and Digital Products',
+  description: 'Scale customer support with answers tailored to each account, right inside your product. Get started free with Support AI.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
