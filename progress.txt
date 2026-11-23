@@ -501,3 +501,8 @@
 ## 2026-11-23 — Postmark signup and invitations activated
 - Configured the existing live Postmark transactional server and the verified PixLojista sender in the Support AI host's private environment. Restarted the Support AI API on the same release and verified public signup availability.
 - A production test through Postmark's blackhole addresses verified account creation, single-use confirmation, secure session cookies, distinct staging and production tenants, and the developer invitation. Removed the synthetic workspace and tenant records after verification.
+
+## 2026-11-23 — Support AI website repositioned for SaaS and digital products
+- Updated the homepage, interactive examples, demo, signup, data page, and metadata to focus on customer onboarding, everyday support, and access to the support team.
+- Activated web release `61e06a1423bf`. The API kept running on `c3cce44f584c` and public signup remained available. The previous web image is retained for rollback.
+- All 41 web tests passed. Public browser checks covered the homepage scenarios, SDK demo and reset, and signup at 1440, 390, and 320 pixels. The published SDK and starter ZIP matched the repository checksums.
