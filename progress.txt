@@ -497,3 +497,7 @@
 - Activated runtime `c3cce44f584c` on `https://support-ai.pontes.uk`. PostgreSQL backup and rollback images are retained. The live API reported healthy PostgreSQL and Redis, with append-only Redis persistence enabled.
 - The homepage, demo, Dev Center, signup page, workspace, and starter ZIP responded on public HTTPS. The live SDK matched the release checksum, and the demo answered and reset in desktop and mobile browsers.
 - Public signup availability is `false` pending a Postmark Server API Token and verified sender address. The live signup and invitation email workflows remain pending.
+
+## 2026-11-23 — Postmark signup and invitations activated
+- Configured the existing live Postmark transactional server and the verified PixLojista sender in the Support AI host's private environment. Restarted the Support AI API on the same release and verified public signup availability.
+- A production test through Postmark's blackhole addresses verified account creation, single-use confirmation, secure session cookies, distinct staging and production tenants, and the developer invitation. Removed the synthetic workspace and tenant records after verification.
