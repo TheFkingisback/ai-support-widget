@@ -67,7 +67,7 @@ for migration in server/src/migrations/*.sql; do
 done
 
 echo "→ Starting application services..."
-docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --wait server web autoheal
+docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --wait server web
 
 # ── Health check ───────────────────────────────────────────────
 echo "→ Checking service health..."
