@@ -9,6 +9,11 @@ describe('Native MCP action confirmation', () => {
     expect(f.dispatch).toHaveBeenCalledExactlyOnceWith(f.tool, f.p, { recurrence: 'example-id' }, f.records[0].id);
     expect(f.records[0].state).toBe('completed');
   });
+  it('preserves a queued provider outcome without announcing a completed business change', async () => {
+    const f = await fixture(); f.dispatch.mockResolvedValueOnce('queued for settlement');
+    const shown = await f.prepare();
+    expect((await f.confirm(shown.id))?.content).toBe('queued for settlement');
+  });
   it('rejects renewed sessions, switched endpoints and changed schemas', async () => {
     for (const change of ['session','url','schema']) {
       const f = await fixture(); const shown = await f.prepare();

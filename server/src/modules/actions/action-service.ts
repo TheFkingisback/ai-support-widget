@@ -41,6 +41,7 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
       if (!pending) return confirm || cancel ? say(p, copy.actionNoPending, req) : undefined;
       if (pending.state !== 'pending_confirmation') {
         if (!confirm && !cancel) return;
+        if (pending.state === 'completed') return say(p, copy.actionNoPending, req);
         const key = pending.state === 'executing' ? 'unknown' : pending.state;
         return say(p, copy['action_' + key as keyof typeof copy], req);
       }
@@ -59,7 +60,9 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
       catch { pending.state = 'unknown'; }
       await store.save(pending, 'executing');
       await gateway.logAudit(p.tenantId, p.userId, p.caseId, 'action_' + pending.state, { proposalId: pending.id, serverId: tool.server.id, operation: tool.name }, req);
-      return say(p, copy['action_' + pending.state as keyof typeof copy] + (result ? '\n' + result : ''), req);
+      // A successful MCP response can describe a queued or declined business operation.
+      if (pending.state === 'completed') return say(p, result || tool.server.id + ' / ' + tool.name + ' · tools/call OK', req);
+      return say(p, copy.action_unknown, req);
     },
   };
 }
