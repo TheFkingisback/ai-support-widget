@@ -1,4 +1,6 @@
 # Keep immutable, hashed SDK downloads byte-for-byte across platforms.
 **/widget.v*.js -text
+web/public/widget.js -text
+web/public/widget.bundle.js -text
 *.sh text eol=lf
 **/widget-controller*.mjs text eol=lf

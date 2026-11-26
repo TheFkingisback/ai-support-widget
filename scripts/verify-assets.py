@@ -10,6 +10,8 @@ manifest = json.loads(manifest_bytes)
 version, sdk = manifest['version'], manifest['file']
 assert sdk == f'widget.v{version}.js'
 published_bytes = (public / sdk).read_bytes()
+for alias in ('widget.js', 'widget.bundle.js'):
+    assert (public / alias).read_bytes() == published_bytes, alias
 assert len(published_bytes) == manifest['bytes']
 assert sha256(published_bytes).hexdigest() == manifest['sha256']
 for mirror in (root / 'integration/v3', public / 'integration-v3'):
