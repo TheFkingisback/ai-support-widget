@@ -16,10 +16,12 @@ export const digest = (value: string) => createHash('sha256').update(value).dige
 function definition(server: SessionServer, tool: Tool): McpTool {
   const name = tool.name;
   const readOnly = tool.annotations?.readOnlyHint === true;
-  const prefix = (server.id + '_' + name).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 49);
+  const prefix = ((readOnly ? '' : 'prepare_') + server.id + '_' + name).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 49);
   const alias = prefix + '_' + digest(JSON.stringify([server.id, name])).slice(0, 12);
+  const proposal = readOnly ? '' : 'Prepare a proposal now. The backend asks for confirmation before execution. Omit optional fields the user did not specify. Provider operation: ';
+  const description = proposal + safeText(server.id + ' / ' + name + ': ' + (tool.description ?? ''));
   return { server, name, readOnly, signature: digest(JSON.stringify([name, readOnly, tool.inputSchema, tool.description])),
-    definition: { type: 'function', function: { name: alias, description: safeText(server.id + ' / ' + name + ': ' + (tool.description ?? '')).slice(0, 2048),
+    definition: { type: 'function', function: { name: alias, description: description.slice(0, 2048),
       parameters: tool.inputSchema } } };
 }
 async function connected<T>(s: SessionServer, p: McpPrincipal, fn: (c: Client) => Promise<T>, actionId?: string) {

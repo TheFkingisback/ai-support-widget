@@ -24,6 +24,10 @@ describe('MCP session discovery and invocation', () => {
     const other = { id: 'crm', url: 'https://crm.example.com/mcp', accessToken: 'delegated-b' };
     const tools = await discover([server, other], actor);
     expect(new Set(tools.map(t => t.definition.function.name)).size).toBe(6);
+    expect(tools[0].definition.function.name).toMatch(/^billing_read_a_/);
+    expect(tools[1].definition.function.name).toMatch(/^prepare_billing_write_a_/);
+    expect(tools[1].definition.function.description).toContain('Omit optional fields');
+    expect(tools[1].name).toBe('write_a');
     expect(mock.transports[1]).toMatchObject({ url: other.url, requestInit: { headers: {
       Authorization: 'Bearer delegated-b',
     } } });
