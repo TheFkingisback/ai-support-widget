@@ -42,6 +42,10 @@ fi
 curl -fsS "http://$address/signup" > /dev/null
 curl -fsS "http://$address/integration-v4/sr-Cyrl/INICIAR.html" > /dev/null
 curl -fsS "http://$address/downloads/sr-Latn/ai-support-starter.zip" > /dev/null
+starter_url="http://$address/downloads/ai-support-starter.zip"
+redirect=$(curl -fsS -o /dev/null -w '%{http_code} %{redirect_url}' -H 'Accept-Language: sr' "$starter_url")
+[[ "$redirect" == "307 http://$address/downloads/sr-Cyrl/ai-support-starter.zip" ]]
+curl -fsSL -H 'Accept-Language: sr' "$starter_url" | cmp - "$release/web/public/downloads/sr-Cyrl/ai-support-starter.zip"
 stop_candidate
 trap - EXIT
 

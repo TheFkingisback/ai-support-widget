@@ -11,8 +11,8 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/downloads/') || pathname.startsWith('/integration-v4/')) {
     const destination = localizedArtifact(pathname, locale);
     if (destination !== pathname) {
-      return new NextResponse(null, { status: 307, headers: {
-        Location: destination + search, Vary: 'Cookie, Accept-Language', 'Cache-Control': 'private, no-store',
+      return NextResponse.redirect(new URL(destination + search, request.url), { status: 307, headers: {
+        Vary: 'Cookie, Accept-Language', 'Cache-Control': 'private, no-store',
       } });
     }
     const response = NextResponse.next();
