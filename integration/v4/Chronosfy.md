@@ -6,7 +6,7 @@ Tenant existente na plataforma: `ten_4d2439931eee44ea`. Preservar subject `usr_$
 
 Em `src/modules/support/support.routes.ts`, manter GET `/support/widget-token` com fastify.authenticate. Remover jwt.sign e SUPPORT_WIDGET_JWT_SECRET da emissão. Usar `issueSupportSession({userId: 'usr_'+user_id,userEmail:user?.email ?? '',userRoles:[papel_atual],plan:tenant?.plan ?? 'starter'})`. Consultar papel/usuário ativo no banco e manter filtro/vínculo de organização. Devolver session com no-store. Instalar SUPPORT_INTEGRATION_CREDENTIAL, SUPPORT_API_URL e SUPPORT_TENANT_ID no backend.
 
-Preservar GET `/support/context`, protegido por sessão do usuário, para a coleta do frontend. Não usar dbAdmin ou um token global como substituto de autorização do usuário na rota nova. Auditar as rotas pull antigas e desabilitá-las quando não houver outro consumidor autorizado; a plataforma v3 não as chama.
+Preservar GET `/support/context`, protegido por sessão do usuário, para a coleta do frontend. Não usar dbAdmin ou um token global como substituto de autorização do usuário na rota nova. Auditar as rotas pull antigas e desabilitá-las quando não houver outro consumidor autorizado; a plataforma v4 usa o contexto enviado na sessão do aplicativo.
 
 ## Projeção de contexto — diferenças encontradas
 

@@ -104,7 +104,6 @@
   "Buscar na documentação": "在文档中搜索",
   "CONSTRUA": "构建",
   "CONTINUE POR AQUI": "继续此处",
-  "CONTRATO V3": "合同 V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV 验证在第 42 行因缺少电子邮件而停止。",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "每个凭据都有一个目的。切勿分发平台签名密钥。",
   "Calls": "调用",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "操作契约和 MCP",
   "Contrato v4": "v3 合约",
   "Contrato v4 / SDK 0.2.4": "v3 合约 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "v3 合约 · 会话和上下文",
   "Controlador frontend": "前端控制器",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "不存在的对话或他人的对话。不要绕过所有者。",
   "Conversas e mensagens": "对话和消息",
@@ -331,7 +329,6 @@
   "Invite": "邀请",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "集成套件 V3",
   "Keep customers moving.": "让客户保持前进。",
   "Knowledge Pack": "知识库",
   "LLM Costs --": "LLM 成本 --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK versioned, integration kit, schemas, and examples without credentials.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK、指南、模式、Node.js/JavaScript 示例、测试和清单。",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, kit, schemas, and ready-to-download examples.",
-  "SESSÕES / V3": "SESSIONS / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Save Changes",
   "Save this credential now. It is shown only once.": "立即保存此凭证。它仅显示一次。",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "后端可在 mcpServers 中传入最多八台服务器。省略列表时，聊天仅使用上下文。",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "每台服务器和每位用户分别使用短期令牌。服务提供方在每次调用时验证受众、有效期、组织和权限。令牌由后端续期。",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "聊天会读取每台服务器目录的所有分页。标注 readOnlyHint: true 的工具可直接调用。",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "其他工具需要在同一会话中于五分钟内确认参数。服务提供方会收到 Idempotency-Key。结果不确定时，请在原应用中核实。"
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "其他工具需要在同一会话中于五分钟内确认参数。服务提供方会收到 Idempotency-Key。结果不确定时，请在原应用中核实。",
+  "Contrato v3 · sessões e contexto": "v3 合约 · 会话和上下文",
+  "KIT DE INTEGRAÇÃO V4": "集成套件 V4",
+  "CONTRATO V4": "合同 V4",
+  "SESSÕES / V4": "SESSIONS / V4"
 }

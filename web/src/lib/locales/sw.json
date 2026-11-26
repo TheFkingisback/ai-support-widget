@@ -104,7 +104,6 @@
   "Buscar na documentação": "Tafuta katika hati",
   "CONSTRUA": "JENGA",
   "CONTINUE POR AQUI": "ENDELEA HAPA",
-  "CONTRATO V3": "MKATABA V3",
   "CSV validation stopped at row 42 due to a missing email.": "Uthibitishaji wa CSV ulisimama kwenye safu ya 42 kwa sababu ya barua pepe iliyokosekana.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "Kila kitambulisho kina madhumuni. Usisambaze kamwe funguo za sahihi za jukwaa.",
   "Calls": "Calls",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Mkataba wa vitendo na MCP",
   "Contrato v4": "Mkataba v4",
   "Contrato v4 / SDK 0.2.4": "Mkataba v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "Mkataba v4 · vipindi na muktadha",
   "Controlador frontend": "Kidhibiti cha programu ya mbele",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Mazungumzo hayapo au ni ya mtu mwingine. Usipitie mmiliki.",
   "Conversas e mensagens": "Mazungumzo na jumbe",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "INTEGRATION KIT V3",
   "Keep customers moving.": "Wafanye wateja waendelee.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK, mwongozo, schema, mifano ya Node.js/JavaScript, majaribio na orodha ya ukaguzi.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, kit, schemas na mifano tayari kupakua.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, kit, schemas na mifano tayari kupakua.",
-  "SESSÕES / V3": "VIKUNDI / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Hifadhi Mabadiliko",
   "Save this credential now. It is shown only once.": "Hifadhi kitambulisho hiki sasa. Kitaonyeshwa mara moja tu.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "Seva ya programu inaweza kutuma hadi seva nane katika mcpServers. Bila orodha, gumzo hutumia muktadha pekee.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "Tumia tokeni ya muda mfupi kwa kila seva na mtumiaji. Mtoa huduma hukagua mpokeaji, muda, shirika na ruhusa kila inapoitwa. Sasisha tokeni kwenye seva ya programu.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "Gumzo husoma kurasa zote za katalogi ya kila seva. Zana zenye readOnlyHint: true zinaweza kuitwa moja kwa moja.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Zana nyingine zinahitaji uthibitisho wa hoja katika kipindi kilekile ndani ya dakika tano. Mtoa huduma hupokea Idempotency-Key. Angalia matokeo yasiyo hakika katika programu chanzo."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Zana nyingine zinahitaji uthibitisho wa hoja katika kipindi kilekile ndani ya dakika tano. Mtoa huduma hupokea Idempotency-Key. Angalia matokeo yasiyo hakika katika programu chanzo.",
+  "Contrato v3 · sessões e contexto": "Mkataba v3 · vipindi na muktadha",
+  "KIT DE INTEGRAÇÃO V4": "INTEGRATION KIT V4",
+  "CONTRATO V4": "MKATABA V4",
+  "SESSÕES / V4": "VIKUNDI / V4"
 }

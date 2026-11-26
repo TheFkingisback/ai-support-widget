@@ -104,7 +104,6 @@
   "Buscar na documentação": "Tìm kiếm trong tài liệu",
   "CONSTRUA": "XÂY DỰNG",
   "CONTINUE POR AQUI": "TIẾP TỤC TỪ ĐÂY",
-  "CONTRATO V3": "HỢP ĐỒNG V3",
   "CSV validation stopped at row 42 due to a missing email.": "Xác thực CSV đã dừng ở hàng 42 do thiếu email.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "Mỗi thông tin xác thực có một mục đích. Không bao giờ phân phối khóa ký của nền tảng.",
   "Calls": "Cuộc gọi",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Hợp đồng hành động và MCP",
   "Contrato v4": "Hợp đồng v4",
   "Contrato v4 / SDK 0.2.4": "Hợp đồng v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "Hợp đồng v4 · phiên và ngữ cảnh",
   "Controlador frontend": "Bộ điều khiển frontend",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Cuộc trò chuyện không tồn tại hoặc của người khác. Không bỏ qua chủ sở hữu.",
   "Conversas e mensagens": "Cuộc trò chuyện và tin nhắn",
@@ -331,7 +329,6 @@
   "Invite": "Mời",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "BỘ TÍCH HỢP V3",
   "Keep customers moving.": "Giữ cho khách hàng tiếp tục.",
   "Knowledge Pack": "Gói kiến thức",
   "LLM Costs --": "Chi phí LLM --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK, bộ tích hợp, lược đồ và ví dụ đã được phiên bản mà không có thông tin xác thực.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, hướng dẫn, lược đồ, ví dụ Node.js/JavaScript, bài kiểm tra và danh sách kiểm tra.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, bộ công cụ, lược đồ và ví dụ sẵn sàng để tải xuống.",
-  "SESSÕES / V3": "PHIÊN / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Lưu thay đổi",
   "Save this credential now. It is shown only once.": "Lưu thông tin xác thực này ngay bây giờ. Thông tin này chỉ hiển thị một lần.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "Backend có thể gửi tối đa tám máy chủ trong mcpServers. Bỏ danh sách để trò chuyện chỉ dùng ngữ cảnh.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "Dùng mã truy cập ngắn hạn cho từng máy chủ và người dùng. Nhà cung cấp kiểm tra đối tượng nhận, thời hạn, tổ chức và quyền ở mỗi lần gọi. Gia hạn mã ở backend.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "Chat đọc tất cả các trang danh mục của từng máy chủ. Công cụ có readOnlyHint: true có thể chạy trực tiếp.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Công cụ khác yêu cầu xác nhận tham số trong cùng phiên trong vòng năm phút. Nhà cung cấp nhận Idempotency-Key. Kiểm tra kết quả chưa rõ trong ứng dụng gốc."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Công cụ khác yêu cầu xác nhận tham số trong cùng phiên trong vòng năm phút. Nhà cung cấp nhận Idempotency-Key. Kiểm tra kết quả chưa rõ trong ứng dụng gốc.",
+  "Contrato v3 · sessões e contexto": "Hợp đồng v3 · phiên và ngữ cảnh",
+  "KIT DE INTEGRAÇÃO V4": "BỘ TÍCH HỢP V4",
+  "CONTRATO V4": "HỢP ĐỒNG V4",
+  "SESSÕES / V4": "PHIÊN / V4"
 }

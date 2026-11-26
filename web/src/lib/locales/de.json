@@ -104,7 +104,6 @@
   "Buscar na documentação": "In der Dokumentation suchen",
   "CONSTRUA": "ERSTELLEN",
   "CONTINUE POR AQUI": "HIER WEITERMACHEN",
-  "CONTRATO V3": "VERTRAG V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV-Validierung wurde bei Zeile 42 wegen einer fehlenden E-Mail-Adresse gestoppt.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "Jeder Anmeldedaten hat einen Zweck. Verteilen Sie niemals die Signierschlüssel der Plattform.",
   "Calls": "Aufrufe",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Aktionsvertrag und MCP",
   "Contrato v4": "Vertrag v4",
   "Contrato v4 / SDK 0.2.4": "Vertrag v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "Vertrag v4 · Sitzungen und Kontext",
   "Controlador frontend": "Frontend-Controller",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Nicht vorhandene Konversation oder von einer anderen Person. Umgehen Sie nicht den Eigentümer.",
   "Conversas e mensagens": "Konversationen und Nachrichten",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "INTEGRATION KIT V3",
   "Keep customers moving.": "Halten Sie die Kunden in Bewegung.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "Versioniertes SDK, Integrationskit, Schemas und Beispiele ohne Anmeldeinformationen.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, Handbuch, Schema, Node.js/JavaScript-Beispiele, Tests und Checkliste.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, Kit, Schemas und Beispiele zum Herunterladen.",
-  "SESSÕES / V3": "SITZUNGEN / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Änderungen speichern",
   "Save this credential now. It is shown only once.": "Speichern Sie diese Anmeldeinformationen jetzt. Sie werden nur einmal angezeigt.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "Das Backend kann bis zu acht Server in mcpServers angeben. Ohne Liste verwendet der Chat nur den Kontext.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "Verwenden Sie ein kurzlebiges Token pro Server und Person. Der Anbieter prüft bei jedem Aufruf Zielgruppe, Ablauf, Organisation und Rechte. Erneuern Sie Tokens im Backend.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "Der Chat liest den paginierten Katalog jedes Servers. Werkzeuge mit readOnlyHint: true sind direkt aufrufbar.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Andere Werkzeuge erfordern die Bestätigung der Argumente in derselben Sitzung innerhalb von fünf Minuten. Der Anbieter erhält Idempotency-Key. Prüfen Sie unklare Ergebnisse in der Quellanwendung."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Andere Werkzeuge erfordern die Bestätigung der Argumente in derselben Sitzung innerhalb von fünf Minuten. Der Anbieter erhält Idempotency-Key. Prüfen Sie unklare Ergebnisse in der Quellanwendung.",
+  "Contrato v3 · sessões e contexto": "Vertrag v3 · Sitzungen und Kontext",
+  "KIT DE INTEGRAÇÃO V4": "INTEGRATION KIT V4",
+  "CONTRATO V4": "VERTRAG V4",
+  "SESSÕES / V4": "SITZUNGEN / V4"
 }

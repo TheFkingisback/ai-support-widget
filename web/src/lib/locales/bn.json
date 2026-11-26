@@ -104,7 +104,6 @@
   "Buscar na documentação": "ডকুমেন্টেশনে খুঁজুন",
   "CONSTRUA": "তৈরি করুন",
   "CONTINUE POR AQUI": "এখান থেকে চালিয়ে যান",
-  "CONTRATO V3": "চুক্তি V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV ভ্যালিডেশন একটি অনুপস্থিত ইমেলের কারণে ৪২ নম্বর সারিতে বন্ধ হয়ে গেছে।",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "প্রতিটি শংসাপত্রের একটি উদ্দেশ্য আছে। প্ল্যাটফর্মের স্বাক্ষর কীগুলি কখনই বিতরণ করবেন না।",
   "Calls": "কল",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "অ্যাকশন এবং MCP চুক্তি",
   "Contrato v4": "চুক্তি v4",
   "Contrato v4 / SDK 0.2.4": "চুক্তি v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "চুক্তি v4 · সেশন এবং প্রসঙ্গ",
   "Controlador frontend": "ফ্রন্টএন্ড কন্ট্রোলার",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "অস্তিত্বহীন বা অন্য কারো কথোপকথন। মালিককে বাইপাস করবেন না।",
   "Conversas e mensagens": "কথোপকথন এবং বার্তা",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "ইন্টিগ্রেশন কিট V3",
   "Keep customers moving.": "গ্রাহকদের চলতে রাখুন।",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "সংস্করণযুক্ত SDK, ইন্টিগ্রেশন কিট, স্কিমা এবং শংসাপত্র-মুক্ত উদাহরণ।",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, গাইড, স্কিমা, Node.js/JavaScript উদাহরণ, পরীক্ষা এবং চেকলিস্ট।",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, কিট, স্কিমা এবং ডাউনলোড করার জন্য প্রস্তুত উদাহরণ।",
-  "SESSÕES / V3": "সেশন / V3",
   "Sandbox": "স্যান্ডবক্স",
   "Save Changes": "পরিবর্তনগুলি সংরক্ষণ করুন",
   "Save this credential now. It is shown only once.": "এই শংসাপত্রটি এখনই সংরক্ষণ করুন। এটি কেবল একবার দেখানো হবে।",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "ব্যাকএন্ড mcpServers-এ সর্বোচ্চ আটটি সার্ভার পাঠাতে পারে। তালিকা বাদ দিলে চ্যাট শুধু প্রসঙ্গ ব্যবহার করে।",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "প্রতি সার্ভার ও ব্যবহারকারীর জন্য স্বল্পমেয়াদি টোকেন দিন। প্রতিটি কলে প্রদানকারী প্রাপক, মেয়াদ, প্রতিষ্ঠান ও অনুমতি যাচাই করে। ব্যাকএন্ড থেকে টোকেন নবায়ন করুন।",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "চ্যাট প্রতিটি সার্ভারের ক্যাটালগের সব পৃষ্ঠা পড়ে। readOnlyHint: true যুক্ত টুল সরাসরি চালানো যায়।",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "অন্য টুলের জন্য একই সেশনে পাঁচ মিনিটের মধ্যে আর্গুমেন্ট নিশ্চিত করুন। প্রদানকারী Idempotency-Key পায়। ফল অনিশ্চিত হলে মূল অ্যাপে যাচাই করুন।"
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "অন্য টুলের জন্য একই সেশনে পাঁচ মিনিটের মধ্যে আর্গুমেন্ট নিশ্চিত করুন। প্রদানকারী Idempotency-Key পায়। ফল অনিশ্চিত হলে মূল অ্যাপে যাচাই করুন।",
+  "Contrato v3 · sessões e contexto": "চুক্তি v3 · সেশন এবং প্রসঙ্গ",
+  "KIT DE INTEGRAÇÃO V4": "ইন্টিগ্রেশন কিট V4",
+  "CONTRATO V4": "চুক্তি V4",
+  "SESSÕES / V4": "সেশন / V4"
 }

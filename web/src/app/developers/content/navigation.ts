@@ -67,6 +67,6 @@ export const navigation = [
     "title": "Versões e mudanças",
     "category": "RECURSOS",
     "summary": "O que está publicado e o que exige ativação.",
-    "keywords": "changelog migração v3 0.3.0 0.2.1"
+    "keywords": "changelog contrato v4 MCP 0.3.0"
   }
 ] as const;

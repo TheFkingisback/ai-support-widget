@@ -104,7 +104,6 @@
   "Buscar na documentação": "Pretraži u dokumentaciji",
   "CONSTRUA": "IZGRADI",
   "CONTINUE POR AQUI": "NASTAVI OVDE",
-  "CONTRATO V3": "UGOVOR V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV validacija je zaustavljena na redu 42 zbog nedostajuće imejl adrese.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "Svaki akreditiv ima svrhu. Nikada ne distribuirajte ključeve za potpisivanje platforme.",
   "Calls": "Pozivi",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Ugovor o akcijama i MCP",
   "Contrato v4": "Ugovor v4",
   "Contrato v4 / SDK 0.2.4": "Ugovor v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "Ugovor v4 · sesije i kontekst",
   "Controlador frontend": "Frontend kontroler",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Konverzacija ne postoji ili pripada drugoj osobi. Nemojte zaobilaziti vlasnika.",
   "Conversas e mensagens": "Konverzacije i poruke",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "INTEGRATION KIT V3",
   "Keep customers moving.": "Neka kupci nastave dalje.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK sa verzijama, integracioni komplet, šeme i primeri bez akreditiva.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, vodič, šema, primeri za Node.js/JavaScript, testovi i kontrolna lista.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, komplet, šeme i primeri spremni za preuzimanje.",
-  "SESSÕES / V3": "SESIJE / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Sačuvaj promene",
   "Save this credential now. It is shown only once.": "Sačuvajte ovaj akreditiv sada. Prikazuje se samo jednom.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "Bekend može poslati do osam servera u mcpServers. Bez liste čet koristi samo kontekst.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "Koristite kratkotrajan token za svaki server i osobu. Provajder proverava primaoca, rok, organizaciju i dozvole pri svakom pozivu. Obnovite tokene na bekendu.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "Čet učitava sve stranice kataloga svakog servera. Alati sa readOnlyHint: true mogu se direktno pozvati.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Ostali alati zahtevaju potvrdu argumenata u istoj sesiji u roku od pet minuta. Provajder dobija Idempotency-Key. Neizvestan ishod proverite u izvornoj aplikaciji."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Ostali alati zahtevaju potvrdu argumenata u istoj sesiji u roku od pet minuta. Provajder dobija Idempotency-Key. Neizvestan ishod proverite u izvornoj aplikaciji.",
+  "Contrato v3 · sessões e contexto": "Ugovor v3 · sesije i kontekst",
+  "KIT DE INTEGRAÇÃO V4": "INTEGRATION KIT V4",
+  "CONTRATO V4": "UGOVOR V4",
+  "SESSÕES / V4": "SESIJE / V4"
 }

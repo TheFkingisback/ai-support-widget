@@ -104,7 +104,6 @@
   "Buscar na documentação": "在文档中搜索",
   "CONSTRUA": "构建",
   "CONTINUE POR AQUI": "继续此处",
-  "CONTRATO V3": "合同 V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV 验证在第 42 行因缺少电子邮件而停止。",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "每个凭据都有一个目的。切勿分发平台签名密钥。",
   "Calls": "调用",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "操作和 MCP 合同",
   "Contrato v4": "v3 合同",
   "Contrato v4 / SDK 0.2.4": "v3 合同 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "v3 合同 · 会话和上下文",
   "Controlador frontend": "前端控制器",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "不存在的对话或他人的对话。不要绕过所有者。",
   "Conversas e mensagens": "对话和消息",
@@ -331,7 +329,6 @@
   "Invite": "邀請",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "整合工具包 V3",
   "Keep customers moving.": "让客户保持前进。",
   "Knowledge Pack": "知識包",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "已版本化的 SDK、整合套件、結構描述和無憑證範例。",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK、指南、結構描述、Node.js/JavaScript 範例、測試和檢核清單。",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK、套件、結構描述和可供下載的範例。",
-  "SESSÕES / V3": "會話 / V3",
   "Sandbox": "沙盒",
   "Save Changes": "儲存變更",
   "Save this credential now. It is shown only once.": "立即儲存此憑證。僅顯示一次。",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "後端可在 mcpServers 中傳入最多八台伺服器。省略清單時，聊天只使用上下文。",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "為每台伺服器和每位使用者分別使用短期權杖。服務提供者在每次呼叫時驗證受眾、有效期、組織和權限。由後端更新權杖。",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "聊天會讀取每台伺服器目錄的所有分頁。標有 readOnlyHint: true 的工具可直接呼叫。",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "其他工具需在同一工作階段內於五分鐘內確認參數。服務提供者會收到 Idempotency-Key。若結果不明，請至原應用程式核對。"
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "其他工具需在同一工作階段內於五分鐘內確認參數。服務提供者會收到 Idempotency-Key。若結果不明，請至原應用程式核對。",
+  "Contrato v3 · sessões e contexto": "v3 合同 · 会话和上下文",
+  "KIT DE INTEGRAÇÃO V4": "整合工具包 V4",
+  "CONTRATO V4": "合同 V4",
+  "SESSÕES / V4": "會話 / V4"
 }

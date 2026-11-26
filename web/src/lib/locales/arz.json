@@ -104,7 +104,6 @@
   "Buscar na documentação": "البحث في الوثائق",
   "CONSTRUA": "بناء",
   "CONTINUE POR AQUI": "متابعة من هنا",
-  "CONTRATO V3": "عقد V3",
   "CSV validation stopped at row 42 due to a missing email.": "تم إيقاف التحقق من صحة CSV في الصف 42 بسبب بريد إلكتروني مفقود.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "لكل مصدق غرض. لا توزع أبدًا مفاتيح توقيع المنصة.",
   "Calls": "المكالمات",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "عقد الإجراءات و MCP",
   "Contrato v4": "عقد الإصدار 3",
   "Contrato v4 / SDK 0.2.4": "عقد الإصدار 3 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "عقد الإصدار 3 · الجلسات والسياق",
   "Controlador frontend": "وحدة التحكم الأمامية",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "محادثة غير موجودة أو تخص شخص آخر. لا تتجاوز المالك.",
   "Conversas e mensagens": "المحادثات والرسائل",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "INTEGRATION KIT V3",
   "Keep customers moving.": "حافظ على حركة العملاء.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK مع الإصدارات، وحزمة التكامل، والمخططات، وأمثلة بدون بيانات اعتماد.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK، دليل، مخطط، أمثلة Node.js/JavaScript، اختبارات وقائمة تحقق.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK، حزمة، مخططات وأمثلة جاهزة للتنزيل.",
-  "SESSÕES / V3": "الجلسات / V3",
   "Sandbox": "بيئة اختبار",
   "Save Changes": "حفظ التغييرات",
   "Save this credential now. It is shown only once.": "احفظ بيانات الاعتماد هذه الآن. يتم عرضها مرة واحدة فقط.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "الباك إند يقدر يبعت لحد تمان سيرفرات في mcpServers. من غير الليستة الشات بيستخدم السياق بس.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "استخدم توكن قصير المدة لكل سيرفر ومستخدم. المزوّد بيراجع الجهة المقصودة والصلاحية والمؤسسة والأذونات مع كل طلب. جدّد التوكن من الباك إند.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "الشات بيقرا كل صفحات الكتالوج لكل سيرفر. الأدوات اللي فيها readOnlyHint: true ممكن تشتغل مباشرة.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "باقي الأدوات محتاجة تأكيد المدخلات في نفس الجلسة خلال خمس دقايق. المزوّد بيستلم Idempotency-Key. راجع أي نتيجة مش مؤكدة في التطبيق الأصلي."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "باقي الأدوات محتاجة تأكيد المدخلات في نفس الجلسة خلال خمس دقايق. المزوّد بيستلم Idempotency-Key. راجع أي نتيجة مش مؤكدة في التطبيق الأصلي.",
+  "Contrato v3 · sessões e contexto": "عقد الإصدار 3 · الجلسات والسياق",
+  "KIT DE INTEGRAÇÃO V4": "INTEGRATION KIT V4",
+  "CONTRATO V4": "عقد V4",
+  "SESSÕES / V4": "الجلسات / V4"
 }

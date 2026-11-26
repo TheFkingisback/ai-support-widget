@@ -104,7 +104,6 @@
   "Buscar na documentação": "Cari di dokumentasi",
   "CONSTRUA": "BANGUN",
   "CONTINUE POR AQUI": "LANJUTKAN DI SINI",
-  "CONTRATO V3": "KONTRAK V3",
   "CSV validation stopped at row 42 due to a missing email.": "Validasi CSV dihentikan pada baris 42 karena email yang hilang.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "Setiap kredensial memiliki tujuan. Jangan pernah mendistribusikan kunci penandatanganan platform.",
   "Calls": "Panggilan",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Kontrak tindakan dan MCP",
   "Contrato v4": "Kontrak v4",
   "Contrato v4 / SDK 0.2.4": "Kontrak v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "Kontrak v4 · sesi dan konteks",
   "Controlador frontend": "Pengontrol frontend",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Percakapan tidak ada atau milik orang lain. Jangan melewati pemiliknya.",
   "Conversas e mensagens": "Percakapan dan pesan",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "INTEGRATION KIT V3",
   "Keep customers moving.": "Jaga pelanggan tetap bergerak.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK terversi, kit integrasi, skema, dan contoh tanpa kredensial.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, panduan, skema, contoh Node.js/JavaScript, pengujian, dan daftar periksa.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, kit, skema, dan contoh siap diunduh.",
-  "SESSÕES / V3": "SESI / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Simpan Perubahan",
   "Save this credential now. It is shown only once.": "Simpan kredensial ini sekarang. Kredensial ini hanya ditampilkan sekali.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "Backend dapat mengirim hingga delapan server dalam mcpServers. Tanpa daftar, obrolan hanya menggunakan konteks.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "Gunakan token berumur pendek untuk tiap server dan pengguna. Penyedia memeriksa tujuan, masa berlaku, organisasi, dan izin pada setiap panggilan. Perbarui token di backend.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "Obrolan membaca semua halaman katalog tiap server. Alat dengan readOnlyHint: true dapat dipanggil langsung.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Alat lainnya memerlukan konfirmasi argumen dalam sesi yang sama dalam lima menit. Penyedia menerima Idempotency-Key. Periksa hasil yang belum pasti di aplikasi asal."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Alat lainnya memerlukan konfirmasi argumen dalam sesi yang sama dalam lima menit. Penyedia menerima Idempotency-Key. Periksa hasil yang belum pasti di aplikasi asal.",
+  "Contrato v3 · sessões e contexto": "Kontrak v3 · sesi dan konteks",
+  "KIT DE INTEGRAÇÃO V4": "INTEGRATION KIT V4",
+  "CONTRATO V4": "KONTRAK V4",
+  "SESSÕES / V4": "SESI / V4"
 }

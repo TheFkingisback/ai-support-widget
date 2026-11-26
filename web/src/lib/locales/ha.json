@@ -104,7 +104,6 @@
   "Buscar na documentação": "Nemo a cikin takardu",
   "CONSTRUA": "GINAWA",
   "CONTINUE POR AQUI": "CI GABA DA NAN",
-  "CONTRATO V3": "KONTRAK V3",
   "CSV validation stopped at row 42 due to a missing email.": "An dakatar da duba CSV a layi na 42 saboda babu imel.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "Kowace takardar shaidar tana da manufa. Kada ku rarraba maɓallan sa hannun dandalin.",
   "Calls": "Calls",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Kwangilar ayyuka da MCP",
   "Contrato v4": "Kwangilar v4",
   "Contrato v4 / SDK 0.2.4": "Kwangilar v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "Kwangilar v4 · zaman da mahallin",
   "Controlador frontend": "Mai sarrafa gaba",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Tattaunawa da ba ta wanzu ko ta wani. Kada ku yi watsi da mai shi.",
   "Conversas e mensagens": "Tattaunawa da saƙonni",
@@ -331,7 +329,6 @@
   "Invite": "Gayyata",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "KIT NA HADA GWIWA V3",
   "Keep customers moving.": "Ka ci gaba da motsa abokan ciniki.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK mai lamba, kit ɗin haɗawa, schemas da misalai ba tare da takaddun shaida ba.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, jagora, schema, misalai na Node.js/JavaScript, gwaji da kuma binciken.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, kit, schemas da misalai da aka shirya don saukewa.",
-  "SESSÕES / V3": "SESSIONS / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Ajiye Canje-canje",
   "Save this credential now. It is shown only once.": "Ajiye wannan takardar shaida yanzu. Ana nuna ta sau ɗaya kawai.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "Bangaren baya na iya aika sabobi har takwas a mcpServers. Idan babu jeri, tattaunawa za ta yi amfani da mahallin kawai.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "Yi amfani da token na ɗan lokaci ga kowane sabar da mai amfani. Mai samarwa yana duba inda aka nufa, wa'adi, ƙungiya da izini a kowace kira. Sabunta token a bangaren baya.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "Tattaunawa tana karanta duk shafukan kundin kowace sabar. Ana iya kiran kayan aiki masu readOnlyHint: true kai tsaye.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Sauran kayan aiki suna buƙatar tabbatar da bayanan kira a cikin zaman guda cikin minti biyar. Mai samarwa yana karɓar Idempotency-Key. Idan sakamakon bai tabbata ba, duba manhajar asali."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Sauran kayan aiki suna buƙatar tabbatar da bayanan kira a cikin zaman guda cikin minti biyar. Mai samarwa yana karɓar Idempotency-Key. Idan sakamakon bai tabbata ba, duba manhajar asali.",
+  "Contrato v3 · sessões e contexto": "Kwangilar v3 · zaman da mahallin",
+  "KIT DE INTEGRAÇÃO V4": "KIT NA HADA GWIWA V4",
+  "CONTRATO V4": "KONTRAK V4",
+  "SESSÕES / V4": "SESSIONS / V4"
 }

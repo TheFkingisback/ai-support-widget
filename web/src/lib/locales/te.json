@@ -104,7 +104,6 @@
   "Buscar na documentação": "డాక్యుమెంటేషన్‌లో శోధించండి",
   "CONSTRUA": "నిర్మించు",
   "CONTINUE POR AQUI": "ఇక్కడ కొనసాగించండి",
-  "CONTRATO V3": "ఒప్పందం V3",
   "CSV validation stopped at row 42 due to a missing email.": "తప్పిపోయిన ఇమెయిల్ కారణంగా CSV ధ్రువీకరణ వరుస 42 వద్ద ఆగిపోయింది.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "ప్రతి ఆధారానికి ఒక ప్రయోజనం ఉంటుంది. ప్లాట్‌ఫారమ్ సంతకం కీలను ఎప్పుడూ పంపిణీ చేయవద్దు.",
   "Calls": "కాల్స్",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "చర్యల ఒప్పందం మరియు MCP",
   "Contrato v4": "ఒప్పందం v4",
   "Contrato v4 / SDK 0.2.4": "ఒప్పందం v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "ఒప్పందం v4 · సెషన్‌లు మరియు సందర్భం",
   "Controlador frontend": "ఫ్రంటెండ్ కంట్రోలర్",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "లేని సంభాషణ లేదా మరొకరిది. యజమానిని దాటవేయవద్దు.",
   "Conversas e mensagens": "సంభాషణలు మరియు సందేశాలు",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "INTEGRATION KIT V3",
   "Keep customers moving.": "కస్టమర్‌లను కదిలిస్తూ ఉండండి.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK వెర్షన్ చేయబడింది, ఇంటిగ్రేషన్ కిట్, స్కీమాలు మరియు ఆధారాలు లేని ఉదాహరణలు.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, గైడ్, స్కీమా, Node.js/JavaScript ఉదాహరణలు, పరీక్షలు మరియు చెక్‌లిస్ట్.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, కిట్, స్కీమాలు మరియు డౌన్‌లోడ్ చేయడానికి సిద్ధంగా ఉన్న ఉదాహరణలు.",
-  "SESSÕES / V3": "సెషన్‌లు / V3",
   "Sandbox": "సాండ్‌బాక్స్",
   "Save Changes": "మార్పులను సేవ్ చేయండి",
   "Save this credential now. It is shown only once.": "ఈ క్రెడెన్షియల్‌ను ఇప్పుడే సేవ్ చేయండి. ఇది ఒక్కసారి మాత్రమే చూపబడుతుంది.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "బ్యాకెండ్ mcpServers లో గరిష్ఠంగా ఎనిమిది సర్వర్లను పంపగలదు. జాబితా లేకపోతే చాట్ సందర్భాన్ని మాత్రమే ఉపయోగిస్తుంది.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "ప్రతి సర్వర్‌కు, వినియోగదారుకు స్వల్పకాలిక టోకెన్ వాడండి. ప్రతి అభ్యర్థనలో ప్రొవైడర్ లక్ష్యం, గడువు, సంస్థ, అనుమతులను తనిఖీ చేస్తుంది. బ్యాకెండ్‌లో టోకెన్లను పునరుద్ధరించండి.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "చాట్ ప్రతి సర్వర్ కేటలాగ్‌లోని అన్ని పేజీలను చదువుతుంది. readOnlyHint: true ఉన్న సాధనాలను నేరుగా వాడవచ్చు.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "ఇతర సాధనాలకు అదే సెషన్‌లో ఐదు నిమిషాల్లో ఆర్గ్యుమెంట్లను నిర్ధారించాలి. ప్రొవైడర్‌కు Idempotency-Key అందుతుంది. అనిశ్చిత ఫలితాన్ని అసలు యాప్‌లో పరిశీలించండి."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "ఇతర సాధనాలకు అదే సెషన్‌లో ఐదు నిమిషాల్లో ఆర్గ్యుమెంట్లను నిర్ధారించాలి. ప్రొవైడర్‌కు Idempotency-Key అందుతుంది. అనిశ్చిత ఫలితాన్ని అసలు యాప్‌లో పరిశీలించండి.",
+  "Contrato v3 · sessões e contexto": "ఒప్పందం v3 · సెషన్‌లు మరియు సందర్భం",
+  "KIT DE INTEGRAÇÃO V4": "INTEGRATION KIT V4",
+  "CONTRATO V4": "ఒప్పందం V4",
+  "SESSÕES / V4": "సెషన్‌లు / V4"
 }

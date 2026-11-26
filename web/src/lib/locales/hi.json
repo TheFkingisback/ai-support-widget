@@ -104,7 +104,6 @@
   "Buscar na documentação": "दस्तावेज़ीकरण में खोजें",
   "CONSTRUA": "बनाएं",
   "CONTINUE POR AQUI": "यहां से जारी रखें",
-  "CONTRATO V3": "अनुबंध V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV सत्यापन पंक्ति 42 पर एक गुम ईमेल के कारण रुक गया।",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "प्रत्येक क्रेडेंशियल का एक उद्देश्य होता है। प्लेटफ़ॉर्म हस्ताक्षर कुंजियों को कभी भी वितरित न करें।",
   "Calls": "कॉल",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "एक्शन और MCP अनुबंध",
   "Contrato v4": "कॉन्ट्रैक्ट v4",
   "Contrato v4 / SDK 0.2.4": "कॉन्ट्रैक्ट v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "कॉन्ट्रैक्ट v4 · सत्र और संदर्भ",
   "Controlador frontend": "फ्रंटएंड कंट्रोलर",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "अस्तित्वहीन या किसी और की बातचीत। मालिक को बायपास न करें।",
   "Conversas e mensagens": "बातचीत और संदेश",
@@ -331,7 +329,6 @@
   "Invite": "आमंत्रित करें",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "एकीकरण किट V3",
   "Keep customers moving.": "ग्राहकों को चलते रहें।",
   "Knowledge Pack": "ज्ञान पैक",
   "LLM Costs --": "LLM लागत --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK, इंटीग्रेशन किट, स्कीमा और बिना क्रेडेंशियल वाले उदाहरण।",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, गाइड, स्कीमा, Node.js/JavaScript उदाहरण, परीक्षण और चेकलिस्ट।",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, किट, स्कीमा और डाउनलोड के लिए तैयार उदाहरण।",
-  "SESSÕES / V3": "सत्र / V3",
   "Sandbox": "सैंडबॉक्स",
   "Save Changes": "परिवर्तन सहेजें",
   "Save this credential now. It is shown only once.": "इस क्रेडेंशियल को अभी सहेजें। यह केवल एक बार दिखाया जाता है।",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "बैकएंड mcpServers में आठ सर्वर तक भेज सकता है। सूची छोड़ने पर चैट केवल संदर्भ का उपयोग करती है।",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "हर सर्वर और उपयोगकर्ता के लिए अल्पकालिक टोकन दें। प्रदाता हर कॉल पर लक्षित सर्वर, वैधता, संगठन और अनुमतियाँ जाँचता है। बैकएंड से टोकन नवीनीकृत करें।",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "चैट हर सर्वर की सूची के सभी पृष्ठ पढ़ती है। readOnlyHint: true वाले टूल सीधे चल सकते हैं।",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "अन्य टूल के लिए उसी सत्र में पाँच मिनट के भीतर तर्कों की पुष्टि करें। प्रदाता को Idempotency-Key मिलती है। अनिश्चित परिणाम मूल ऐप में जाँचें।"
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "अन्य टूल के लिए उसी सत्र में पाँच मिनट के भीतर तर्कों की पुष्टि करें। प्रदाता को Idempotency-Key मिलती है। अनिश्चित परिणाम मूल ऐप में जाँचें।",
+  "Contrato v3 · sessões e contexto": "कॉन्ट्रैक्ट v3 · सत्र और संदर्भ",
+  "KIT DE INTEGRAÇÃO V4": "एकीकरण किट V4",
+  "CONTRATO V4": "अनुबंध V4",
+  "SESSÕES / V4": "सत्र / V4"
 }

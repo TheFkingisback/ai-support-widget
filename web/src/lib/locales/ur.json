@@ -104,7 +104,6 @@
   "Buscar na documentação": "دستاویزات میں تلاش کریں",
   "CONSTRUA": "تعمیر کریں",
   "CONTINUE POR AQUI": "یہاں سے جاری رکھیں",
-  "CONTRATO V3": "معاہدہ V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV کی توثیق قطار 42 پر ایک گمشدہ ای میل کی وجہ سے رک گئی۔",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "ہر اسناد کا ایک مقصد ہوتا ہے۔ پلیٹ فارم کی دستخطی چابیاں کبھی تقسیم نہ کریں۔",
   "Calls": "کالز",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Actions and MCP contract",
   "Contrato v4": "Contract v4",
   "Contrato v4 / SDK 0.2.4": "کنٹریکٹ v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "کنٹریکٹ v4 · سیشن اور سیاق و سباق",
   "Controlador frontend": "Frontend controller",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Non-existent conversation or someone else's. Do not bypass the owner.",
   "Conversas e mensagens": "بات چیت اور پیغامات",
@@ -331,7 +329,6 @@
   "Invite": "دعوت",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "جاوا اسکرپٹ · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "KIT آف انٹیگریشن V3",
   "Keep customers moving.": "گاہکوں کو متحرک رکھیں۔",
   "Knowledge Pack": "نالج پیک",
   "LLM Costs --": "LLM لاگت --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "SDK versioned, integration kit, schemas, and examples without credentials.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, guide, schema, Node.js/JavaScript examples, tests, and checklist.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, kit, schemas, and examples ready to download.",
-  "SESSÕES / V3": "SESSIONS / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Save Changes",
   "Save this credential now. It is shown only once.": "Save this credential now. It is shown only once.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "بیک اینڈ mcpServers میں آٹھ تک سرور بھیج سکتا ہے۔ فہرست کے بغیر چیٹ صرف سیاق استعمال کرتی ہے۔",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "ہر سرور اور صارف کے لیے مختصر مدت کا ٹوکن استعمال کریں۔ فراہم کنندہ ہر کال پر وصول کنندہ، میعاد، تنظیم اور اجازتیں جانچتا ہے۔ ٹوکن بیک اینڈ پر تازہ کریں۔",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "چیٹ ہر سرور کے کیٹلاگ کے تمام صفحات پڑھتی ہے۔ readOnlyHint: true والے ٹول براہ راست چل سکتے ہیں۔",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "دیگر ٹولز کے لیے اسی سیشن میں پانچ منٹ کے اندر دلائل کی تصدیق کریں۔ فراہم کنندہ کو Idempotency-Key ملتی ہے۔ غیر یقینی نتیجہ اصل ایپ میں دیکھیں۔"
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "دیگر ٹولز کے لیے اسی سیشن میں پانچ منٹ کے اندر دلائل کی تصدیق کریں۔ فراہم کنندہ کو Idempotency-Key ملتی ہے۔ غیر یقینی نتیجہ اصل ایپ میں دیکھیں۔",
+  "Contrato v3 · sessões e contexto": "کنٹریکٹ v3 · سیشن اور سیاق و سباق",
+  "KIT DE INTEGRAÇÃO V4": "KIT آف انٹیگریشن V4",
+  "CONTRATO V4": "معاہدہ V4",
+  "SESSÕES / V4": "SESSIONS / V4"
 }

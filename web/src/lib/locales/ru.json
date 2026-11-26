@@ -104,7 +104,6 @@
   "Buscar na documentação": "Поиск в документации",
   "CONSTRUA": "СОЗДАТЬ",
   "CONTINUE POR AQUI": "ПРОДОЛЖИТЬ ЗДЕСЬ",
-  "CONTRATO V3": "КОНТРАКТ V3",
   "CSV validation stopped at row 42 due to a missing email.": "CSV-проверка остановлена в строке 42 из-за отсутствия электронной почты.",
   "Cada credencial tem uma finalidade. Nunca distribua as chaves de assinatura da plataforma.": "У каждой учетной записи есть свое назначение. Никогда не распространяйте ключи подписи платформы.",
   "Calls": "Вызовы",
@@ -177,7 +176,6 @@
   "Contrato de ações e MCP": "Контракт действий и MCP",
   "Contrato v4": "Контракт v4",
   "Contrato v4 / SDK 0.2.4": "Контракт v4 / SDK 0.2.4",
-  "Contrato v4 · sessões e contexto": "Контракт v4 · сеансы и контекст",
   "Controlador frontend": "Контроллер на стороне клиента",
   "Conversa inexistente ou de outra pessoa. Não contorne o proprietário.": "Несуществующий разговор или разговор другого человека. Не обходите владельца.",
   "Conversas e mensagens": "Диалоги и сообщения",
@@ -331,7 +329,6 @@
   "Invite": "Invite",
   "JSON": "JSON",
   "JavaScript · REST · MCP": "JavaScript · REST · MCP",
-  "KIT DE INTEGRAÇÃO V3": "ИНТЕГРАЦИОННЫЙ НАБОР V3",
   "Keep customers moving.": "Держите клиентов в движении.",
   "Knowledge Pack": "Knowledge Pack",
   "LLM Costs --": "LLM Costs --",
@@ -516,7 +513,6 @@
   "SDK versionado, kit de integração, schemas e exemplos sem credenciais.": "Версионированный SDK, интеграционный комплект, схемы и примеры без учетных данных.",
   "SDK, guia, schema, exemplos Node.js/JavaScript, testes e checklist.": "SDK, руководство, схема, примеры для Node.js/JavaScript, тесты и контрольный список.",
   "SDK, kit, schemas e exemplos prontos para baixar.": "SDK, комплект, схемы и примеры готовы к загрузке.",
-  "SESSÕES / V3": "СЕССИИ / V3",
   "Sandbox": "Sandbox",
   "Save Changes": "Сохранить изменения",
   "Save this credential now. It is shown only once.": "Salve esta credencial agora. Ela é mostrada apenas uma vez.",
@@ -812,5 +808,9 @@
   "O backend pode enviar até oito servidores em mcpServers. Omitir a lista abre o chat apenas com contexto.": "Сервер приложения может передать до восьми серверов в mcpServers. Без списка чат использует только контекст.",
   "Use um token curto por servidor e por pessoa. O provedor verifica audiência, validade, organização e permissões em cada chamada. Renove os tokens pelo backend.": "Используйте краткосрочный токен для каждого сервера и пользователя. Провайдер проверяет аудиторию, срок действия, организацию и права при каждом вызове. Обновляйте токены на сервере приложения.",
   "O chat descobre o catálogo paginado de cada servidor. Consultas com readOnlyHint: true podem executar diretamente.": "Чат получает все страницы каталога каждого сервера. Инструменты с readOnlyHint: true можно вызывать напрямую.",
-  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Для остальных инструментов подтвердите аргументы в том же сеансе в течение пяти минут. Провайдер получает Idempotency-Key. Неясный результат проверьте в исходном приложении."
+  "As demais ferramentas exigem confirmação dos argumentos na mesma sessão em até cinco minutos. O provedor recebe Idempotency-Key. Se o resultado for desconhecido, confira a operação na origem.": "Для остальных инструментов подтвердите аргументы в том же сеансе в течение пяти минут. Провайдер получает Idempotency-Key. Неясный результат проверьте в исходном приложении.",
+  "Contrato v3 · sessões e contexto": "Контракт v3 · сеансы и контекст",
+  "KIT DE INTEGRAÇÃO V4": "ИНТЕГРАЦИОННЫЙ НАБОР V4",
+  "CONTRATO V4": "КОНТРАКТ V4",
+  "SESSÕES / V4": "СЕССИИ / V4"
 }
