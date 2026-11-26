@@ -11,7 +11,6 @@ import { hash, secret, sessionDuration, type WorkspaceStore } from './workspace-
 import { registerWorkspaceOperations } from './workspace-operations.js';
 import { defaultLocale, matchAcceptLanguage, matchLocale } from '@ai-support/shared/locales';
 import { messagesFor } from '@ai-support/shared/messages';
-import type { createMcpSettings } from '../orchestrator/mcp.routes.js';
 import type { createSuggestionStore } from './suggestions.js';
 
 const prefix = '/api/workspace';
@@ -36,7 +35,6 @@ export interface WorkspaceOptions {
   publicOrigin: string;
   widgetSecret: string;
   mail?: WorkspaceMail;
-  mcp?: ReturnType<typeof createMcpSettings>;
   suggestions?: ReturnType<typeof createSuggestionStore>;
   lookup?: typeof resolveTxt;
 }
@@ -150,18 +148,7 @@ export async function registerWorkspaceRoutes(app: FastifyInstance, options: Wor
       return { origins: await store.listOrigins(tenant) };
     });
 
-    if (options.mcp) {
-      const mcp = options.mcp;
-      const configPath = '/environments/:env/mcp';
-      async function mcpTenant(request: FastifyRequest) {
-        const current = await account(request);
-        if (current.role !== 'owner') throw new ForbiddenError('Only the workspace owner can configure MCP');
-        return environmentTenant(request, current);
-      }
-      api.get(configPath, async request => mcp.get(await mcpTenant(request), request.id));
-      api.put(configPath, async request => mcp.replace(await mcpTenant(request), request.body, request.id));
-      api.delete(configPath, async request => mcp.remove(await mcpTenant(request), request.id));
-    }
+
     registerWorkspaceOperations(api, options, account);
   }, { prefix });
 }

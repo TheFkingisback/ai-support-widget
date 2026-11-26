@@ -1,142 +1,66 @@
 import { randomUUID } from 'node:crypto';
-import type { Message } from '../../shared/types.js';
 import type { GatewayService } from '../gateway/gateway.service.js';
-import type { McpClientOpts, ToolDef } from '../orchestrator/mcp-client.js';
-import { AppError } from '../../shared/errors.js';
-import { log } from '../../shared/logger.js';
-import { actionArguments, proposalSchema, resultSchema, digest, terminal,
-  type Principal, type ActionState, type ActionRecord } from './action-contract.js';
-import type { ActionStore } from './action-store.js';
-import type { ActionSigner } from './action-proof.js';
-import { actionRemote, type ActionRemote } from './action-remote.js';
-import { messagesFor, type SupportMessages } from '@ai-support/shared/messages';
+import type { Message } from '../../shared/types.js';
+import { messagesFor } from '@ai-support/shared/messages';
 import type { SupportLocale } from '@ai-support/shared/locales';
+import type { Principal, ActionRecord } from './action-contract.js';
+import type { ActionStore } from './action-store.js';
+import { digest, invoke, type McpPrincipal, type McpTool } from '../orchestrator/mcp-client.js';
+import { redactContent, safeText } from '../context/safe-content.js';
 
-export interface ActionHooks {
-  tools(): Promise<ToolDef[]>;
-  prepare(args: unknown): Promise<Message>;
-}
-export interface HumanTurn {
-  principal: Principal; mcp?: McpClientOpts; message: Message;
-  replyToMessageId?: string; previousMessages: Message[]; requestId?: string; locale?: SupportLocale;
-}
-export function createActionService(store: ActionStore, gateway: GatewayService,
-  signer?: ActionSigner, remote: ActionRemote = actionRemote, clock = Date.now) {
-  const binding = (o: McpClientOpts) => digest(JSON.stringify([o.tenantId, o.serverUrl, o.serviceToken, o.actionPolicy]));
-  const say = (p: Principal, text: string, requestId?: string) =>
-    gateway.addMessage(p.caseId, p.tenantId, p.userId, 'assistant', text, undefined, requestId);
-  const audit = (p: ActionRecord, requestId?: string) => gateway.logAudit(p.tenantId, p.userId, p.caseId,
-    'action_' + p.state, { proposalId: p.id, actionId: p.proposal.actionId,
-      summaryHash: p.proposal.summaryHash, confirmationMessageId: p.confirmationMessageId }, requestId);
-  async function save(p: ActionRecord, expected: ActionState, requestId?: string) { await store.save(p, expected); await audit(p, requestId); }
-  async function reconcile(p: ActionRecord, o: McpClientOpts, requestId?: string, locale?: SupportLocale): Promise<Message> {
-    const expected = p.state;
-    try {
-      const value = resultSchema.parse(await remote.call(o, p, 'get_action_status', { actionId: p.proposal.actionId }, requestId));
-      if (value.actionId !== p.proposal.actionId) throw new Error('Action mismatch');
-      p.state = terminal(value.status) ? value.status : 'unknown';
-      await save(p, expected, requestId);
-      return say(p, outcome(p.state, locale, value.message), requestId);
-    } catch {
-      log.warn('Action outcome unavailable', requestId, { tenantId: p.tenantId, proposalId: p.id });
-      return say(p, outcome('unknown', locale), requestId);
-    }
-  }
+type Actor = Principal & McpPrincipal;
+const binding = (p: Actor, t: McpTool) => digest(JSON.stringify([p.sid, t.server.id, t.server.url, t.signature]));
+export function createActionService(store: ActionStore, gateway: GatewayService, dispatch = invoke) {
+  const say = (p: Principal, text: string, req?: string) =>
+    gateway.addMessage(p.caseId, p.tenantId, p.userId, 'assistant', text, undefined, req);
   return {
-    async respond(turn: HumanTurn): Promise<Message | undefined> {
-      const { principal: p, mcp: o, message, requestId, locale } = turn;
+    async prepare(p: Actor, tool: McpTool, args: Record<string, unknown>, req?: string, locale?: SupportLocale) {
+      const previous = await store.latest(p);
+      if (previous && ['unknown', 'executing'].includes(previous.state)) throw new Error('Previous outcome unresolved');
+      const id = randomUUID();
+      const expiresAt = new Date(Date.now() + 300000).toISOString();
+      const summary = tool.server.id + ' / ' + tool.name + '\n' + JSON.stringify(args, null, 2);
+      if (JSON.stringify(redactContent(args)) !== JSON.stringify(args) || summary.length > 3600 || safeText(summary) !== summary || /[\u202a-\u202e\u2066-\u2069]/u.test(summary))
+        throw new Error('Cannot present exact proposal');
+      if (previous?.state === 'pending_confirmation') { previous.state = 'cancelled'; await store.save(previous, 'pending_confirmation'); }
+      const record: ActionRecord = { tenantId: p.tenantId, userId: p.userId, caseId: p.caseId, id, proposal: { actionId: id, serverId: tool.server.id, operation: tool.name,
+        signature: tool.signature, arguments: args, expiresAt }, connectorHash: binding(p, tool), state: 'pending_confirmation',
+        presentedMessageId: null, confirmationMessageId: null, createdAt: new Date(), updatedAt: new Date() };
+      await store.insert(record);
+      const instruction = messagesFor(locale ?? 'en-GB').actionInstruction.replace('{confirm}', 'confirm').replace('{cancel}', 'cancel').replace('{expires}', expiresAt);
+      const msg = await say(p, summary + '\n\n' + instruction, req);
+      record.presentedMessageId = msg.id; await store.save(record, 'pending_confirmation');
+      return msg;
+    },
+    async respond(p: Actor, tools: McpTool[], human: Message, history: Message[], replyTo?: string, req?: string, locale?: SupportLocale) {
+      const copy = messagesFor(locale ?? 'en-GB');
+      const command = human.content.trim().toLowerCase();
+      const confirm = command === 'confirmar' || command === 'confirm';
+      const cancel = command === 'cancelar' || command === 'cancel';
       const pending = await store.latest(p);
-      const command = message.content.trim().toLowerCase();
-      const confirms = ['confirmar', 'confirm'].includes(command);
-      const cancels = ['cancelar', 'cancel'].includes(command);
-      if (!pending) return confirms || cancels ? say(p, actionCopy(locale, 'actionNoPending', 'Nao ha proposta pendente para confirmar ou cancelar.'), requestId) : undefined;
-      if (!o?.actionPolicy?.enabled || !signer || pending.connectorHash !== binding(o)) {
-        if (pending.state === 'pending_confirmation') { pending.state = 'cancelled'; await save(pending, 'pending_confirmation', requestId); }
-        return confirms || cancels || !terminal(pending.state)
-          ? say(p, actionCopy(locale, 'actionChanged', 'A integracao mudou ou esta desativada. Nenhuma nova execucao foi autorizada.'), requestId) : undefined;
+      if (!pending) return confirm || cancel ? say(p, copy.actionNoPending, req) : undefined;
+      if (pending.state !== 'pending_confirmation') {
+        if (!confirm && !cancel) return;
+        const key = pending.state === 'executing' ? 'unknown' : pending.state;
+        return say(p, copy['action_' + key as keyof typeof copy], req);
       }
-      if (pending.state === 'executing' || pending.state === 'unknown') return reconcile(pending, o, requestId, locale);
-      if (terminal(pending.state)) return confirms || cancels ? say(p, outcome(pending.state, locale), requestId) : undefined;
-      if (Date.parse(pending.proposal.expiresAt) <= clock()) {
-        pending.state = 'expired'; await save(pending, 'pending_confirmation', requestId);
-        return confirms || cancels ? say(p, outcome('expired', locale), requestId) : undefined;
-      }
-      if (cancels || !confirms) {
-        pending.state = 'cancelled'; await save(pending, 'pending_confirmation', requestId);
-        return cancels ? say(p, outcome('cancelled', locale), requestId) : undefined;
-      }
-      const shown = turn.previousMessages.find(m => m.id === pending.presentedMessageId && m.role === 'assistant');
-      if (message.role !== 'user' || !shown || turn.replyToMessageId !== shown.id ||
-          message.id === shown.id || Date.parse(message.createdAt) < Date.parse(shown.createdAt)) {
-        return say(p, actionCopy(locale, 'actionMismatch', 'Essa confirmacao nao corresponde a proposta apresentada. Solicite uma nova proposta.'), requestId);
-      }
-      pending.confirmationMessageId = message.id; pending.state = 'executing';
-      await save(pending, 'pending_confirmation', requestId);
-      let proof: string;
-      try { proof = signer.sign(pending, o.serverUrl, randomUUID()); }
-      catch {
-        pending.state = 'expired'; await save(pending, 'executing', requestId);
-        return say(p, outcome('expired', locale), requestId);
-      }
-      try {
-        const result = resultSchema.parse(await remote.call(o, p, 'execute_action',
-          { actionId: pending.proposal.actionId }, requestId, proof));
-        if (result.actionId !== pending.proposal.actionId) throw new Error('Action mismatch');
-        pending.state = terminal(result.status) ? result.status : 'unknown';
-        await save(pending, 'executing', requestId);
-        return say(p, outcome(pending.state, locale, result.message), requestId);
-      } catch {
-        pending.state = 'unknown'; await save(pending, 'executing', requestId);
-        return reconcile(pending, o, requestId, locale);
-      }
-    },
-    hooks(p: Principal, o: McpClientOpts, requestId?: string, locale?: SupportLocale): ActionHooks | undefined {
-      if (!o.actionPolicy?.enabled || !signer) return undefined;
-      return {
-        tools: () => remote.tools(o, p, requestId),
-        async prepare(raw) {
-          const args = actionArguments.parse(raw);
-          if (!o.actionPolicy!.operations.includes(args.operation)) {
-            throw new AppError(403, 'ACTION_OPERATION_FORBIDDEN', 'Operation is not enabled');
-          }
-          const previous = await store.latest(p);
-          if (previous && ['executing', 'unknown'].includes(previous.state)) {
-            throw new AppError(409, 'ACTION_OUTCOME_UNKNOWN', 'Resolve previous outcome before preparing another action');
-          }
-          if (previous?.state === 'pending_confirmation') { previous.state = 'cancelled'; await save(previous, 'pending_confirmation', requestId); }
-          const proposal = proposalSchema.parse(await remote.call(o, p, 'prepare_action', args, requestId));
-          const ttl = Date.parse(proposal.expiresAt) - clock();
-          if (proposal.operation !== args.operation || ttl <= 0 || ttl > 300000) {
-            throw new AppError(502, 'ACTION_INVALID_PROPOSAL', 'Invalid proposal operation or expiry');
-          }
-          const record: ActionRecord = { ...p, id: randomUUID(), proposal, state: 'pending_confirmation',
-            connectorHash: binding(o), presentedMessageId: null, confirmationMessageId: null,
-            createdAt: new Date(clock()), updatedAt: new Date(clock()) };
-          await store.insert(record);
-          const notice = previous?.state === 'cancelled' ? actionCopy(locale, 'actionSuperseded', 'A proposta anterior foi cancelada.') + '\n\n' : '';
-          const instruction = actionCopy(locale, 'actionInstruction', 'Responda confirmar para autorizar esta proposta, ou cancelar. Valida ate {expires}.')
-            .replace('{confirm}', 'confirm').replace('{cancel}', 'cancel').replace('{expires}', () => proposal.expiresAt);
-          const shown = await say(p, notice + proposal.summary + '\n\n' + instruction, requestId);
-          record.presentedMessageId = shown.id; await save(record, 'pending_confirmation', requestId);
-          return shown;
-        },
-      };
+      const save = async (state: ActionRecord['state']) => { pending.state = state; await store.save(pending, 'pending_confirmation'); };
+      if (!confirm) { await save('cancelled'); return cancel ? say(p, copy.action_cancelled, req) : undefined; }
+      if (Date.parse(pending.proposal.expiresAt) <= Date.now()) { await save('expired'); return say(p, copy.action_expired, req); }
+      if (human.role !== 'user' || !replyTo || replyTo !== pending.presentedMessageId ||
+          !history.some(m => m.role === 'assistant' && m.id === replyTo && Date.parse(m.createdAt) <= Date.parse(human.createdAt)))
+        return say(p, copy.actionMismatch, req);
+      const tool = tools.find(t => t.server.id === pending.proposal.serverId && t.name === pending.proposal.operation);
+      if (!tool || binding(p, tool) !== pending.connectorHash) { await save('conflict'); return say(p, copy.action_conflict, req); }
+      pending.confirmationMessageId = human.id;
+      await save('executing');
+      let result = '';
+      try { result = await dispatch(tool, p, pending.proposal.arguments, pending.id); pending.state = 'completed'; }
+      catch { pending.state = 'unknown'; }
+      await store.save(pending, 'executing');
+      await gateway.logAudit(p.tenantId, p.userId, p.caseId, 'action_' + pending.state, { proposalId: pending.id, serverId: tool.server.id, operation: tool.name }, req);
+      return say(p, copy['action_' + pending.state as keyof typeof copy] + (result ? '\n' + result : ''), req);
     },
   };
-}
-/** Fixed state prefixes prevent the model from interpreting a timeout as a completed mutation. */
-function actionCopy(locale: SupportLocale | undefined, key: keyof SupportMessages, legacy: string) {
-  return locale ? messagesFor(locale)[key] ?? legacy : legacy;
-}
-function outcome(state: string, locale?: SupportLocale, message?: string): string {
-  const prefixes: Record<string, string> = {
-    completed: 'Alteracao concluida.', failed: 'A alteracao falhou.',
-    conflict: 'Os dados ou permissoes mudaram. Solicite uma nova proposta.',
-    cancelled: 'Proposta cancelada. Ela nao pode mais ser confirmada.',
-    expired: 'Proposta expirada. Solicite uma nova proposta.',
-    unknown: 'O resultado ainda nao foi confirmado. Nao repetirei a alteracao; envie outra mensagem para consultar o estado.',
-  };
-  const key = `action_${state in prefixes ? state : 'unknown'}` as keyof SupportMessages;
-  return actionCopy(locale, key, prefixes[state] ?? prefixes.unknown) + (message ? '\n' + message : '');
 }
 export type ActionService = ReturnType<typeof createActionService>;

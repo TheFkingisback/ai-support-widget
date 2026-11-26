@@ -46,7 +46,7 @@ describe('Push context and persistence', () => {
       buildSnapshot: vi.fn().mockRejectedValue(new Error('snapshot unavailable')), getSnapshot: vi.fn() };
     const app = await buildApp({ jwtSecret: 'test-only-key', gatewayService: gateway,
       rateLimiter: createInMemoryRateLimiter(), snapshotService: snapshot });
-    const token = app.jwt.sign({ purpose: 'widget', tenantId: 'ten_a', userId: 'usr_a' });
+    const token = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget', tenantId: 'ten_a', userId: 'usr_a' });
     const call = (ctx?: unknown) => app.inject({ method: 'POST', url: '/api/cases', headers: { authorization: `Bearer ${token}` }, payload: { message: 'Help', context: ctx } });
     expect((await call()).statusCode).toBe(400); expect(gateway._cases).toHaveLength(0);
     expect((await call(context())).statusCode).toBe(500);

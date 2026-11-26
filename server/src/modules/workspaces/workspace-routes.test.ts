@@ -28,7 +28,7 @@ describe.skipIf(!database)('Self-service workspaces on PostgreSQL', () => {
     sql = postgres(database!, { connection: { search_path: schema } });
     const migrations = await sql.reserve();
     try {
-      for (const file of ['001-init.sql', '002-integration-credentials.sql', '003-tenant-mcp.sql', '004-action-proposals.sql', '005-workspaces.sql', '006-turn-idempotency.sql', '007-workspace-team.sql', '008-workspace-locales.sql', '009-product-suggestions.sql', '010-audit-hardening.sql']) {
+      for (const file of ['001-init.sql', '002-integration-credentials.sql', '004-action-proposals.sql', '005-workspaces.sql', '006-turn-idempotency.sql', '007-workspace-team.sql', '008-workspace-locales.sql', '009-product-suggestions.sql', '010-audit-hardening.sql']) {
         await migrations.unsafe(await readFile(new URL(`../../migrations/${file}`, import.meta.url), 'utf8'));
       }
     } finally { migrations.release(); }

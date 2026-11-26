@@ -1,3 +1,5 @@
+> O contrato atual de integração está no [manual v4](integration/v4/GUIA.md) e na [API MCP por sessão](integration/v4/MCP.md). As instruções de versões anteriores abaixo são históricas.
+
 # AI Support Widget — Guia Definitivo para Desenvolvedores
 
 > Leia tudo. Cada secao. Cada detalhe. Antes de tocar em qualquer codigo.

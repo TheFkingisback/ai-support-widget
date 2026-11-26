@@ -214,7 +214,7 @@ describe('Gateway Module', () => {
       rateLimiter,
     });
 
-    token = app.jwt.sign({ purpose: 'widget',
+    token = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: TENANT_ID,
       userId: USER_ID,
       userEmail: 'test@example.com',
@@ -350,7 +350,7 @@ describe('Gateway Module', () => {
     const caseId = JSON.parse(createRes.body).case.id;
 
     // Sign a token for a different tenant
-    const otherToken = app.jwt.sign({ purpose: 'widget',
+    const otherToken = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_other999',
       userId: 'usr_other999',
       userEmail: 'other@example.com',

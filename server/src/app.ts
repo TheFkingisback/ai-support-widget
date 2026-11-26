@@ -17,7 +17,6 @@ import { registerSessionAdminRoutes, type SessionAdminOpts } from './modules/adm
 import { registerSwagger } from './shared/swagger.js';
 import { sql } from 'drizzle-orm';
 import { registerSessionRoutes, type SessionRouteOpts } from './modules/sessions/session.routes.js';
-import { registerMcpRoutes, type McpRouteOpts } from './modules/orchestrator/mcp.routes.js';
 import { registerWorkspaceRoutes, type WorkspaceOptions } from './modules/workspaces/workspace-routes.js';
 import type { TurnIdempotency } from './modules/gateway/turn-idempotency.js';
 
@@ -31,7 +30,6 @@ export interface AppDeps {
   adminRouteOpts?: AdminRouteOpts;
   sessionAdminOpts?: SessionAdminOpts;
   sessionRouteOpts?: SessionRouteOpts;
-  mcpRouteOpts?: McpRouteOpts;
   workspaceOpts?: WorkspaceOptions;
   turnIdempotency?: TurnIdempotency;
   suggestions?: WorkspaceOptions['suggestions'];
@@ -151,7 +149,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
     } catch { /* redis unreachable or timeout */ }
     const ok = dbOk && redisOk;
     return reply.code(ok ? 200 : 503).send({
-      ok, version: '3.0.0', db: dbOk ? 'ok' : 'error', redis: redisOk ? 'ok' : 'error',
+      ok, version: '4.0.0', db: dbOk ? 'ok' : 'error', redis: redisOk ? 'ok' : 'error',
     });
   });
 
@@ -170,7 +168,6 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
 
   if (opts?.sessionRouteOpts) await registerSessionRoutes(app, opts.sessionRouteOpts);
 
-  if (opts?.mcpRouteOpts) await registerMcpRoutes(app, opts.mcpRouteOpts);
   if (workspace) await registerWorkspaceRoutes(app, workspace);
 
   // Admin routes (if opts provided)

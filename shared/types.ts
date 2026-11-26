@@ -8,6 +8,7 @@ export type MessageId = string; // msg_...
 
 // === Auth ===
 export interface WidgetAuthPayload {
+  sid: string;
   tenantId: TenantId;
   userId: UserId;
   userEmail: string;

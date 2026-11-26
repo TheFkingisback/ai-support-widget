@@ -1,139 +1,53 @@
 import type { Message } from '../../shared/types.js';
-import type { ActionHooks } from '../actions/action-service.js';
-import type { McpClientOpts } from './mcp-client.js';
-import { getMcpTools, callMcpTool } from './mcp-client.js';
-import type { LLMMessage, ToolCall, ToolDef, LLMResponse } from './openrouter.js';
-import { callLLM } from './openrouter.js';
-import { log } from '../../shared/logger.js';
+import { callLLM, type LLMMessage, type LLMResponse, type ToolDef } from './openrouter.js';
+import { invoke, type McpPrincipal, type McpTool } from './mcp-client.js';
 
-const MAX_TOOL_ITERATIONS = 3;
-
-interface ToolExecOpts {
-  mcpOpts: McpClientOpts;
-  userId: string;
-  model: string;
-  apiKey: string;
-  llmMessages: LLMMessage[];
-  requestId?: string;
-  actionHooks?: ActionHooks;
+interface Options {
+  catalog: McpTool[]; actor: McpPrincipal; model: string; apiKey: string; llmMessages: LLMMessage[]; requestId?: string;
+  prepare?: (tool: McpTool, args: Record<string, unknown>) => Promise<Message>;
 }
-
-/**
- * Fetches tool definitions from the MCP server and converts them for OpenRouter.
- * Caches per-request (tools don't change during a conversation turn).
- */
-export async function fetchToolDefs(
-  mcpOpts: McpClientOpts,
-  userId: string,
-  requestId?: string,
-): Promise<ToolDef[]> {
-  try {
-    return await getMcpTools(mcpOpts, userId, requestId);
-  } catch (err) {
-    log.warn('Failed to fetch MCP tools, continuing without', requestId, {
-      error: 'MCP_CATALOG_UNAVAILABLE',
-    });
-    return [];
-  }
-}
-
-/**
- * Executes a tool-augmented LLM conversation loop:
- * 1. Call LLM with tools
- * 2. If LLM returns tool_calls, execute each via MCP
- * 3. Feed tool results back to LLM
- * 4. Repeat up to MAX_TOOL_ITERATIONS
- * 5. Return the final text response + aggregated token counts
- */
-export async function executeWithTools(opts: ToolExecOpts): Promise<LLMResponse & { actionMessage?: Message }> {
-  const { mcpOpts, userId, model, apiKey, requestId } = opts;
+const search: ToolDef = { type: 'function', function: { name: 'find_mcp_tools',
+  description: 'Find available tools by server, name or description. Use an empty query and offset to browse.',
+  parameters: { type: 'object', properties: { query: { type: 'string' }, offset: { type: 'integer', minimum: 0 } }, required: ['query'] },
+} };
+export async function executeWithTools(opts: Options): Promise<LLMResponse & { actionMessage?: Message }> {
+  const { catalog, actor, model, apiKey, requestId } = opts;
   const messages = [...opts.llmMessages];
-
-  const tools = await fetchToolDefs(mcpOpts, userId, requestId);
-  if (opts.actionHooks) {
-    try { tools.push(...await opts.actionHooks.tools()); }
-    catch { log.warn('Action catalog unavailable', requestId, { error: 'ACTION_CATALOG_UNAVAILABLE' }); }
-  }
-  if (tools.length === 0) {
-    messages.push({ role: 'system', content: 'No live tools are available. Clearly state this limitation; never claim a live lookup or completed action.' });
-    return callLLM({ model, messages }, apiKey, requestId);
-  }
-
-  let totalTokensIn = 0;
-  let totalTokensOut = 0;
-  let totalCost = 0;
-  let finalResponse: LLMResponse | null = null;
-
-  for (let iteration = 0; iteration < MAX_TOOL_ITERATIONS; iteration++) {
-    const response = await callLLM({ model, messages, tools }, apiKey, requestId);
-    totalTokensIn += response.tokensIn;
-    totalTokensOut += response.tokensOut;
-    totalCost += response.estimatedCost;
-
-    if (!response.toolCalls || response.toolCalls.length === 0) {
-      finalResponse = response;
-      break;
-    }
-
-    log.info('LLM requested tool calls', requestId, {
-      iteration, toolCount: response.toolCalls.length,
-      tools: response.toolCalls.map((t) => t.function.name),
-    });
-
-    // Add assistant message with tool calls
-    messages.push({
-      role: 'assistant',
-      content: response.content,
-      tool_calls: response.toolCalls,
-    });
-
-    // Execute each tool call and add results
-    for (const tc of response.toolCalls) {
-      if (tc.function.name === 'prepare_action' && opts.actionHooks && tools.some(t => t.function.name === tc.function.name)) {
-        try {
-          const actionMessage = await opts.actionHooks.prepare(JSON.parse(tc.function.arguments) as unknown);
-          return { ...response, content: actionMessage.content, actionMessage,
-            tokensIn: totalTokensIn, tokensOut: totalTokensOut, estimatedCost: totalCost };
-        } catch {
-          messages.push({ role: 'tool', content: 'ACTION_PREPARATION_FAILED: No change was executed. Ask for clarification or use human support.', tool_call_id: tc.id });
-          continue;
+  if (!catalog.length) messages.push({ role: 'system', content: 'No live tools are available. Disclose that a live lookup or action could not be performed.' });
+  const searchable = catalog.length > 32;
+  let visible = searchable ? [] : catalog;
+  const cost = { tokensIn: 0, tokensOut: 0, estimatedCost: 0 };
+  for (let iteration = 0; ; iteration++) {
+    const tools = visible.map(t => t.definition);
+    if (searchable) tools.push(search);
+    const response = await callLLM({ model, messages, tools: iteration < 6 ? tools : [] }, apiKey, requestId);
+    cost.tokensIn += response.tokensIn; cost.tokensOut += response.tokensOut; cost.estimatedCost += response.estimatedCost;
+    if (!response.toolCalls?.length || iteration >= 6) return { ...response, ...cost };
+    const offered = visible;
+    messages.push({ role: 'assistant', content: response.content, tool_calls: response.toolCalls });
+    for (const call of response.toolCalls) {
+      let content: string;
+      try {
+        const args = JSON.parse(call.function.arguments);
+        if (!args || typeof args !== 'object' || Array.isArray(args)) throw new Error('Invalid arguments');
+        if (searchable && call.function.name === search.function.name) {
+          const query = String(args.query ?? '').trim().toLowerCase();
+          const offset = Number.isSafeInteger(args.offset) && args.offset > 0 ? args.offset : 0;
+          const matches = catalog.filter(t => t.definition.function.description.toLowerCase().includes(query));
+          visible = matches.slice(offset, offset + 20);
+          content = JSON.stringify({ total: matches.length, offset, tools: visible.map(t => t.definition.function.name) });
+        } else {
+          const tool = offered.find(t => t.definition.function.name === call.function.name);
+          if (!tool) throw new Error('Unknown tool');
+          if (!tool.readOnly) {
+            if (!opts.prepare) throw new Error('Confirmation unavailable');
+            const actionMessage = await opts.prepare(tool, args);
+            return { ...response, ...cost, content: actionMessage.content, actionMessage };
+          }
+          content = await invoke(tool, actor, args);
         }
-      }
-      const result = tools.some(t => t.function.name === tc.function.name)
-        ? await executeSingleTool(mcpOpts, userId, tc, requestId) : 'MCP_TOOL_FORBIDDEN';
-      messages.push({ role: 'tool', content: result, tool_call_id: tc.id });
+      } catch { content = 'MCP request failed. No successful result was obtained. Do not claim completion.'; }
+      messages.push({ role: 'tool', content, tool_call_id: call.id });
     }
-  }
-
-  // If we exhausted iterations, do one final call without tools
-  if (!finalResponse) {
-    log.warn('Tool loop exhausted, final call without tools', requestId);
-    finalResponse = await callLLM({ model, messages }, apiKey, requestId);
-    totalTokensIn += finalResponse.tokensIn;
-    totalTokensOut += finalResponse.tokensOut;
-    totalCost += finalResponse.estimatedCost;
-  }
-
-  return {
-    ...finalResponse,
-    tokensIn: totalTokensIn,
-    tokensOut: totalTokensOut,
-    estimatedCost: totalCost,
-  };
-}
-
-async function executeSingleTool(
-  mcpOpts: McpClientOpts,
-  userId: string,
-  tc: ToolCall,
-  requestId?: string,
-): Promise<string> {
-  try {
-    const args: unknown = JSON.parse(tc.function.arguments);
-    if (!args || typeof args !== 'object' || Array.isArray(args)) return 'MCP_INVALID_ARGUMENTS';
-    return await callMcpTool(mcpOpts, userId, tc.function.name, args as Record<string, unknown>, requestId);
-  } catch (err) {
-    log.error('MCP tool execution failed', requestId, { tool: tc.function.name, error: 'MCP_TOOL_FAILED' });
-    return 'MCP_TOOL_FAILED: No successful result was obtained. Do not claim completion.';
   }
 }

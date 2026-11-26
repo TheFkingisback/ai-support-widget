@@ -6,7 +6,7 @@ import type { ContextService } from '../context/context.service.js';
 import type { KnowledgeService } from '../knowledge/knowledge.service.js';
 import type { TenantService } from '../admin/tenant.service.js';
 import type { CostRecorder } from '../admin/cost.service.js';
-import type { McpClientOpts } from './mcp-client.js';
+import type { SessionServer } from '../sessions/session-mcp.js';
 import type { SupportLocale } from '@ai-support/shared/locales';
 
 export interface OrchestratorService {
@@ -17,7 +17,7 @@ export interface OrchestratorService {
     userContent: string,
     requestId?: string,
     widgetJwt?: string,
-    opts?: { skipUserInsert?: boolean; replyToMessageId?: string; locale?: SupportLocale },
+    opts?: { sid?: string; sessionExpiresAt?: number; skipUserInsert?: boolean; replyToMessageId?: string; locale?: SupportLocale },
   ): Promise<Message>;
 
   handleAction(
@@ -37,7 +37,7 @@ export interface OrchestratorDeps {
   knowledgeService?: KnowledgeService;
   tenantService?: TenantService;
   costRecorder?: CostRecorder;
-  resolveMcp?: (tenantId: string) => Promise<McpClientOpts | undefined>;
+  resolveMcp?: (tenantId: string, userId: string, sid?: string) => Promise<SessionServer[]>;
   actions?: ActionService;
   apiKey: string;
   modelPolicy?: 'fast' | 'strong' | 'auto';

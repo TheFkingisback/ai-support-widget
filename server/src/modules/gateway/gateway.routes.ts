@@ -100,7 +100,7 @@ export async function registerGatewayRoutes(
               ? request.headers.authorization.slice(7) : undefined;
             aiMessage = await orchestratorService.handleMessage(
               result.case.id, tenantId, userId, data.message, reqId, rawJwt,
-              { skipUserInsert: true, ...(data.locale ? { locale: data.locale } : {}) },
+              { sid: request.authPayload.sid, sessionExpiresAt: request.authPayload.exp, skipUserInsert: true, ...(data.locale ? { locale: data.locale } : {}) },
             );
           } catch (err) {
             log.warn('Orchestrator failed on case creation', reqId, {
@@ -158,7 +158,7 @@ export async function registerGatewayRoutes(
             ? request.headers.authorization.slice(7) : undefined;
           const aiMessage = await orchestratorService.handleMessage(
             caseId, tenantId, userId, msgData.content, reqId, rawJwt,
-            { replyToMessageId: msgData.replyToMessageId, ...(msgData.locale ? { locale: msgData.locale } : {}) },
+            { sid: request.authPayload.sid, sessionExpiresAt: request.authPayload.exp, replyToMessageId: msgData.replyToMessageId, ...(msgData.locale ? { locale: msgData.locale } : {}) },
           );
           return { message: aiMessage };
         }

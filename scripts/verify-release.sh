@@ -8,7 +8,7 @@ npm run build --workspace @ai-support/server
 node scripts/test-server.mjs
 npm run test --workspace @ai-support/web -- --maxWorkers=2
 npm run test --workspace @ai-support/widget -- --maxWorkers=2
-node --test integration/v3/examples.test.mjs
+node --test integration/v4/examples.test.mjs
 node scripts/verify-locales.mjs
 npm run build --workspace @ai-support/widget
 python3 scripts/verify-assets.py

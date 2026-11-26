@@ -31,8 +31,8 @@ if ((Get-FileHash -LiteralPath $target).Hash -ne $manifest.sha256) { throw 'SDK 
 Copy-Item -LiteralPath (Join-Path $public 'starter') -Destination $stage -Recurse
 $files = @(
     (Join-Path $PSScriptRoot 'server.mjs'), (Join-Path $PSScriptRoot 'bootstrap.mjs'),
-    (Join-Path $PSScriptRoot 'README.md'), (Join-Path $root 'integration/v3/backend-session.mjs'),
-    (Join-Path $root 'integration/v3/backend.env.example'), (Join-Path $public $manifest.file),
+    (Join-Path $PSScriptRoot 'README.md'), (Join-Path $root 'integration/v4/backend-session.mjs'),
+    (Join-Path $root 'integration/v4/backend.env.example'), (Join-Path $public $manifest.file),
     (Join-Path $public 'widget.manifest.json')
 )
 Copy-Item -LiteralPath $files -Destination $stage
@@ -40,11 +40,11 @@ $downloads = Join-Path $public 'downloads'
 $starterArchive = Join-Path $downloads 'ai-support-starter.zip'
 Write-ReleaseZip $stage $starterArchive
 
-$integration = Join-Path $root 'integration/v3'
-$mirror = Join-Path $public 'integration-v3'
+$integration = Join-Path $root 'integration/v4'
+$mirror = Join-Path $public 'integration-v4'
 $kit = Join-Path $stage 'full-kit'
 New-Item -ItemType Directory -Path $kit | Out-Null
-$inputs = @('INICIAR.html','GUIA.md','ACEITE.md','PUBLICACAO.md','context.schema.json','context.example.json',
+$inputs = @('INICIAR.html','GUIA.md','MCP.md','PROMPT-TENANT.txt','ACEITE.md','PUBLICACAO.md','context.schema.json','context.example.json',
   'backend-session.mjs','backend.env.example','examples.test.mjs','mcp-auth.mjs','widget-controller.mjs')
 foreach ($input in $inputs) {
   $source = Join-Path $integration $input
@@ -63,7 +63,7 @@ $entries = @(Get-ChildItem -LiteralPath $kit -File | Sort-Object Name | ForEach-
 })
 $json = @{sdkVersion=$manifest.version;files=$entries} | ConvertTo-Json -Depth 4
 [IO.File]::WriteAllText((Join-Path $kit 'package.manifest.json'),$json+[Environment]::NewLine,[Text.UTF8Encoding]::new($false))
-$kitArchive = Join-Path $downloads "ai-support-integration-v3-sdk-$($manifest.version).zip"
+$kitArchive = Join-Path $downloads "ai-support-integration-v4-sdk-$($manifest.version).zip"
 Write-ReleaseZip $kit $kitArchive
 $archives = [ordered]@{}
 foreach ($name in @('kit', 'starter')) {

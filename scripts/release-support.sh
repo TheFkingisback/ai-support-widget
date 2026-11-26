@@ -13,9 +13,8 @@ flock -n 9
 old_server=$(readlink -f "$root/current")
 old_web=$(readlink -f "$root/current-web")
 private_env=$(readlink -f "$old_server/.env.prod")
-action_env=/root/ai-support-secrets/actions.env
 mail_env=/root/ai-support-secrets/workspaces.env
-[[ -f "$private_env" && -f "$action_env" ]]
+[[ -f "$private_env" ]]
 
 project=ai-support-widget
 server_image="$project-server:$id"
@@ -63,7 +62,7 @@ printf 'services:\n  server:\n    image: %s\n  web:\n    image: %s\n' "$server_i
 printf 'services:\n  server:\n    image: %s\n  web:\n    image: %s\n' "$project-server:before-$id" "$project-web:before-$id" > "$backup/rollback.override.yml"
 if [[ ! -L "$release/.env.prod" ]]; then ln -s "$private_env" "$release/.env.prod"; fi
 
-compose=(docker compose -p "$project" --env-file "$private_env" --env-file "$action_env")
+compose=(docker compose -p "$project" --env-file "$private_env")
 if [[ -f "$mail_env" ]]; then compose+=(--env-file "$mail_env"); fi
 
 for migration in "$release"/server/src/migrations/[0-9][0-9][0-9]-*.sql; do
@@ -72,14 +71,18 @@ done
 docker exec "$redis_id" redis-cli CONFIG SET appendonly yes maxmemory-policy noeviction maxmemory 0 | grep -qx OK
 
 activate() {
-  "${compose[@]}" -f "$release/docker-compose.prod.yml" -f "$release/docker-compose.actions.yml" \
+  "${compose[@]}" -f "$release/docker-compose.prod.yml" \
     -f "$release/images.override.yml" up -d --no-deps --no-build --wait --wait-timeout 120 server web &&
   curl -fsS http://127.0.0.1:3005/api/health > /dev/null &&
   curl -fsS http://127.0.0.1:3005/api/workspace/availability > /dev/null &&
   curl -fsS http://127.0.0.1:3006/ > /dev/null
 }
 rollback() {
-  "${compose[@]}" -f "$old_server/docker-compose.prod.yml" -f "$old_server/docker-compose.actions.yml" \
+  local previous=()
+  if [[ -f "$old_server/docker-compose.actions.yml" && -f /root/ai-support-secrets/actions.env ]]; then
+    previous+=(--env-file /root/ai-support-secrets/actions.env -f "$old_server/docker-compose.actions.yml")
+  fi
+  "${compose[@]}" -f "$old_server/docker-compose.prod.yml" "${previous[@]}" \
     -f "$backup/rollback.override.yml" up -d --no-deps --no-build --wait --wait-timeout 120 server web
 }
 if ! activate; then

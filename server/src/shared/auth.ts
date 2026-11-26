@@ -29,6 +29,7 @@ export interface AuthOptions {
 }
 
 const identity = z.object({
+  sid: z.string().uuid(),
   tenantId: z.string().min(1).max(200), userId: z.string().min(1).max(200),
   userEmail: z.string().max(254).default(''),
   userRoles: z.array(z.string().max(80)).max(30).default([]),

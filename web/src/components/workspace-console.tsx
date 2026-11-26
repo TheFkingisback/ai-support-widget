@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from 'react';
 import { workspaceApi, type Workspace } from '@/lib/workspace-api';
 import { WorkspaceEnvironmentPanel } from './workspace-environment';
 import { WorkspaceConversations, WorkspaceTeam } from './workspace-operations';
-import { McpSection } from './mcp-section';
 import { WorkspaceSuggestions } from './workspace-suggestions';
 import { sdkRelease } from '@/lib/sdk-release';
 import { matchLocale } from '@ai-support/shared/locales';
@@ -94,10 +93,7 @@ export function WorkspaceConsole() {
       <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-semibold"><L>{"Connect your application"}</L></h2><Link className="text-teal-300 underline" href="/developers/quick-start"><L>{"Integration instructions"}</L></Link><button type="button" className="text-teal-300 underline" onClick={() => void reload().catch(failure => setError(failure.message))}><L>{"Refresh status"}</L></button></div>
       <div className="grid gap-4 md:grid-cols-2"><WorkspaceEnvironmentPanel env="staging" data={workspace.staging} reload={reload} /><WorkspaceEnvironmentPanel env="production" data={workspace.production} reload={reload} /></div>
     </>}
-    {workspace.role === 'owner' && <div className="grid gap-4 md:grid-cols-2">
-      <details><summary><L>{"Staging MCP and actions"}</L></summary><McpSection tenantId={workspace.staging.tenantId} workspaceEnvironment="staging" /></details>
-      <details><summary><L>{"Production MCP and actions"}</L></summary><McpSection tenantId={workspace.production.tenantId} workspaceEnvironment="production" /></details>
-    </div>}
+    <Link className="text-teal-300 underline" href="/developers/mcp"><L>{"MCP e ações"}</L></Link>
     <WorkspaceConversations />
     <WorkspaceSuggestions canUpdate={workspace.role === 'owner'} />
     {workspace.role === 'owner' && <WorkspaceTeam />}

@@ -50,7 +50,7 @@ describe('App', () => {
     expect(res.statusCode).toBe(503);
     const body = JSON.parse(res.body);
     expect(body.ok).toBe(false);
-    expect(body.version).toBe('3.0.0');
+    expect(body.version).toBe('4.0.0');
   });
 
   it('auth middleware rejects invalid JWT with 401', async () => {
@@ -67,7 +67,7 @@ describe('App', () => {
   });
 
   it('auth middleware extracts tenantId from valid JWT', async () => {
-    const token = app.jwt.sign({ purpose: 'widget',
+    const token = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_test123',
       userId: 'usr_test456',
       userEmail: 'test@example.com',

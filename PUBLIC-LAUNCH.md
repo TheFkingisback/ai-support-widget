@@ -1,3 +1,5 @@
+> O contrato atual de integração está no [manual v4](integration/v4/GUIA.md) e na [API MCP por sessão](integration/v4/MCP.md). As instruções de versões anteriores abaixo são históricas.
+
 # Public launch operations
 
 The site, starter, workspace, sandbox, and application integration are free. The workspace uses your existing Support AI API and tenant data model. It provisions separate sandbox, staging, and production tenants.

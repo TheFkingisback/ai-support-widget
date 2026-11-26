@@ -1,6 +1,5 @@
 import { createActionService } from './modules/actions/action-service.js';
 import { createActionStore } from './modules/actions/action-store.js';
-import { actionSignerFromEnv } from './modules/actions/action-proof.js';
 import { createRedisRateLimiter } from './modules/gateway/rate-limiter.js';
 import { getRedis } from './shared/redis.js';
 import { buildApp } from './app.js';
@@ -21,8 +20,7 @@ import { createModelListService } from './modules/orchestrator/model-list.servic
 import { createAdminAuth, createLoginHandler } from './modules/admin/admin-auth.js';
 import { createDbTenantStore, createDbCostStore, createDbAuditStore } from './shared/db-stores.js';
 import { createDbAnalyticsDataSource, createDbSessionDataSource } from './shared/db-data-sources.js';
-import { createMcpStore, mcpResolver } from './modules/orchestrator/mcp-store.js';
-import { createMcpSettings } from './modules/orchestrator/mcp.routes.js';
+import { sessionMcpStore } from './modules/sessions/session-mcp.js';
 import { createSessionStore } from './modules/sessions/session.store.js';
 import { createWorkspaceStore } from './modules/workspaces/workspace-store.js';
 import { createWorkspaceMail } from './modules/workspaces/workspace-mail.js';
@@ -39,8 +37,7 @@ async function main() {
   const limiter = createRedisRateLimiter(getRedis(env.REDIS_URL));
   const gateway = createGatewayService(db);
   const snapshotSvc = createSnapshotService(db, tenantService);
-  const mcpStore = createMcpStore(db);
-  const actionSigner = actionSignerFromEnv();
+  const sessionMcp = sessionMcpStore(getRedis(env.REDIS_URL));
   const costStore = createDbCostStore(db);
   const costSvc = createCostService(costStore, async (entry) => {
     const redis = getRedis(env.REDIS_URL);
@@ -62,8 +59,8 @@ async function main() {
     contextService: createContextService(),
     costRecorder: costSvc,
     tenantService,
-    resolveMcp: mcpResolver(mcpStore),
-    actions: createActionService(createActionStore(db), gateway, actionSigner),
+    resolveMcp: sessionMcp.resolve,
+    actions: createActionService(createActionStore(db), gateway),
     apiKey: env.OPENROUTER_API_KEY,
     modelPolicy: 'fast',
   });
@@ -91,16 +88,14 @@ async function main() {
     rateLimiter: limiter, store: createWorkspaceStore(db), sessions: sessionStore, widgetSecret: env.WIDGET_JWT_SECRET,
     publicOrigin: env.WORKSPACE_PUBLIC_ORIGIN,
     suggestions,
-    mcp: createMcpSettings({ store: mcpStore, tenantService, actionVerification: actionSigner?.verification }),
     mail: env.POSTMARK_SERVER_TOKEN && env.POSTMARK_FROM
       ? createWorkspaceMail(env.POSTMARK_SERVER_TOKEN, env.POSTMARK_FROM) : undefined,
   } : undefined;
 
   const app = await buildApp({
     jwtSecret: env.WIDGET_JWT_SECRET,
-    mcpRouteOpts: { store: mcpStore, tenantService, adminAuth, actionVerification: actionSigner?.verification },
     sessionRouteOpts: {
-      rateLimiter: limiter, store: sessionStore, tenantService, widgetSecret: env.WIDGET_JWT_SECRET, adminAuth,
+      mcp: sessionMcp, rateLimiter: limiter, store: sessionStore, tenantService, widgetSecret: env.WIDGET_JWT_SECRET, adminAuth,
     },
     workspaceOpts,
     rateLimiter: limiter,

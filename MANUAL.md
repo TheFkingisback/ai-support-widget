@@ -1,3 +1,5 @@
+> O contrato atual de integração está no [manual v4](integration/v4/GUIA.md) e na [API MCP por sessão](integration/v4/MCP.md). As instruções de versões anteriores abaixo são históricas.
+
 # AI Support Widget — Build Manual
 
 ## Read This FIRST. The Whole Thing. Before Touching Anything.

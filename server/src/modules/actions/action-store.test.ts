@@ -16,7 +16,7 @@ describe.skipIf(!url)('Action store on PostgreSQL', () => {
     const parsed = new URL(url!);
     if (!['localhost','127.0.0.1'].includes(parsed.hostname) || parsed.pathname !== '/aiwidget_dev') throw new Error('Dedicated local test DB required');
     await root`create schema ${root(schema)}`;
-    await client.unsafe('create table tenants(id text primary key); create table cases(id text primary key); create table messages(id text primary key); create table tenant_mcp(tenant_id text primary key);');
+    await client.unsafe('create table tenants(id text primary key); create table cases(id text primary key); create table messages(id text primary key);');
     const migration = await client.reserve();
     try { await migration.unsafe(await readFile(new URL('../../migrations/004-action-proposals.sql', import.meta.url), 'utf8')); }
     finally { migration.release(); }

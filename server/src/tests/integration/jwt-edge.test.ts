@@ -39,7 +39,7 @@ describe('Malformed JWT Edge Cases', () => {
   });
 
   it('JWT with missing tenantId is handled gracefully', async () => {
-    const token = app.jwt.sign({ purpose: 'widget',
+    const token = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       userId: 'usr_noTenant',
       userEmail: 'noTenant@example.com',
       userRoles: ['user'],
@@ -59,7 +59,7 @@ describe('Malformed JWT Edge Cases', () => {
   });
 
   it('JWT with missing userId is handled gracefully', async () => {
-    const token = app.jwt.sign({ purpose: 'widget',
+    const token = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_noUser',
       userEmail: 'noUser@example.com',
       userRoles: ['user'],
@@ -77,7 +77,7 @@ describe('Malformed JWT Edge Cases', () => {
   });
 
   it('JWT with empty payload is handled gracefully', async () => {
-    const token = app.jwt.sign({ purpose: 'widget',});
+    const token = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',});
 
     const res = await app.inject({
       method: 'POST',
@@ -104,7 +104,7 @@ describe('Malformed JWT Edge Cases', () => {
   it('JWT signed with wrong secret returns 401', async () => {
     // Build a separate app instance to sign with a different secret
     const wrongToken = app.jwt.sign(
-      { purpose: 'widget', tenantId: 'ten_wrong', userId: 'usr_wrong' },
+      { sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget', tenantId: 'ten_wrong', userId: 'usr_wrong' },
     );
     // Tamper with the signature by changing last chars
     const tampered = wrongToken.slice(0, -4) + 'xxxx';

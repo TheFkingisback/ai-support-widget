@@ -45,7 +45,7 @@ const envSchema = z.object({
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Legacy widget authentication is retired; remove legacy variables' });
   }
   if (env.MCP_SERVER_URL || env.MCP_SERVICE_TOKEN || env.OAUTH_TOKEN_URL) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Global MCP and OAuth exchange are retired; configure MCP per tenant' });
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Global MCP and OAuth exchange are retired; supply delegated MCP servers when issuing the widget session' });
   }
 });
 

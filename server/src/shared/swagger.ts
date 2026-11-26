@@ -10,13 +10,14 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
       info: {
         title: 'AI Support Widget API',
         description: 'API for the AI Support Widget — embeddable AI support for SaaS apps.',
-        version: '3.0.0',
+        version: '4.0.0',
       },
       servers: [
         { url: 'http://localhost:3000', description: 'Local development' },
       ],
       components: {
         securitySchemes: {
+          integrationCredential: { type: 'http', scheme: 'bearer', description: 'Backend-only integration credential (sik_).' },
           bearerAuth: {
             type: 'http',
             scheme: 'bearer',

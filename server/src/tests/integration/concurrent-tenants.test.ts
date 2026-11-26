@@ -48,11 +48,11 @@ describe('Concurrent Tenant Operations', () => {
   });
 
   it('two tenants creating cases simultaneously do not interfere', async () => {
-    const tokenA = app.jwt.sign({ purpose: 'widget',
+    const tokenA = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_concA', userId: 'usr_concA',
       userEmail: 'a@conc.com', userRoles: ['user'], plan: 'pro',
     });
-    const tokenB = app.jwt.sign({ purpose: 'widget',
+    const tokenB = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_concB', userId: 'usr_concB',
       userEmail: 'b@conc.com', userRoles: ['user'], plan: 'pro',
     });
@@ -89,11 +89,11 @@ describe('Concurrent Tenant Operations', () => {
   });
 
   it('concurrent messages from different tenants preserve isolation', async () => {
-    const tokenA = app.jwt.sign({ purpose: 'widget',
+    const tokenA = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_concA2', userId: 'usr_concA2',
       userEmail: 'a@conc.com', userRoles: ['user'], plan: 'pro',
     });
-    const tokenB = app.jwt.sign({ purpose: 'widget',
+    const tokenB = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_concB2', userId: 'usr_concB2',
       userEmail: 'b@conc.com', userRoles: ['user'], plan: 'pro',
     });

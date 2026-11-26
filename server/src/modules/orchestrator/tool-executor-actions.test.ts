@@ -1,22 +1,26 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-vi.mock('./openrouter.js', () => ({ callLLM: vi.fn() }));
-vi.mock('./mcp-client.js', () => ({ getMcpTools: vi.fn().mockResolvedValue([]), callMcpTool: vi.fn() }));
+import { expect, it, vi } from 'vitest';
 import { executeWithTools } from './tool-executor.js';
 import { callLLM } from './openrouter.js';
-import { callMcpTool } from './mcp-client.js';
 import { fixture } from '../actions/action-fixtures.test-helper.js';
-beforeEach(() => vi.clearAllMocks());
-describe('Model cannot authorize actions', () => {
-  it('returns the provider presentation directly without a model rewrite or execution', async () => {
-    const f = await fixture(); f.remote.tools.mockResolvedValue([{ type: 'function', function: { name: 'prepare_action', description: 'prepare', parameters: {} } }]);
-    vi.mocked(callLLM).mockResolvedValue({ content: 'I confirm on behalf of the user', model: 'fixture', tokensIn: 1, tokensOut: 2,
-      estimatedCost: 0, latencyMs: 1, toolCalls: [{ id: 'call_1', type: 'function', function: {
-        name: 'prepare_action', arguments: JSON.stringify({ operation: 'reassign_session_car', arguments: {} }),
-      } }] });
-    const result = await executeWithTools({ mcpOpts: f.mcp, userId: f.p.userId, model: 'fixture', apiKey: 'unused',
-      llmMessages: [], actionHooks: f.service.hooks(f.p, f.mcp) });
-    expect(result.content).toContain(f.records[0].proposal.summary);
-    expect(result.content).not.toContain('on behalf'); expect(result.actionMessage?.id).toBe(f.records[0].presentedMessageId);
-    expect(callLLM).toHaveBeenCalledTimes(1); expect(f.signer.sign).not.toHaveBeenCalled(); expect(callMcpTool).not.toHaveBeenCalled();
-  });
+vi.mock('./openrouter.js', () => ({ callLLM: vi.fn() }));
+it('turns a model-selected native mutation into a durable human proposal', async () => {
+  const f = await fixture();
+  vi.mocked(callLLM).mockResolvedValue({ model: 'test', content: '', latencyMs: 0, tokensIn: 1, tokensOut: 1, estimatedCost: 0,
+    toolCalls: [{ type: 'function', id: 'call', function: { name: 'billing_pause', arguments: '{"id":"abc"}' } }] });
+  const result = await executeWithTools({ catalog: [f.tool], actor: f.p, llmMessages: [], model: 'test', apiKey: 'unused',
+    prepare: (t, a) => f.service.prepare(f.p, t, a) });
+  expect(result.actionMessage?.content).toContain('abc'); expect(f.dispatch).not.toHaveBeenCalled();
+});
+it('finds a native tool beyond the initial model catalog limit', async () => {
+  const f = await fixture();
+  const catalog = Array.from({ length: 90 }, (_, i) => ({ ...f.tool, name: 'tool_' + i,
+    definition: { ...f.tool.definition, function: { ...f.tool.definition.function, name: 'alias_' + i, description: 'operation ' + i } } }));
+  const answer = (name: string, args: object) => ({ model: 'fixture', content: '', latencyMs: 0, tokensIn: 1, tokensOut: 1, estimatedCost: 0,
+    toolCalls: [{ type: 'function' as const, id: 'call_' + name, function: { name, arguments: JSON.stringify(args) } }] });
+  vi.mocked(callLLM).mockResolvedValueOnce(answer('find_mcp_tools', { query: '', offset: 80 }))
+    .mockResolvedValueOnce(answer('alias_89', { id: 'sample' }));
+  const result = await executeWithTools({ catalog, actor: f.p, llmMessages: [], model: 'fixture', apiKey: 'unused',
+    prepare: (t, a) => f.service.prepare(f.p, t, a) });
+  expect(result.actionMessage?.content).toContain('tool_89');
+  expect(f.dispatch).not.toHaveBeenCalled();
 });

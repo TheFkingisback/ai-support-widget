@@ -1,5 +1,4 @@
 BEGIN;
-ALTER TABLE tenant_mcp ADD COLUMN IF NOT EXISTS action_policy jsonb;
 CREATE TABLE IF NOT EXISTS action_proposals (
  sequence bigserial NOT NULL, id text PRIMARY KEY, tenant_id text NOT NULL REFERENCES tenants(id),
  user_id text NOT NULL, case_id text NOT NULL REFERENCES cases(id) ON DELETE CASCADE,

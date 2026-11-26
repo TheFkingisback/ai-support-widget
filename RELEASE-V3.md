@@ -1,9 +1,11 @@
+> O contrato atual de integração está no [manual v4](integration/v4/GUIA.md) e na [API MCP por sessão](integration/v4/MCP.md). As instruções de versões anteriores abaixo são históricas.
+
 # Contrato de integração v3 — produção
 
 Publicado em 15/09/2026. Runtime: `d87e664`; servidor `3.0.0`, SDK `0.2.1`.
 Verificação registrada às `2026-09-15T09:22:04Z`, seguida de teste do adaptador pela URL pública.
 
-Contrato vigente: [integration/v3/GUIA.md](integration/v3/GUIA.md).
+Contrato vigente: [integration/v4/GUIA.md](integration/v4/GUIA.md).
 Portal: <https://support-ai.pontes.uk/integration-v3/INICIAR.html>.
 Os documentos SESSION-MIGRATION.md e PRODUCTION-RELEASE.md descrevem a publicação anterior e estão marcados como históricos. O prazo antigo de 21/09 foi substituído pelo corte autorizado deste release.
 

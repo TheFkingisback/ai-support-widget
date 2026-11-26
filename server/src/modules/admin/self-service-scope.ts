@@ -7,7 +7,7 @@ export function assertSelfServiceScope(actor: AdminAuthPayload, req: FastifyRequ
   const route = req.routeOptions?.url;
   if (req.method === 'GET' && route === '/api/admin/tenants') return;
   const own = Boolean(actor.tenantId) && (req.params as { id?: string } | undefined)?.id === actor.tenantId;
-  if (own && ['/api/admin/tenants/:id/mcp', '/api/admin/tenants/:id/integration-credential',
+  if (own && ['/api/admin/tenants/:id/integration-credential',
     '/api/admin/tenants/:id/reset-key'].includes(route ?? '')) return;
   if (own && req.method === 'GET' && ['/api/admin/tenants/:id/analytics',
     '/api/admin/tenants/:id/cases', '/api/admin/tenants/:id/audit', '/api/admin/tenants/:id/costs'].includes(route ?? '')) return;

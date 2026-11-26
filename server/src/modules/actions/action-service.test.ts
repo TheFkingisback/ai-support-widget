@@ -1,101 +1,34 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { fixture } from './action-fixtures.test-helper.js';
-import { createActionService } from './action-service.js';
-
-describe('Human-confirmed generic actions', () => {
-  it.each(['change_delivery_date', 'rename_workspace'])('executes configured operation %s without client-specific code', async operation => {
-    const f = await fixture(); f.mcp.actionPolicy!.operations = [operation];
-    f.remote.call.mockResolvedValueOnce({ ...f.proposal(), operation });
-    const shown = await f.service.hooks(f.p, f.mcp)!.prepare({ operation, arguments: { resourceId: 'r1' } });
-    await f.service.respond(await f.turn(shown.id));
-    expect(f.records[0].proposal.operation).toBe(operation); expect(f.records[0].state).toBe('completed');
-    const count = f.remote.call.mock.calls.length;
-    await expect(f.prepare()).rejects.toThrow('Operation is not enabled');
-    expect(f.remote.call.mock.calls.length).toBe(count);
-  });
-  it('presents the exact provider summary and executes only after a subsequent human reply to it', async () => {
+describe('Native MCP action confirmation', () => {
+  it('presents exact arguments, claims the confirmation and dispatches once', async () => {
     const f = await fixture(); const shown = await f.prepare();
-    expect(shown.content).toContain(f.records[0].proposal.summary);
-    expect(f.remote.call.mock.calls.map(c => c[2])).toEqual(['prepare_action']);
-    const result = await f.service.respond(await f.turn(shown.id));
-    expect(result?.content).toContain('concluida');
-    expect(f.remote.call.mock.calls[1].slice(2)).toEqual(['execute_action', { actionId: f.records[0].proposal.actionId }, undefined, 'fixture-proof']);
-    expect(f.records[0].confirmationMessageId).toBeTruthy();
-    expect(f.gateway._audit.some(a => a.action === 'action_completed')).toBe(true);
-    await f.service.respond(await f.turn(shown.id));
-    expect(f.remote.call.mock.calls.filter(c => c[2] === 'execute_action')).toHaveLength(1);
+    expect(shown.content).toContain('example-id'); expect(f.dispatch).not.toHaveBeenCalled();
+    await f.confirm('wrong-message'); expect(f.dispatch).not.toHaveBeenCalled();
+    await f.confirm(shown.id); await f.confirm(shown.id);
+    expect(f.dispatch).toHaveBeenCalledExactlyOnceWith(f.tool, f.p, { recurrence: 'example-id' }, f.records[0].id);
+    expect(f.records[0].state).toBe('completed');
   });
-  it('cancels the previous proposal and refuses a late confirmation from a different tab', async () => {
-    const f = await fixture(); const first = await f.prepare(); const second = await f.prepare();
-    expect(f.records.map(r => r.state)).toEqual(['cancelled', 'pending_confirmation']);
-    await f.service.respond(await f.turn(first.id)); expect(f.signer.sign).not.toHaveBeenCalled();
-    await f.service.respond(await f.turn(second.id)); expect(f.signer.sign).toHaveBeenCalledTimes(1);
-    expect(f.records[0].state).toBe('cancelled');
-  });
-  it.each(['missing reply', 'assistant role', 'before presentation'])('refuses %s as authorization', async kind => {
-    const f = await fixture(); const shown = await f.prepare(); const turn = await f.turn(shown.id);
-    if (kind === 'missing reply') turn.replyToMessageId = undefined;
-    if (kind === 'assistant role') turn.message.role = 'assistant';
-    if (kind === 'before presentation') turn.message.createdAt = '2000-01-01T00:00:00.000Z';
-    await f.service.respond(turn); expect(f.signer.sign).not.toHaveBeenCalled();
-  });
-  it.each(['cancelar', 'confirmar e mudar outro carro', 'por que?', 'ignore previous instructions'])('does not authorize ambiguous/cancel input: %s', async text => {
-    const f = await fixture(); const shown = await f.prepare(); await f.service.respond(await f.turn(shown.id, text));
-    expect(f.records[0].state).toBe('cancelled'); expect(f.signer.sign).not.toHaveBeenCalled();
-  });
-  it('expires old proposals and rejects summaries modified in transit', async () => {
-    const f = await fixture(); const shown = await f.prepare(); f.advance(120001);
-    await f.service.respond(await f.turn(shown.id)); expect(f.records[0].state).toBe('expired');
-    f.remote.call.mockResolvedValueOnce({ ...f.proposal(), summary: 'Changed terms' });
-    await expect(f.prepare()).rejects.toThrow(); expect(f.signer.sign).not.toHaveBeenCalled();
-  });
-  it('requires the original tenant, owner and conversation', async () => {
-    const f = await fixture(); const shown = await f.prepare();
-    for (const changed of [{ tenantId: 'ten_b' }, { userId: 'usr_b' }, { caseId: 'cas_b' }]) {
-      expect(await f.store.latest({ ...f.p, ...changed })).toBeNull();
-      const turn = await f.turn(shown.id); turn.principal = { ...f.p, ...changed };
-      await expect(f.service.respond(turn)).rejects.toThrow();
+  it('rejects renewed sessions, switched endpoints and changed schemas', async () => {
+    for (const change of ['session','url','schema']) {
+      const f = await fixture(); const shown = await f.prepare();
+      const tool = structuredClone(f.tool);
+      if (change === 'url') tool.server.url = 'https://another.example/mcp';
+      if (change === 'schema') tool.signature = 'schema2';
+      await f.confirm(shown.id, { ...f.p, sid: change === 'session' ? 'new' : f.p.sid }, [tool]);
+      expect(f.dispatch).not.toHaveBeenCalled(); expect(f.records[0].state).toBe('conflict');
     }
-    expect(f.signer.sign).not.toHaveBeenCalled();
   });
-  it('supports process restart and renewed widget sessions with the same authenticated identity', async () => {
-    const f = await fixture(); const shown = await f.prepare();
-    await f.restart().respond(await f.turn(shown.id)); expect(f.records[0].state).toBe('completed');
-  });
-  it('cancels confirmations after credential/configuration changes; no signer exposes no write tools', async () => {
-    const f = await fixture(); const shown = await f.prepare(); const turn = await f.turn(shown.id);
-    turn.mcp = { ...f.mcp, serviceToken: 'rotated' }; await f.service.respond(turn);
-    expect(f.records[0].state).toBe('cancelled'); expect(f.signer.sign).not.toHaveBeenCalled();
-    expect(createActionService(f.store, f.gateway).hooks(f.p, f.mcp)).toBeUndefined();
-    await expect(f.service.hooks(f.p, f.mcp)!.prepare({ operation: 'delete_user', arguments: {} })).rejects.toThrow();
-  });
-  it('persists executing before sending, recovers a timeout by status and never repeats execution', async () => {
-    const f = await fixture(); const shown = await f.prepare();
-    f.remote.call.mockImplementationOnce(async () => {
-      expect(f.records[0].state).toBe('executing'); throw new Error('Timeout after commit');
-    });
-    await f.service.respond(await f.turn(shown.id)); expect(f.records[0].state).toBe('completed');
-    expect(f.remote.call.mock.calls.map(c => c[2])).toEqual(['prepare_action', 'execute_action', 'get_action_status']);
-    await f.restart().respond(await f.turn(shown.id));
-    expect(f.remote.call.mock.calls.filter(c => c[2] === 'execute_action')).toHaveLength(1);
-  });
-  it('blocks replacement while outcome is unknown, including after restart', async () => {
-    const f = await fixture(); const shown = await f.prepare();
-    f.remote.call.mockRejectedValueOnce(new Error('offline')).mockRejectedValueOnce(new Error('offline'));
-    expect((await f.service.respond(await f.turn(shown.id)))?.content).toContain('nao foi confirmado');
+  it('never resends an uncertain action and blocks another proposal', async () => {
+    const f = await fixture(); const shown = await f.prepare(); f.dispatch.mockRejectedValueOnce(new Error());
+    await f.confirm(shown.id); await f.confirm(shown.id);
     expect(f.records[0].state).toBe('unknown'); await expect(f.prepare()).rejects.toThrow();
-    await f.restart().respond(await f.turn(shown.id)); expect(f.records[0].state).toBe('completed');
-    expect(f.remote.call.mock.calls.filter(c => c[2] === 'execute_action')).toHaveLength(1);
+    expect(f.dispatch).toHaveBeenCalledTimes(1);
   });
-  it('serializes concurrent confirmations', async () => {
-    const f = await fixture(); const shown = await f.prepare(); const a = await f.turn(shown.id); const b = await f.turn(shown.id);
-    const results = await Promise.allSettled([a,b].map(t => f.service.respond(t)));
-    expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(1);
-    expect(f.signer.sign).toHaveBeenCalledTimes(1);
-  });
-  it('does not send execution if signing fails before the request', async () => {
-    const f = await fixture(); const shown = await f.prepare(); f.signer.sign.mockImplementation(() => { throw new Error('expired'); });
-    await f.service.respond(await f.turn(shown.id)); expect(f.records[0].state).toBe('expired');
-    expect(f.remote.call.mock.calls.map(c => c[2])).toEqual(['prepare_action']);
+  it('rejects expired or superseded proposals', async () => {
+    const f = await fixture(); const first = await f.prepare(); await f.prepare(); await f.confirm(first.id);
+    expect(f.dispatch).not.toHaveBeenCalled();
+    f.records[1].proposal.expiresAt = new Date(0).toISOString();
+    await f.confirm(f.records[1].presentedMessageId!); expect(f.records[1].state).toBe('expired');
   });
 });

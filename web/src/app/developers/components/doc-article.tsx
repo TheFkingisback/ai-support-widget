@@ -8,7 +8,7 @@ export function DocArticle({article}:{article:Article}) {
   const index=navigation.findIndex(x=>x.slug===article.slug);const next=navigation[index+1];
   return <div className="dc-article-layout" data-testid={article.slug+'-page'}><article className="dc-article">
     <div className="dc-breadcrumb"><Link href="/developers"><L>{"Documentação"}</L></Link><span>/</span><L>{article.title}</L></div>
-    <header className="dc-article-header"><p className="dc-eyebrow"><L>{article.category}</L></p><h1><L>{article.title}</L></h1><p><L>{article.summary}</L></p><div className="dc-article-meta"><L>{"Contrato v3"}</L>{" "}<span>·</span><L>{"SDK 0.2.5"}</L>{" "}<span>·</span><L>{"Atualizado em 23 nov 2026"}</L></div></header>
+    <header className="dc-article-header"><p className="dc-eyebrow"><L>{article.category}</L></p><h1><L>{article.title}</L></h1><p><L>{article.summary}</L></p><div className="dc-article-meta"><L>{"Contrato v4"}</L>{" "}<span>·</span><L>{"SDK 0.3.0"}</L>{" "}<span>·</span><L>{"Atualizado em 26 nov 2026"}</L></div></header>
     {article.sections.map(s=><section className="dc-section" id={s.id} key={s.id}><h2><a href={'#'+s.id}><L>{s.title}</L></a></h2>{s.text.map((p,i)=><p key={i}><L>{p}</L></p>)}
       {s.bullets&&<ul>{s.bullets.map(b=><li key={b}><L>{b}</L></li>)}</ul>}
       {s.rows&&<div className="dc-table-wrap"><table><thead><tr>{s.rows[0].map(c=><th key={c} scope="col"><L>{c}</L></th>)}</tr></thead><tbody>{s.rows.slice(1).map((row,i)=><tr key={i}>{row.map((c,j)=><td key={j}><L>{c}</L></td>)}</tr>)}</tbody></table></div>}

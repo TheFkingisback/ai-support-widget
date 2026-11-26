@@ -1,4 +1,6 @@
-> **SUPERSEDED — contrato v3, 15/09/2026.** Este documento é histórico. Consulte [o contrato vigente](integration/v3/GUIA.md). O novo release encerra a compatibilidade antiga imediatamente e substitui o MCP global por configuração por tenant. O prazo antigo de 21/09 não se aplica.
+> O contrato atual de integração está no [manual v4](integration/v4/GUIA.md) e na [API MCP por sessão](integration/v4/MCP.md). As instruções de versões anteriores abaixo são históricas.
+
+> **SUPERSEDED — contrato v3, 15/09/2026.** Este documento é histórico. Consulte [o contrato vigente](integration/v4/GUIA.md). O novo release encerra a compatibilidade antiga imediatamente e substitui o MCP global por configuração por tenant. O prazo antigo de 21/09 não se aplica.
 
 # Publicação de segurança — 14 de setembro de 2026
 

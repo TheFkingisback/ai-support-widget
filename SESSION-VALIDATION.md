@@ -1,3 +1,5 @@
+> O contrato atual de integração está no [manual v4](integration/v4/GUIA.md) e na [API MCP por sessão](integration/v4/MCP.md). As instruções de versões anteriores abaixo são históricas.
+
 # Verificação das etapas 1 e 2
 
 Verificado em 9 de setembro de 2026, localmente, com Node.js 24.13.1.

@@ -33,7 +33,7 @@ describe('Payload Limits', () => {
       rateLimiter: createInMemoryRateLimiter(),
     });
 
-    token = app.jwt.sign({ purpose: 'widget',
+    token = app.jwt.sign({ sid: '00000000-0000-4000-8000-000000000001', purpose: 'widget',
       tenantId: 'ten_payload01', userId: 'usr_payload01',
       userEmail: 'test@example.com', userRoles: ['user'], plan: 'pro',
     });

@@ -17,7 +17,7 @@ export const navigation = [
     "slug": "widget-sdk",
     "title": "Widget SDK",
     "category": "PRIMEIROS PASSOS",
-    "summary": "Instalação, configuração e ciclo de vida do SDK 0.2.5.",
+    "summary": "Instalação, configuração e ciclo de vida do SDK 0.3.0.",
     "keywords": "react javascript frontend logout destroy"
   },
   {
@@ -38,7 +38,7 @@ export const navigation = [
     "slug": "mcp",
     "title": "MCP e ações",
     "category": "CONSTRUA",
-    "summary": "Consultas por tenant e alterações com confirmação humana.",
+    "summary": "Servidores MCP por sessão",
     "keywords": "conector ferramentas assinatura escrita confirmar"
   },
   {
@@ -67,6 +67,6 @@ export const navigation = [
     "title": "Versões e mudanças",
     "category": "RECURSOS",
     "summary": "O que está publicado e o que exige ativação.",
-    "keywords": "changelog migração v3 0.2.5 0.2.1"
+    "keywords": "changelog migração v3 0.3.0 0.2.1"
   }
 ] as const;

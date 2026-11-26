@@ -3,6 +3,7 @@ import type { OrchestratorDeps, OrchestratorService } from './orchestrator.types
 export type { OrchestratorDeps, OrchestratorService } from './orchestrator.types.js';
 import { turnId, turnKey } from '../gateway/turn-identity.js';
 import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
+import { discover } from './mcp-client.js';
 import { executeWithTools } from './tool-executor.js';
 import { AppError } from '../../shared/errors.js';
 import { safeText } from '../context/safe-content.js';
@@ -34,11 +35,11 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       if (caseData.status !== 'active') throw new AppError(409, 'ACTION_CASE_CLOSED', 'Conversation is no longer active');
       const humanMessage = opts?.skipUserInsert ? messages.find(m => m.role === 'user')
         : await gatewayService.addMessage(caseId, tenantId, userId, 'user', userContent, undefined, requestId);
-      const mcpOpts = await resolveMcp?.(tenantId);
-      if (mcpOpts && mcpOpts.tenantId !== tenantId) throw new AppError(403, 'MCP_TENANT_MISMATCH', 'MCP tenant mismatch');
+      const actor = { caseId, tenantId, userId, sid: opts?.sid ?? '', expiresAt: opts?.sessionExpiresAt };
+      const servers = await resolveMcp?.(tenantId, userId, opts?.sid) ?? [];
+      const catalog = await discover(servers, actor, requestId);
       if (deps.actions && humanMessage) {
-        const actionReply = await deps.actions.respond({ principal: { caseId, tenantId, userId }, mcp: mcpOpts,
-          message: humanMessage, previousMessages: messages, replyToMessageId: opts?.replyToMessageId, requestId, locale: opts?.locale });
+        const actionReply = await deps.actions.respond(actor, catalog, humanMessage, messages, opts?.replyToMessageId, requestId, opts?.locale);
         if (actionReply) return actionReply;
       }
 
@@ -105,7 +106,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       }
 
       const systemPrompt = processedSnapshot
-        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases, !!mcpOpts, opts?.locale)
+        ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases, servers.length > 0, opts?.locale)
         : 'You are a helpful support assistant. Answer the user\'s question.';
 
       const allMessages = humanMessage && !messages.some(m => m.id === humanMessage.id)
@@ -121,10 +122,10 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       ];
 
       // Use tool-augmented loop if MCP is configured, otherwise plain LLM call
-      const llmResponse = mcpOpts
+      const llmResponse = servers.length
         ? await executeWithTools({
-            actionHooks: deps.actions?.hooks({ caseId, tenantId, userId }, mcpOpts, requestId, opts?.locale),
-            mcpOpts: mcpOpts, userId: caseData.userId, model, apiKey, llmMessages, requestId,
+            prepare: deps.actions ? (t, args) => deps.actions!.prepare(actor, t, args, requestId, opts?.locale) : undefined,
+            catalog, actor, model, apiKey, llmMessages, requestId,
           })
         : await callLLM({ model, messages: llmMessages }, apiKey, requestId);
 

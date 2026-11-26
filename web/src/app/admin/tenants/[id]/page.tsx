@@ -7,7 +7,6 @@ import { Save, ArrowLeft, Trash2, ExternalLink } from 'lucide-react';
 import { listTenants, updateTenant, deleteTenant } from '@/lib/api';
 import type { Tenant, TenantConfig, UpdateTenantInput } from '@/lib/types';
 import ModelPicker from '@/components/model-picker';
-import { McpSection } from '@/components/mcp-section';
 import { IntegrationCredentialSection } from '@/components/integration-credential-section';
 import { AdminKeySection } from '@/components/admin-key-section';
 import { PageHeader } from '@/components/ui/page-header';
@@ -142,7 +141,6 @@ export default function TenantDetailPage() {
         </Section>
 
         <IntegrationCredentialSection key={tenantId} tenantId={tenantId} />
-        <McpSection key={`mcp-${tenantId}`} tenantId={tenantId} />
 
         <AdminKeySection tenantId={tenantId} />
 

@@ -14,17 +14,17 @@ for alias in ('widget.js', 'widget.bundle.js'):
     assert (public / alias).read_bytes() == published_bytes, alias
 assert len(published_bytes) == manifest['bytes']
 assert sha256(published_bytes).hexdigest() == manifest['sha256']
-for mirror in (root / 'integration/v3', public / 'integration-v3'):
+for mirror in (root / 'integration/v4', public / 'integration-v4'):
     assert json.loads((mirror / 'widget.manifest.json').read_bytes()) == manifest, mirror
     assert (mirror / sdk).read_bytes() == published_bytes, mirror
-for manual in ('GUIA.md', 'INICIAR.html', 'PUBLICACAO.md'):
-    assert (root / 'integration/v3' / manual).read_text(encoding='utf-8') == (public / 'integration-v3' / manual).read_text(encoding='utf-8'), manual
-controller = (public / f'integration-v3/widget-controller.v{version}.mjs').read_bytes()
-assert controller == (root / 'integration/v3/widget-controller.mjs').read_bytes()
-assert controller == (public / 'integration-v3/widget-controller.mjs').read_bytes()
+for manual in ('GUIA.md', 'MCP.md', 'INICIAR.html', 'PUBLICACAO.md', 'backend-session.mjs', 'mcp-auth.mjs', 'examples.test.mjs'):
+    assert (root / 'integration/v4' / manual).read_text(encoding='utf-8') == (public / 'integration-v4' / manual).read_text(encoding='utf-8'), manual
+controller = (public / f'integration-v4/widget-controller.v{version}.mjs').read_bytes()
+assert controller == (root / 'integration/v4/widget-controller.mjs').read_bytes()
+assert controller == (public / 'integration-v4/widget-controller.mjs').read_bytes()
 
 starter = public / 'downloads/ai-support-starter.zip'
-kit = public / f'downloads/ai-support-integration-v3-sdk-{version}.zip'
+kit = public / f'downloads/ai-support-integration-v4-sdk-{version}.zip'
 download_manifest = json.loads((public / 'downloads/release-manifest.json').read_bytes())
 assert download_manifest['sdkVersion'] == version
 for kind, artifact in [('starter', starter), ('kit', kit)]:

@@ -1,4 +1,6 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
+import { sessionMcpStore } from './session-mcp.js';
+import type Redis from 'ioredis';
 import jwt from 'jsonwebtoken';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from '../../app.js';
@@ -10,6 +12,9 @@ import { createMockGatewayService } from '../../tests/mocks/mock-gateway.js';
 import { TOKEN_ISSUER, ADMIN_AUDIENCE, WIDGET_AUDIENCE } from '../../shared/token-policy.js';
 import { resetEnvCache } from '../../shared/env.js';
 
+const cache = new Map<string, string>();
+const mcp = sessionMcpStore({ set: async (key: string, value: string) => { cache.set(key, value); },
+  get: async (key: string) => cache.get(key) } as unknown as Redis);
 const widgetSecret = 'widget-fixture-secret-32-characters-minimum';
 const adminSecret = 'admin-fixture-secret-32-characters-minimum';
 const legacySecret = 'legacy-fixture-secret-32-characters-minimum';
@@ -32,7 +37,7 @@ beforeEach(async () => {
   const adminAuth = createAdminAuth({ superAdminKey: 'fixture-api-key', jwtSecret: adminSecret });
   app = await buildApp({
     jwtSecret: widgetSecret, gatewayService: gateway, rateLimiter: createInMemoryRateLimiter(),
-    sessionRouteOpts: { store, widgetSecret, adminAuth, rateLimiter: createInMemoryRateLimiter(),
+    sessionRouteOpts: { mcp, store, widgetSecret, adminAuth, rateLimiter: createInMemoryRateLimiter(),
       tenantService: { getTenant: async (id: string) => ({ id }) } as TenantService },
   });
   app.get('/admin-check', { preHandler: adminAuth }, async () => ({ ok: true }));
@@ -47,8 +52,26 @@ async function issue(credential: string, userId = 'usr_a', extra = {}) {
   return app.inject({ method: 'POST', url: '/api/widget/sessions', headers: headers(credential), payload: { userId, ...extra } });
 }
 describe('Tenant-scoped session issuer', () => {
+  it('binds encrypted grants to the signed session and authenticated account', async () => {
+    process.env.TOKEN_ENCRYPTION_KEY = 'fixture-encryption'; resetEnvCache();
+    const credential = await provision();
+    const servers = [{ id: 'billing', url: 'https://billing.example/mcp', accessToken: 'token-fixture' }];
+    const response = await issue(credential, 'usr_a', { mcpServers: servers });
+    expect(response.statusCode).toBe(200);
+    const claims = jwt.decode(response.json().jwt) as jwt.JwtPayload;
+    expect(JSON.stringify(claims)).not.toContain('token-fixture');
+    expect([...cache.values()].join()).not.toContain('token-fixture');
+    expect(await mcp.resolve('ten_a','usr_a',claims.sid)).toEqual(servers);
+    expect(await mcp.resolve('ten_a','usr_b',claims.sid)).toEqual([]);
+    expect(await mcp.resolve('ten_b','usr_a',claims.sid)).toEqual([]);
+    const fresh = jwt.decode((await issue(credential)).json().jwt) as jwt.JwtPayload;
+    expect(await mcp.resolve('ten_a','usr_a',fresh.sid)).toEqual([]);
+    for (const mcpServers of [[...servers,...servers],[{...servers[0],url:'http://localhost/mcp'}]]) {
+      expect((await issue(credential, 'usr_a', { mcpServers })).statusCode).toBe(400);
+    }
+  });
   it.each([
-    { purpose: 'admin' }, { role: 'super_admin' }, { iss: 'other' }, { aud: 'other' },
+    { sid: undefined }, { sid: 'old' }, { purpose: 'admin' }, { role: 'super_admin' }, { iss: 'other' }, { aud: 'other' },
     { integrationId: 'unknown' }, { tenantId: 'ten_other' }, { sub: 'usr_other' },
     { userId: '' }, { exp: 1 },
   ])('rejects a signed session with invalid authority or lifetime %#', async override => {
@@ -70,7 +93,7 @@ describe('Tenant-scoped session issuer', () => {
     const create = await app.inject({ method: 'POST', url: '/api/cases', headers: headers(res.json().jwt), payload: { message: 'Fixture' } });
     expect(create.statusCode).toBe(200);
   });
-  it.each([{ tenantId: 'ten_other' }, { purpose: 'admin' }, { role: 'super_admin' }, { exp: 9999999999 }])('rejects caller-selected authority %#', async extra => {
+  it.each([{ tenantId: 'ten_other' }, { sid: 'old' }, { purpose: 'admin' }, { role: 'super_admin' }, { exp: 9999999999 }])('rejects caller-selected authority %#', async extra => {
     expect((await issue(await provision(), 'usr_a', extra)).statusCode).toBe(400);
   });
   it('rejects absent, administrative and legacy keys at the session endpoint', async () => {

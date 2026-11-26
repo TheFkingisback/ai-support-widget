@@ -1,5 +1,4 @@
 import type { SupportLocale } from '@ai-support/shared/locales';
-import type { McpInput, McpSettings } from './mcp-api';
 
 export type Environment = 'staging' | 'production';
 export type WorkspaceOrigin = { origin: string; challenge: string; verified_at: string | null };
@@ -49,11 +48,6 @@ export const workspaceApi = {
   transcript: (env: ConversationEnvironment, id: string) => api<WorkspaceTranscript>(`/conversations/${encodeURIComponent(id)}?env=${env}`),
   generate: (env: Environment) => api<{ credential: string }>(`/environments/${env}/credential`, 'POST'),
   revoke: (env: Environment) => api(`/environments/${env}/credential`, 'DELETE'),
-  mcp: async (env: Environment, method: 'GET' | 'PUT' | 'DELETE', data?: McpInput) => {
-    const path = `/environments/${env}/mcp`;
-    if (method !== 'GET') await api(path, method, data);
-    return api<McpSettings>(path);
-  },
   suggestions: (env: ConversationEnvironment, before?: string) => api<{ suggestions: WorkspaceSuggestion[]; next: string | null }>(
     `/suggestions?${new URLSearchParams({ env, ...(before ? { before } : {}) })}`),
   updateSuggestion: (env: ConversationEnvironment, id: string, status: SuggestionStatus) =>
