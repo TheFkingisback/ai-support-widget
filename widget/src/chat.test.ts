@@ -13,6 +13,26 @@ describe('Chat Panel', () => {
   });
 
   // Test 6: Typing indicator shows while waiting for response
+  it('retries a lost first response with the same message ID and original context', async () => {
+    const context = { page: 'first' };
+    const create = vi.mocked(mockApi.createCase);
+    create.mockRejectedValueOnce(new Error('Connection interrupted'));
+    const getContext = vi.fn(() => context);
+    const panel = createChatPanel({ apiClient: mockApi, locale: 'en-US', position: 'bottom-right', onClose: vi.fn(), getContext });
+    const input = panel.element.querySelector('input')!;
+    input.value = 'Support request';
+    panel.element.querySelector<HTMLButtonElement>('.ai-widget-input button')!.click();
+    await vi.waitFor(() => expect(panel.element.querySelector('[data-send-error] button')).toBeTruthy());
+    context.page = 'second';
+    panel.element.querySelector<HTMLButtonElement>('[data-send-error] button')!.click();
+    await vi.waitFor(() => expect(create).toHaveBeenCalledTimes(2));
+    const [first, retry] = create.mock.calls;
+    expect(retry).toEqual(first);
+    expect(retry[1]).toEqual({ page: 'first' });
+    expect(retry[2]).toEqual(expect.any(String));
+    expect(getContext).toHaveBeenCalledTimes(1);
+  });
+
   it('shows typing indicator while waiting for response', async () => {
     // Slow down createCase to observe typing indicator
     let resolveCreate: Function;

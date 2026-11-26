@@ -5,7 +5,7 @@ import type { McpClientOpts, ToolDef } from '../orchestrator/mcp-client.js';
 import { AppError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
 import { actionArguments, proposalSchema, resultSchema, digest, terminal,
-  type Principal, type ActionRecord } from './action-contract.js';
+  type Principal, type ActionState, type ActionRecord } from './action-contract.js';
 import type { ActionStore } from './action-store.js';
 import type { ActionSigner } from './action-proof.js';
 import { actionRemote, type ActionRemote } from './action-remote.js';
@@ -28,13 +28,14 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
   const audit = (p: ActionRecord, requestId?: string) => gateway.logAudit(p.tenantId, p.userId, p.caseId,
     'action_' + p.state, { proposalId: p.id, actionId: p.proposal.actionId,
       summaryHash: p.proposal.summaryHash, confirmationMessageId: p.confirmationMessageId }, requestId);
-  async function save(p: ActionRecord, requestId?: string) { await store.save(p); await audit(p, requestId); }
+  async function save(p: ActionRecord, expected: ActionState, requestId?: string) { await store.save(p, expected); await audit(p, requestId); }
   async function reconcile(p: ActionRecord, o: McpClientOpts, requestId?: string, locale?: SupportLocale): Promise<Message> {
+    const expected = p.state;
     try {
       const value = resultSchema.parse(await remote.call(o, p, 'get_action_status', { actionId: p.proposal.actionId }, requestId));
       if (value.actionId !== p.proposal.actionId) throw new Error('Action mismatch');
       p.state = terminal(value.status) ? value.status : 'unknown';
-      await save(p, requestId);
+      await save(p, expected, requestId);
       return say(p, outcome(p.state, locale, value.message), requestId);
     } catch {
       log.warn('Action outcome unavailable', requestId, { tenantId: p.tenantId, proposalId: p.id });
@@ -42,7 +43,6 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
     }
   }
   return {
-    withLock: store.withLock.bind(store),
     async respond(turn: HumanTurn): Promise<Message | undefined> {
       const { principal: p, mcp: o, message, requestId, locale } = turn;
       const pending = await store.latest(p);
@@ -51,18 +51,18 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
       const cancels = ['cancelar', 'cancel'].includes(command);
       if (!pending) return confirms || cancels ? say(p, actionCopy(locale, 'actionNoPending', 'Nao ha proposta pendente para confirmar ou cancelar.'), requestId) : undefined;
       if (!o?.actionPolicy?.enabled || !signer || pending.connectorHash !== binding(o)) {
-        if (pending.state === 'pending_confirmation') { pending.state = 'cancelled'; await save(pending, requestId); }
+        if (pending.state === 'pending_confirmation') { pending.state = 'cancelled'; await save(pending, 'pending_confirmation', requestId); }
         return confirms || cancels || !terminal(pending.state)
           ? say(p, actionCopy(locale, 'actionChanged', 'A integracao mudou ou esta desativada. Nenhuma nova execucao foi autorizada.'), requestId) : undefined;
       }
       if (pending.state === 'executing' || pending.state === 'unknown') return reconcile(pending, o, requestId, locale);
       if (terminal(pending.state)) return confirms || cancels ? say(p, outcome(pending.state, locale), requestId) : undefined;
       if (Date.parse(pending.proposal.expiresAt) <= clock()) {
-        pending.state = 'expired'; await save(pending, requestId);
+        pending.state = 'expired'; await save(pending, 'pending_confirmation', requestId);
         return confirms || cancels ? say(p, outcome('expired', locale), requestId) : undefined;
       }
       if (cancels || !confirms) {
-        pending.state = 'cancelled'; await save(pending, requestId);
+        pending.state = 'cancelled'; await save(pending, 'pending_confirmation', requestId);
         return cancels ? say(p, outcome('cancelled', locale), requestId) : undefined;
       }
       const shown = turn.previousMessages.find(m => m.id === pending.presentedMessageId && m.role === 'assistant');
@@ -71,22 +71,22 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
         return say(p, actionCopy(locale, 'actionMismatch', 'Essa confirmacao nao corresponde a proposta apresentada. Solicite uma nova proposta.'), requestId);
       }
       pending.confirmationMessageId = message.id; pending.state = 'executing';
+      await save(pending, 'pending_confirmation', requestId);
       let proof: string;
       try { proof = signer.sign(pending, o.serverUrl, randomUUID()); }
       catch {
-        pending.state = 'expired'; await save(pending, requestId);
+        pending.state = 'expired'; await save(pending, 'executing', requestId);
         return say(p, outcome('expired', locale), requestId);
       }
-      await save(pending, requestId); // Persist BEFORE network; restart may only query status.
       try {
         const result = resultSchema.parse(await remote.call(o, p, 'execute_action',
           { actionId: pending.proposal.actionId }, requestId, proof));
         if (result.actionId !== pending.proposal.actionId) throw new Error('Action mismatch');
         pending.state = terminal(result.status) ? result.status : 'unknown';
-        await save(pending, requestId);
+        await save(pending, 'executing', requestId);
         return say(p, outcome(pending.state, locale, result.message), requestId);
       } catch {
-        pending.state = 'unknown'; await save(pending, requestId);
+        pending.state = 'unknown'; await save(pending, 'executing', requestId);
         return reconcile(pending, o, requestId, locale);
       }
     },
@@ -103,7 +103,7 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
           if (previous && ['executing', 'unknown'].includes(previous.state)) {
             throw new AppError(409, 'ACTION_OUTCOME_UNKNOWN', 'Resolve previous outcome before preparing another action');
           }
-          if (previous?.state === 'pending_confirmation') { previous.state = 'cancelled'; await save(previous, requestId); }
+          if (previous?.state === 'pending_confirmation') { previous.state = 'cancelled'; await save(previous, 'pending_confirmation', requestId); }
           const proposal = proposalSchema.parse(await remote.call(o, p, 'prepare_action', args, requestId));
           const ttl = Date.parse(proposal.expiresAt) - clock();
           if (proposal.operation !== args.operation || ttl <= 0 || ttl > 300000) {
@@ -117,7 +117,7 @@ export function createActionService(store: ActionStore, gateway: GatewayService,
           const instruction = actionCopy(locale, 'actionInstruction', 'Responda confirmar para autorizar esta proposta, ou cancelar. Valida ate {expires}.')
             .replace('{confirm}', 'confirm').replace('{cancel}', 'cancel').replace('{expires}', () => proposal.expiresAt);
           const shown = await say(p, notice + proposal.summary + '\n\n' + instruction, requestId);
-          record.presentedMessageId = shown.id; await save(record, requestId);
+          record.presentedMessageId = shown.id; await save(record, 'pending_confirmation', requestId);
           return shown;
         },
       };

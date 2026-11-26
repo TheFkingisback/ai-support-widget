@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Inajibu kwa ushahidi",
   "Selecione o c?digo para copiar": "Chagua msimbo wa kunakili",
   "CONTEXTO": "CONTEXT",
-  "FERRAMENTAS": "TOOLS"
+  "FERRAMENTAS": "TOOLS",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Pakia SDK iliyofungwa 0.2.5, tekeleza upyaji na uharibifu wa kiwango. Thibitisha jibu halisi na picha inayolingana kabla ya kuachilia.",
+  "Contrato v3 / SDK 0.2.5": "Mkataba v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Ufungaji, usanidi, na mzunguko wa maisha wa SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 hutuma kiungo na ujumbe uliowasilishwa. SDK 0.2.1 inasalia kuendana na gumzo na kusoma, lakini haithibitishi kuandika.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 Novemba 2026",
+  "Failed to load data": "Imeshindikana kupakia data",
+  "Delete {count} sessions last updated before {date}?": "Ungependa kufuta vipindi {count} vilivyosasishwa mara ya mwisho kabla ya {date}?",
+  "Sessions deleted: {count}": "Vipindi vilivyofutwa: {count}",
+  "Purge failed": "Imeshindikana kufuta vipindi"
 }

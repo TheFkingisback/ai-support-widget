@@ -3,7 +3,7 @@
  * Exchanges a widget JWT for a scoped, short-lived access token
  * from the host app before calling MCP tools or APIs.
  */
-import { log } from '../../shared/logger.js';
+import { errorCode, log } from '../../shared/logger.js';
 
 const GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:token-exchange';
 const TOKEN_TYPE_JWT = 'urn:ietf:params:oauth:token-type:jwt';
@@ -95,7 +95,7 @@ export async function exchangeToken(
   } catch (err) {
     const latencyMs = Date.now() - start;
     log.error('Token exchange: error', requestId, {
-      latencyMs, error: err instanceof Error ? err.message : String(err),
+      latencyMs, errorCode: errorCode(err),
     });
     return null;
   }

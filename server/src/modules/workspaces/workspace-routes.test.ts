@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildApp } from '../../app.js';
 import { createSessionStore } from '../sessions/session.store.js';
 import { createWorkspaceStore } from './workspace-store.js';
+import { createInMemoryRateLimiter } from '../gateway/rate-limiter.js';
 import { createTurnIdempotency } from '../gateway/turn-idempotency.js';
 
 const database = process.env.WORKSPACE_TEST_DATABASE_URL;
@@ -27,7 +28,7 @@ describe.skipIf(!database)('Self-service workspaces on PostgreSQL', () => {
     sql = postgres(database!, { connection: { search_path: schema } });
     const migrations = await sql.reserve();
     try {
-      for (const file of ['001-init.sql', '002-integration-credentials.sql', '003-tenant-mcp.sql', '004-action-proposals.sql', '005-workspaces.sql', '006-turn-idempotency.sql', '007-workspace-team.sql', '008-workspace-locales.sql', '009-product-suggestions.sql']) {
+      for (const file of ['001-init.sql', '002-integration-credentials.sql', '003-tenant-mcp.sql', '004-action-proposals.sql', '005-workspaces.sql', '006-turn-idempotency.sql', '007-workspace-team.sql', '008-workspace-locales.sql', '009-product-suggestions.sql', '010-audit-hardening.sql']) {
         await migrations.unsafe(await readFile(new URL(`../../migrations/${file}`, import.meta.url), 'utf8'));
       }
     } finally { migrations.release(); }
@@ -60,6 +61,25 @@ describe.skipIf(!database)('Self-service workspaces on PostgreSQL', () => {
     expect(reuse.statusCode).toBe(401);
     return { origin: publicOrigin, cookie: raw.split(';')[0] };
   }
+
+  it('applies the recipient cooldown before sending another sign-in email or invitation', async () => {
+    const db = drizzle(sql); let delivered = 0;
+    const limited = await buildApp({ jwtSecret: 'synthetic-widget-secret-for-tests-1234', workspaceOpts: {
+      store: createWorkspaceStore(db), sessions: createSessionStore(db), publicOrigin,
+      widgetSecret: 'synthetic-widget-secret-for-tests-1234', rateLimiter: createInMemoryRateLimiter(),
+      mail: { async send() { delivered++; } }, async lookup() { return []; },
+    } });
+    try {
+      const owner = await register('mail-owner@sample.invalid','Mail limits');
+      const email = 'limited@sample.invalid';
+      const send = () => limited.inject({ method: 'POST', url: '/api/workspace/begin', headers: { origin: publicOrigin }, payload: { email } });
+      expect((await send()).statusCode).toBe(202);
+      expect((await send()).statusCode).toBe(429);
+      const invite = await limited.inject({ method: 'POST', url: '/api/workspace/team', headers: owner, payload: { email, role: 'developer' } });
+      expect(invite.statusCode).toBe(429);
+      expect(delivered).toBe(1);
+    } finally { await limited.close(); }
+  });
 
   it('provisions exactly one workspace after confirmation, isolates environments, and revokes sessions', async () => {
     const first = await register('one@sample.invalid', 'Workspace One');

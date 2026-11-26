@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Odgovara sa dokazima",
   "Selecione o c?digo para copiar": "Izaberite kod za kopiranje",
   "CONTEXTO": "KONTEKST",
-  "FERRAMENTAS": "ALATI"
+  "FERRAMENTAS": "ALATI",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Učitajte fiksni SDK 0.2.5, implementirajte obnavljanje i uništavanje instance. Potvrdite stvarni odgovor i odgovarajući snimak pre nego što ga objavite.",
+  "Contrato v3 / SDK 0.2.5": "Ugovor v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Instalacija, konfiguracija i životni ciklus SDK-a 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 šalje vezu sa prikazanom porukom. SDK 0.2.1 ostaje kompatibilan sa ćaskanjem i čitanjem, ali ne potvrđuje pisanje.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23. novembar 2026",
+  "Failed to load data": "Učitavanje podataka nije uspelo",
+  "Delete {count} sessions last updated before {date}?": "Izbrisati sesije ({count}) koje su poslednji put ažurirane pre {date}?",
+  "Sessions deleted: {count}": "Broj izbrisanih sesija: {count}",
+  "Purge failed": "Brisanje sesija nije uspelo"
 }

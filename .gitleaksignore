@@ -1,0 +1,19 @@
+# Historical examples and sanitizer test fixtures, scoped to their original commit and line.
+181da55acc3d895b88e06aac17a8c069e98831cc:server/src/shared/token-config.test.ts:generic-api-key:9
+41f42ad423084bd4a6bce6e9015aab7ffec7f3cb:server/src/modules/context/context.test.ts:jwt:140
+41f42ad423084bd4a6bce6e9015aab7ffec7f3cb:server/src/modules/context/context.test.ts:jwt:356
+41f42ad423084bd4a6bce6e9015aab7ffec7f3cb:server/src/modules/context/context.test.ts:stripe-access-token:400
+442d9a207afe4c88175a481992852b85525e2a6e:server/src/tests/integration/sanitization.test.ts:jwt:33
+442d9a207afe4c88175a481992852b85525e2a6e:server/src/tests/integration/sanitization.test.ts:stripe-access-token:136
+442d9a207afe4c88175a481992852b85525e2a6e:server/src/tests/integration/sanitization.test.ts:stripe-access-token:142
+442d9a207afe4c88175a481992852b85525e2a6e:server/src/tests/integration/sanitization.test.ts:stripe-access-token:32
+442d9a207afe4c88175a481992852b85525e2a6e:server/src/tests/integration/sanitization.test.ts:stripe-access-token:34
+59e245d71ca2498da8919d9a1d3580d85b3b0cb0:server/src/modules/admin/tenant-security.test.ts:generic-api-key:15
+5b02d1578696d135173301fb6ed6fca95344e0c5:server/src/modules/context/sanitizer-edge.test.ts:stripe-access-token:343
+5b02d1578696d135173301fb6ed6fca95344e0c5:server/src/modules/context/sanitizer-edge.test.ts:stripe-access-token:92
+90bf55a6aaac679b16c19402abd7de07a5c565d5:DEVELOPER-GUIDE.md:curl-auth-header:143
+90bf55a6aaac679b16c19402abd7de07a5c565d5:DEVELOPER-GUIDE.md:curl-auth-header:859
+90bf55a6aaac679b16c19402abd7de07a5c565d5:DEVELOPER-GUIDE.md:generic-api-key:991
+90bf55a6aaac679b16c19402abd7de07a5c565d5:INTEGRATION-PROMPT-TRACKSHARE.md:curl-auth-header:30
+d10263754d33b0aca3051e42b2d1b960f8362e89:INTEGRATION.md:generic-api-key:106
+d87e6648b8b55d698e860eb27e8f472831c45b0d:server/src/shared/token-config.test.ts:generic-api-key:12

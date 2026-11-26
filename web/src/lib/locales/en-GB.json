@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Answers with evidence",
   "Selecione o c?digo para copiar": "Select the code to copy",
   "CONTEXTO": "CONTEXT",
-  "FERRAMENTAS": "TOOLS"
+  "FERRAMENTAS": "TOOLS",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Upload the pinned SDK 0.2.5, implement instance renewal and destruction. Confirm a real response and the corresponding snapshot before releasing.",
+  "Contrato v3 / SDK 0.2.5": "Contract v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Installation, configuration, and lifecycle of SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 sends the link with the presented message. SDK 0.2.1 remains compatible with chat and reading, but does not confirm writing.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 November 2026",
+  "Failed to load data": "Failed to load data",
+  "Delete {count} sessions last updated before {date}?": "Delete {count} sessions last updated before {date}?",
+  "Sessions deleted: {count}": "Sessions deleted: {count}",
+  "Purge failed": "Purge failed"
 }

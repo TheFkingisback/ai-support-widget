@@ -29,6 +29,8 @@ describe('Security Headers & JWT MaxAge', () => {
 
     app = await buildApp({ jwtSecret: JWT_SECRET });
 
+    app.get('/api/test-headers', async () => ({ ok: true }));
+
     // Register a test-only authenticated route
     app.get('/api/test-auth', { preHandler: [app.authenticate] }, async () => {
       return { ok: true };
@@ -41,23 +43,27 @@ describe('Security Headers & JWT MaxAge', () => {
   });
 
   it('sets X-Content-Type-Options: nosniff', async () => {
-    const res = await app.inject({ method: 'GET', url: '/api/health' });
+    const res = await app.inject({ method: 'GET', url: '/api/test-headers' });
+    expect(res.statusCode).toBe(200);
     expect(res.headers['x-content-type-options']).toBe('nosniff');
   });
 
   it('sets X-Frame-Options header', async () => {
-    const res = await app.inject({ method: 'GET', url: '/api/health' });
+    const res = await app.inject({ method: 'GET', url: '/api/test-headers' });
+    expect(res.statusCode).toBe(200);
     expect(res.headers['x-frame-options']).toBeDefined();
   });
 
   it('sets Content-Security-Policy header', async () => {
-    const res = await app.inject({ method: 'GET', url: '/api/health' });
+    const res = await app.inject({ method: 'GET', url: '/api/test-headers' });
+    expect(res.statusCode).toBe(200);
     expect(res.headers['content-security-policy']).toBeDefined();
     expect(res.headers['content-security-policy']).toContain("default-src 'self'");
   });
 
   it('removes X-Powered-By header', async () => {
-    const res = await app.inject({ method: 'GET', url: '/api/health' });
+    const res = await app.inject({ method: 'GET', url: '/api/test-headers' });
+    expect(res.statusCode).toBe(200);
     expect(res.headers['x-powered-by']).toBeUndefined();
   });
 

@@ -1,14 +1,28 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import { z } from 'zod';
 import type { Case, Message, SupportContextSnapshot, LLMCostEntry } from '../../shared/types.js';
+import { validateBody } from '../../shared/validation.js';
 import { log } from '../../shared/logger.js';
 
-/** Abstracts how session data is fetched — works with both mock and real stores. */
+const filters = z.object({
+  before: z.string().min(1).max(512).optional(), limit: z.coerce.number().int().min(1).max(200).default(200),
+  status: z.enum(['active', 'resolved', 'unresolved', 'escalated']).optional(), search: z.string().max(200).optional(),
+});
+export type SessionFilters = z.output<typeof filters>;
+type Summary = Case & { hasSnapshot: boolean; llmCalls: number; totalCost: number };
+export interface PlatformTotals {
+  activeSessions: number; resolvedSessions: number; totalCost: number; resolutionRate: number;
+  avgMessages: number; avgResponseMs: number;
+}
 export interface SessionDataSource {
-  getAllCases(): Promise<Case[]>;
+  list(filters: SessionFilters): Promise<{ sessions: Summary[]; next: string | null }>;
+  totals(): Promise<PlatformTotals>;
+  findCase(id: string): Promise<Case | null>;
   getMessages(caseId: string): Promise<Message[]>;
   getSnapshotByCaseId(caseId: string): Promise<SupportContextSnapshot | null>;
   getCostsByCaseId(caseId: string): Promise<LLMCostEntry[]>;
-  purgeOlderThan?(olderThan: string): Promise<number>;
+  countOlderThan(cutoff: string): Promise<number>;
+  purgeOlderThan(cutoff: string): Promise<number>;
 }
 
 export interface SessionAdminOpts {
@@ -16,85 +30,35 @@ export interface SessionAdminOpts {
   adminAuth: (request: FastifyRequest, reply: FastifyReply) => Promise<void>;
 }
 
-export async function registerSessionAdminRoutes(
-  app: FastifyInstance,
-  opts: SessionAdminOpts,
-): Promise<void> {
-  const { dataSource, adminAuth } = opts;
+const period = z.number().int().min(1).max(365);
+const dayMs = 86_400_000;
 
-  // GET /api/admin/sessions — list all sessions with summary
-  app.get(
-    '/api/admin/sessions',
-    { preHandler: [adminAuth] },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const reqId = request.id as string;
-      log.info('GET /api/admin/sessions', reqId);
+export async function registerSessionAdminRoutes(app: FastifyInstance, { dataSource, adminAuth }: SessionAdminOpts) {
+  const auth = { preHandler: [adminAuth] };
+  app.get('/api/admin/sessions', auth, req => dataSource.list(validateBody(filters, req.query)));
+  app.get('/api/admin/dashboard/totals', auth, () => dataSource.totals());
+  app.get<{ Params: { caseId: string } }>('/api/admin/sessions/:caseId', auth, async (req, reply) => {
+    const { caseId } = req.params;
+    const entry = await dataSource.findCase(caseId);
+    if (!entry) return reply.code(404).send({ error: 'Case not found' });
+    const [messages, snapshot, costs] = await Promise.all([
+      dataSource.getMessages(caseId), dataSource.getSnapshotByCaseId(caseId), dataSource.getCostsByCaseId(caseId),
+    ]);
+    return { case: entry, messages, snapshot, costs };
+  });
 
-      const allCases = await dataSource.getAllCases();
-      const sessions = await Promise.all(allCases.map(async (c) => {
-        const msgs = await dataSource.getMessages(c.id);
-        const snapshot = await dataSource.getSnapshotByCaseId(c.id);
-        const costs = await dataSource.getCostsByCaseId(c.id);
-        return {
-          ...c,
-          messageCount: msgs.length,
-          hasSnapshot: !!snapshot,
-          llmCalls: costs.length,
-          totalCost: costs.reduce((s, e) => s + e.estimatedCost, 0),
-        };
-      }));
-
-      return reply.code(200).send({ sessions });
-    },
-  );
-
-  // GET /api/admin/sessions/:caseId — full session detail
-  app.get<{ Params: { caseId: string } }>(
-    '/api/admin/sessions/:caseId',
-    { preHandler: [adminAuth] },
-    async (request, reply) => {
-      const reqId = request.id as string;
-      const { caseId } = request.params;
-      log.info('GET /api/admin/sessions/:caseId', reqId, { caseId });
-
-      const allCases = await dataSource.getAllCases();
-      const caseData = allCases.find((c) => c.id === caseId);
-      if (!caseData) {
-        return reply.code(404).send({ error: 'Case not found' });
-      }
-
-      const msgs = await dataSource.getMessages(caseId);
-      const snapshot = await dataSource.getSnapshotByCaseId(caseId);
-      const costs = await dataSource.getCostsByCaseId(caseId);
-
-      return reply.code(200).send({
-        case: caseData,
-        messages: msgs,
-        snapshot,
-        costs,
-      });
-    },
-  );
-
-  // DELETE /api/admin/sessions/purge — purge old sessions
-  app.delete<{ Body: { olderThanDays: number } }>(
-    '/api/admin/sessions/purge',
-    { preHandler: [adminAuth] },
-    async (request, reply) => {
-      const reqId = request.id as string;
-      const { olderThanDays } = request.body ?? { olderThanDays: 90 };
-
-      if (!dataSource.purgeOlderThan) {
-        return reply.code(501).send({ error: 'Purge not supported' });
-      }
-
-      const cutoff = new Date(Date.now() - olderThanDays * 24 * 3600_000).toISOString();
-      log.warn('Purging sessions', reqId, { olderThanDays, cutoff });
-
-      const purged = await dataSource.purgeOlderThan(cutoff);
-      log.warn('Sessions purged', reqId, { purged });
-
-      return reply.code(200).send({ purged, cutoff });
-    },
-  );
+  app.post('/api/admin/sessions/purge/preview', auth, async req => {
+    const { olderThanDays } = validateBody(z.object({ olderThanDays: period }).strict(), req.body);
+    const cutoff = new Date(Date.now() - olderThanDays * dayMs).toISOString();
+    return { count: await dataSource.countOlderThan(cutoff), cutoff };
+  });
+  app.delete('/api/admin/sessions/purge', auth, async req => {
+    const { olderThanDays, cutoff: preview } = validateBody(z.object({
+      olderThanDays: period, cutoff: z.string().datetime().optional(),
+    }).strict(), req.body);
+    const cutoff = new Date(Math.min(Date.now() - olderThanDays * dayMs, preview ? Date.parse(preview) : Infinity)).toISOString();
+    const purged = await dataSource.purgeOlderThan(cutoff);
+    log.warn('Sessions purged', req.id, { purged, cutoff });
+    return { purged, cutoff };
+  });
 }

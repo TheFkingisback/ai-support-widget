@@ -1,4 +1,4 @@
-import { log } from '../../../shared/logger.js';
+import { errorCode, log } from '../../../shared/logger.js';
 import type { Connector, TicketPayload, TicketResult } from './connector.js';
 
 interface EmailConfig {
@@ -31,7 +31,7 @@ export function createEmailConnector(config: EmailConfig): Connector {
         await config.sendFn(config.recipientEmail, subject, body);
       } catch (err) {
         log.error('Email: send failed', requestId, {
-          error: err instanceof Error ? err.message : String(err),
+          errorCode: errorCode(err),
         });
         throw new Error(`Email send failed: ${err instanceof Error ? err.message : String(err)}`);
       }

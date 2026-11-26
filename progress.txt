@@ -517,3 +517,10 @@
 - Matched 21 languages across 24 variants in the locale registry, site, workspace, Developer Center, email, widget, and API. The model receives the requested locale and selects matching approved knowledge excerpts. Fast and auto now default to Gemini 2.5 Flash after the previous default returned HTTP 404.
 - Verified Postmark signup and developer invitation, live DNS, staging credential issuance, grounded model responses across all 24 variants, user isolation, retry, optional rating, scoped ideas, and owner-only MCP/action configuration. Cleaned up the synthetic workspace and DNS record.
 - Published one matching set of starter, controller, SDK and ZIP assets. Added separate integrity verification for the two archives alongside the SDK manifest. Browser checks passed for 24 localized homepages and seven localized widget demos. PartyHost.ai acceptance remains dependent on its app, approved guides, provider and physical phones.
+
+## 2026-11-25 — Security and reliability repairs
+
+- Added migration 010, protected tenant key rotation, and changed session retention to purge case data and cached replies in one transaction. The admin panel now previews deletion and paginates searchable sessions.
+- Added recoverable turn reservations, scoped Redis conversation leases, shared rate limits and expiring encrypted queue payloads. The SDK 0.2.5 keeps the original context across retries.
+- Configured GitHub Actions to scan Git history and run release verification with disposable PostgreSQL and Redis. Historical credential examples are identified by original commit, path, rule and line.
+- Validated locally with 359 server tests, 41 web tests, 34 widget tests and two integration contract tests. Production and development dependency audits reported zero vulnerabilities. Verified all three builds, 24 locale catalogs and both downloadable archives.

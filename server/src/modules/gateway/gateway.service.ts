@@ -1,4 +1,5 @@
-import { eq, and, asc } from 'drizzle-orm';
+import { turnId } from './turn-identity.js';
+import { eq, and, asc, sql } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { cases, messages } from './gateway.schema.js';
 import { NotFoundError } from '../../shared/errors.js';
@@ -97,58 +98,46 @@ export function createGatewayService(
       firstMessage = safeText(firstMessage);
       log.info('Creating case', requestId, { tenantId, userId });
 
-      const caseId = genId('cas');
+      const caseId = turnId('cas') ?? genId('cas');
       const snapshotId = genId('scs');
       const msgId = genId('msg');
       const now = new Date();
 
-      await db.insert(cases).values({
-        id: caseId, tenantId, userId, status: 'active',
-        snapshotId, createdAt: now, updatedAt: now, messageCount: 1,
+      return db.transaction(async tx => {
+        const inserted = await tx.insert(cases).values({
+          id: caseId, tenantId, userId, status: 'active', snapshotId, createdAt: now, updatedAt: now, messageCount: 1,
+        }).onConflictDoNothing().returning();
+        const firstId = turnId('msg_user') ?? msgId;
+        if (inserted.length) {
+          await tx.insert(messages).values({ id: firstId, caseId, role: 'user', content: firstMessage, createdAt: now });
+          await insertAudit(tx, tenantId, userId, caseId, 'case_created', { firstMessage: firstMessage.slice(0, 100) }, requestId);
+        }
+        const row = inserted[0] ?? await findCaseWithTenant(tx, caseId, tenantId, userId);
+        const [first] = await tx.select().from(messages).where(and(eq(messages.id, firstId), eq(messages.caseId, caseId)));
+        return { case: toCase(row), message: toMessage(first) };
       });
-
-      await db.insert(messages).values({
-        id: msgId, caseId, role: 'user', content: firstMessage,
-        actions: [], evidence: [], createdAt: now,
-      });
-
-      await insertAudit(db, tenantId, userId, caseId, 'case_created',
-        { firstMessage: firstMessage.slice(0, 100) }, requestId);
-
-      log.info('Case created', requestId, { caseId, tenantId, userId });
-
-      const caseRow = await db.select().from(cases)
-        .where(eq(cases.id, caseId)).limit(1);
-      const msgRow = await db.select().from(messages)
-        .where(eq(messages.id, msgId)).limit(1);
-
-      return { case: toCase(caseRow[0]), message: toMessage(msgRow[0]) };
     },
 
     async addMessage(caseId, tenantId, userId, role, content, opts, requestId) {
       content = safeText(content);
       log.info('Adding message', requestId, { caseId, tenantId, userId, role });
 
-      const caseRow = await findCaseWithTenant(db, caseId, tenantId, userId);
-
-      const msgId = genId('msg');
-      const now = new Date();
-
-      await db.insert(messages).values({
-        id: msgId, caseId, role, content,
-        actions: opts?.actions ?? [], evidence: opts?.evidence ?? [],
-        confidence: opts?.confidence ?? null, createdAt: now,
+      return db.transaction(async tx => {
+        await findCaseWithTenant(tx, caseId, tenantId, userId);
+        const id = turnId(`msg_${role}`) ?? genId('msg');
+        const now = new Date();
+        const [saved] = await tx.insert(messages).values({
+          id, caseId, role, content, actions: opts?.actions ?? [], evidence: opts?.evidence ?? [],
+          confidence: opts?.confidence ?? null, createdAt: now,
+        }).onConflictDoNothing().returning();
+        if (saved) {
+          await tx.update(cases).set({ messageCount: sql`${cases.messageCount} + 1`, updatedAt: now })
+            .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)));
+          return toMessage(saved);
+        }
+        const [previous] = await tx.select().from(messages).where(and(eq(messages.id, id), eq(messages.caseId, caseId)));
+        return toMessage(previous);
       });
-
-      await db.update(cases).set({
-        messageCount: caseRow.messageCount + 1, updatedAt: now,
-      }).where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)));
-
-      log.info('Message added', requestId, { caseId, msgId, role });
-
-      const msgRow = await db.select().from(messages)
-        .where(eq(messages.id, msgId)).limit(1);
-      return toMessage(msgRow[0]);
     },
 
     async getCase(caseId, tenantId, userId, requestId) {

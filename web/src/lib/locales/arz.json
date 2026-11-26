@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Answers with evidence",
   "Selecione o c?digo para copiar": "Select the code to copy",
   "CONTEXTO": "CONTEXT",
-  "FERRAMENTAS": "TOOLS"
+  "FERRAMENTAS": "TOOLS",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Load the pinned SDK 0.2.5, implement instance renewal and destruction. Confirm a real response and its corresponding snapshot before releasing.",
+  "Contrato v3 / SDK 0.2.5": "عقد الإصدار 3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "التثبيت، والتكوين، ودورة حياة حزمة التطوير البرمجية (SDK) 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "يقوم SDK 0.2.5 بإرسال الرابط مع الرسالة المعروضة. يظل SDK 0.2.1 متوافقًا مع الدردشة والقراءة، ولكنه لا يؤكد الكتابة.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 نوفمبر 2026",
+  "Failed to load data": "البيانات ما اتحمّلتش",
+  "Delete {count} sessions last updated before {date}?": "تمسح {count} جلسة آخر تحديث ليها كان قبل {date}؟",
+  "Sessions deleted: {count}": "عدد الجلسات اللي اتمسحت: {count}",
+  "Purge failed": "مسح الجلسات ما تمّش"
 }

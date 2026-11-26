@@ -1,0 +1,23 @@
+name: Verify release
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan Git history for credentials
+        run: >-
+          docker run --rm --network none -v "$PWD:/src:ro" -w /src
+          -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0=/src
+          ghcr.io/gitleaks/gitleaks:v8.30.1 git /src --redact=100 --log-opts=--all
+          --gitleaks-ignore-path /src/.gitleaksignore
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: bash scripts/verify-release.sh

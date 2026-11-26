@@ -54,8 +54,7 @@ describe('Admin API Tenant Isolation', () => {
       },
       async findByAdminKeyHash(hash: string) {
         return tenants.find((t: Record<string, unknown>) => {
-          const cfg = t.config as Record<string, unknown> | undefined;
-          return cfg?.adminApiKeyHash === hash;
+          return t.adminApiKeyHash === hash;
         }) ?? null;
       },
     };

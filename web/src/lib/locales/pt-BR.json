@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Responde com evid?ncias",
   "Selecione o c?digo para copiar": "Selecione o c?digo para copiar",
   "CONTEXTO": "CONTEXTO",
-  "FERRAMENTAS": "FERRAMENTAS"
+  "FERRAMENTAS": "FERRAMENTAS",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.",
+  "Contrato v3 / SDK 0.2.5": "Contrato v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Instalação, configuração e ciclo de vida do SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 de novembro de 2026",
+  "Failed to load data": "Falha ao carregar os dados",
+  "Delete {count} sessions last updated before {date}?": "Excluir {count} sessões cuja última atualização foi anterior a {date}?",
+  "Sessions deleted: {count}": "Sessões excluídas: {count}",
+  "Purge failed": "Falha ao excluir as sessões"
 }

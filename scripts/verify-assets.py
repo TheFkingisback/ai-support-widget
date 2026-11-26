@@ -15,6 +15,8 @@ assert sha256(published_bytes).hexdigest() == manifest['sha256']
 for mirror in (root / 'integration/v3', public / 'integration-v3'):
     assert json.loads((mirror / 'widget.manifest.json').read_bytes()) == manifest, mirror
     assert (mirror / sdk).read_bytes() == published_bytes, mirror
+for manual in ('GUIA.md', 'INICIAR.html', 'PUBLICACAO.md'):
+    assert (root / 'integration/v3' / manual).read_text(encoding='utf-8') == (public / 'integration-v3' / manual).read_text(encoding='utf-8'), manual
 controller = (public / f'integration-v3/widget-controller.v{version}.mjs').read_bytes()
 assert controller == (root / 'integration/v3/widget-controller.mjs').read_bytes()
 assert controller == (public / 'integration-v3/widget-controller.mjs').read_bytes()

@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "提供有证据的答案",
   "Selecione o c?digo para copiar": "选择要复制的代码",
   "CONTEXTO": "上下文",
-  "FERRAMENTAS": "工具"
+  "FERRAMENTAS": "工具",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "上传固定的 SDK 0.2.5，实现实例续订和销毁。在发布之前，请确认实际响应和相应的快照。",
+  "Contrato v3 / SDK 0.2.5": "v3 合约 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "SDK 0.2.5 的安装、配置和生命周期。",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 会发送带有已显示消息的链接。SDK 0.2.1 保持与聊天和阅读兼容，但不确认写入。",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 November 2026",
+  "Failed to load data": "数据加载失败",
+  "Delete {count} sessions last updated before {date}?": "要删除上次更新时间早于 {date} 的 {count} 个会话吗？",
+  "Sessions deleted: {count}": "已删除的会话数：{count}",
+  "Purge failed": "会话删除失败"
 }

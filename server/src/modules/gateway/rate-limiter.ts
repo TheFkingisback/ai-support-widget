@@ -51,11 +51,10 @@ export function createRedisRateLimiter(redis: Redis): RateLimiter {
     async check(key, limit, windowMs, requestId) {
       const redisKey = `${RATE_LIMIT_PREFIX}${key}`;
 
-      const count = await redis.incr(redisKey);
-
-      if (count === 1) {
-        await redis.pexpire(redisKey, windowMs);
-      }
+      const count = Number(await redis.eval(
+        "local n=redis.call('INCR',KEYS[1]); if redis.call('PTTL',KEYS[1])<0 then redis.call('PEXPIRE',KEYS[1],ARGV[1]) end; return n",
+        1, redisKey, windowMs,
+      ));
 
       if (count > limit) {
         log.warn('Rate limit exceeded', requestId, { key, limit, windowMs });

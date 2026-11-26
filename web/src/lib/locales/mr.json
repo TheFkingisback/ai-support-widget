@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "पुराव्यासह उत्तरे देते",
   "Selecione o c?digo para copiar": "कॉपी करण्यासाठी कोड निवडा",
   "CONTEXTO": "संदर्भ",
-  "FERRAMENTAS": "साधने"
+  "FERRAMENTAS": "साधने",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "SDK 0.2.5 पिन करा, इन्स्टन्सचे नूतनीकरण आणि नष्ट करणे लागू करा. रिलीज करण्यापूर्वी वास्तविक प्रतिसाद आणि संबंधित स्नॅपशॉटची पुष्टी करा.",
+  "Contrato v3 / SDK 0.2.5": "करार v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "SDK 0.2.5 चे इंस्टॉलेशन, कॉन्फिगरेशन आणि लाइफसायकल.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 सादर केलेल्या संदेशासह लिंक पाठवते. SDK 0.2.1 चॅट आणि वाचनाशी सुसंगत राहते, परंतु लेखनची पुष्टी करत नाही.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 नोव्हेंबर 2026",
+  "Failed to load data": "डेटा लोड करता आला नाही",
+  "Delete {count} sessions last updated before {date}?": "{date} पूर्वी शेवटचे अपडेट केलेली {count} सत्रे हटवायची का?",
+  "Sessions deleted: {count}": "हटवलेली सत्रे: {count}",
+  "Purge failed": "सत्रे हटवता आली नाहीत"
 }

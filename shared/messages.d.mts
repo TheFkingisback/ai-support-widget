@@ -13,6 +13,7 @@ export interface SupportMessages {
   sendLabel: string;
   thinking: string;
   sendFailed: string;
+  turnResultUnknown: string;
   responseFailed: string;
   unavailable: string;
   resolved: string;

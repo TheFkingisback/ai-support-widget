@@ -11,6 +11,7 @@ export const tenants = pgTable('tenants', {
   name: text('name').notNull(),
   plan: varchar('plan', { length: 20 }).notNull().default('starter'),
   config: jsonb('config').notNull().default({}),
+  adminApiKeyHash: text('admin_api_key_hash'),
   apiBaseUrl: text('api_base_url').notNull(),
   serviceToken: text('service_token').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

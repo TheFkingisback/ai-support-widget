@@ -18,7 +18,8 @@ describe('Database conversation ownership boundary', () => {
   });
   it.each(['get', 'message', 'feedback', 'close', 'escalate'])('does not read messages or mutate data when the scoped lookup fails: %s', async operation => {
     const insert = vi.fn(); const update = vi.fn(); const from = vi.fn(() => ({ where: () => ({ limit: async () => [] }) }));
-    const db = { select: () => ({ from }), insert, update };
+    const scoped = { select: () => ({ from }), insert, update };
+    const db = { ...scoped, transaction: (work: (tx: typeof scoped) => unknown) => work(scoped) };
     const service = createGatewayService(db as unknown as PostgresJsDatabase);
     const calls: Record<string, () => Promise<unknown>> = {
       get: () => service.getCase('cas_a', 'ten_a', 'usr_b'),

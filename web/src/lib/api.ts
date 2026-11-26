@@ -156,17 +156,29 @@ export async function getCosts(tenantId: string, month?: string): Promise<CostSu
   return data.costs;
 }
 
-export async function getSessions(): Promise<SessionSummary[]> {
-  const data = await request<{ sessions: SessionSummary[] }>('GET', '/api/admin/sessions');
-  return data.sessions;
+export function sessionPage(options: { before?: string; search?: string; status?: string; limit?: number } = {}) {
+  const query = new URLSearchParams({ limit: '50' });
+  for (const [name, value] of Object.entries(options)) if (value !== undefined && value !== '') query.set(name, String(value));
+  return request<{ sessions: SessionSummary[]; next: string | null }>('GET', `/api/admin/sessions?${query}`);
+}
+
+export interface PlatformTotals {
+  activeSessions: number; resolvedSessions: number; totalCost: number; resolutionRate: number;
+  avgMessages: number; avgResponseMs: number;
+}
+
+export function platformTotals() { return request<PlatformTotals>('GET', '/api/admin/dashboard/totals'); }
+
+export function previewPurge(olderThanDays: number) {
+  return request<{ count: number; cutoff: string }>('POST', '/api/admin/sessions/purge/preview', { olderThanDays });
 }
 
 export async function getSessionDetail(caseId: string): Promise<SessionDetail> {
   return request<SessionDetail>('GET', `/api/admin/sessions/${caseId}`);
 }
 
-export async function purgeSessions(olderThanDays: number): Promise<{ purged: number; cutoff: string }> {
-  return request('DELETE', '/api/admin/sessions/purge', { olderThanDays });
+export async function purgeSessions(olderThanDays: number, cutoff: string): Promise<{ purged: number; cutoff: string }> {
+  return request('DELETE', '/api/admin/sessions/purge', { olderThanDays, cutoff });
 }
 
 export function getIntegrationCredential(tenantId: string): Promise<{ configured: boolean; createdAt: string | null }> {

@@ -1,7 +1,7 @@
 import type { Message, SupportContextSnapshot } from '@shared/types.js';
 import type { OrchestratorDeps, OrchestratorService } from './orchestrator.types.js';
 export type { OrchestratorDeps, OrchestratorService } from './orchestrator.types.js';
-import { withActionTurns } from '../actions/action-turns.js';
+import { turnId, turnKey } from '../gateway/turn-identity.js';
 import { callLLM, resolveModel, type LLMMessage } from './openrouter.js';
 import { executeWithTools } from './tool-executor.js';
 import { AppError } from '../../shared/errors.js';
@@ -10,7 +10,7 @@ import { buildSystemPrompt } from './system-prompt.js';
 import { parseAIResponse } from './response-parser.js';
 import { getFullCaseHistory } from '../gateway/case-history.js';
 import { getDb } from '../../shared/db.js';
-import { log } from '../../shared/logger.js';
+import { errorCode, log } from '../../shared/logger.js';
 import { selectLocalizedDocuments } from './localized-docs.js';
 
 const DEFAULT_MAX_MESSAGES = 20;
@@ -29,12 +29,14 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       log.info('handleMessage: start', requestId, { caseId, tenantId, userId });
 
       const { case: caseData, messages } = await gatewayService.getCase(caseId, tenantId, userId, requestId);
+      const storedReply = messages.find(m => m.id === turnId('msg_assistant'));
+      if (storedReply) return storedReply;
+      if (caseData.status !== 'active') throw new AppError(409, 'ACTION_CASE_CLOSED', 'Conversation is no longer active');
       const humanMessage = opts?.skipUserInsert ? messages.find(m => m.role === 'user')
         : await gatewayService.addMessage(caseId, tenantId, userId, 'user', userContent, undefined, requestId);
       const mcpOpts = await resolveMcp?.(tenantId);
       if (mcpOpts && mcpOpts.tenantId !== tenantId) throw new AppError(403, 'MCP_TENANT_MISMATCH', 'MCP tenant mismatch');
       if (deps.actions && humanMessage) {
-        if (caseData.status !== 'active') throw new AppError(409, 'ACTION_CASE_CLOSED', 'Conversation is no longer active');
         const actionReply = await deps.actions.respond({ principal: { caseId, tenantId, userId }, mcp: mcpOpts,
           message: humanMessage, previousMessages: messages, replyToMessageId: opts?.replyToMessageId, requestId, locale: opts?.locale });
         if (actionReply) return actionReply;
@@ -46,7 +48,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       } catch (err) {
         log.warn('handleMessage: snapshot not found', requestId, {
           snapshotId: caseData.snapshotId,
-          error: err instanceof Error ? err.message : String(err),
+          errorCode: errorCode(err),
         });
       }
 
@@ -85,7 +87,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
           if (kbDocs.length > 0) knowledgeDocs = [...knowledgeDocs, ...kbDocs];
         } catch (err) {
           log.warn('handleMessage: knowledge service failed', requestId, {
-            error: err instanceof Error ? err.message : String(err),
+            errorCode: errorCode(err),
           });
         }
       }
@@ -98,7 +100,7 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         );
       } catch (err) {
         log.warn('handleMessage: previous cases fetch failed', requestId, {
-          error: err instanceof Error ? err.message : String(err),
+          errorCode: errorCode(err),
         });
       }
 
@@ -106,10 +108,8 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
         ? buildSystemPrompt(processedSnapshot, allDocs, requestId, customInstructions, previousCases, !!mcpOpts, opts?.locale)
         : 'You are a helpful support assistant. Answer the user\'s question.';
 
-      const allMessages = [...messages, {
-        id: 'pending', caseId, role: 'user' as const, content: userContent,
-        actions: [], evidence: [], confidence: null, createdAt: new Date().toISOString(),
-      }];
+      const allMessages = humanMessage && !messages.some(m => m.id === humanMessage.id)
+        ? [...messages, humanMessage] : messages;
 
       const recentMessages = allMessages.slice(-maxMessages);
       const llmMessages: LLMMessage[] = [
@@ -156,5 +156,10 @@ export function createOrchestratorService(deps: OrchestratorDeps): OrchestratorS
       throw new AppError(501, 'ACTION_NOT_IMPLEMENTED', 'This action has no configured executor. Use the application or its human support channel.');
     },
   };
-  return deps.actions ? withActionTurns(service, deps.actions) : service;
+  const guard = deps.withConversation;
+  if (!guard) return service;
+  return { ...service, handleMessage: (...args) => {
+    const [caseId, tenantId, userId] = args;
+    return guard(turnKey(tenantId, userId, caseId), () => service.handleMessage(...args));
+  } };
 }

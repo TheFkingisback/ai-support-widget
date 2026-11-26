@@ -6,44 +6,32 @@ import {
   Building2, MessageSquare, DollarSign, CheckCircle2,
   ArrowRight, Clock, TrendingUp, Users,
 } from 'lucide-react';
-import { listTenants, getSessions, getAnalytics, getCosts } from '@/lib/api';
+import { listTenants, platformTotals, sessionPage, type PlatformTotals } from '@/lib/api';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatCard } from '@/components/ui/stat-card';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { SkeletonCard } from '@/components/ui/skeleton';
-import type { Tenant, SessionSummary, AnalyticsSummary, CostSummary } from '@/lib/types';
+import type { Tenant, SessionSummary } from '@/lib/types';
 
 export default function DashboardPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
-  const [costs, setCosts] = useState<CostSummary | null>(null);
-  const [loading, setLoading] = useState(true);
-
+  const [totals, setTotals] = useState<PlatformTotals | null>(null);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
-    Promise.all([
-      listTenants().catch(() => [] as Tenant[]),
-      getSessions().catch(() => [] as SessionSummary[]),
-    ]).then(([t, s]) => {
-      setTenants(t);
-      setSessions(s);
-      if (t.length > 0) {
-        getAnalytics(t[0].id).then(setAnalytics).catch(() => {});
-        getCosts(t[0].id).then(setCosts).catch(() => {});
-      }
-      setLoading(false);
-    });
+    let current = true;
+    Promise.all([listTenants(), sessionPage({ limit: 6 }), platformTotals()])
+      .then(([tenants, page, totals]) => {
+        if (current) { setTenants(tenants); setSessions(page.sessions); setTotals(totals); }
+      }).catch(() => { if (current) setFailed(true); });
+    return () => { current = false; };
   }, []);
-
-  const activeSessions = sessions.filter((s) => s.status === 'active').length;
-  const resolvedSessions = sessions.filter((s) => s.status === 'resolved').length;
-  const totalCost = sessions.reduce((sum, s) => sum + s.totalCost, 0);
 
   return (
     <div>
       <PageHeader title="Dashboard" description="Overview of your AI support platform" />
 
-      {loading ? (
+      {failed ? <p role="alert"><L>{"Failed to load data"}</L></p> : !totals ? (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
         </div>
@@ -52,24 +40,24 @@ export default function DashboardPage() {
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Total Tenants" value={String(tenants.length)}
               icon={Building2} accent="brand" />
-            <StatCard label="Active Sessions" value={String(activeSessions)}
+            <StatCard label="Active Sessions" value={String(totals.activeSessions)}
               icon={Users} accent="emerald" />
-            <StatCard label="Resolved" value={String(resolvedSessions)}
+            <StatCard label="Resolved" value={String(totals.resolvedSessions)}
               icon={CheckCircle2} accent="sky" />
-            <StatCard label="Total LLM Cost" value={`$${totalCost.toFixed(2)}`}
+            <StatCard label="Total LLM Cost" value={`$${totals.totalCost.toFixed(2)}`}
               icon={DollarSign} accent="amber" />
           </div>
 
-          {analytics && (
+          {totals && (
             <div className="mt-6 grid gap-5 sm:grid-cols-3">
               <StatCard label="Resolution Rate"
-                value={`${(analytics.resolutionRate * 100).toFixed(1)}%`}
+                value={`${(totals.resolutionRate * 100).toFixed(1)}%`}
                 icon={TrendingUp} accent="emerald" />
               <StatCard label="Avg Messages/Case"
-                value={analytics.avgMessagesPerResolution.toFixed(1)}
+                value={totals.avgMessages.toFixed(1)}
                 icon={MessageSquare} accent="brand" />
               <StatCard label="Avg Response Time"
-                value={formatMs(analytics.avgTimeToFirstResponse)}
+                value={formatMs(totals.avgResponseMs)}
                 icon={Clock} accent="sky" />
             </div>
           )}

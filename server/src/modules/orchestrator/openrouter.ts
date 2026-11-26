@@ -1,4 +1,4 @@
-import { log } from '../../shared/logger.js';
+import { errorCode, log } from '../../shared/logger.js';
 import { LLMError } from '../../shared/errors.js';
 
 export interface LLMMessage {
@@ -98,7 +98,6 @@ export async function callLLM(
 
   const body = JSON.stringify(payload);
   const start = Date.now();
-  let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < 2; attempt++) {
     const controller = new AbortController();
@@ -117,14 +116,13 @@ export async function callLLM(
 
       if (res.status >= 500 && attempt === 0) {
         log.warn('callLLM: 5xx error, retrying', requestId, { status: res.status });
-        lastError = new Error(`OpenRouter returned ${res.status}`);
+        await res.body?.cancel();
         continue;
       }
 
       if (!res.ok) {
-        const text = await res.text().catch(() => 'unknown');
-        const safeText = text.slice(0, 200).replace(/Bearer\s+\S+/gi, 'Bearer [REDACTED]');
-        throw new LLMError(`OpenRouter ${res.status}: ${safeText}`);
+        await res.body?.cancel();
+        throw new LLMError(`OpenRouter returned HTTP ${res.status}`);
       }
 
       const data = (await res.json()) as OpenRouterResponse;
@@ -144,7 +142,6 @@ export async function callLLM(
       return { content, model, tokensIn, tokensOut, latencyMs, estimatedCost: cost, toolCalls };
     } catch (err) {
       if (err instanceof LLMError) throw err;
-      lastError = err instanceof Error ? err : new Error(String(err));
 
       if (controller.signal.aborted) {
         log.error('callLLM: request timed out', requestId, { attempt });
@@ -152,7 +149,7 @@ export async function callLLM(
       }
 
       if (attempt === 0) {
-        log.warn('callLLM: error, retrying', requestId, { error: lastError.message });
+        log.warn('callLLM: error, retrying', requestId, { errorCode: errorCode(err) });
         continue;
       }
     } finally {
@@ -160,5 +157,5 @@ export async function callLLM(
     }
   }
 
-  throw new LLMError(lastError?.message ?? 'LLM request failed after retries');
+  throw new LLMError('LLM request failed after retries');
 }

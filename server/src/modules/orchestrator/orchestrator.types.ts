@@ -30,6 +30,7 @@ export interface OrchestratorService {
 }
 
 export interface OrchestratorDeps {
+  withConversation?: <T>(scope: string, work: () => Promise<T>) => Promise<T>;
   gatewayService: GatewayService;
   snapshotService: SnapshotService;
   contextService: ContextService;

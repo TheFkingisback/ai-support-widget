@@ -9,9 +9,10 @@ import type { AuditStore } from '../modules/admin/audit.service.js';
 import type { TenantConfig, LLMCostEntry, AuditEntry } from './types.js';
 
 function toTenantRecord(row: typeof tenants.$inferSelect): TenantRecord {
+  const { adminApiKeyHash: _legacy, ...config } = row.config as TenantConfig;
   return {
     id: row.id, name: row.name, plan: row.plan,
-    config: row.config as TenantConfig,
+    config, adminApiKeyHash: row.adminApiKeyHash ?? undefined,
     apiBaseUrl: row.apiBaseUrl,
     serviceToken: row.serviceToken,
     createdAt: row.createdAt.toISOString(),
@@ -24,7 +25,7 @@ export function createDbTenantStore(db: PostgresJsDatabase): TenantStore {
     async save(rec) {
       await db.insert(tenants).values({
         id: rec.id, name: rec.name, plan: rec.plan,
-        config: rec.config,
+        config: { ...rec.config, adminApiKeyHash: rec.adminApiKeyHash }, adminApiKeyHash: rec.adminApiKeyHash,
         apiBaseUrl: rec.apiBaseUrl,
         serviceToken: rec.serviceToken,
         createdAt: new Date(rec.createdAt),
@@ -35,7 +36,10 @@ export function createDbTenantStore(db: PostgresJsDatabase): TenantStore {
       const updates: Record<string, unknown> = {};
       if (fields.name !== undefined) updates.name = fields.name;
       if (fields.plan !== undefined) updates.plan = fields.plan;
-      if (fields.config !== undefined) updates.config = fields.config;
+      if (fields.config !== undefined) {
+        updates.config = sql`${JSON.stringify(fields.config)}::jsonb || jsonb_build_object('adminApiKeyHash', ${tenants.adminApiKeyHash})`;
+      }
+      if (fields.adminApiKeyHash !== undefined) updates.adminApiKeyHash = fields.adminApiKeyHash;
       if (fields.updatedAt !== undefined) updates.updatedAt = new Date(fields.updatedAt);
       await db.update(tenants).set(updates).where(eq(tenants.id, id));
     },
@@ -52,7 +56,7 @@ export function createDbTenantStore(db: PostgresJsDatabase): TenantStore {
     },
     async findByAdminKeyHash(hash) {
       const rows = await db.select().from(tenants)
-        .where(sql`${tenants.config}->>'adminApiKeyHash' = ${hash}`)
+        .where(eq(tenants.adminApiKeyHash, hash))
         .limit(1);
       return rows.length > 0 ? toTenantRecord(rows[0]) : null;
     },

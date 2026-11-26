@@ -67,7 +67,8 @@
     "action_conflict": "The data or permissions changed. Request a new proposal.",
     "action_cancelled": "The proposal was cancelled and can no longer be confirmed.",
     "action_expired": "The proposal expired. Request a new proposal.",
-    "action_unknown": "The result is still unconfirmed. Send another message to check the status of the original change."
+    "action_unknown": "The result is still unconfirmed. Send another message to check the status of the original change.",
+    "turnResultUnknown": "The previous message has no confirmed result. Check the conversation or contact support before trying again."
   },
   "en-GB": {
     "support": "Support",
@@ -137,7 +138,8 @@
     "action_conflict": "The data or permissions changed. Request a new proposal.",
     "action_cancelled": "The proposal was cancelled and can no longer be confirmed.",
     "action_expired": "The proposal expired. Request a new proposal.",
-    "action_unknown": "The result is still unconfirmed. Send another message to check the status of the original change."
+    "action_unknown": "The result is still unconfirmed. Send another message to check the status of the original change.",
+    "turnResultUnknown": "The previous message has no confirmed result. Check the conversation or contact support before trying again."
   },
   "zh-Hans": {
     "support": "支持",
@@ -207,7 +209,8 @@
     "action_conflict": "数据或权限已更改。请请求新提案。",
     "action_cancelled": "提案已被取消，无法再确认。",
     "action_expired": "提案已过期。请请求新提案。",
-    "action_unknown": "结果仍未确认。发送另一条消息以检查原始更改的状态。"
+    "action_unknown": "结果仍未确认。发送另一条消息以检查原始更改的状态。",
+    "turnResultUnknown": "上一条消息的结果尚未确认。请先查看对话或联系支持团队，然后再试。"
   },
   "zh-Hant": {
     "support": "支援",
@@ -277,7 +280,8 @@
     "action_conflict": "資料或權限已變更。請要求新提案。",
     "action_cancelled": "提案已被取消，無法再確認。",
     "action_expired": "提案已過期。請要求新提案。",
-    "action_unknown": "結果仍未確認。請再傳送一則訊息以檢查原始變更的狀態。"
+    "action_unknown": "結果仍未確認。請再傳送一則訊息以檢查原始變更的狀態。",
+    "turnResultUnknown": "上一則訊息的結果尚未確認。請先查看對話或聯絡支援團隊，再重新嘗試。"
   },
   "hi": {
     "support": "समर्थन",
@@ -347,7 +351,8 @@
     "action_conflict": "डेटा या अनुमतियाँ बदल गईं। एक नया प्रस्ताव अनुरोध करें।",
     "action_cancelled": "प्रस्ताव रद्द कर दिया गया था और अब इसकी पुष्टि नहीं की जा सकती है।",
     "action_expired": "प्रस्ताव समाप्त हो गया। एक नया प्रस्ताव अनुरोध करें।",
-    "action_unknown": "परिणाम अभी भी अपुष्ट है। मूल परिवर्तन की स्थिति की जांच के लिए एक और संदेश भेजें।"
+    "action_unknown": "परिणाम अभी भी अपुष्ट है। मूल परिवर्तन की स्थिति की जांच के लिए एक और संदेश भेजें।",
+    "turnResultUnknown": "पिछले संदेश के नतीजे की पुष्टि नहीं हुई है। दोबारा कोशिश करने से पहले बातचीत देखें या सहायता टीम से संपर्क करें।"
   },
   "es": {
     "support": "Soporte",
@@ -417,7 +422,8 @@
     "action_conflict": "Los datos o los permisos cambiaron. Solicita una propuesta nueva.",
     "action_cancelled": "La propuesta fue cancelada y ya no se puede confirmar.",
     "action_expired": "La propuesta caducó. Solicita una propuesta nueva.",
-    "action_unknown": "El resultado aún no se ha confirmado. Envía otro mensaje para verificar el estado del cambio original."
+    "action_unknown": "El resultado aún no se ha confirmado. Envía otro mensaje para verificar el estado del cambio original.",
+    "turnResultUnknown": "No se ha confirmado el resultado del mensaje anterior. Revisa la conversación o contacta con soporte antes de volver a intentarlo."
   },
   "ar": {
     "support": "الدعم",
@@ -487,7 +493,8 @@
     "action_conflict": "تغيرت البيانات أو الأذونات. اطلب اقتراحًا جديدًا.",
     "action_cancelled": "تم إلغاء الاقتراح ولا يمكن تأكيده بعد الآن.",
     "action_expired": "انتهت صلاحية الاقتراح. اطلب اقتراحًا جديدًا.",
-    "action_unknown": "لا يزال يتعذر تأكيد النتيجة. أرسل رسالة أخرى للتحقق من حالة التغيير الأصلي."
+    "action_unknown": "لا يزال يتعذر تأكيد النتيجة. أرسل رسالة أخرى للتحقق من حالة التغيير الأصلي.",
+    "turnResultUnknown": "لم تتأكد نتيجة الرسالة السابقة. راجع المحادثة أو تواصل مع الدعم قبل المحاولة مرة أخرى."
   },
   "fr": {
     "support": "Support",
@@ -557,7 +564,8 @@
     "action_conflict": "Les données ou les autorisations ont changé. Demandez une nouvelle proposition.",
     "action_cancelled": "La proposition a été annulée et ne peut plus être confirmée.",
     "action_expired": "La proposition a expiré. Demandez une nouvelle proposition.",
-    "action_unknown": "Le résultat est toujours non confirmé. Envoyez un autre message pour vérifier l'état de la modification d'origine."
+    "action_unknown": "Le résultat est toujours non confirmé. Envoyez un autre message pour vérifier l'état de la modification d'origine.",
+    "turnResultUnknown": "Le résultat du message précédent reste à confirmer. Vérifiez la conversation ou contactez l’assistance avant de réessayer."
   },
   "bn": {
     "support": "সহায়তা",
@@ -627,7 +635,8 @@
     "action_conflict": "ডেটা বা অনুমতি পরিবর্তিত হয়েছে। একটি নতুন প্রস্তাবের জন্য অনুরোধ করুন।",
     "action_cancelled": "প্রস্তাবটি বাতিল করা হয়েছে এবং আর নিশ্চিত করা যাবে না।",
     "action_expired": "প্রস্তাবটির মেয়াদ শেষ হয়ে গেছে। একটি নতুন প্রস্তাবের জন্য অনুরোধ করুন।",
-    "action_unknown": "ফলাফল এখনও নিশ্চিত করা হয়নি। মূল পরিবর্তনের স্থিতি পরীক্ষা করার জন্য অন্য একটি বার্তা পাঠান।"
+    "action_unknown": "ফলাফল এখনও নিশ্চিত করা হয়নি। মূল পরিবর্তনের স্থিতি পরীক্ষা করার জন্য অন্য একটি বার্তা পাঠান।",
+    "turnResultUnknown": "আগের বার্তার ফল নিশ্চিত হয়নি। আবার চেষ্টা করার আগে কথোপকথন দেখুন বা সহায়তা নিন।"
   },
   "pt-BR": {
     "support": "Suporte",
@@ -697,7 +706,8 @@
     "action_conflict": "Os dados ou as permissões foram alterados. Solicite uma nova proposta.",
     "action_cancelled": "A proposta foi cancelada e não pode mais ser confirmada.",
     "action_expired": "A proposta expirou. Solicite uma nova proposta.",
-    "action_unknown": "O resultado ainda não foi confirmado. Envie outra mensagem para verificar o status da alteração original."
+    "action_unknown": "O resultado ainda não foi confirmado. Envie outra mensagem para verificar o status da alteração original.",
+    "turnResultUnknown": "O resultado da mensagem anterior ficou sem confirmação. Confira a conversa ou fale com o suporte antes de tentar novamente."
   },
   "id": {
     "support": "Dukungan",
@@ -767,7 +777,8 @@
     "action_conflict": "Data atau izin berubah. Minta proposal baru.",
     "action_cancelled": "Proposal dibatalkan dan tidak dapat dikonfirmasi lagi.",
     "action_expired": "Proposal kedaluw. Minta proposal baru.",
-    "action_unknown": "Hasilnya masih belum dikonfirmasi. Kirim pesan lain untuk memeriksa status perubahan asli."
+    "action_unknown": "Hasilnya masih belum dikonfirmasi. Kirim pesan lain untuk memeriksa status perubahan asli.",
+    "turnResultUnknown": "Hasil pesan sebelumnya belum terkonfirmasi. Periksa percakapan atau hubungi dukungan sebelum mencoba lagi."
   },
   "ur": {
     "support": "سپورٹ",
@@ -837,7 +848,8 @@
     "action_conflict": "ڈیٹا یا اجازتیں تبدیل ہو گئیں۔ ایک نئی تجویز کی درخواست کریں۔",
     "action_cancelled": "تجویز منسوخ کر دی گئی تھی اور اب اس کی تصدیق نہیں کی جا سکتی۔",
     "action_expired": "تجویز کی میعاد ختم ہو گئی۔ ایک نئی تجویز کی درخواست کریں۔",
-    "action_unknown": "نتیجہ ابھی تک غیر مصدقہ ہے۔ اصل تبدیلی کی حیثیت کی جانچ پڑتال کے لیے ایک اور پیغام بھیجیں۔"
+    "action_unknown": "نتیجہ ابھی تک غیر مصدقہ ہے۔ اصل تبدیلی کی حیثیت کی جانچ پڑتال کے لیے ایک اور پیغام بھیجیں۔",
+    "turnResultUnknown": "پچھلے پیغام کا نتیجہ ابھی تک تصدیق شدہ نہیں ہے۔ دوبارہ کوشش کرنے سے پہلے گفتگو دیکھیں یا معاونت سے رابطہ کریں۔"
   },
   "ru": {
     "support": "Поддержка",
@@ -907,7 +919,8 @@
     "action_conflict": "Данные или разрешения изменились. Запросите новое предложение.",
     "action_cancelled": "Предложение было отменено и больше не может быть подтверждено.",
     "action_expired": "Предложение истекло. Запросите новое предложение.",
-    "action_unknown": "Результат все еще не подтвержден. Отправьте другое сообщение, чтобы проверить статус исходного изменения."
+    "action_unknown": "Результат все еще не подтвержден. Отправьте другое сообщение, чтобы проверить статус исходного изменения.",
+    "turnResultUnknown": "Результат предыдущего сообщения не подтверждён. Проверьте переписку или обратитесь в поддержку перед повторной попыткой."
   },
   "de": {
     "support": "Support",
@@ -977,7 +990,8 @@
     "action_conflict": "Die Daten oder Berechtigungen haben sich geändert. Fordern Sie einen neuen Vorschlag an.",
     "action_cancelled": "Der Vorschlag wurde storniert und kann nicht mehr bestätigt werden.",
     "action_expired": "Der Vorschlag ist abgelaufen. Fordern Sie einen neuen Vorschlag an.",
-    "action_unknown": "Das Ergebnis ist noch unbestätigt. Senden Sie eine weitere Nachricht, um den Status der ursprünglichen Änderung zu überprüfen."
+    "action_unknown": "Das Ergebnis ist noch unbestätigt. Senden Sie eine weitere Nachricht, um den Status der ursprünglichen Änderung zu überprüfen.",
+    "turnResultUnknown": "Das Ergebnis der vorherigen Nachricht ist unbestätigt. Prüfen Sie den Chat oder kontaktieren Sie den Support, bevor Sie es erneut versuchen."
   },
   "ja": {
     "support": "サポート",
@@ -1047,7 +1061,8 @@
     "action_conflict": "データまたは権限が変更されました。新しい提案をリクエストしてください。",
     "action_cancelled": "提案はキャンセルされたため、これ以上確認できません。",
     "action_expired": "提案の有効期限が切れました。新しい提案をリクエストしてください。",
-    "action_unknown": "結果はまだ確認されていません。元の変更のステータスを確認するために、別のメッセージを送信してください。"
+    "action_unknown": "結果はまだ確認されていません。元の変更のステータスを確認するために、別のメッセージを送信してください。",
+    "turnResultUnknown": "前のメッセージの結果を確認できていません。再試行する前に、会話を確認するかサポートへお問い合わせください。"
   },
   "pcm": {
     "support": "Support",
@@ -1117,7 +1132,8 @@
     "action_conflict": "Di data or permissions don change. Ask for new proposal.",
     "action_cancelled": "Dem don cancel di proposal and e no fit confirm again.",
     "action_expired": "Di proposal don expire. Ask for new proposal.",
-    "action_unknown": "Di result still no confirmed. Send another message to check di status of di original change."
+    "action_unknown": "Di result still no confirmed. Send another message to check di status of di original change.",
+    "turnResultUnknown": "Dem never confirm wetin happen with di last message. Check di chat or contact support before you try again."
   },
   "arz": {
     "support": "الدعم",
@@ -1187,7 +1203,8 @@
     "action_conflict": "البيانات أو الصلاحيات اتغيرت. اطلب طلب جديد.",
     "action_cancelled": "الطلب اتلغى ومش ممكن تأكيده تاني.",
     "action_expired": "الطلب انتهت صلاحيته. اطلب طلب جديد.",
-    "action_unknown": "النتيجة لسه متأكدتش. ابعت رسالة تانية عشان تتأكد من حالة التغيير الأصلي."
+    "action_unknown": "النتيجة لسه متأكدتش. ابعت رسالة تانية عشان تتأكد من حالة التغيير الأصلي.",
+    "turnResultUnknown": "نتيجة الرسالة اللي فاتت لسه مش مؤكدة. راجع المحادثة أو كلّم الدعم قبل ما تحاول تاني."
   },
   "mr": {
     "support": "Support",
@@ -1257,7 +1274,8 @@
     "action_conflict": "डेटा किंवा परवानग्या बदलल्या. नवीन प्रस्ताव मागवा.",
     "action_cancelled": "प्रस्ताव रद्द करण्यात आला आहे आणि यापुढे पुष्टी केली जाऊ शकत नाही.",
     "action_expired": "प्रस्तावाची मुदत संपली आहे. नवीन प्रस्ताव मागवा.",
-    "action_unknown": "निकाल अद्याप अपुष्ट आहे. मूळ बदलाच्या स्थितीची तपासणी करण्यासाठी दुसरा संदेश पाठवा."
+    "action_unknown": "निकाल अद्याप अपुष्ट आहे. मूळ बदलाच्या स्थितीची तपासणी करण्यासाठी दुसरा संदेश पाठवा.",
+    "turnResultUnknown": "मागील संदेशाच्या परिणामाची पुष्टी झाली नाही. पुन्हा प्रयत्न करण्यापूर्वी संभाषण तपासा किंवा सहाय्याशी संपर्क साधा."
   },
   "vi": {
     "support": "Hỗ trợ",
@@ -1327,7 +1345,8 @@
     "action_conflict": "Dữ liệu hoặc quyền đã thay đổi. Yêu cầu một đề xuất mới.",
     "action_cancelled": "Đề xuất đã bị hủy và không thể xác nhận được nữa.",
     "action_expired": "Đề xuất đã hết hạn. Yêu cầu một đề xuất mới.",
-    "action_unknown": "Kết quả vẫn chưa được xác nhận. Gửi một tin nhắn khác để kiểm tra trạng thái của thay đổi ban đầu."
+    "action_unknown": "Kết quả vẫn chưa được xác nhận. Gửi một tin nhắn khác để kiểm tra trạng thái của thay đổi ban đầu.",
+    "turnResultUnknown": "Kết quả của tin nhắn trước chưa được xác nhận. Hãy kiểm tra cuộc trò chuyện hoặc liên hệ bộ phận hỗ trợ trước khi thử lại."
   },
   "te": {
     "support": "సహాయం",
@@ -1397,7 +1416,8 @@
     "action_conflict": "డేటా లేదా అనుమతులు మారాయి. కొత్త ప్రతిపాదనను అభ్యర్థించండి.",
     "action_cancelled": "ప్రతిపాదన రద్దు చేయబడింది మరియు ఇకపై నిర్ధారించబడదు.",
     "action_expired": "ప్రతిపాదన గడువు ముగిసింది. కొత్త ప్రతిపాదనను అభ్యర్థించండి.",
-    "action_unknown": "ఫలితం ఇంకా నిర్ధారించబడలేదు. అసలు మార్పు యొక్క స్థితిని తనిఖీ చేయడానికి మరొక సందేశాన్ని పంపండి."
+    "action_unknown": "ఫలితం ఇంకా నిర్ధారించబడలేదు. అసలు మార్పు యొక్క స్థితిని తనిఖీ చేయడానికి మరొక సందేశాన్ని పంపండి.",
+    "turnResultUnknown": "మునుపటి సందేశం ఫలితం నిర్ధారణ కాలేదు. మళ్లీ ప్రయత్నించే ముందు సంభాషణను చూడండి లేదా సహాయ బృందాన్ని సంప్రదించండి."
   },
   "sw": {
     "support": "Msaada",
@@ -1467,7 +1487,8 @@
     "action_conflict": "Data au ruhusa zimebadilika. Omba pendekezo jipya.",
     "action_cancelled": "Pendekezo lilighairiwa na haliwezi kuthibitishwa tena.",
     "action_expired": "Pendekezo liliisha. Omba pendekezo jipya.",
-    "action_unknown": "Matokeo bado hayajathibitishwa. Tuma ujumbe mwingine ili kuangalia hali ya mabadiliko ya awali."
+    "action_unknown": "Matokeo bado hayajathibitishwa. Tuma ujumbe mwingine ili kuangalia hali ya mabadiliko ya awali.",
+    "turnResultUnknown": "Matokeo ya ujumbe uliopita hayajathibitishwa. Angalia mazungumzo au wasiliana na usaidizi kabla ya kujaribu tena."
   },
   "ha": {
     "support": "Taimako",
@@ -1537,7 +1558,8 @@
     "action_conflict": "An canza bayanan ko izini. Nemi sabon tayi.",
     "action_cancelled": "An soke tayin kuma ba za a iya tabbatar da shi ba.",
     "action_expired": "Tayi ya kare. Nemi sabon tayi.",
-    "action_unknown": "Babu tabbacin sakamakon. A aika wani saƙo don duba matsayin canjin asali."
+    "action_unknown": "Babu tabbacin sakamakon. A aika wani saƙo don duba matsayin canjin asali.",
+    "turnResultUnknown": "Ba a tabbatar da sakamakon saƙon da ya gabata ba. Duba tattaunawar ko tuntubi masu taimako kafin sake gwadawa."
   },
   "sr-Cyrl": {
     "support": "Подршка",
@@ -1607,7 +1629,8 @@
     "action_conflict": "Подаци или дозволе су се променили. Захтевајте нови предлог.",
     "action_cancelled": "Предлог је отказан и више се не може потврдити.",
     "action_expired": "Предлог је истекао. Захтевајте нови предлог.",
-    "action_unknown": "Резултат је још увек непотврђен. Пошаљите другу поруку да бисте проверили статус оригиналне промене."
+    "action_unknown": "Резултат је још увек непотврђен. Пошаљите другу поруку да бисте проверили статус оригиналне промене.",
+    "turnResultUnknown": "Исход претходне поруке није потврђен. Пре поновног покушаја проверите разговор или се обратите подршци."
   },
   "sr-Latn": {
     "support": "Podrška",
@@ -1677,6 +1700,7 @@
     "action_conflict": "Podaci ili dozvole su se promenili. Zatražite novi predlog.",
     "action_cancelled": "Predlog je otkazan i više se ne može potvrditi.",
     "action_expired": "Predlog je istekao. Zatražite novi predlog.",
-    "action_unknown": "Rezultat je još uvek nepotvrđen. Pošaljite drugu poruku da biste proverili status originalne promene."
+    "action_unknown": "Rezultat je još uvek nepotvrđen. Pošaljite drugu poruku da biste proverili status originalne promene.",
+    "turnResultUnknown": "Ishod prethodne poruke nije potvrđen. Pre ponovnog pokušaja proverite razgovor ili se obratite podršci."
   }
 }

@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Répond avec des preuves",
   "Selecione o c?digo para copiar": "Sélectionnez le code à copier",
   "CONTEXTO": "CONTEXTE",
-  "FERRAMENTAS": "OUTILS"
+  "FERRAMENTAS": "OUTILS",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Chargez le SDK 0.2.5 corrigé, implémentez le renouvellement et la destruction de l'instance. Confirmez une réponse réelle et le snapshot correspondant avant de libérer.",
+  "Contrato v3 / SDK 0.2.5": "Contrat v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Installation, configuration et cycle de vie du SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "Le SDK 0.2.5 envoie le lien avec le message présenté. Le SDK 0.2.1 reste compatible avec le chat et la lecture, mais ne confirme pas l'écriture.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 novembre 2026",
+  "Failed to load data": "Échec du chargement des données",
+  "Delete {count} sessions last updated before {date}?": "Supprimer {count} sessions dont la dernière mise à jour précède le {date} ?",
+  "Sessions deleted: {count}": "Sessions supprimées : {count}",
+  "Purge failed": "Échec de la suppression"
 }

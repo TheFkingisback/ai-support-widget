@@ -814,5 +814,15 @@
   "Explica o que aconteceu": "يشرح ما حدث",
   "Responde com evid?ncias": "يجيب مع الأدلة",
   "Selecione o c?digo para copiar": "حدد الكود للنسخ",
-  "CONTEXTO": "السياق"
+  "CONTEXTO": "السياق",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "قم بتحميل حزمة تطوير البرامج (SDK) المثبتة 0.2.5، وقم بتطبيق التجديد وتدمير المثيل. قم بتأكيد استجابة فعلية ولقطة شاشة مطابقة قبل الإصدار.",
+  "Contrato v3 / SDK 0.2.5": "العقد v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "تثبيت، إعداد، ودورة حياة الـ SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "يرسل SDK 0.2.5 الرابط مع الرسالة المعروضة. يظل SDK 0.2.1 متوافقًا مع الدردشة والقراءة، ولكنه لا يؤكد الكتابة.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 نوفمبر 2026",
+  "Failed to load data": "تعذّر تحميل البيانات",
+  "Delete {count} sessions last updated before {date}?": "هل تريد حذف {count} من الجلسات التي تم تحديثها آخر مرة قبل {date}؟",
+  "Sessions deleted: {count}": "عدد الجلسات المحذوفة: {count}",
+  "Purge failed": "تعذّر حذف الجلسات"
 }

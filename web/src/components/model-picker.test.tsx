@@ -12,7 +12,7 @@ vi.mock('@/lib/api', () => ({
 import ModelPicker from './model-picker';
 
 describe('ModelPicker', () => {
-  let onChange: ReturnType<typeof vi.fn>;
+  let onChange: (modelId: string | undefined) => void;
 
   beforeEach(() => {
     onChange = vi.fn();

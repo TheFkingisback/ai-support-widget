@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Menjawab dengan bukti",
   "Selecione o c?digo para copiar": "Pilih kode untuk disalin",
   "CONTEXTO": "KONTEKS",
-  "FERRAMENTAS": "ALAT"
+  "FERRAMENTAS": "ALAT",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Unggah SDK yang disematkan 0.2.5, terapkan pembaruan dan penghancuran instans. Konfirmasikan respons aktual dan snapshot yang sesuai sebelum merilis.",
+  "Contrato v3 / SDK 0.2.5": "Kontrak v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Instalasi, konfigurasi, dan siklus hidup SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 mengirimkan tautan dengan pesan yang disajikan. SDK 0.2.1 tetap kompatibel dengan obrolan dan pembacaan, tetapi tidak mengonfirmasi penulisan.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 November 2026",
+  "Failed to load data": "Gagal memuat data",
+  "Delete {count} sessions last updated before {date}?": "Hapus {count} sesi yang terakhir diperbarui sebelum {date}?",
+  "Sessions deleted: {count}": "Sesi yang dihapus: {count}",
+  "Purge failed": "Gagal menghapus sesi"
 }

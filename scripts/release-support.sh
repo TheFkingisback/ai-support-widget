@@ -66,7 +66,7 @@ if [[ ! -L "$release/.env.prod" ]]; then ln -s "$private_env" "$release/.env.pro
 compose=(docker compose -p "$project" --env-file "$private_env" --env-file "$action_env")
 if [[ -f "$mail_env" ]]; then compose+=(--env-file "$mail_env"); fi
 
-for migration in "$release"/server/src/migrations/00{5,6,7,8,9}-*.sql; do
+for migration in "$release"/server/src/migrations/[0-9][0-9][0-9]-*.sql; do
   docker exec -i "$db_id" psql -v ON_ERROR_STOP=1 -1 -U aiwidget -d aiwidget < "$migration"
 done
 docker exec "$redis_id" redis-cli CONFIG SET appendonly yes maxmemory-policy noeviction maxmemory 0 | grep -qx OK

@@ -1,5 +1,5 @@
 import type { LLMCostEntry, CostSummary, CostByModel, TenantId, CaseId } from '../../shared/types.js';
-import { log } from '../../shared/logger.js';
+import { errorCode, log } from '../../shared/logger.js';
 
 export interface CostStore {
   insert(entry: LLMCostEntry): Promise<void>;
@@ -24,7 +24,7 @@ export interface CostService extends CostRecorder {
   getMonthlySummary(tenantId: TenantId, month: string, requestId?: string): Promise<CostSummary>;
 }
 
-export function createCostService(store: CostStore): CostService {
+export function createCostService(store: CostStore, observeCost?: (entry: LLMCostEntry) => Promise<void>): CostService {
   return {
     async record(params, requestId) {
       const entry: LLMCostEntry = {
@@ -39,12 +39,13 @@ export function createCostService(store: CostStore): CostService {
       };
       try {
         await store.insert(entry);
+        await observeCost?.(entry);
         log.info('CostService.record: stored', requestId, {
           tenantId: params.tenantId, model: params.model, cost: params.estimatedCost,
         });
       } catch (err) {
         log.warn('CostService.record: failed (non-fatal)', requestId, {
-          error: err instanceof Error ? err.message : String(err),
+          errorCode: errorCode(err),
         });
       }
     },

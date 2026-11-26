@@ -1,5 +1,15 @@
+import { deepRedactSecrets } from '../modules/context/sanitizer-helpers.js';
 import fs from 'node:fs';
 import path from 'node:path';
+
+// Error messages from drivers may contain SQL parameters and customer data.
+export function errorCode(error: unknown): string {
+  if (!error || typeof error !== 'object') return 'UNKNOWN_ERROR';
+  if ('errorCode' in error && typeof error.errorCode === 'string' && /^[A-Z0-9_]{1,64}$/.test(error.errorCode)) return error.errorCode;
+  if ('query' in error || 'params' in error) return 'DATABASE_QUERY_FAILED';
+  if ('code' in error && typeof error.code === 'string' && /^[A-Z0-9_]{1,64}$/.test(error.code)) return error.code;
+  return 'OPERATION_FAILED';
+}
 
 export type LogLevel = 'off' | 'low' | 'medium' | 'high' | 'psycho';
 
@@ -100,12 +110,13 @@ function doLog(
 ): void {
   if (!shouldLog(severity)) return;
 
+  const audit = { count: 0, fields: [] as string[] };
   const entry: LogEntry = {
     timestamp: new Date().toISOString(),
     level: severity,
-    message,
+    message: String(deepRedactSecrets(message, 'message', audit)),
     ...(requestId && { requestId }),
-    ...(data && { data }),
+    ...(data && { data: deepRedactSecrets(data, 'data', audit) as Record<string, unknown> }),
   };
 
   writeToConsole(entry);
@@ -148,7 +159,7 @@ export const log = {
       const elapsedMs = Date.now() - start;
       doLog('ERROR', `${label} failed`, requestId, {
         elapsedMs,
-        error: err instanceof Error ? err.message : String(err),
+        errorCode: errorCode(err),
       });
       throw err;
     }

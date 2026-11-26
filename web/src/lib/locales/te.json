@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "సాక్ష్యంతో సమాధానమిస్తుంది",
   "Selecione o c?digo para copiar": "కాపీ చేయడానికి కోడ్‌ను ఎంచుకోండి",
   "CONTEXTO": "సందర్భం",
-  "FERRAMENTAS": "సాధనాలు"
+  "FERRAMENTAS": "సాధనాలు",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "SDK 0.2.5ని పిన్ చేసి లోడ్ చేయండి, ఇన్‌స్టాన్స్ పునరుద్ధరణ మరియు విధ్వంసాన్ని అమలు చేయండి. విడుదల చేయడానికి ముందు నిజమైన ప్రతిస్పందన మరియు సంబంధిత స్నాప్‌షాట్‌ను నిర్ధారించండి.",
+  "Contrato v3 / SDK 0.2.5": "ఒప్పందం v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "SDK 0.2.5 యొక్క ఇన్‌స్టాలేషన్, కాన్ఫిగరేషన్ మరియు జీవితచక్రం.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 అందించిన సందేశంతో లింక్‌ను పంపుతుంది. SDK 0.2.1 చాట్ మరియు రీడింగ్‌తో అనుకూలంగా ఉంటుంది, కానీ వ్రాయడాన్ని నిర్ధారించదు.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 నవంబర్ 2026",
+  "Failed to load data": "డేటాను లోడ్ చేయలేకపోయాము",
+  "Delete {count} sessions last updated before {date}?": "{date} కంటే ముందు చివరిసారిగా నవీకరించిన {count} సెషన్‌లను తొలగించాలా?",
+  "Sessions deleted: {count}": "తొలగించిన సెషన్‌లు: {count}",
+  "Purge failed": "సెషన్‌లను తొలగించలేకపోయాము"
 }

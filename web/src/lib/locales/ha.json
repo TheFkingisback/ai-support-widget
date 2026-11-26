@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "Amsawa da shaidar",
   "Selecione o c?digo para copiar": "Zaɓi lambar da za a kwafa",
   "CONTEXTO": "MAHALLI",
-  "FERRAMENTAS": "KAYAN AIKI"
+  "FERRAMENTAS": "KAYAN AIKI",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Loda SDK da aka gyara 0.2.5, aiwatar da sabuntawa da kuma lalata misali. Tabbatar da ainihin amsa da kuma abin da ya dace kafin sakin.",
+  "Contrato v3 / SDK 0.2.5": "Kwangilar v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Shigarwa, saitawa da kuma tsarin rayuwa na SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 yana aika hanyar haɗin yanar gizon tare da saƙon da aka gabatar. SDK 0.2.1 ya ci gaba da dacewa da taɗi da karatu, amma baya tabbatar da rubutu.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 Nuwamba 2026",
+  "Failed to load data": "An kasa loda bayanai",
+  "Delete {count} sessions last updated before {date}?": "A goge zaman {count} da aka sabunta na ƙarshe kafin {date}?",
+  "Sessions deleted: {count}": "Zaman da aka goge: {count}",
+  "Purge failed": "An kasa goge zaman"
 }

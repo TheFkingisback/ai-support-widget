@@ -814,5 +814,15 @@
   "Selecione o c?digo para copiar": "Chọn mã để sao chép",
   "CONTEXTO": "NGỮ CẢNH",
   "FERRAMENTAS": "CÔNG CỤ",
-  "Seu aplicativo": "Ứng dụng của bạn"
+  "Seu aplicativo": "Ứng dụng của bạn",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Tải lên SDK đã ghim 0.2.5, triển khai gia hạn và hủy phiên bản. Xác nhận phản hồi thực tế và ảnh chụp nhanh tương ứng trước khi phát hành.",
+  "Contrato v3 / SDK 0.2.5": "Hợp đồng v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Cài đặt, cấu hình và vòng đời của SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 gửi liên kết với tin nhắn được trình bày. SDK 0.2.1 vẫn tương thích với trò chuyện và đọc, nhưng không xác nhận ghi.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 tháng 11 năm 2026",
+  "Failed to load data": "Không tải được dữ liệu",
+  "Delete {count} sessions last updated before {date}?": "Xóa {count} phiên được cập nhật lần cuối trước {date}?",
+  "Sessions deleted: {count}": "Số phiên đã xóa: {count}",
+  "Purge failed": "Không thể xóa phiên"
 }

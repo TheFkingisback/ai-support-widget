@@ -26,7 +26,7 @@ describe('Push context and persistence', () => {
     expect(parsePushContext(context(), 'ten_a', 'usr_a').userState.entities[0].metadata.password).toBe('[REDACTED]');
   });
   it('persists only processed context and enforces tenant event/doc budgets', async () => {
-    const values = vi.fn().mockResolvedValue(undefined); const where = vi.fn().mockResolvedValue(undefined);
+    const values = vi.fn().mockReturnValue({ onConflictDoNothing: async () => {} }); const where = vi.fn().mockResolvedValue(undefined);
     const tx = { insert: () => ({ values }), update: () => ({ set: () => ({ where }) }) };
     const db = { select: () => ({ from: () => ({ where: () => ({ limit: async () => [{ id: 'cas_a' }] }) }) }),
       transaction: async (fn: (value: typeof tx) => Promise<void>) => fn(tx) } as unknown as PostgresJsDatabase;

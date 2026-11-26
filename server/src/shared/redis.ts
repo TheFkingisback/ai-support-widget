@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import { Queue, type ConnectionOptions, type QueueOptions } from 'bullmq';
-import { log } from './logger.js';
+import { errorCode, log } from './logger.js';
 
 let redisClient: Redis | null = null;
 let redisConfig: { host: string; port: number; maxRetriesPerRequest: null } | null = null;
@@ -23,6 +23,7 @@ export function getRedis(redisUrl?: string): Redis {
   redisClient = new Redis(url, {
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
+    commandTimeout: 3000,
   });
 
   redisClient.on('connect', () => {
@@ -30,7 +31,7 @@ export function getRedis(redisUrl?: string): Redis {
   });
 
   redisClient.on('error', (err) => {
-    log.error('Redis error', undefined, { error: err.message });
+    log.error('Redis error', undefined, { errorCode: errorCode(err) });
   });
 
   return redisClient;

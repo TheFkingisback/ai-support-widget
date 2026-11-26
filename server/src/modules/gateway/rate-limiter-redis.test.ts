@@ -11,6 +11,11 @@ function createMockRedis() {
   const store = new Map<string, { value: number; expiresAt: number | null }>();
 
   return {
+    async eval(_script: string, _keys: number, key: string, ms: number) {
+      const count = await this.incr(key);
+      if (count === 1) await this.pexpire(key, ms);
+      return count;
+    },
     async incr(key: string): Promise<number> {
       const now = Date.now();
       const entry = store.get(key);

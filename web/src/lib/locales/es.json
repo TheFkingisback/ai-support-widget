@@ -814,5 +814,15 @@
   "Seu aplicativo": "Tu aplicación",
   "Autentica a pessoa": "Autentica al usuario",
   "Contexto autorizado": "Contexto autorizado",
-  "Explica o que aconteceu": "Explica lo que sucedió"
+  "Explica o que aconteceu": "Explica lo que sucedió",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Sube el SDK fijado 0.2.5, implementa la renovación y destrucción de instancias. Confirma una respuesta real y la instantánea correspondiente antes de liberarlo.",
+  "Contrato v3 / SDK 0.2.5": "Contrato v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Instalación, configuración y ciclo de vida del SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "El SDK 0.2.5 envía el enlace con el mensaje presentado. El SDK 0.2.1 sigue siendo compatible con el chat y la lectura, pero no confirma la escritura.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 de noviembre de 2026",
+  "Failed to load data": "No se pudieron cargar los datos",
+  "Delete {count} sessions last updated before {date}?": "¿Eliminar {count} sesiones cuya última actualización fue anterior a {date}?",
+  "Sessions deleted: {count}": "Sesiones eliminadas: {count}",
+  "Purge failed": "No se pudieron eliminar las sesiones"
 }

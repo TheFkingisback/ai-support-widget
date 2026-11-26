@@ -1,3 +1,4 @@
+import { turnId } from '../gateway/turn-identity.js';
 import crypto from 'node:crypto';
 import { eq, and } from 'drizzle-orm';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
@@ -31,6 +32,12 @@ export function createSnapshotService(db: PostgresJsDatabase, tenantService: Ten
       const owner = await db.select({ id: cases.id }).from(cases)
         .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId))).limit(1);
       if (!owner.length) throw new NotFoundError('Case', caseId);
+      const stableId = turnId('scs');
+      if (stableId) {
+        const [existing] = await db.select().from(snapshots)
+          .where(and(eq(snapshots.id, stableId), eq(snapshots.tenantId, tenantId), eq(snapshots.caseId, caseId)));
+        if (existing) return existing.data as SupportContextSnapshot;
+      }
       const windowHours = Math.min(ctx.userHistory.windowHours, config.maxEventWindowHours);
       const cutoff = Date.now() - windowHours * 3600000;
       const recent = <T>(items: T[], timestamp: (v: T) => string) => items
@@ -44,7 +51,7 @@ export function createSnapshotService(db: PostgresJsDatabase, tenantService: Ten
       const docs = (ctx.knowledgePack?.docs ?? []).slice(0, config.maxDocs);
       const maxBytes = Math.min(config.maxContextBytes, 262144);
       const snapshot: SupportContextSnapshot = {
-        meta: { snapshotId: `scs_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`,
+        meta: { snapshotId: stableId ?? `scs_${crypto.randomUUID().replace(/-/g, '').slice(0, 16)}`,
           createdAt: new Date().toISOString(), maxBytes,
           truncation: { eventsRemoved: ctx.userHistory.events.length - events.length,
             logsTrimmed: requests.length + errors.length + jobs.length < ctx.userLogs.recentRequests.length + ctx.userLogs.errors.length + ctx.userLogs.jobs.length,
@@ -64,7 +71,7 @@ export function createSnapshotService(db: PostgresJsDatabase, tenantService: Ten
       if (bytesTotal > maxBytes) throw new ValidationError('Essential context exceeds tenant budget', 'context');
       await db.transaction(async tx => {
         await tx.insert(snapshots).values({ id: processed.meta.snapshotId, tenantId, userId, caseId,
-          data: processed, bytesTotal, truncation: processed.meta.truncation, createdAt: new Date() });
+          data: processed, bytesTotal, truncation: processed.meta.truncation, createdAt: new Date() }).onConflictDoNothing();
         await tx.update(cases).set({ snapshotId: processed.meta.snapshotId })
           .where(and(eq(cases.id, caseId), eq(cases.tenantId, tenantId), eq(cases.userId, userId)));
       });

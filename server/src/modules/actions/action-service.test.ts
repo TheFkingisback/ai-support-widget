@@ -89,7 +89,7 @@ describe('Human-confirmed generic actions', () => {
   });
   it('serializes concurrent confirmations', async () => {
     const f = await fixture(); const shown = await f.prepare(); const a = await f.turn(shown.id); const b = await f.turn(shown.id);
-    const results = await Promise.allSettled([a,b].map(t => f.service.withLock(f.p, () => f.service.respond(t))));
+    const results = await Promise.allSettled([a,b].map(t => f.service.respond(t)));
     expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(1);
     expect(f.signer.sign).toHaveBeenCalledTimes(1);
   });

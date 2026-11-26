@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { log } from '../../shared/logger.js';
+import { errorCode, log } from '../../shared/logger.js';
 import type { GatewayService } from '../gateway/gateway.service.js';
 import type { SnapshotService } from '../snapshot/snapshot.service.js';
 import type { Connector } from './connectors/connector.js';
@@ -71,7 +71,7 @@ export function createEscalationService(deps: EscalationDeps): EscalationService
       } catch (err) {
         log.warn('Escalation: snapshot not found', requestId, {
           snapshotId: caseData.snapshotId,
-          error: err instanceof Error ? err.message : String(err),
+          errorCode: errorCode(err),
         });
       }
 

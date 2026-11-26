@@ -1,4 +1,4 @@
-import { log } from '../../shared/logger.js';
+import { errorCode, log } from '../../shared/logger.js';
 import type { OpenRouterModel } from '../../shared/types.js';
 
 interface OpenRouterModelRaw {
@@ -73,7 +73,7 @@ export function createModelListService(apiKey: string): ModelListService {
         return models;
       } catch (err) {
         log.warn('getModels: fetch failed, returning stale cache', requestId, {
-          error: err instanceof Error ? err.message : String(err),
+          errorCode: errorCode(err),
           hasStalecache: !!cache,
         });
 

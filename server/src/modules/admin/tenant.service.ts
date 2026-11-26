@@ -44,6 +44,7 @@ export interface TenantRecord {
   name: string;
   plan: string;
   config: TenantConfig;
+  adminApiKeyHash?: string;
   apiBaseUrl: string;
   serviceToken: string;
   createdAt: string;
@@ -95,12 +96,11 @@ export function createTenantService(store: TenantStore): TenantService {
       const now = new Date().toISOString();
       const defaults = PLAN_DEFAULTS[plan];
       const adminApiKey = generateAdminKey();
-      const mergedConfig: TenantConfig = {
-        ...defaults, ...config, adminApiKeyHash: hashApiKey(adminApiKey),
-      };
+      const { adminApiKeyHash: _ignored, ...settings } = config ?? {};
+      const mergedConfig: TenantConfig = { ...defaults, ...settings };
 
       const record: TenantRecord = {
-        id, name, plan, config: mergedConfig,
+        id, name, plan, config: mergedConfig, adminApiKeyHash: hashApiKey(adminApiKey),
         // Empty legacy fields represent an unconfigured pull integration.
         // Keep existing NOT NULL columns compatible without inventing credentials.
         apiBaseUrl, serviceToken: serviceToken ? encryptToken(serviceToken) : '',
@@ -140,8 +140,7 @@ export function createTenantService(store: TenantStore): TenantService {
       if (!existing) throw new NotFoundError('Tenant', tenantId);
 
       const adminApiKey = generateAdminKey();
-      const config = { ...existing.config, adminApiKeyHash: hashApiKey(adminApiKey) };
-      await store.update(tenantId, { config, updatedAt: new Date().toISOString() });
+      await store.update(tenantId, { adminApiKeyHash: hashApiKey(adminApiKey), updatedAt: new Date().toISOString() });
 
       log.info('Tenant admin key reset', requestId, { tenantId });
       return { adminApiKey };

@@ -178,12 +178,10 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  let previousDraft: { text: string; id?: string } | undefined;
+  let previousDraft: { text: string; id?: string; context?: Record<string, unknown> } | undefined;
   async function handleSend(): Promise<void> {
     const text = input.value.trim();
     if (!text || sending) return;
-    if (previousDraft?.text !== text) previousDraft = { text, id: globalThis.crypto?.randomUUID?.() };
-    const turnId = previousDraft.id;
     sending = true;
     sendBtn.setAttribute('disabled', '');
     input.readOnly = true;
@@ -191,9 +189,14 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
 
     const typing = showTyping();
     try {
+      if (previousDraft?.text !== text) {
+        const context = !caseId ? (config.getContext ? config.getContext() : config.context) : undefined;
+        previousDraft = { text, id: globalThis.crypto?.randomUUID?.(), context: context && JSON.parse(JSON.stringify(context)) as Record<string, unknown> };
+      }
+      const turnId = previousDraft.id;
       let aiMsg: Message;
       if (!caseId) {
-        const result = await apiClient.createCase(text, config.getContext ? config.getContext() : config.context, turnId);
+        const result = await apiClient.createCase(text, previousDraft.context, turnId);
         caseId = result.case.id;
         suggestion.hidden = false;
         config.onCaseCreated?.(caseId);
@@ -211,18 +214,19 @@ export function createChatPanel(config: ChatPanelConfig): ChatPanel {
       appendRendered(aiMsg);
       input.value = '';
       previousDraft = undefined;
-    } catch {
+    } catch (failure) {
       typing.remove();
+      const unknown = failure && typeof failure === 'object' && 'error' in failure && failure.error === 'TURN_OUTCOME_UNKNOWN';
       const errEl = document.createElement('div');
       errEl.className = 'ai-msg system';
       errEl.dataset.sendError = '';
       errEl.setAttribute('role', 'status');
-      errEl.textContent = copy.sendFailed + ' ';
+      errEl.textContent = unknown ? copy.turnResultUnknown : copy.sendFailed + ' ';
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.textContent = copy.retry;
       retry.addEventListener('click', () => void handleSend());
-      errEl.appendChild(retry);
+      if (!unknown) errEl.appendChild(retry);
       messagesEl.appendChild(errEl);
     } finally {
       sending = false;

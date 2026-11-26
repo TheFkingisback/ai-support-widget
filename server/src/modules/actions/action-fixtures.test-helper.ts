@@ -9,16 +9,15 @@ export async function fixture() {
   const gateway = createMockGatewayService();
   const created = await gateway.createCase('ten_a', 'usr_a', 'Please change the car');
   const p: Principal = { tenantId: 'ten_a', userId: 'usr_a', caseId: created.case.id };
-  const records: ActionRecord[] = []; const locked = new Set<string>();
+  const records: ActionRecord[] = [];
   const scope = (a: Principal, b: Principal) => a.tenantId === b.tenantId && a.userId === b.userId && a.caseId === b.caseId;
   const store: ActionStore = {
     latest: async principal => structuredClone(records.filter(r => scope(r, principal)).at(-1) ?? null),
     insert: async row => { records.push(structuredClone(row)); },
-    save: async row => { const i = records.findIndex(r => r.id === row.id && scope(r, row)); records[i] = structuredClone(row); },
-    async withLock(principal, fn) {
-      const key = JSON.stringify([principal.tenantId, principal.userId, principal.caseId]);
-      if (locked.has(key)) throw new Error('ACTION_CONVERSATION_BUSY');
-      locked.add(key); try { return await fn(); } finally { locked.delete(key); }
+    save: async (row, expected) => {
+      const i = records.findIndex(r => r.id === row.id && scope(r, row) && r.state === expected);
+      if (i < 0) throw new Error('ACTION_STATE_CONFLICT');
+      records[i] = structuredClone(row);
     },
   };
   let time = Date.now(); let serial = 0;

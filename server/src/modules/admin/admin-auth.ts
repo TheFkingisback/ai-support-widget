@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { verifyAdminPassword } from './admin-password.js';
-import { createInMemoryRateLimiter } from '../gateway/rate-limiter.js';
+import { createInMemoryRateLimiter, type RateLimiter } from '../gateway/rate-limiter.js';
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import { ForbiddenError } from '../../shared/errors.js';
 import { log } from '../../shared/logger.js';
@@ -109,8 +109,7 @@ const loginBody = z.object({
 }).strict();
 
 /** Email/password login for the platform administrator. API keys remain API-only. */
-export function createLoginHandler(opts: AdminAuthOpts) {
-  const limiter = createInMemoryRateLimiter();
+export function createLoginHandler(opts: AdminAuthOpts, limiter: RateLimiter = createInMemoryRateLimiter()) {
   return async function loginHandler(
     request: FastifyRequest,
     reply: FastifyReply,

@@ -44,7 +44,7 @@ $integration = Join-Path $root 'integration/v3'
 $mirror = Join-Path $public 'integration-v3'
 $kit = Join-Path $stage 'full-kit'
 New-Item -ItemType Directory -Path $kit | Out-Null
-$inputs = @('GUIA.md','ACEITE.md','PUBLICACAO.md','context.schema.json','context.example.json',
+$inputs = @('INICIAR.html','GUIA.md','ACEITE.md','PUBLICACAO.md','context.schema.json','context.example.json',
   'backend-session.mjs','backend.env.example','examples.test.mjs','mcp-auth.mjs','widget-controller.mjs')
 foreach ($input in $inputs) {
   $source = Join-Path $integration $input

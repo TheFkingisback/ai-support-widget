@@ -814,5 +814,15 @@
   "Responde com evid?ncias": "証拠とともに回答します",
   "Selecione o c?digo para copiar": "コピーするコードを選択",
   "CONTEXTO": "CONTEXT",
-  "FERRAMENTAS": "TOOLS"
+  "FERRAMENTAS": "TOOLS",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "SDK 0.2.5を固定してロードし、インスタンスの更新と破棄を実装します。リリース前に実際の応答と対応するスナップショットを確認してください。",
+  "Contrato v3 / SDK 0.2.5": "契約 v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "SDK 0.2.5 のインストール、設定、ライフサイクル。",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 は、提示されたメッセージでリンクを送信します。SDK 0.2.1 はチャットと読み取りとの互換性を維持しますが、書き込みは確認しません。",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 2026年11月23日",
+  "Failed to load data": "データの読み込みに失敗しました",
+  "Delete {count} sessions last updated before {date}?": "最終更新が {date} より前のセッションを {count} 件削除しますか？",
+  "Sessions deleted: {count}": "削除したセッション数: {count}",
+  "Purge failed": "セッションの削除に失敗しました"
 }

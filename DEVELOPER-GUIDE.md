@@ -82,7 +82,7 @@ E **multi-tenant**: cada empresa-cliente recebe um `tenantId` unico (ex: `ten_a1
 
 ### Pre-requisitos
 
-- **Node.js 20+** instalado
+- **Node.js 24** instalado
 - **Docker Desktop** rodando (para PostgreSQL e Redis)
 - **Chave do OpenRouter** (https://openrouter.ai — crie uma conta e gere uma API key)
 
@@ -92,20 +92,19 @@ E **multi-tenant**: cada empresa-cliente recebe um `tenantId` unico (ex: `ten_a1
 # 1. Clone o repositorio
 git clone <url> && cd ai-support-widget
 
-# 2. Instale dependencias (3 modulos separados)
-cd server && npm install && cd ..
-cd web && npm install && cd ..
-cd widget && npm install && cd ..
+# 2. Instale as dependências a partir do lockfile
+npm ci
 
-# 3. Suba o banco e o Redis
-docker-compose up -d
+# 3. Configure o .env na raiz, incluindo DB_PASSWORD, DB_PORT e REDIS_PORT
+# Consulte o exemplo abaixo.
 
-# 4. Verifique se os containers estao rodando
-docker ps
-# Esperado: aiwidget-postgres (5434) e aiwidget-redis (6381)
+# 4. Inicie os serviços locais
+docker compose up -d
 
-# 5. Configure o .env (na raiz do projeto)
-# Veja secao abaixo
+# 5. Aplique as migrações na ordem numérica (Bash)
+for file in server/src/migrations/[0-9]*.sql; do
+  docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U aiwidget -d aiwidget_dev < "$file" || exit 1
+done
 
 # 6. Inicie o backend
 cd server
@@ -121,9 +120,19 @@ npm run dev -- --port 3003
 ### Arquivo .env (raiz do projeto)
 
 ```bash
-DATABASE_URL=postgres://aiwidget:devpassword@localhost:5434/aiwidget_dev
+DB_PASSWORD=<senha-local>
+DB_PORT=5434
+REDIS_PORT=6381
+DATABASE_URL=postgres://aiwidget:<senha-local-codificada-para-URL>@localhost:5434/aiwidget_dev
 REDIS_URL=redis://localhost:6381
-JWT_SECRET=uma-chave-secreta-com-pelo-menos-32-caracteres-aqui
+# Gere quatro segredos independentes com pelo menos 32 caracteres cada.
+JWT_SECRET=<segredo-legado>
+ADMIN_JWT_SECRET=<segredo-do-admin>
+WIDGET_JWT_SECRET=<segredo-do-widget>
+TOKEN_ENCRYPTION_KEY=<chave-de-criptografia>
+ADMIN_API_KEY=<chave-administrativa-com-pelo-menos-16-caracteres>
+ADMIN_EMAIL=admin@example.test
+ADMIN_PASSWORD_HASH=<hash-do-administrador-no-formato-do-projeto>
 OPENROUTER_API_KEY=sk-or-v1-sua-chave-aqui
 LOG_LEVEL=medium
 PORT=3002

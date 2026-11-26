@@ -49,7 +49,7 @@ function createMockTenantStore(): TenantStore & { _records: TenantRecord[] } {
     },
     async findAll() { return [..._records]; },
     async findByAdminKeyHash(hash) {
-      return _records.find((r) => r.config.adminApiKeyHash === hash) ?? null;
+      return _records.find((r) => r.adminApiKeyHash === hash) ?? null;
     },
   };
 }

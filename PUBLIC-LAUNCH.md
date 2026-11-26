@@ -28,4 +28,10 @@ Production browser checks covered all 24 homepage variants at phone width, prefe
 
 ## Local verification
 
-Run `bash scripts/verify-release.sh` from the repository. Set `WORKSPACE_TEST_DATABASE_URL` and `ACTION_TEST_DATABASE_URL` to a dedicated local PostgreSQL database named `aiwidget_dev` to include the database-backed tests. Rebuild the pinned SDK with `npm run build --workspace @ai-support/widget` and refresh the starter ZIP with [the packaging script](integration/starter/package.ps1).
+Run `bash scripts/verify-release.sh` from the repository. Docker must be running so the check can create and remove its own PostgreSQL and Redis containers. Rebuild the pinned SDK with `npm run build --workspace @ai-support/widget` and refresh the starter ZIP with [the packaging script](integration/starter/package.ps1).
+
+## Migration 010 and SDK 0.2.5
+
+Migration 010 backfills existing administrative key hashes, indexes the session list, and links cached replies and child records to their conversations. Apply it before starting the updated server. During an application rollback the previous binary can read the mirrored key. Use the current server for key rotations.
+
+The production Compose profile allows one trusted proxy hop on the loopback API port. Set `TRUST_PROXY_HOPS=0` when serving clients directly. The default daily spend warning is USD 25 per tenant (UTC). Change `DAILY_COST_ALERT_USD` to set the threshold. The worker logs queue delays over 30 seconds. Both events appear in the normal warning logs.

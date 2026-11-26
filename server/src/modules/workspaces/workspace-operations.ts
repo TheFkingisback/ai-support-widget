@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { AppError, ForbiddenError } from '../../shared/errors.js';
 import { validateBody } from '../../shared/validation.js';
 import { localeSchema, type WorkspaceOptions } from './workspace-routes.js';
-import { secret, type WorkspaceStore } from './workspace-store.js';
+import { hash, secret, type WorkspaceStore } from './workspace-store.js';
 import { defaultLocale, matchLocale } from '@ai-support/shared/locales';
 import { suggestionId, suggestionStatus } from './suggestions.js';
 
@@ -42,6 +42,8 @@ export function registerWorkspaceOperations(api: FastifyInstance, options: Works
     const invite = validateBody(z.object({ email, role: z.enum(['developer', 'support']), locale: localeSchema.optional() }).strict(), request.body);
     if (invite.email === current.email) throw new AppError(409, 'WORKSPACE_OWNER_EXISTS', 'This email already owns your workspace');
     if (!mail) throw new AppError(503, 'WORKSPACE_MAIL_UNAVAILABLE', 'Workspace invitations are currently unavailable.');
+    await options.rateLimiter?.check(`mail-workspace:${current.id}`, 20, 60_000, request.id);
+    await options.rateLimiter?.check(`mail-to:${hash(invite.email)}`, 1, 60_000, request.id);
     const token = secret();
     const locale = invite.locale ?? matchLocale(current.locale) ?? defaultLocale;
     await store.saveLink(token, invite.email, current.name, new Date(Date.now() + 20 * 60_000), { workspaceId: current.id, role: invite.role }, locale);

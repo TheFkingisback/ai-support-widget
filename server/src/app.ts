@@ -4,7 +4,7 @@ import helmet from '@fastify/helmet';
 import crypto from 'node:crypto';
 import { registerAuth } from './shared/auth.js';
 import { AppError } from './shared/errors.js';
-import { log, setLogLevel } from './shared/logger.js';
+import { errorCode, log, setLogLevel } from './shared/logger.js';
 import { getEnvSafe } from './shared/env.js';
 import { registerGatewayRoutes } from './modules/gateway/gateway.routes.js';
 import type { GatewayService } from './modules/gateway/gateway.service.js';
@@ -43,6 +43,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
 
   const app = Fastify({
     logger: false,
+    trustProxy: env.TRUST_PROXY_HOPS === 1 ? (_address, hop) => hop === 0 : false,
     bodyLimit: 1_048_576,
     genReqId: () => `req_${crypto.randomUUID().replace(/-/g, '').slice(0, 12)}`,
   });
@@ -86,12 +87,12 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
 
   // Request logging
   app.addHook('onRequest', async (request: FastifyRequest) => {
-    log.info(`→ ${request.method} ${request.url}`, request.id as string);
+    log.info(`→ ${request.method} ${request.routeOptions.url ?? 'unmatched'}`, request.id as string);
   });
 
   // Response logging
   app.addHook('onResponse', async (request: FastifyRequest, reply: FastifyReply) => {
-    log.info(`← ${request.method} ${request.url} ${reply.statusCode}`, request.id as string, {
+    log.info(`← ${request.method} ${request.routeOptions.url ?? 'unmatched'} ${reply.statusCode}`, request.id as string, {
       statusCode: reply.statusCode,
       elapsedMs: Math.round(reply.elapsedTime),
     });
@@ -103,7 +104,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
       const reqId = request.id as string;
 
       if (error instanceof AppError) {
-        log.error(error.message, reqId, {
+        log.error('Request rejected', reqId, {
           errorCode: error.errorCode,
           statusCode: error.statusCode,
         });
@@ -116,7 +117,7 @@ export async function buildApp(opts?: AppDeps): Promise<FastifyInstance> {
         });
       }
 
-      log.error(`Unhandled error: ${error.message}`, reqId);
+      log.error('Request failed', reqId, { errorCode: errorCode(error) });
       return reply.code(500).send({
         statusCode: 500,
         error: 'INTERNAL_ERROR',

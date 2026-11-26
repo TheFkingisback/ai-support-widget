@@ -28,20 +28,21 @@ describe.skipIf(!url)('Action store on PostgreSQL', () => {
     await store.insert(a); const b = { ...a, id: 'next_record', proposal: { ...a.proposal, actionId: 'next_remote' } };
     await expect(store.insert(b)).rejects.toThrow();
     expect(await store.latest({ ...a, userId: 'usr_other' })).toBeNull();
-    await expect(store.save({ ...a, tenantId: 'ten_other' })).rejects.toThrow();
-    a.state = 'cancelled'; await store.save(a); await store.insert(b);
+    await expect(store.save({ ...a, tenantId: 'ten_other' }, 'pending_confirmation')).rejects.toThrow();
+    a.state = 'cancelled'; await store.save(a, 'pending_confirmation'); await store.insert(b);
     expect((await createActionStore(db).latest(a))?.id).toBe(b.id); // Same timestamp; database sequence decides.
-    b.state = 'unknown'; await store.save(b);
+    b.state = 'unknown'; await store.save(b, 'pending_confirmation');
     await expect(store.insert({ ...b, id: 'third', proposal: { ...b.proposal, actionId: 'third' } })).rejects.toThrow();
     expect((await createActionStore(db).latest(a))?.state).toBe('unknown');
   });
-  it('locks across independent stores and releases after failure', async () => {
-    const p = { tenantId: 'a', userId: 'b', caseId: 'c' };
-    await store.withLock(p, async () => {
-      await expect(createActionStore(db).withLock({ caseId: 'c', userId: 'b', tenantId: 'a' }, async () => true)).rejects.toThrow();
-      expect(await store.withLock({ ...p, userId: 'other' }, async () => true)).toBe(true);
-    });
-    await expect(store.withLock(p, async () => { throw new Error('failure'); })).rejects.toThrow();
-    expect(await store.withLock(p, async () => true)).toBe(true);
+  it('rejects an obsolete claim across independent stores', async () => {
+    const f = await fixture(); await f.prepare();
+    const a = { ...f.records[0], presentedMessageId: null, caseId: 'cas_atomic' };
+    await client`insert into cases(id) values (${a.caseId})`;
+    await client`insert into tenants(id) values (${a.tenantId}) on conflict do nothing`;
+    await store.insert(a);
+    a.state = 'executing';
+    const claims = await Promise.allSettled([store, createActionStore(db)].map(s => s.save(a, 'pending_confirmation')));
+    expect(claims.filter(c => c.status === 'fulfilled')).toHaveLength(1);
   });
 });

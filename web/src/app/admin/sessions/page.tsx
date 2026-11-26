@@ -1,9 +1,9 @@
 'use client';
-import { L } from '@/lib/localization';
-import { useState, useEffect } from 'react';
+import { L, useT, useLocale } from '@/lib/localization';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { MessageSquare, Database, Cpu, DollarSign, Trash2, Search } from 'lucide-react';
-import { getSessions, purgeSessions } from '@/lib/api';
+import { sessionPage, previewPurge, purgeSessions } from '@/lib/api';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -11,34 +11,57 @@ import { SkeletonTable } from '@/components/ui/skeleton';
 import type { SessionSummary } from '@/lib/types';
 
 export default function SessionsPage() {
+  const t = useT();
+  const locale = useLocale();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [purging, setPurging] = useState(false);
   const [purgeMsg, setPurgeMsg] = useState<string | null>(null);
-  const [purgeDays, setPurgeDays] = useState(30);
+  const [daysInput, setDaysInput] = useState('30');
+  const [next, setNext] = useState<string | null>(null);
+  const [revision, refresh] = useState(0);
+  const [loadError, setLoadError] = useState(false);
+  const generation = useRef(0);
+  const days = Number(daysInput);
+  const validPeriod = Number.isInteger(days) && days >= 1 && days <= 365;
+  const status = filter === 'all' ? undefined : filter;
 
-  const loadSessions = () => {
-    setLoading(true);
-    getSessions().then(setSessions).catch(() => {}).finally(() => setLoading(false));
-  };
-  useEffect(loadSessions, []);
+  useEffect(() => {
+    const id = ++generation.current;
+    setNext(null); setSessions([]); setLoading(true); setLoadError(false);
+    const timer = setTimeout(() => {
+      sessionPage({ status, search }).then(page => {
+        if (generation.current === id) { setSessions(page.sessions); setNext(page.next); }
+      }).catch(() => { if (generation.current === id) setLoadError(true); })
+        .finally(() => { if (generation.current === id) setLoading(false); });
+    }, 150);
+    return () => { clearTimeout(timer); generation.current++; };
+  }, [status, search, revision]);
 
-  const handlePurge = async () => {
-    if (!confirm(`Delete all sessions older than ${purgeDays} days? This cannot be undone.`)) return;
-    setPurging(true);
-    setPurgeMsg(null);
+  async function loadMore() {
+    if (!next || loading) return;
+    const id = generation.current;
+    setLoading(true); setLoadError(false);
     try {
-      const result = await purgeSessions(purgeDays);
-      setPurgeMsg(`Purged ${result.purged} sessions`);
-      loadSessions();
-    } catch { setPurgeMsg('Purge failed'); } finally { setPurging(false); }
-  };
+      const page = await sessionPage({ before: next, status, search });
+      if (id === generation.current) { setSessions(items => [...items, ...page.sessions]); setNext(page.next); }
+    } catch { if (id === generation.current) setLoadError(true); }
+    finally { if (id === generation.current) setLoading(false); }
+  }
 
-  const filtered = sessions
-    .filter((s) => filter === 'all' || s.status === filter)
-    .filter((s) => !search || s.id.includes(search) || s.userId.includes(search));
+  async function handlePurge() {
+    if (!validPeriod || purging) return;
+    setPurging(true); setPurgeMsg(null);
+    try {
+      const preview = await previewPurge(days);
+      if (!preview.count) { setPurgeMsg(t('Sessions deleted: {count}', { count: 0 })); return; }
+      if (!confirm(t('Delete {count} sessions last updated before {date}?', { count: preview.count, date: new Date(preview.cutoff).toLocaleString(locale) }))) return;
+      const result = await purgeSessions(days, preview.cutoff);
+      setPurgeMsg(t('Sessions deleted: {count}', { count: result.purged })); refresh(v => v + 1);
+    } catch { setPurgeMsg(t('Purge failed')); } finally { setPurging(false); }
+  }
 
   return (
     <div>
@@ -64,25 +87,26 @@ export default function SessionsPage() {
         </div>
         <div className="flex items-center gap-2 rounded-xl border border-surface-400 bg-surface-200 px-3">
           <Trash2 size={14} className="text-red-400" aria-hidden="true" />
-          <input type="number" min={1} max={365} value={purgeDays}
-            onChange={(e) => setPurgeDays(Number(e.target.value))}
+          <input type="number" min={1} max={365} value={daysInput}
+            onChange={(e) => setDaysInput(e.target.value)}
             className="w-14 bg-transparent py-2.5 text-center text-sm text-surface-900 outline-none" aria-label="Days" />
           <span className="text-xs text-surface-600"><L>{"days"}</L></span>
-          <button type="button" onClick={handlePurge} disabled={purging}
+          <button type="button" onClick={handlePurge} disabled={purging || !validPeriod}
             className="btn-danger py-1.5 px-3 text-xs">
-            {purging ? '...' : 'Purge'}
+            {purging ? '…' : t('Purge')}
           </button>
         </div>
       </div>
 
       {purgeMsg && <p className="mb-4 text-xs text-surface-600 animate-fade-in">{purgeMsg}</p>}
 
-      {loading ? <SkeletonTable rows={5} /> : filtered.length === 0 ? (
+      {loadError && <p role="alert"><L>{"Failed to load data"}</L></p>}
+      {loadError && !sessions.length ? null : loading && !sessions.length ? <SkeletonTable rows={5} /> : sessions.length === 0 ? (
         <EmptyState icon={MessageSquare} title="No sessions"
           description="Sessions will appear here when users start support conversations." />
       ) : (
         <div className="space-y-3">
-          {filtered.map((s) => (
+          {sessions.map((s) => (
             <Link key={s.id} href={`/admin/sessions/${s.id}`} className="card-interactive block p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -110,6 +134,7 @@ export default function SessionsPage() {
           ))}
         </div>
       )}
+      {next && <button className="btn-secondary mt-4" disabled={loading} onClick={loadMore}><L>{"Load more"}</L></button>}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { TOKEN_ISSUER, WIDGET_AUDIENCE } from './token-policy.js';
 import { UnauthorizedError } from './errors.js';
-import { log } from './logger.js';
+import { errorCode, log } from './logger.js';
 import type { WidgetAuthPayload } from './types.js';
 
 declare module 'fastify' {
@@ -69,7 +69,7 @@ export async function registerAuth(app: FastifyInstance, opts: AuthOptions): Pro
       log.warn(
         'Auth failed',
         request.requestId,
-        { error: err instanceof Error ? err.message : String(err) },
+        { errorCode: errorCode(err) },
       );
       throw new UnauthorizedError('Invalid or expired support session');
     }

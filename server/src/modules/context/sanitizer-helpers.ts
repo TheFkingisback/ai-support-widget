@@ -1,5 +1,7 @@
 // Regex patterns for sanitization
 export const SECRET_PATTERNS: RegExp[] = [
+  /\bsik_[0-9a-f]{32}\.[A-Za-z0-9_-]{43}/gi,
+  /\btsk_[A-Za-z0-9_-]{32}/g,
   /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, // JWT
   /(?:sk|pk|api|key|token|secret|password)[_-]?[A-Za-z0-9_-]{16,}/gi, // API keys
   /(?:mongodb|postgres|mysql|redis):\/\/[^\s"',}]+/gi, // Connection strings

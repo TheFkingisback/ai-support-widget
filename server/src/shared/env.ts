@@ -20,6 +20,8 @@ const envSchema = z.object({
   ADMIN_EMAIL: z.string().trim().email().transform((email) => email.toLowerCase()),
   ADMIN_PASSWORD_HASH: z.string().regex(ADMIN_PASSWORD_HASH_PATTERN),
   CORS_ORIGINS: z.string().optional(),
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(1).optional(),
+  DAILY_COST_ALERT_USD: z.coerce.number().positive().optional(),
   WORKSPACE_PUBLIC_ORIGIN: z.string().url().refine(value => new URL(value).origin === value).optional(),
   POSTMARK_SERVER_TOKEN: z.preprocess(value => value === '' ? undefined : value, z.string().min(1).optional()),
   POSTMARK_FROM: z.preprocess(value => value === '' ? undefined : value, z.string().email().optional()),

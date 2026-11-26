@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { AppError, ForbiddenError, UnauthorizedError } from '../../shared/errors.js';
 import { validateBody } from '../../shared/validation.js';
 import { createIntegrationCredential, issueWidgetSession } from '../sessions/session.routes.js';
+import type { RateLimiter } from '../gateway/rate-limiter.js';
 import type { SessionStore } from '../sessions/session.store.js';
 import type { WorkspaceMail } from './workspace-mail.js';
 import { hash, secret, sessionDuration, type WorkspaceStore } from './workspace-store.js';
@@ -29,6 +30,7 @@ const originBody = z.object({ origin: z.string().trim().max(255).url().refine(va
 }, 'Enter an exact HTTPS browser origin') }).strict();
 
 export interface WorkspaceOptions {
+  rateLimiter?: RateLimiter;
   store: WorkspaceStore;
   sessions: SessionStore;
   publicOrigin: string;
@@ -72,6 +74,8 @@ export async function registerWorkspaceRoutes(app: FastifyInstance, options: Wor
     api.post('/begin', async (request, reply) => {
       if (!mail) throw new AppError(503, 'WORKSPACE_MAIL_UNAVAILABLE', 'Email sign-in is currently unavailable');
       const data = validateBody(authBody, request.body);
+      await options.rateLimiter?.check(`mail-ip:${request.ip}`, 20, 60_000, request.id);
+      await options.rateLimiter?.check(`mail-to:${hash(data.email)}`, 1, 60_000, request.id);
       const token = secret();
       const locale = data.locale ?? matchAcceptLanguage(request.headers['accept-language']) ?? defaultLocale;
       await store.saveLink(token, data.email, data.name ?? messagesFor(locale).workspaceDefault, new Date(Date.now() + 20 * 60_000), undefined, locale);

@@ -814,5 +814,15 @@
   "Explica o que aconteceu": "Объясняет, что произошло",
   "Responde com evid?ncias": "Отвечает с доказательствами",
   "Selecione o c?digo para copiar": "Выберите код для копирования",
-  "CONTEXTO": "CONTEXT"
+  "CONTEXTO": "CONTEXT",
+  "Carregue o SDK fixado 0.2.5, implemente renovação e destruição da instância. Confirme uma resposta real e o snapshot correspondente antes de liberar.": "Загрузите SDK версии 0.2.5, реализуйте обновление и уничтожение экземпляра. Подтвердите реальный ответ и соответствующий снимок перед выпуском.",
+  "Contrato v3 / SDK 0.2.5": "Контракт v3 / SDK 0.2.5",
+  "Instalação, configuração e ciclo de vida do SDK 0.2.5.": "Установка, настройка и жизненный цикл SDK 0.2.5.",
+  "SDK 0.2.5": "SDK 0.2.5",
+  "SDK 0.2.5 envia o vínculo com a mensagem apresentada. O SDK 0.2.1 continua compatível com chat e leitura, mas não confirma escrita.": "SDK 0.2.5 отправляет ссылку с представленным сообщением. SDK 0.2.1 остается совместимым с чатом и чтением, но не подтверждает запись.",
+  "SDK 0.2.5 · 23 novembro 2026": "SDK 0.2.5 · 23 ноября 2026 г.",
+  "Failed to load data": "Не удалось загрузить данные",
+  "Delete {count} sessions last updated before {date}?": "Удалить сеансы ({count}), обновлённые до {date}?",
+  "Sessions deleted: {count}": "Удалено сеансов: {count}",
+  "Purge failed": "Не удалось удалить сеансы"
 }
