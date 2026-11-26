@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="sr-Latn" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Priručnik za integraciju podrške</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>Priručnik za integraciju podrške</h1><p>Autentifikacija, kontekst i alati sa definisanim odgovornostima i kriterijumima prihvatanja.</p>
+<nav><a href="GUIA.md">Verzija Markdown</a> · <a href="ACEITE.md">Obrazac za prihvatanje</a> · <button onclick="window.print()">Štampaj</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">Pretraži sekciju</label><input id="search" type="search">
+<nav aria-label="Navigacija"><div class="toc">
+<ul>
+<li><a href="#section-1">1. Kako funkcioniše</a></li>
+<li><a href="#section-2">2. Okruženja i odgovornosti</a></li>
+<li><a href="#section-3">3. Akreditivi</a></li>
+<li><a href="#section-4">4. Tok autentifikacije i identiteta</a></li>
+<li><a href="#section-5">5. Ugovor izdavaoca</a></li>
+<li><a href="#section-6">6. Obavezan kontekst i ispravan identitet</a></li>
+<li><a href="#section-7">7. Polja, ograničenja i normalizacija</a></li>
+<li><a href="#section-8">8. Privatnost i postojanost</a></li>
+<li><a href="#section-9">9. Frontend i SDK 0.3.0</a></li>
+<li><a href="#section-10">10. Odjava, dozvole i istorija</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA i pristup</a></li>
+<li><a href="#section-12">12. MCP serveri u sesiji</a></li>
+<li><a href="#section-13">13. Model, prompt i znanje</a></li>
+<li><a href="#section-14">14. Ugovor o greškama i dijagnostika</a></li>
+<li><a href="#section-15">15. Obavezno prihvatanje</a></li>
+<li><a href="#section-16">16. Objavljivanje, sečenje i oporavak</a></li>
+<li><a href="#section-17">17. Povratne informacije i datoteke paketa</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">Integracija podrške · ugovor v4</h1>
+<p><strong>SDK 0.3.0 · Priručnik za pozadinu, prednji kraj i rad</strong></p>
+<h2 id="section-1">1. Kako funkcioniše</h2>
+<p>Vaš backend autentifikuje korisnika, projektuje autorizovani kontekst i izdaje 15-minutnu sesiju. U pozivu za izdavanje, može uključiti dostupne MCP servere za tu osobu. Pretraživač prima JWT vidžeta i kontekst.</p>
+<h2 id="section-2">2. Okruženja i odgovornosti</h2>
+<p>Platforma je na https://support-ai.pontes.uk. Koristite integracione akreditive ispravnog okruženja. Administrator radnog prostora dobija akreditive na kontrolnoj tabli. Tim aplikacije održava autentifikovani bootstrap, kontekst i delegirane tokene po korisniku i serveru.</p>
+<h2 id="section-3">3. Akreditivi</h2>
+<table>
+<thead>
+<tr>
+<th>Akreditiv</th>
+<th>Odredište</th>
+<th>Upotreba</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Integracioni akreditiv sik_</td>
+<td>Support AI</td>
+<td>Izdavanje sesije u backendu</td>
+</tr>
+<tr>
+<td>Token delegiran po serveru</td>
+<td>MCP naznačen u sesiji</td>
+<td>Pozivanje alata kao autentifikovana osoba</td>
+</tr>
+<tr>
+<td>JWT sesije</td>
+<td>API četa</td>
+<td>Otvaranje i nastavak razgovora u vidžetu</td>
+</tr>
+</tbody>
+</table>
+<p>Čuvajte integracioni akreditiv u sefu aplikacije. Opoziv ga deaktivira JWTs izdate sa njim pri sledećem zahtevu. Generišite delegirane tokene u backendu i ograničite svaki na resurs, korisnika i rok važenja.</p>
+<h2 id="section-4">4. Tok autentifikacije i identiteta</h2>
+<pre><code class="language-text">Autentifikovana sesija aplikacije
+  → backend validira aktivnu osobu, organizaciju i trenutne dozvole
+  → POST /api/widget/sessions sa sik_ na serveru
+  ← jwt + tenantKey + expiresIn
+  → backend prikuplja i projektuje kontekst ISTOG identiteta
+  ← pretraživač prima sesiju/kontekst sa Cache-Control: no-store
+  → vidžet poziva /api/cases i rute razgovora sa privremenim JWT
+</code></pre>
+<p>Očuvanje istorijskog identifikatora klijenta <code>usr_...</code> sprečava gubitak pristupa sopstvenim razgovorima. Ne koristiti email, ulogu, uređaj ili vremensku oznaku kao identitet. Ako isti korisnik može promeniti kompaniju, definisati stabilan subjekat po vezi ili eksplicitnoj politici istorije; platforma autorizuje razgovore po zakupcu + osobi, bez inferiranja organizacija klijenta.</p>
+<p>Platforma proverava potpis, izdavaoca <code>ai-support</code>, publiku <code>ai-support-widget</code>, svrhu <code>widget</code>, <code>sub=userId</code>, validnost i aktivni akreditiv sesije. Pretraživač ne potpisuje ponovo niti menja zahteve. Uloge poslate podršci su informacije o kontekstu; autorizacija API-ja/MCP nastavlja se na klijentskom serveru.</p>
+<h2 id="section-5">5. Ugovor izdavaoca</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>Odgovor 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. Validirati <code>tenantKey</code> pre vraćanja pretraživaču. Datoteka <code>backend-session.mjs</code> implementira strogo telo, vremensko ograničenje, blokiranje preusmeravanja, ograničenje odgovora i validaciju zakupca; ne zamenjuje vaš middleware za autentifikaciju.</p>
+<table>
+<thead>
+<tr>
+<th>Polje</th>
+<th>Pravilo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>Opciona lista do osam objekata sa jedinstvenim id, url i accessToken. Pogledajte odeljak 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>Obavezno, trim, 1–200 karaktera</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>Važeći email do 254 karaktera ili prazan; podrazumevano prazan</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>Do 30 stringova od 1–80 karaktera; podrazumevano prazna lista</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>String od 1–80 karaktera; podrazumevano standard</td>
+</tr>
+</tbody>
+</table>
+<p>Ne šaljite tenantId, tenantKey, userName, role, purpose, exp ili druga polja u telu. Akreditiv određuje zakupca. Identitet dolazi iz sesije/baze, a ne iz upita/tela pretraživača. Izdavalac ne prihvata korisnički JWT, administrativni ključ ili staru tajnu umesto <code>sik_</code>.</p>
+<p>Javni izdavalac radi bez kvota korišćenja po projektu. Ponovo koristite još uvek važeću sesiju iste osobe, kompanije i dozvola, sa ranijim istekom i poništavanjem pri promenama.</p>
+<h2 id="section-6">6. Obavezan kontekst i ispravan identitet</h2>
+<p>Svaki novi slučaj zahteva <code>context.userState</code>, <code>context.userHistory</code> i <code>context.userLogs</code>. Pošaljite prazne liste kada je izvor upitan i nema zapisa; <strong>ne pretvarajte neuspelu kolekciju u praznu listu koja izgleda uspešno</strong>. Ako ne možete da obezbedite važeći i autorizovan kontekst, klijentski bootstrap mora vratiti kontrolisanu grešku.</p>
+<p><code>context.example.json</code> je minimalni primer. <code>context.schema.json</code> je izvezen iz šeme Zod korišćene na serveru, nije napisan nezavisno. Validirajte JSON na backendu pre implementacije. Dodatna neprepoznata polja se odbacuju; metapodaci i pravila mogu sadržati sopstvene strukture, podložne projekciji/ograničenjima. Šema ne dokazuje autorizaciju niti eliminiše sve osetljive podatke.</p>
+<table>
+<thead>
+<tr>
+<th>Blok</th>
+<th>Obavezno / struktura</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours pozitivno do 720, events; vremenska linija se rekonstruiše iz events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>Opcionalno; docs sa id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>Opcionalno; odobren objekat pravila, serijalizovan kao runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> mora biti tačno izdati identitet. <strong><code>userState.tenantId</code> je zakupac platforme</strong>, nikada ID organizacije/prodavnice kod klijenta. Neslaganja vraćaju 403. Podaci u pretraživaču mogu biti izmenjeni; kontekst ne autorizuje operacije.</p>
+<h2 id="section-7">7. Polja, ograničenja i normalizacija</h2>
+<table>
+<thead>
+<tr>
+<th>Struktura</th>
+<th>Glavna polja / pravila</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status; id/description opcionalno; metadata objekat; do 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt; do 100</td>
+</tr>
+<tr>
+<td>errorClass od activeErrors</td>
+<td>validation, permission, infra ili business; kategorije kao što je payment zahtevaju mapiranje</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId prihvataju null/izostavljanje; do 1.000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus ceo broj, timingMs, requestId; errorCode/resourceId mogu biti null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs broj ili null; errorCode/lastStage mogu biti null</td>
+</tr>
+<tr>
+<td>status od jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors sa backenda</td>
+<td>ts, errorCode, errorClass string, route, requestId; resourceId može biti null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>Do 50; content do 32.000 znakova, ostali tekstovi do 4.096</td>
+</tr>
+</tbody>
+</table>
+<p>Datumi su ISO-8601 stringovi sa vremenskom zonom; serijalizujte Date na backendu. Ne izmišljajte updatedAt, durationMs, retryable ili kategorije samo da biste prošli šemu: koristite stvarni izvor ili izostavite zapis i prijavite nedostupnost izvora. Registrujte specifična mapiranja vašeg projekta u prihvatanju.</p>
+<p>Poslati kontekstni krov: <strong>262.144 bajta UTF-8 (256 KiB)</strong>. Ukupni HTTP ostaje ograničen na 1.048.576 bajta. Budžet snimka je <code>min(maxContextBytes, 262144)</code>. Ako se ni suštinski deo ne uklapa, zahtev ne uspeva; smanjite metapodatke/dokumente na backendu. Predlažemo da počnete sa 48 KiB, deset entiteta i kratkim znanjem.</p>
+<p>Server filtrira događaje/logove po najmanjem prozoru između traženog i prozora zakupca, uklanja buduće datume i primenjuje maxLogLines kombinovano sa zahtevima, greškama i jobs (ovim redosledom). maxDocs ograničava listu docs; businessRules je zaseban runbook i takođe zauzima ukupan budžet. Vremenska linija prati zadržane događaje. Manje relevantnih podataka obično proizvodi bolju dijagnozu i niže troškove.</p>
+<h2 id="section-8">8. Privatnost i postojanost</h2>
+<p>Dizajnirajte podatke pre slanja: nikada ne prosleđujte zaglavlja, kolačiće, JWTs, akreditive, stringove za povezivanje, potpisane URL-ove, binarni sadržaj, podatke drugih korisnika ili sirove izvoze. Zamenite tajne referencama podrške. Ne šaljite ceo PRD ili kompletne logove kao bazu znanja.</p>
+<p>Novi snimci prolaze validaciju, redakciju, smanjenje i budžetiranje pre snimanja. Poruke i rezultati alata tretiraju se poznatim obrascima tajni. Ova zaštita je komplementarna: nije nepogrešiv klasifikator ličnih podataka, ne ispravlja retroaktivno istorijske zapise niti zamenjuje projektovanje klijenta.</p>
+<p>Kontekst je snimak početka razgovora, a ne upit u realnom vremenu. Navedite vremenske oznake i izvore. <code>updateContext()</code> važi za sledeći slučaj; za trenutne podatke tokom razgovora, koristite odobreni alat za čitanje.</p>
+<h2 id="section-9">9. Frontend i SDK 0.3.0</h2>
+<p>Poslužite fiksni SDK iz paketa ili sa javnog URL-a. Proverite SHA-256 sa <code>widget.manifest.json</code>. Izbegavajte duplirani skript, plutajuću verziju i keširanje JWT. Referentni kontroler u <code>widget-controller.mjs</code> se montira nakon bootstrapa, čeka onOpen, obnavlja i sprečava kasno montiranje nakon odjave.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// Pri odjavi, promeni osobe/kompanije/uloge i čišćenju komponente:
+controller.destroy();
+</code></pre>
+<p>Gore navedene funkcije su povratni pozivi aplikacije, koje treba implementirati sa vašim uobičajenim HTTP klijentom. Bootstrap vraća <code>{jwt,tenantKey,expiresIn,context}</code>. getContext vraća kontekstni objekat. U Reactu, stabilizujte povratne pozive sa useCallback i montirajte u useEffect povezanom sa identitetom. Ne postavljajte vidžet izvan autentifikovanog područja niti nudite posetiocima sa zajedničkim userId.</p>
+<p>SDK prihvata <code>onTokenRefresh</code> koji vraća novi JWT; nakon 401, ponavlja zahtev jednom. Obnova mora koristiti istu osobu. Promena identiteta zahteva uništenje i inicijalizaciju. Ako koristite proaktivni tajmer, preferirajte oko deset minuta sa podrhtavanjem i otkažite pri čišćenju. Greške pri pokretanju, prikupljanju i modelu ne bi trebalo da blokiraju glavnu aplikaciju.</p>
+<h2 id="section-10">10. Odjava, dozvole i istorija</h2>
+<p><code>destroy()</code> prekida pozive i uklanja lokalnu postojanost po zakupcu/osobi. To nije pojedinačno opozivanje na serveru. Već kopirani JWT može ostati važeći do 15 minuta nakon odjave/zaključavanja na klijentu. Ako je potrebno trenutno opozivanje po osobi, ugovor zahteva dodatnu evoluciju; ne koristiti rotaciju celog zakupca kao normalnu odjavu.</p>
+<p>Svako čitanje/pisanje razgovora zahteva istog vlasnika i zakupca. Promena uloge na klijentu ne briše sadržaj koji je osoba već primila u razgovoru. Definisati politiku istorije za smanjenje dozvola i promene organizacije. Ne popuštati autorizaciju za oporavak starog caseId; proveriti originalni subjekat ili započeti novi razgovor.</p>
+<h2 id="section-11">11. CORS, CSP, PWA i pristup</h2>
+<p>Dozvoliti na platformi tačan izvor svakog frontenda. SDK treba connect-src za podršku; serviranje lokalnog fajla omogućava script-src self. SDK ubacuje stil u Shadow DOM i još uvek ne prima nonce: homologovati stvarnu CSP politiku, što može zahtevati evoluciju SDK za eksterne stilove/nonce/hash. Ne isključivati celu politiku.</p>
+<p>Sesije i kontekst su no-store. Isključiti rute podrške iz kešova PWA, postojanosti upita i alata za ponovno reprodukovanje. Testirati tastaturu, fokus, čitač ekrana, zum i mobilni telefon. Predstaviti pravi ljudski kanal u aplikaciji, sa potvrđenim vremenom/URL-om. SDK ne izmišlja pružaoca usluga.</p>
+<h2 id="section-12">12. MCP serveri u sesiji</h2>
+<p>Backend aplikacije šalje <code>POST /api/widget/sessions</code> sa integracionim kredencijalom <code>sik_</code>. On izvodi osobu i njenu organizaciju iz prijave i može uključivati do osam servera u <code>mcpServers</code>. Izostavljeno ili prazno polje kreira chat sa kontekstom. Svaka nova sesija dobija svoju listu.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>Svaki id počinje malim slovom i prihvata mala slova, cifre, donju crtu i crticu, do 32 znaka. ID-ovi, normalizovani URL-ovi i tokeni su jedinstveni na listi. Transport je MCP Streamable HTTP preko javnog HTTPS, porta 443, sa URL-om bez kredencijala, upita ili fragmenta. Servis proverava DNS prilikom povezivanja i odbija preusmeravanja.</p>
+<p>Aplikacija izdaje ili dobija kratak pristupni token za svaku destinaciju, ograničen na osobu, organizaciju, dozvole i publiku tog MCP. Support AI predstavlja <code>Authorization: Bearer &lt;accessToken&gt;</code> odgovarajućem serveru. Pružalac proverava potpis ili introspekciju, izdavaoca, validnost, publiku i pristup resursu u svakoj operaciji. On objavljuje u katalogu samo alate dozvoljene za taj identitet. Kredencijal platforme, JWT vidžeta i ključevi servisa kao što je Stripe imaju svoje svrhe.</p>
+<p>Delegirani token ostaje šifrovan na serveru do 900 sekundi. Pretraživač prima <code>{jwt, tenantKey, expiresIn: 900}</code>. Prilikom obnove, backend ponovo validira identitet i šalje novu listu sa važećim tokenima. Predlog kreiran pre obnove mora biti ponovo predstavljen. Za promenu organizacije, koristite stabilan identifikator po vezi i uništite prethodnu instancu vidžeta.</p>
+<p>Support AI prolazi kroz stranice <code>tools/list</code>, razlikuje ista imena po serveru i koristi originalno ime prilikom pozivanja <code>tools/call</code>. Katalozi sa više od 32 alata imaju pretragu i paginaciju unutar ćaskanja. Ograničenja otkrivanja po serveru su 128 stranica i 4 MB opisa. Neuspeh otkrivanja jednog servera čuva ostale.</p>
+<p>Alati sa <code>annotations.readOnlyHint: true</code> mogu se direktno konsultovati. Za svaki alat sa nedostajućom ili lažnom anotacijom, ćaskanje prikazuje server, ime i argumente pre izvršavanja. Deklarišite samo za čitanje za operacije bez poslovnih efekata. Korisnik odgovara <code>confirmar</code> ili <code>confirm</code> na prikazanu poruku u roku od pet minuta. SDK šalje <code>replyToMessageId</code>. Potvrda važi za te argumente, server, sesiju i razgovor. Novi predlog zamenjuje prethodni.</p>
+<p>Platforma pokušava izvršenje nakon registracije potvrde i šalje <code>Idempotency-Key</code> sa ID-om predloga. Za plaćanja i operacije sa spoljnim efektima, provajder mora atomski sačuvati ključ i rezultat i poštovati ključeve idempotencije koje zahteva finansijska usluga. Nakon isteka vremena ili dvosmislenog rezultata, podrška registruje nepoznato stanje, blokira nove izmene u tom razgovoru i održava dostupne upite. Proverite operaciju u izvornom sistemu pre nego što nastavite.</p>
+<p>Za homologaciju, testirajte sesiju bez servera, dve sesije istog korisnika, dve organizacije, servere sa istoimenim alatima i paginirani katalog. Proverite opseg/istek tokena kod provajdera, otkazivanje i duplu potvrdu. Koristite sintetičke zapise da proverite rezultat na izvoru.</p>
+<h2 id="section-13">13. Model, prompt i znanje</h2>
+<p>Početno očuvanje modela koji je već homologovan projektom smanjuje istovremene promene. Za novu evaluaciju, <code>openai/gpt-4.1-mini</code> je kompatibilan kandidat sa trenutnim parametrima: Chat Completions putem OpenRouter, temperatura 0.3 i max_tokens 2048. Validirati na stvarnom nalogu pre aktivacije. Preferred Model ima prednost nad Model Policy; auto nije inteligentno rutiranje. Cene/troškovi moraju doći od provajdera; stare procene sa panela mogu se razlikovati.</p>
+<p>Polje <strong>AI Instructions / Custom instructions</strong> prihvata do 2.000 efektivnih karaktera. Zalepite samo <code>PROMPT-TENANT.txt</code>; pregledajte imena, kanal i pravila proizvoda. Ne lepite akreditive niti spajajte dokumente u ovo polje. Uputstvo je dopunsko pravilima platforme; ne daje ovlašćenje niti omogućava alate.</p>
+<p>Dati prompt usmerava odgovore na jeziku i pismu koje je osoba odabrala, činjenice odvojene od hipoteza, poštovanje dozvola, korišćenje sigurnih referenci, odsustvo obećanja o akcijama i ljudski kanal. <code>knowledgePack.docs</code> treba da sadrži kratke i verzirane runbook-ove sa odgovornom osobom: česte greške, dijagnostiku, ograničenja proizvoda i kako potvrditi rezultat. Logovi i dokumenti su podaci, nikada uputstva za promenu pravila asistenta.</p>
+<p>Model izvori: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> i <a href="https://openrouter.ai/api/v1/models">katalog OpenRouter</a>, konsultovani u prethodnoj pripremi 14.09.2026. Ponovo potvrdite dostupnost/cene prilikom implementacije; u ovom kompletu nije bilo plaćenog poređenja modela.</p>
+<h2 id="section-14">14. Ugovor o greškama i dijagnostika</h2>
+<table>
+<thead>
+<tr>
+<th>Odgovor</th>
+<th>Značenje / akcija</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 na izdavaocu</td>
+<td>sik nedostaje, netačan ili opozvan; ispravite konfiguraciju</td>
+</tr>
+<tr>
+<td>400 na izdavaocu</td>
+<td>Telo van ugovora; uklonite dodatna polja</td>
+</tr>
+<tr>
+<td>401 u slučajevima</td>
+<td>Nasleđeni potpis, istek, nevažeći zahtevi ili opozvana sesija</td>
+</tr>
+<tr>
+<td>400 u slučajevima</td>
+<td>Nevažeći obavezni kontekst, netačni datumi/stanja ili prekoračen budžet</td>
+</tr>
+<tr>
+<td>403 iz konteksta</td>
+<td>userState se ne podudara sa zakupcem/osobom iz JWT</td>
+</tr>
+<tr>
+<td>404 u razgovoru</td>
+<td>Resurs ne postoji ili pripada drugom identitetu; ne forsirajte pristup</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Limit; backoff/jitter, bez petlje izdavanja</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>Greška infrastrukture, modela ili konteksta; prijavite nedostupnost i requestId</td>
+</tr>
+<tr>
+<td>501 u akcijama/eskalaciji</td>
+<td>Funkcionalnost bez izvršioca/konektora; koristite pravi ljudski kanal</td>
+</tr>
+<tr>
+<td>Chat radi, MCP ne</td>
+<td>Proverite listu poslatu u poslednjem izdanju, validnost, publiku i odgovor kataloga.</td>
+</tr>
+<tr>
+<td>Alat nedostaje</td>
+<td>Proverite katalog dostupan za delegirani token i povezanost servera.</td>
+</tr>
+</tbody>
+</table>
+<p>Ne koristite samo HTTP 200 kao prihvatanje: proverite sadržaj odgovora i snimak. Kreiranje koje ne uspe nakon snimanja slučaja može ostaviti slučaj bez odgovora; ne pretpostavljajte transakciju koja uključuje poziv modelu. Ponovni pokušaji moraju biti ograničeni i prijavljeni korisniku. Zabeležite metodu, parametrizovanu rutu, status, requestId i vreme UTC; nikada ne snimajte Authorization/JWT, tajnu ili sirovi payload za prosleđivanje dijagnostike.</p>
+<h2 id="section-15">15. Obavezno prihvatanje</h2>
+<ol>
+<li>Bootstrap ruta bez prijave odbijena pre izdavaoca. Falsifikovani identiteti ne menjaju autentifikovanog korisnika.</li>
+<li>Izdavanje sa ispravnim akreditivom vraća očekivanog zakupca i 900 sekundi; tajna se ne pojavljuje u pretraživaču/reprodukciji/logovima.</li>
+<li>Stari JWT je odbijen. Nova sesija kreira razgovor sa snimkom i stvarnim odgovorom; ponovo se otvara za istu osobu.</li>
+<li>Dve osobe iz istog projekta i dva zakupca: GET slučaj i POST poruke/povratne informacije/zatvaranje/eskalacija/akcije ne ukrštaju identitete.</li>
+<li>Kontekst bez blokova, različit identitet, nevažeći datum i prevelika veličina su odbijeni; sintetičke tajne ne opstaju u snimku.</li>
+<li>Obnova nakon 15 minuta, odjava tokom prikupljanja, promena naloga/kompanije/uloge i navigacija ne vraćaju razgovor druge osobe.</li>
+<li>Model odgovara koristeći dokaze i poštuje ograničenje dijagnostike; neuspeh ne generiše očigledan uspeh.</li>
+<li>Izdajte sesije sa nula i dva servera. Proverite da svaka destinacija prima sopstveni token.</li>
+<li>MCP odbija pogrešan/stari token, pogrešnog zakupca, nedostajućeg/neaktivnog korisnika i resurs druge osobe. Testirajte ponovo korišćeni ID sesije, ako postoji sesija.</li>
+<li>Potvrdite da promene zahtevaju potvrdu predloga i da se ne ponavljaju u slučaju isteka vremena.</li>
+<li>CORS/CSP, mobilni telefon, tastatura i ljudski kanal su odobreni. Koordinisana rotacija testirana u homologaciji.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> validira izolovane adaptere sa mockovima. Ne zamenjuje ove end-to-end testove. Popunite <code>ACEITE.md</code> sa odgovornim osobama, verzijama, vremenima i dokazima bez tajni.</p>
+<h2 id="section-16">16. Objavljivanje, sečenje i oporavak</h2>
+<p>Instalirajte integracionu akreditaciju, objavite bootstrap i SDK, validirajte chat i homologujte servere deklarisane u sesijama.</p>
+<p>Ne reaktivirati zastarele pretplate niti globalno prosleđivanje MCP radi oporavka dostupnosti. Ako dođe do kvara, privremeno onemogućite widget ili MCP pogođenog zakupca i održavajte ljudski kanal dok se adapter ne popravi. Ne brišite razgovore da biste zaobišli 404 grešku vlasnika.</p>
+<p>Zabeležite ograničenja zadržavanja i specifične dokaze vaše aplikacije.</p>
+<h2 id="section-17">17. Povratne informacije i datoteke paketa</h2>
+<p>Vratite naziv projekta, zakupca, backend/frontend commit-ove, datum UTC, SDK/hash, instaliranu akreditaciju (da/ne, bez vrednosti), odobren chat, MCP odobren/isključen, negativne testove, ljudski kanal i nerešene stavke. Ne zaključujte sa „čini se da radi“.</p>
+<p>Javni komplet sadrži ovaj vodič u Markdown, šemu servera, minimalnu fixturu, adapter izdavaoca, MCP autentifikaciju, frontend kontroler, SDK, prompt, izolovane testove, kontrolnu listu, ugovor o akcijama i SHA-256 manifest. Pojedinačni paketi mogu dodati specifične priloge. Primeri ne implementiraju automatski krajnje tačke klijentske aplikacije. Verzija za pregled je na https://support-ai.pontes.uk/developers?lang=sr-Latn.</p></main></div>
+<script id="controls" data-copy="Kopiraj primer" data-copied="Kopirano" data-selected="Izabrano — koristite Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

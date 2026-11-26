@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="$lang" dir="$direction">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>$title</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>$title</h1><p>$description</p>
+<nav><a href="GUIA.md">$markdown</a> · <a href="ACEITE.md">$acceptance</a> · <button onclick="window.print()">$print</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">$search</label><input id="search" type="search">
+<nav aria-label="$navigation">$contents</nav></aside><main>$body</main></div>
+<script id="controls" data-copy="$copy" data-copied="$copied" data-selected="$selected">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

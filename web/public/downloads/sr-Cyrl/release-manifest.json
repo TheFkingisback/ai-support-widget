@@ -1,0 +1,16 @@
+{
+  "sdkVersion": "0.3.0",
+  "locale": "sr-Cyrl",
+  "archives": {
+    "kit": {
+      "file": "ai-support-integration-v4-sdk-0.3.0.zip",
+      "bytes": 74710,
+      "sha256": "ee24ec3086b9b8c3abedf844b6306c59a710ca55e52f932dfe9bcf054c200906"
+    },
+    "starter": {
+      "file": "ai-support-starter.zip",
+      "bytes": 47254,
+      "sha256": "91f7a115f76977a851e894b58db056944e8ebe156e2108343cdced031009103f"
+    }
+  }
+}

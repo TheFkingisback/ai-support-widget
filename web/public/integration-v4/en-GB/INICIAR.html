@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en-GB" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Support integration manual</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>Support integration manual</h1><p>Authentication, context, and tools with defined responsibilities and acceptance criteria.</p>
+<nav><a href="GUIA.md">Markdown Version</a> · <a href="ACEITE.md">Acceptance form</a> · <button onclick="window.print()">Print</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">Search section</label><input id="search" type="search">
+<nav aria-label="Navigation"><div class="toc">
+<ul>
+<li><a href="#section-1">1. How it works</a></li>
+<li><a href="#section-2">2. Environments and Responsibilities</a></li>
+<li><a href="#section-3">3. Credentials</a></li>
+<li><a href="#section-4">4. Authentication and Identity Flow</a></li>
+<li><a href="#section-5">5. Issuer Contract</a></li>
+<li><a href="#section-6">6. Mandatory context and correct identity</a></li>
+<li><a href="#section-7">7. Fields, limits and normalisation</a></li>
+<li><a href="#section-8">8. Privacy and persistence</a></li>
+<li><a href="#section-9">9. Frontend and SDK 0.3.0</a></li>
+<li><a href="#section-10">10. Logout, permissions, and history</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA and access</a></li>
+<li><a href="#section-12">12. MCP servers in session</a></li>
+<li><a href="#section-13">13. Model, prompt, and knowledge</a></li>
+<li><a href="#section-14">14. Error and diagnostic contract</a></li>
+<li><a href="#section-15">15. Mandatory acceptance</a></li>
+<li><a href="#section-16">16. Publishing, cutting, and recovery</a></li>
+<li><a href="#section-17">17. Feedback and package files</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">Support Integration · Contract v4</h1>
+<p><strong>SDK 0.3.0 · Backend, Frontend, and Operations Manual</strong></p>
+<h2 id="section-1">1. How it works</h2>
+<p>Your backend authenticates the user, projects the authorised context, and issues a 15-minute session. In the issuance call, you can include the MCP servers available to that person. The browser receives the widget's JWT and the context.</p>
+<h2 id="section-2">2. Environments and Responsibilities</h2>
+<p>The platform is at https://support-ai.pontes.uk. Use the correct environment's integration credential. The workspace administrator obtains the credential from the dashboard. The application team maintains the authenticated bootstrap, context, and delegated tokens per user and server.</p>
+<h2 id="section-3">3. Credentials</h2>
+<table>
+<thead>
+<tr>
+<th>Credential</th>
+<th>Destination</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Integration credential sik_</td>
+<td>Support AI</td>
+<td>Issue a session in the backend</td>
+</tr>
+<tr>
+<td>Delegated token per server</td>
+<td>MCP indicated in the session</td>
+<td>Call tools as the authenticated person</td>
+</tr>
+<tr>
+<td>Session JWT</td>
+<td>Chat API</td>
+<td>Open and continue conversations in the widget</td>
+</tr>
+</tbody>
+</table>
+<p>Store the integration credential in the application's vault. Revoking it deactivates JWTs issued with it on the next request. Generate delegated tokens in the backend and limit each to one resource, user, and validity period.</p>
+<h2 id="section-4">4. Authentication and Identity Flow</h2>
+<pre><code class="language-text">Authenticated application session
+  → backend validates active person, organisation, and current permissions
+  → POST /api/widget/sessions with sik_ on the server
+  ← jwt + tenantKey + expiresIn
+  → backend collects and projects context of the SAME identity
+  ← browser receives session/context with Cache-Control: no-store
+  → widget calls /api/cases and conversation routes with the temporary JWT
+</code></pre>
+<p>Preserving the client's historical identifier <code>usr_...</code> prevents losing access to their own conversations. Do not use email, role, device, or timestamp as identity. If the same user can change companies, define a stable subject per affiliation or explicit history policy; the platform authorises conversations by tenant + person, without inferring client organisations.</p>
+<p>The platform verifies signature, issuer <code>ai-support</code>, audience <code>ai-support-widget</code>, purpose <code>widget</code>, <code>sub=userId</code>, validity, and the session's active credential. The browser does not re-sign or alter claims. Roles sent to support are context information; API/MCP authorisation remains on the client server.</p>
+<h2 id="section-5">5. Issuer Contract</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>200 Response: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. Validate <code>tenantKey</code> before returning to the browser. The <code>backend-session.mjs</code> file implements a strict body, timeout, redirect blocking, response limit, and tenant validation; it does not replace your authentication middleware.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>Optional list of up to eight objects with unique id, url, and accessToken. See section 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>Mandatory, trim, 1–200 characters</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>Valid email up to 254 characters or empty; default empty</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>Up to 30 strings of 1–80 characters; default empty list</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>String of 1–80 characters; default standard</td>
+</tr>
+</tbody>
+</table>
+<p>Do not send tenantId, tenantKey, userName, role, purpose, exp or other fields in the body. The credential determines the tenant. Identity comes from the session/database, not the browser query/body. The issuer does not accept user JWT, administrative key, or old secret in place of <code>sik_</code>.</p>
+<p>The public issuer works without per-project usage quotas. Reuse a still-valid session from the same person, company, and permissions, with early expiration and invalidation on changes.</p>
+<h2 id="section-6">6. Mandatory context and correct identity</h2>
+<p>Each new case requires <code>context.userState</code>, <code>context.userHistory</code>, and <code>context.userLogs</code>. Send empty lists when the source has been queried and there are no records; <strong>do not convert a failed collection into an apparently successful empty list</strong>. If you cannot provide valid and authorised context, the client bootstrap must return a controlled error.</p>
+<p><code>context.example.json</code> is the minimum example. <code>context.schema.json</code> was exported from the Zod schema used on the server, not written independently. Validate the JSON on the backend before deployment. Unrecognised extra fields are discarded; metadata and rules may contain their own structures, subject to projection/limits. The schema does not prove authorisation or eliminate all sensitive data.</p>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Mandatory / structure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours positive up to 720, events; timeline is reconstructed from events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>Optional; docs with id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>Optional; approved rules object, serialised as runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> must be exactly the identity issued. <strong><code>userState.tenantId</code> is the platform tenant</strong>, never the organisation/store ID on the client. Discrepancies return 403. Data in the browser can be tampered with; context does not authorise operations.</p>
+<h2 id="section-7">7. Fields, limits and normalisation</h2>
+<table>
+<thead>
+<tr>
+<th>Structure</th>
+<th>Main fields / rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status; id/description optional; metadata object; up to 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt; up to 100</td>
+</tr>
+<tr>
+<td>errorClass of activeErrors</td>
+<td>validation, permission, infra or business; categories like payment require mapping</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId accept null/omission; up to 1,000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus integer, timingMs, requestId; errorCode/resourceId can be null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs number or null; errorCode/lastStage can be null</td>
+</tr>
+<tr>
+<td>status of jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors from backend</td>
+<td>ts, errorCode, errorClass string, route, requestId; resourceId can be null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>Up to 50; content up to 32,000 characters, other texts up to 4,096</td>
+</tr>
+</tbody>
+</table>
+<p>Dates are ISO-8601 strings with timezone; serialise Date on the backend. Do not invent updatedAt, durationMs, retryable or categories just to pass the schema: use the real origin or omit the record and report source unavailability. Register your project's specific mappings upon acceptance.</p>
+<p>Context ceiling sent: <strong>262,144 bytes UTF-8 (256 KiB)</strong>. The full HTTP remains limited to 1,048,576 bytes. Snapshot budget is <code>min(maxContextBytes, 262144)</code>. If even the essential part doesn't fit, the request fails; reduce metadata/documents in the backend. We suggest starting with 48 KiB, ten entities, and short knowledge.</p>
+<p>The server filters events/logs by the smallest window between the requested and the tenant's, removes future dates, and applies maxLogLines combined with requests, errors, and jobs (in this order). maxDocs limits the docs list; businessRules is a separate runbook and also occupies the total budget. The timeline follows the kept events. Less relevant data usually produces better diagnosis and lower cost.</p>
+<h2 id="section-8">8. Privacy and persistence</h2>
+<p>Design data before sending it: never forward headers, cookies, JWTs, credentials, connection strings, signed URLs, binary content, other users' data, or raw exports. Replace secrets with support references. Do not send the entire PRD or full logs as a knowledge base.</p>
+<p>New snapshots undergo validation, redaction, reduction, and budgeting before recording. Messages and tool results are treated for known secret patterns. This protection is complementary: it is not an infallible personal data classifier, does not retroactively correct historical records, nor does it replace client design.</p>
+<p>Context is a snapshot from the start of the conversation, not a real-time query. Provide timestamps and sources. <code>updateContext()</code> applies to the next case; for current data during a conversation, use an approved reading tool.</p>
+<h2 id="section-9">9. Frontend and SDK 0.3.0</h2>
+<p>Serve the fixed SDK from the package or public URL. Check SHA-256 with <code>widget.manifest.json</code>. Avoid duplicate script, floating version, and JWT cache. The reference controller in <code>widget-controller.mjs</code> mounts after bootstrap, awaits onOpen, renews, and prevents late mounting after logout.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// On logout, person/company/role change, and component cleanup:
+controller.destroy();
+</code></pre>
+<p>The functions above are application callbacks, to be implemented with your usual HTTP client. Bootstrap returns <code>{jwt,tenantKey,expiresIn,context}</code>. getContext returns the context object. In React, stabilise callbacks with useCallback and mount in useEffect linked to identity. Do not place the widget outside the authenticated area or offer visitors a shared userId.</p>
+<p>The SDK accepts <code>onTokenRefresh</code> which returns the new JWT; after 401, it retries the request once. Renewal must use the same person. Identity change requires destroy and init. If using a proactive timer, prefer about ten minutes with jitter and cancel on cleanup. Bootstrap, collection, and model errors should not block the main application.</p>
+<h2 id="section-10">10. Logout, permissions, and history</h2>
+<p><code>destroy()</code> aborts calls and removes local persistence per tenant/person. It is not individual revocation on the server. A JWT already copied may remain valid for up to 15 minutes after logout/lock on the client. If immediate per-person revocation is needed, the contract requires further evolution; do not use whole-tenant rotation as normal logout.</p>
+<p>Each conversation read/write requires the same owner and tenant. Role change on the client does not erase content the person has already received in the conversation. Define a history policy for permission demotion and organisational changes. Do not relax authorisation to retrieve an old caseId; verify the original subject or start a new conversation.</p>
+<h2 id="section-11">11. CORS, CSP, PWA and access</h2>
+<p>Allow the exact origin of each frontend on the platform. The SDK needs connect-src for support; serving the local file allows script-src self. The SDK injects style into the Shadow DOM and does not yet receive a nonce: approve the real CSP policy, which may require SDK evolution for external styles/nonce/hash. Do not disable the entire policy.</p>
+<p>Sessions and context are no-store. Exclude support routes from PWA caches, query persistence and replay tools. Test keyboard, focus, screen reader, zoom and mobile. Present a genuine human channel in the application, with confirmed times/URL. The SDK does not invent a service provider.</p>
+<h2 id="section-12">12. MCP servers in session</h2>
+<p>The application backend sends <code>POST /api/widget/sessions</code> with the integration credential <code>sik_</code>. It derives the person and their organisation from the login and can include up to eight servers in <code>mcpServers</code>. An omitted or empty field creates a chat with context. Each new session receives its own list.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>Each id starts with a lowercase letter and accepts lowercase letters, digits, underscore and hyphen, up to 32 characters. IDs, normalised URLs and tokens are unique in the list. The transport is MCP Streamable HTTP over public HTTPS, port 443, with a URL without credentials, query or fragment. The service verifies the DNS upon connection and rejects redirects.</p>
+<p>The application issues or obtains a short-lived access token for each destination, restricted to the person, organisation, permissions and audience of that MCP. The Support AI presents <code>Authorization: Bearer &lt;accessToken&gt;</code> to the corresponding server. The provider verifies signature or introspection, issuer, validity, audience and resource access in each operation. It publishes only the tools allowed for that identity in the catalogue. The platform credential, the widget’s JWT and service keys like Stripe have their own purposes.</p>
+<p>The delegated token is encrypted on the server for up to 900 seconds. The browser receives <code>{jwt, tenantKey, expiresIn: 900}</code>. Upon renewal, the backend revalidates the identity and sends a new list with valid tokens. A proposal created before renewal needs to be presented again. For organisational changes, use a stable identifier per link and destroy the previous widget instance.</p>
+<p>The Support AI iterates through <code>tools/list</code> pages, distinguishes identical names by server, and uses the original name when calling <code>tools/call</code>. Catalogues with more than 32 tools have in-chat search and pagination. Discovery limits per server are 128 pages and 4 MB of descriptions. A discovery failure for one server preserves the others.</p>
+<p>Tools with <code>annotations.readOnlyHint: true</code> can be queried directly. For any tool with a missing or false annotation, the chat displays the server, name, and arguments before execution. Declare read-only for operations without business effects. The user responds <code>confirmar</code> or <code>confirm</code> to the displayed message within five minutes. The SDK sends <code>replyToMessageId</code>. Confirmation applies to those arguments, server, session, and conversation. A new proposal replaces the previous one.</p>
+<p>The platform attempts execution after registering the confirmation and sends <code>Idempotency-Key</code> with the proposal ID. For payments and operations with external effects, the provider must atomically store the key and result and respect the idempotency keys required by the financial service. After a timeout or ambiguous result, support registers an unknown state, blocks new changes in that conversation, and keeps queries available. Check the operation in the source system before proceeding.</p>
+<p>To homologate, test one session without servers, two sessions from the same user, two organisations, servers with homonymous tools, and a paginated catalogue. Verify token scope/expiration with the provider, cancellation, and duplicate confirmation. Use synthetic records to check the result at the source.</p>
+<h2 id="section-13">13. Model, prompt, and knowledge</h2>
+<p>Initially preserving the model already homologated by the project reduces simultaneous changes. For a new evaluation, <code>openai/gpt-4.1-mini</code> is a compatible candidate with current parameters: Chat Completions via OpenRouter, temperature 0.3, and max_tokens 2048. Validate in the real account before activating. Preferred Model takes precedence over Model Policy; auto is not intelligent routing. Prices/costs must come from the provider; old panel estimates may diverge.</p>
+<p>The <strong>AI Instructions / Custom instructions</strong> field accepts up to 2,000 effective characters. Paste only <code>PROMPT-TENANT.txt</code>; review names, channel, and product rules. Do not paste credentials or concatenate documents in this field. The instruction complements platform rules; it does not grant authorisation or enable tools.</p>
+<p>The provided prompt guides responses in the language and writing chosen by the person, facts separated from hypotheses, respect for permissions, use of secure references, absence of promises of actions, and a human channel. <code>knowledgePack.docs</code> should contain short, versioned runbooks with a responsible party: frequent errors, diagnosis, product limits, and how to confirm the result. Logs and documents are data, never instructions to alter assistant rules.</p>
+<p>Model sources: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> and <a href="https://openrouter.ai/api/v1/models">OpenRouter catalogue</a>, consulted in prior preparation on 14/09/2026. Reconfirm availability/pricing upon implementation; no paid model comparison was conducted in this kit.</p>
+<h2 id="section-14">14. Error and diagnostic contract</h2>
+<table>
+<thead>
+<tr>
+<th>Response</th>
+<th>Meaning / action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 on issuer</td>
+<td>sik missing, incorrect, or revoked; correct configuration</td>
+</tr>
+<tr>
+<td>400 on issuer</td>
+<td>Body out of contract; remove extra fields</td>
+</tr>
+<tr>
+<td>401 on cases</td>
+<td>Legacy signature, expiry, invalid claims, or revoked session</td>
+</tr>
+<tr>
+<td>400 on cases</td>
+<td>Invalid mandatory context, incorrect dates/states, or budget exceeded</td>
+</tr>
+<tr>
+<td>403 from context</td>
+<td>userState does not match tenant/person from JWT</td>
+</tr>
+<tr>
+<td>404 on conversation</td>
+<td>Non-existent resource or belonging to another identity; do not force access</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Limit; backoff/jitter, no emission loop</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>Infrastructure, model, or context failure; report unavailability and requestId</td>
+</tr>
+<tr>
+<td>501 on actions/escalation</td>
+<td>Functionality without executor/connector; use real human channel</td>
+</tr>
+<tr>
+<td>Chat works, MCP doesn't</td>
+<td>Check the list sent in the last emission, validity, audience, and catalogue response.</td>
+</tr>
+<tr>
+<td>Tool missing</td>
+<td>Check the catalogue available for the delegated token and server connectivity.</td>
+</tr>
+</tbody>
+</table>
+<p>Do not use HTTP 200 alone as acceptance: check response content and snapshot. Creation failing after saving the case may leave a case unanswered; do not assume a transaction involving the model call. Retries must be limited and reported to the user. Log method, parameterised route, status, requestId, and UTC time; never capture Authorization/JWT, secret, or raw payload to forward diagnosis.</p>
+<h2 id="section-15">15. Mandatory acceptance</h2>
+<ol>
+<li>Bootstrap route without login rejected before issuer. Forged identities do not change the authenticated user.</li>
+<li>Emission with correct credential returns expected tenant and 900 seconds; secret does not appear in browser/replay/logs.</li>
+<li>Old JWT is rejected. New session creates conversation with snapshot and real response; reopens for the same person.</li>
+<li>Two people from the same project and two tenants: GET case and POST messages/feedback/close/escalate/actions do not cross identities.</li>
+<li>Context without blocks, different identity, invalid date, and excessive size are rejected; synthetic secrets do not persist in the snapshot.</li>
+<li>Renewal after 15 minutes, logout during collection, account/company/role change, and navigation do not restore another person's conversation.</li>
+<li>Model responds using evidence and respects diagnostic limit; failure does not generate apparent success.</li>
+<li>Emit sessions with zero and two servers. Check that each destination receives its own token.</li>
+<li>MCP refuses wrong/old token, wrong tenant, missing/inactive user, and another person's resource. Test reused session ID, if session exists.</li>
+<li>Confirm that changes require proposal confirmation and do not repeat in case of timeout.</li>
+<li>CORS/CSP, mobile, keyboard, and human channel approved. Coordinated rotation tested in homologation.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> validates isolated adapters with mocks. It does not replace these end-to-end tests. Fill in <code>ACEITE.md</code> with owners, versions, times, and unclassified evidence.</p>
+<h2 id="section-16">16. Publishing, cutting, and recovery</h2>
+<p>Install the integration credential, publish the bootstrap and SDK, validate the chat, and approve the servers declared in the sessions.</p>
+<p>Do not reactivate legacy subscriptions or global MCP forwarding to recover availability. If there is a failure, temporarily disable the widget or MCP for the affected tenant and maintain the human channel while fixing the adapter. Do not delete conversations to circumvent an owner 404.</p>
+<p>Record retention limits and application-specific evidence.</p>
+<h2 id="section-17">17. Feedback and package files</h2>
+<p>Return project name, tenant, backend/frontend commits, UTC date, SDK/hash, installed credential (yes/no, no value), approved chat, MCP approved/disabled, negative tests, human channel, and pending items. Do not conclude with "seems to work".</p>
+<p>The public kit contains this guide in Markdown, server schema, minimal fixture, issuer adapter, MCP authentication, frontend controller, SDK, prompt, isolated tests, checklist, actions contract, and SHA-256 manifest. Individual packages may add specific attachments. The examples do not automatically implement the client application endpoints. The browsable version is at https://support-ai.pontes.uk/developers?lang=en-GB.</p></main></div>
+<script id="controls" data-copy="Copy example" data-copied="Copied" data-selected="Selected — use Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

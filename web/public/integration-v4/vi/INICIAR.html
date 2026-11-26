@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="vi" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manual de integração do suporte</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>Manual de integração do suporte</h1><p>Autenticação, contexto e ferramentas com responsabilidades e critérios de aceite definidos.</p>
+<nav><a href="GUIA.md">Versão Markdown</a> · <a href="ACEITE.md">Formulário de aceite</a> · <button onclick="window.print()">Imprimir</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">Buscar seção</label><input id="search" type="search">
+<nav aria-label="Navegação"><div class="toc">
+<ul>
+<li><a href="#section-1">1. Cách hoạt động</a></li>
+<li><a href="#section-2">2. Môi trường và trách nhiệm</a></li>
+<li><a href="#section-3">3. Thông tin xác thực</a></li>
+<li><a href="#section-4">4. Luồng xác thực và nhận dạng</a></li>
+<li><a href="#section-5">5. Hợp đồng của nhà phát hành</a></li>
+<li><a href="#section-6">6. Bắt buộc phải có ngữ cảnh và danh tính chính xác</a></li>
+<li><a href="#section-7">7. Các trường, giới hạn và chuẩn hóa</a></li>
+<li><a href="#section-8">8. Privacidade e persistência</a></li>
+<li><a href="#section-9">9. Frontend e SDK 0.3.0</a></li>
+<li><a href="#section-10">10. Logout, permissões e histórico</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA e acesso</a></li>
+<li><a href="#section-12">12. Servidores MCP na sessão</a></li>
+<li><a href="#section-13">13. Modelo, prompt e conhecimento</a></li>
+<li><a href="#section-14">14. Hợp đồng lỗi và chẩn đoán</a></li>
+<li><a href="#section-15">15. Chấp nhận bắt buộc</a></li>
+<li><a href="#section-16">16. Xuất bản, cắt và khôi phục</a></li>
+<li><a href="#section-17">17. Phản hồi và tệp gói</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">Tích hợp hỗ trợ · hợp đồng v4</h1>
+<p><strong>SDK 0.3.0 · Hướng dẫn backend, frontend và vận hành</strong></p>
+<h2 id="section-1">1. Cách hoạt động</h2>
+<p>Backend của bạn xác thực người dùng, chiếu ngữ cảnh được ủy quyền và cấp một phiên 15 phút. Trong cuộc gọi cấp, nó có thể bao gồm các máy chủ MCP có sẵn cho người đó. Trình duyệt nhận JWT của tiện ích và ngữ cảnh.</p>
+<h2 id="section-2">2. Môi trường và trách nhiệm</h2>
+<p>Nền tảng nằm ở https://support-ai.pontes.uk. Sử dụng thông tin xác thực tích hợp của môi trường chính xác. Quản trị viên không gian làm việc lấy thông tin xác thực từ bảng điều khiển. Nhóm ứng dụng duy trì khởi động được xác thực, ngữ cảnh và mã thông báo được ủy quyền cho mỗi người dùng và máy chủ.</p>
+<h2 id="section-3">3. Thông tin xác thực</h2>
+<table>
+<thead>
+<tr>
+<th>Thông tin xác thực</th>
+<th>Đích đến</th>
+<th>Sử dụng</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thông tin xác thực tích hợp sik_</td>
+<td>Support AI</td>
+<td>Cấp một phiên trong backend</td>
+</tr>
+<tr>
+<td>Mã thông báo được ủy quyền cho mỗi máy chủ</td>
+<td>MCP được chỉ định trong phiên</td>
+<td>Gọi các công cụ với tư cách người được xác thực</td>
+</tr>
+<tr>
+<td>JWT của phiên</td>
+<td>API của cuộc trò chuyện</td>
+<td>Mở và tiếp tục cuộc trò chuyện trong tiện ích</td>
+</tr>
+</tbody>
+</table>
+<p>Lưu thông tin xác thực tích hợp trong kho ứng dụng. Thu hồi nó sẽ vô hiệu hóa các JWTs được cấp bằng nó trong yêu cầu tiếp theo. Tạo mã thông báo được ủy quyền trong backend và giới hạn mỗi mã thông báo cho một tài nguyên, người dùng và thời hạn hiệu lực.</p>
+<h2 id="section-4">4. Luồng xác thực và nhận dạng</h2>
+<pre><code class="language-text">Phiên ứng dụng được xác thực
+  → backend xác thực người đang hoạt động, tổ chức và quyền hiện tại
+  → POST /api/widget/sessions với sik_ trên máy chủ
+  ← jwt + tenantKey + expiresIn
+  → backend thu thập và chiếu ngữ cảnh của CÙNG một nhận dạng
+  ← trình duyệt nhận phiên/ngữ cảnh với Cache-Control: no-store
+  → tiện ích gọi /api/cases và các tuyến hội thoại với JWT tạm thời
+</code></pre>
+<p>Bảo toàn định danh lịch sử <code>usr_...</code> của khách hàng để tránh mất quyền truy cập vào các cuộc trò chuyện của chính họ. Không sử dụng email, vai trò, thiết bị hoặc dấu thời gian làm nhận dạng. Nếu cùng một người dùng có thể thay đổi công ty, hãy xác định chủ đề ổn định theo liên kết hoặc chính sách lịch sử rõ ràng; nền tảng ủy quyền các cuộc trò chuyện theo tenant + người, không suy ra các tổ chức của khách hàng.</p>
+<p>Nền tảng kiểm tra chữ ký, nhà phát hành <code>ai-support</code>, đối tượng <code>ai-support-widget</code>, mục đích <code>widget</code>, <code>sub=userId</code>, hiệu lực và thông tin xác thực phiên hoạt động. Trình duyệt không ký lại hoặc thay đổi các yêu cầu. Các vai trò được gửi đến bộ phận hỗ trợ là thông tin ngữ cảnh; ủy quyền API/MCP tiếp tục trên máy chủ khách hàng.</p>
+<h2 id="section-5">5. Hợp đồng của nhà phát hành</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>Phản hồi 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. Xác thực <code>tenantKey</code> trước khi trả về trình duyệt. Tệp <code>backend-session.mjs</code> triển khai nội dung nghiêm ngặt, thời gian chờ, chặn chuyển hướng, giới hạn phản hồi và xác thực tenant; nó không thay thế middleware xác thực của bạn.</p>
+<table>
+<thead>
+<tr>
+<th>Trường</th>
+<th>Quy tắc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>Danh sách tùy chọn tối đa tám đối tượng với id, url và accessToken duy nhất. Xem phần 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>Bắt buộc, cắt bỏ khoảng trắng, 1–200 ký tự</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>Email hợp lệ tối đa 254 ký tự hoặc trống; mặc định trống</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>Tối đa 30 chuỗi 1–80 ký tự; mặc định danh sách trống</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>Chuỗi 1–80 ký tự; mặc định standard</td>
+</tr>
+</tbody>
+</table>
+<p>Không gửi tenantId, tenantKey, userName, role, purpose, exp hoặc các trường khác trong phần thân. Thông tin xác thực sẽ xác định tenant. Danh tính đến từ phiên/cơ sở dữ liệu, không phải từ truy vấn/phần thân của trình duyệt. Nhà phát hành không chấp nhận JWT của người dùng, khóa quản trị hoặc bí mật cũ thay cho <code>sik_</code>.</p>
+<p>Nhà phát hành công khai hoạt động mà không có hạn mức sử dụng cho mỗi dự án. Tái sử dụng một phiên vẫn còn hiệu lực của cùng một người, công ty và quyền hạn, với thời gian hết hạn sớm và vô hiệu hóa khi có thay đổi.</p>
+<h2 id="section-6">6. Bắt buộc phải có ngữ cảnh và danh tính chính xác</h2>
+<p>Mỗi trường hợp mới yêu cầu <code>context.userState</code>, <code>context.userHistory</code> và <code>context.userLogs</code>. Gửi danh sách trống khi nguồn đã được truy vấn và không có bản ghi; <strong>không chuyển đổi một bộ sưu tập không thành công thành một danh sách trống có vẻ thành công</strong>. Nếu không thể cung cấp ngữ cảnh hợp lệ và được ủy quyền, quá trình khởi tạo máy khách phải trả về lỗi được kiểm soát.</p>
+<p><code>context.example.json</code> là ví dụ tối thiểu. <code>context.schema.json</code> đã được xuất từ schema Zod được sử dụng trên máy chủ, không được viết độc lập. Xác thực JSON ở phần phụ trợ trước khi triển khai. Các trường bổ sung không được nhận dạng sẽ bị loại bỏ; siêu dữ liệu và quy tắc có thể chứa các cấu trúc riêng, tùy thuộc vào phép chiếu/giới hạn. Schema không chứng minh quyền ủy quyền cũng như không loại bỏ tất cả dữ liệu nhạy cảm.</p>
+<table>
+<thead>
+<tr>
+<th>Khối</th>
+<th>Bắt buộc / cấu trúc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours dương đến 720, events; dòng thời gian được xây dựng lại từ events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>Tùy chọn; docs với id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>Tùy chọn; đối tượng quy tắc đã được phê duyệt, được tuần tự hóa dưới dạng runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> phải chính xác là danh tính đã được phát hành. <strong><code>userState.tenantId</code> là tenant của nền tảng</strong>, không bao giờ là ID của tổ chức/cửa hàng trong máy khách. Sự khác biệt sẽ trả về 403. Dữ liệu trong trình duyệt có thể bị giả mạo; ngữ cảnh không ủy quyền các hoạt động.</p>
+<h2 id="section-7">7. Các trường, giới hạn và chuẩn hóa</h2>
+<table>
+<thead>
+<tr>
+<th>Cấu trúc</th>
+<th>Các trường chính / quy tắc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status; id/description tùy chọn; metadata đối tượng; tối đa 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt; tối đa 100</td>
+</tr>
+<tr>
+<td>errorClass của activeErrors</td>
+<td>validation, permission, infra hoặc business; các danh mục như payment yêu cầu ánh xạ</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId aceitam null/omissão; até 1.000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus số nguyên, timingMs, requestId; errorCode/resourceId có thể là null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs số hoặc null; errorCode/lastStage có thể là null</td>
+</tr>
+<tr>
+<td>status của jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors từ phần phụ trợ</td>
+<td>ts, errorCode, errorClass chuỗi, route, requestId; resourceId có thể là null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>Tối đa 50; content tối đa 32.000 ký tự, các văn bản khác tối đa 4.096</td>
+</tr>
+</tbody>
+</table>
+<p>Ngày là chuỗi ISO-8601 có múi giờ; tuần tự hóa Date ở phần phụ trợ. Không tạo ra updatedAt, durationMs, retryable hoặc các danh mục chỉ để vượt qua schema: sử dụng nguồn thực tế hoặc bỏ qua bản ghi và thông báo về việc không có sẵn nguồn. Ghi lại các ánh xạ cụ thể của dự án của bạn trong phần chấp nhận.</p>
+<p>Contexto enviado: <strong>262.144 bytes UTF-8 (256 KiB)</strong>. O HTTP completo continua limitado a 1.048.576 bytes. O orçamento do snapshot é <code>min(maxContextBytes, 262144)</code>. Se nem a parte essencial couber, a solicitação falha; reduzir metadados/documentos no backend. Sugerimos começar com 48 KiB, dez entidades e conhecimento curto.</p>
+<p>O servidor filtra eventos/logs pela menor janela entre a solicitada e a do tenant, remove datas futuras e aplica maxLogLines combinado a requests, erros e jobs (nesta ordem). maxDocs limita a lista docs; businessRules é um runbook separado e também ocupa o orçamento total. A timeline segue os eventos mantidos. Menos dados relevantes costuma produzir diagnóstico melhor e custo menor.</p>
+<h2 id="section-8">8. Privacidade e persistência</h2>
+<p>Projetar os dados antes de enviá-los: nunca encaminhar headers, cookies, JWTs, credenciais, strings de conexão, URLs assinadas, conteúdo binário, dados de outros usuários ou exportações brutas. Substituir segredos por referências de suporte. Não enviar o PRD inteiro ou logs completos como base de conhecimento.</p>
+<p>Novos snapshots passam por validação, redação, redução e orçamento antes da gravação. Mensagens e resultados de ferramentas têm tratamento de padrões conhecidos de segredos. Essa proteção é complementar: não é um classificador infalível de dados pessoais, não corrige retroativamente registros históricos nem substitui a projeção do cliente.</p>
+<p>O contexto é um snapshot do início da conversa, não uma consulta em tempo real. Informar timestamps e fontes. <code>updateContext()</code> vale para o próximo caso; para dados atuais durante uma conversa, usar ferramenta de leitura homologada.</p>
+<h2 id="section-9">9. Frontend e SDK 0.3.0</h2>
+<p>Servir o SDK fixado do pacote ou da URL pública. Conferir SHA-256 com <code>widget.manifest.json</code>. Evitar script duplicado, versão flutuante e cache de JWT. O controlador de referência em <code>widget-controller.mjs</code> monta após bootstrap, aguarda onOpen, renovar e impede montagem tardia após logout.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// No logout, troca de pessoa/empresa/papel e cleanup do componente:
+controller.destroy();
+</code></pre>
+<p>As funções acima são callbacks do aplicativo, a implementar com seu cliente HTTP habitual. Bootstrap retorna <code>{jwt,tenantKey,expiresIn,context}</code>. getContext retorna o objeto de contexto. Em React, estabilizar callbacks com useCallback e montar em useEffect vinculado à identidade. Não colocar o widget fora da área autenticada nem oferecer visitantes com um userId compartilhado.</p>
+<p>O SDK aceita <code>onTokenRefresh</code> que retorna o novo JWT; após 401, repete a requisição uma vez. Renovação precisa usar a mesma pessoa. Mudança de identidade exige destroy e init. Se usar timer proativo, preferir cerca de dez minutos com jitter e cancelar no cleanup. Erros de bootstrap, coleta e modelo não devem bloquear o aplicativo principal.</p>
+<h2 id="section-10">10. Logout, permissões e histórico</h2>
+<p><code>destroy()</code> aborta chamadas e remove persistência local por tenant/pessoa. Não é revogação individual no servidor. Um JWT já copiado pode permanecer válido por até 15 minutos após logout/bloqueio no cliente. Se precisar de revogação imediata por pessoa, o contrato requer evolução adicional; não usar rotação de todo o tenant como logout normal.</p>
+<p>Cada leitura/escrita de conversa exige o mesmo proprietário e tenant. Mudança de papel no cliente não apaga conteúdo que a pessoa já recebeu na conversa. Definir política de histórico para rebaixamento de permissões e mudanças de organização. Não relaxar autorização para recuperar um caseId antigo; verificar o subject original ou iniciar nova conversa.</p>
+<h2 id="section-11">11. CORS, CSP, PWA e acesso</h2>
+<p>Permitir na plataforma a origem exata de cada frontend. O SDK precisa de connect-src para o suporte; servir o arquivo local permite script-src self. O SDK injeta estilo no Shadow DOM e ainda não recebe nonce: homologar a política CSP real, podendo exigir evolução do SDK para estilos externos/nonce/hash. Não desligar a política inteira.</p>
+<p>Sessões e contexto são no-store. Excluir rotas de suporte dos caches da PWA, persistência de queries e ferramentas de replay. Testar teclado, foco, leitor de tela, zoom e celular. Apresentar canal humano verdadeiro no aplicativo, com horário/URL confirmados. O SDK não inventa um provedor de atendimento.</p>
+<h2 id="section-12">12. Servidores MCP na sessão</h2>
+<p>O backend do aplicativo envia <code>POST /api/widget/sessions</code> com a credencial de integração <code>sik_</code>. Ele deriva a pessoa e sua organização do login e pode incluir até oito servidores em <code>mcpServers</code>. O campo omitido ou vazio cria um chat com contexto. Cada nova sessão recebe sua própria lista.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>Cada id começa com uma letra minúscula e aceita letras minúsculas, dígitos, sublinhado e hífen, até 32 caracteres. IDs, URLs normalizadas e tokens são exclusivos na lista. O transporte é MCP Streamable HTTP em HTTPS público, porta 443, com URL sem credenciais, query ou fragmento. O serviço verifica o DNS ao conectar e rejeita redirecionamentos.</p>
+<p>O aplicativo emite ou obtém um token de acesso curto para cada destino, restrito à pessoa, organização, permissões e audiência daquele MCP. O Support AI apresenta <code>Authorization: Bearer &lt;accessToken&gt;</code> ao servidor correspondente. O provedor verifica assinatura ou introspecção, emissor, validade, audiência e acesso ao recurso em cada operação. Ele publica no catálogo somente as ferramentas permitidas para essa identidade. A credencial da plataforma, o JWT do widget e as chaves de serviços como Stripe têm finalidades próprias.</p>
+<p>O token delegado fica cifrado no servidor por até 900 segundos. O navegador recebe <code>{jwt, tenantKey, expiresIn: 900}</code>. Ao renovar, o backend revalida a identidade e envia uma nova lista com tokens válidos. Uma proposta criada antes da renovação precisa ser apresentada novamente. Para mudança de organização, use um identificador estável por vínculo e destrua a instância anterior do widget.</p>
+<p>O Support AI percorre as páginas de <code>tools/list</code>, distingue nomes iguais por servidor e usa o nome original ao chamar <code>tools/call</code>. Catálogos com mais de 32 ferramentas têm busca e paginação dentro do chat. Os limites de descoberta por servidor são 128 páginas e 4 MB de descrições. Uma falha de descoberta de um servidor preserva os demais.</p>
+<p>Ferramentas com <code>annotations.readOnlyHint: true</code> podem ser consultadas diretamente. Para toda ferramenta com a anotação ausente ou falsa, o chat mostra servidor, nome e argumentos antes de executar. Declare leitura somente para operações sem efeitos de negócio. O usuário responde <code>confirmar</code> ou <code>confirm</code> à mensagem exibida em até cinco minutos. O SDK envia <code>replyToMessageId</code>. A confirmação vale para aqueles argumentos, servidor, sessão e conversa. Uma proposta nova substitui a anterior.</p>
+<p>A plataforma faz uma tentativa de execução após registrar a confirmação e envia <code>Idempotency-Key</code> com o ID da proposta. Para pagamentos e operações com efeitos externos, o provedor deve guardar a chave e o resultado atomicamente e respeitar as chaves de idempotência exigidas pelo serviço financeiro. Após timeout ou resultado ambíguo, o suporte registra estado desconhecido, bloqueia novas alterações nessa conversa e mantém consultas disponíveis. Confira a operação no sistema de origem antes de prosseguir.</p>
+<p>Para homologar, teste uma sessão sem servidores, duas sessões do mesmo usuário, duas organizações, servidores com ferramentas homônimas e um catálogo paginado. Verifique escopo/expiração dos tokens no provedor, cancelamento e confirmação duplicada. Use registros sintéticos para conferir o resultado na origem.</p>
+<h2 id="section-13">13. Modelo, prompt e conhecimento</h2>
+<p>Preservar inicialmente o modelo já homologado pelo projeto reduz mudanças simultâneas. Para uma nova avaliação, <code>openai/gpt-4.1-mini</code> é um candidato compatível com os parâmetros atuais: Chat Completions via OpenRouter, temperature 0.3 e max_tokens 2048. Validar na conta real antes de ativar. Preferred Model prevalece sobre Model Policy; auto não é roteamento inteligente. Preços/custos devem vir do provedor; estimativas antigas do painel podem divergir.</p>
+<p>O campo <strong>AI Instructions / Custom instructions</strong> aceita até 2.000 caracteres efetivos. Cole apenas <code>PROMPT-TENANT.txt</code>; revise nomes, canal e regras do produto. Não colar credenciais ou concatenar documentos nesse campo. A instrução é complementar às regras da plataforma; não concede autorização nem habilita ferramentas.</p>
+<p>O prompt fornecido orienta respostas no idioma e na escrita escolhidos pela pessoa, fatos separados de hipóteses, respeito a permissões, uso de referências seguras, ausência de promessas de ações e canal humano. <code>knowledgePack.docs</code> deve conter runbooks curtos e versionados com responsável: erros frequentes, diagnóstico, limites do produto e como confirmar resultado. Logs e documentos são dados, nunca instruções para alterar as regras do assistente.</p>
+<p>Nguồn mô hình: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> và <a href="https://openrouter.ai/api/v1/models">danh mục OpenRouter</a>, được tham khảo trong quá trình chuẩn bị trước ngày 14/09/2026. Xác nhận lại tính khả dụng/giá khi triển khai; không có so sánh mô hình trả phí nào trong bộ công cụ này.</p>
+<h2 id="section-14">14. Hợp đồng lỗi và chẩn đoán</h2>
+<table>
+<thead>
+<tr>
+<th>Phản hồi</th>
+<th>Ý nghĩa / hành động</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 trên trình phát hành</td>
+<td>sik bị thiếu, không chính xác hoặc đã bị thu hồi; sửa cấu hình</td>
+</tr>
+<tr>
+<td>400 trên trình phát hành</td>
+<td>Nội dung không đúng hợp đồng; loại bỏ các trường thừa</td>
+</tr>
+<tr>
+<td>401 trong các trường hợp</td>
+<td>Chữ ký cũ, hết hạn, yêu cầu không hợp lệ hoặc phiên đã bị thu hồi</td>
+</tr>
+<tr>
+<td>400 trong các trường hợp</td>
+<td>Ngữ cảnh bắt buộc không hợp lệ, ngày/trạng thái không chính xác hoặc vượt quá ngân sách</td>
+</tr>
+<tr>
+<td>403 từ ngữ cảnh</td>
+<td>userState không khớp với người thuê/người của JWT</td>
+</tr>
+<tr>
+<td>404 trong cuộc trò chuyện</td>
+<td>Tài nguyên không tồn tại hoặc thuộc về một danh tính khác; không ép buộc truy cập</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Giới hạn; backoff/jitter, không lặp lại phát hành</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>Lỗi cơ sở hạ tầng, mô hình hoặc ngữ cảnh; thông báo không khả dụng và requestId</td>
+</tr>
+<tr>
+<td>501 trong các hành động/leo thang</td>
+<td>Chức năng không có trình thực thi/kết nối; sử dụng kênh con người thực</td>
+</tr>
+<tr>
+<td>Chat hoạt động, MCP không</td>
+<td>Kiểm tra danh sách đã gửi trong lần phát hành cuối cùng, tính hợp lệ, đối tượng và phản hồi từ danh mục.</td>
+</tr>
+<tr>
+<td>Thiếu công cụ</td>
+<td>Kiểm tra danh mục có sẵn cho mã thông báo được ủy quyền và kết nối máy chủ.</td>
+</tr>
+</tbody>
+</table>
+<p>Không chỉ sử dụng HTTP 200 làm chấp nhận: kiểm tra nội dung phản hồi và ảnh chụp nhanh. Việc tạo không thành công sau khi ghi trường hợp có thể để lại trường hợp không có phản hồi; không giả định giao dịch liên quan đến cuộc gọi đến mô hình. Các lần thử lại phải được giới hạn và thông báo cho người dùng. Ghi lại phương thức, tuyến đường được tham số hóa, status, requestId và thời gian UTC; không bao giờ chụp Authorization/JWT, bí mật hoặc tải trọng thô để chuyển tiếp chẩn đoán.</p>
+<h2 id="section-15">15. Chấp nhận bắt buộc</h2>
+<ol>
+<li>Tuyến đường bootstrap không đăng nhập bị từ chối trước trình phát hành. Các danh tính giả mạo không thay đổi người dùng đã xác thực.</li>
+<li>Phát hành với thông tin xác thực chính xác trả về người thuê dự kiến và 900 giây; bí mật không xuất hiện trong trình duyệt/phát lại/nhật ký.</li>
+<li>JWT cũ bị từ chối. Phiên mới tạo cuộc trò chuyện với ảnh chụp nhanh và phản hồi thực; mở lại cho cùng một người.</li>
+<li>Hai người trong cùng một dự án và hai người thuê: GET trường hợp và POST tin nhắn/phản hồi/đóng/leo thang/hành động không giao nhau các danh tính.</li>
+<li>Ngữ cảnh không có khối, danh tính khác, ngày không hợp lệ và kích thước quá lớn bị từ chối; bí mật tổng hợp không tồn tại trong ảnh chụp nhanh.</li>
+<li>Gia hạn sau 15 phút, đăng xuất trong quá trình thu thập, thay đổi tài khoản/công ty/vai trò và điều hướng không khôi phục cuộc trò chuyện của người khác.</li>
+<li>Mô hình phản hồi bằng cách sử dụng bằng chứng và tôn trọng giới hạn chẩn đoán; lỗi không tạo ra thành công rõ ràng.</li>
+<li>Phát hành các phiên với không và hai máy chủ. Xác nhận rằng mỗi đích nhận được mã thông báo riêng của nó.</li>
+<li>MCP từ chối mã thông báo sai/cũ, người thuê sai, người dùng vắng mặt/không hoạt động và tài nguyên của người khác. Kiểm tra ID phiên được sử dụng lại, nếu có phiên.</li>
+<li>Xác nhận rằng các thay đổi yêu cầu xác nhận đề xuất và không lặp lại trong trường hợp hết thời gian chờ.</li>
+<li>CORS/CSP, điện thoại di động, bàn phím và kênh con người được phê duyệt. Xoay vòng phối hợp được kiểm tra trong quá trình phê duyệt.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> xác thực các bộ điều hợp bị cô lập bằng mock. Nó không thay thế các bài kiểm tra end-to-end này. Điền <code>ACEITE.md</code> với người chịu trách nhiệm, phiên bản, thời gian và bằng chứng không bí mật.</p>
+<h2 id="section-16">16. Xuất bản, cắt và khôi phục</h2>
+<p>Cài đặt thông tin xác thực tích hợp, xuất bản bootstrap và SDK, xác thực trò chuyện và phê duyệt các máy chủ được khai báo trong các phiên.</p>
+<p>Không kích hoạt lại các đăng ký cũ hoặc chuyển tiếp MCP toàn cầu để khôi phục tính khả dụng. Nếu có lỗi, tạm thời tắt tiện ích hoặc MCP của tenant bị ảnh hưởng và duy trì kênh con người trong khi sửa bộ điều hợp. Không xóa các cuộc hội thoại để khắc phục lỗi 404 của chủ sở hữu.</p>
+<p>Ghi lại giới hạn lưu giữ và bằng chứng cụ thể của ứng dụng của bạn.</p>
+<h2 id="section-17">17. Phản hồi và tệp gói</h2>
+<p>Trả về tên dự án, tenant, commit backend/frontend, ngày UTC, SDK/hash, thông tin xác thực đã cài đặt (có/không, không có giá trị), trò chuyện đã phê duyệt, MCP đã phê duyệt/tắt, kiểm tra tiêu cực, kênh con người và các mục tồn đọng. Không kết luận bằng “có vẻ hoạt động”.</p>
+<p>Bộ công cụ công khai chứa hướng dẫn này trong Markdown, schema máy chủ, fixture tối thiểu, bộ điều hợp trình phát hành, xác thực MCP, bộ điều khiển frontend, SDK, lời nhắc, kiểm tra cô lập, danh sách kiểm tra, hợp đồng hành động và manifest SHA-256. Các gói riêng lẻ có thể thêm các tệp đính kèm cụ thể. Các ví dụ không tự động triển khai các điểm cuối của ứng dụng khách. Phiên bản có thể duyệt được có tại https://support-ai.pontes.uk/developers?lang=vi.</p></main></div>
+<script id="controls" data-copy="Copiar exemplo" data-copied="Copiado" data-selected="Selecionado — use Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

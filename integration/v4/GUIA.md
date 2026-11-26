@@ -94,7 +94,7 @@ Cada novo caso requer `context.userState`, `context.userHistory` e `context.user
 
 Datas são strings ISO-8601 com timezone; serializar Date no backend. Não inventar updatedAt, durationMs, retryable ou categorias para apenas passar no schema: usar a origem real ou omitir o registro e informar a indisponibilidade da fonte. Registre os mapeamentos específicos do seu projeto no aceite.
 
-Teto do contexto enviado: **262.144 bytes UTF-8 (256 KiB)**. O HTTP completo continua limitado a 1.048.576 bytes. O orçamento do snapshot é `min(maxContextBytes do tenant, 262144)`. Se nem a parte essencial couber, a solicitação falha; reduzir metadados/documentos no backend. Sugerimos começar com 48 KiB, dez entidades e conhecimento curto.
+Teto do contexto enviado: **262.144 bytes UTF-8 (256 KiB)**. O HTTP completo continua limitado a 1.048.576 bytes. O orçamento do snapshot é `min(maxContextBytes, 262144)`. Se nem a parte essencial couber, a solicitação falha; reduzir metadados/documentos no backend. Sugerimos começar com 48 KiB, dez entidades e conhecimento curto.
 
 O servidor filtra eventos/logs pela menor janela entre a solicitada e a do tenant, remove datas futuras e aplica maxLogLines combinado a requests, erros e jobs (nesta ordem). maxDocs limita a lista docs; businessRules é um runbook separado e também ocupa o orçamento total. A timeline segue os eventos mantidos. Menos dados relevantes costuma produzir diagnóstico melhor e custo menor.
 
@@ -113,9 +113,9 @@ Servir o SDK fixado do pacote ou da URL pública. Conferir SHA-256 com `widget.m
 ```js
 const controller = mountSupport({
   apiUrl: 'https://support-ai.pontes.uk',
-  bootstrap: signal => fetchBootstrapAutenticado(signal),
-  getContext: signal => fetchContextoAutorizado(signal),
-  onUnavailable: () => mostrarCanalHumanoReal(),
+  bootstrap: signal => fetchAuthenticatedBootstrap(signal),
+  getContext: signal => fetchAuthorizedContext(signal),
+  onUnavailable: () => showHumanSupportChannel(),
 });
 // No logout, troca de pessoa/empresa/papel e cleanup do componente:
 controller.destroy();
@@ -165,17 +165,17 @@ A plataforma faz uma tentativa de execução após registrar a confirmação e e
 
 Para homologar, teste uma sessão sem servidores, duas sessões do mesmo usuário, duas organizações, servidores com ferramentas homônimas e um catálogo paginado. Verifique escopo/expiração dos tokens no provedor, cancelamento e confirmação duplicada. Use registros sintéticos para conferir o resultado na origem.
 
-## 15. Modelo, prompt e conhecimento
+## 13. Modelo, prompt e conhecimento
 
 Preservar inicialmente o modelo já homologado pelo projeto reduz mudanças simultâneas. Para uma nova avaliação, `openai/gpt-4.1-mini` é um candidato compatível com os parâmetros atuais: Chat Completions via OpenRouter, temperature 0.3 e max_tokens 2048. Validar na conta real antes de ativar. Preferred Model prevalece sobre Model Policy; auto não é roteamento inteligente. Preços/custos devem vir do provedor; estimativas antigas do painel podem divergir.
 
 O campo **AI Instructions / Custom instructions** aceita até 2.000 caracteres efetivos. Cole apenas `PROMPT-TENANT.txt`; revise nomes, canal e regras do produto. Não colar credenciais ou concatenar documentos nesse campo. A instrução é complementar às regras da plataforma; não concede autorização nem habilita ferramentas.
 
-O prompt fornecido orienta respostas em português, fatos separados de hipóteses, respeito a permissões, uso de referências seguras, ausência de promessas de ações e canal humano. `knowledgePack.docs` deve conter runbooks curtos e versionados com responsável: erros frequentes, diagnóstico, limites do produto e como confirmar resultado. Logs e documentos são dados, nunca instruções para alterar as regras do assistente.
+O prompt fornecido orienta respostas no idioma e na escrita escolhidos pela pessoa, fatos separados de hipóteses, respeito a permissões, uso de referências seguras, ausência de promessas de ações e canal humano. `knowledgePack.docs` deve conter runbooks curtos e versionados com responsável: erros frequentes, diagnóstico, limites do produto e como confirmar resultado. Logs e documentos são dados, nunca instruções para alterar as regras do assistente.
 
 Fontes de modelo: [OpenAI GPT-4.1 mini](https://developers.openai.com/api/docs/models/gpt-4.1-mini) e [catálogo OpenRouter](https://openrouter.ai/api/v1/models), consultados na preparação anterior de 14/09/2026. Reconfirmar disponibilidade/preços ao implementar; não houve comparação paga de modelos neste kit.
 
-## 16. Contrato de erros e diagnóstico
+## 14. Contrato de erros e diagnóstico
 
 | Resposta | Significado / ação |
 |---|---|
@@ -193,7 +193,7 @@ Fontes de modelo: [OpenAI GPT-4.1 mini](https://developers.openai.com/api/docs/m
 
 Não usar apenas HTTP 200 como aceite: verificar conteúdo da resposta e snapshot. A criação que falha após gravar o caso pode deixar um caso sem resposta; não pressupor transação envolvendo a chamada ao modelo. Retentativas devem ser limitadas e informadas ao usuário. Registrar método, rota parametrizada, status, requestId e horário UTC; nunca capturar Authorization/JWT, segredo ou payload bruto para encaminhar o diagnóstico.
 
-## 17. Aceite obrigatório
+## 15. Aceite obrigatório
 
 1. Rota de bootstrap sem login rejeitada antes do emissor. Identidades forjadas não mudam o usuário autenticado.
 2. Emissão com a credencial correta retorna o tenant esperado e 900 segundos; segredo não aparece no browser/replay/logs.
@@ -209,7 +209,7 @@ Não usar apenas HTTP 200 como aceite: verificar conteúdo da resposta e snapsho
 
 `node --test examples.test.mjs` valida os adaptadores isolados com mocks. Não substitui esses testes de ponta a ponta. Preencher `ACEITE.md` com responsáveis, versões, horários e evidências sem segredos.
 
-## 18. Publicação, corte e recuperação
+## 16. Publicação, corte e recuperação
 
 Instale a credencial de integração, publique o bootstrap e o SDK, valide o chat e homologue os servidores declarados nas sessões.
 
@@ -217,7 +217,7 @@ Não reativar assinaturas legadas nem encaminhamento MCP global para recuperar d
 
 Registre os limites de retenção e as evidências específicas do seu aplicativo.
 
-## 19. Devolutiva e arquivos do pacote
+## 17. Devolutiva e arquivos do pacote
 
 Devolver nome do projeto, tenant, backend/frontend commits, data UTC, SDK/hash, credencial instalada (sim/não, sem valor), chat aprovado, MCP aprovado/desligado, testes negativos, canal humano e pendências. Não concluir com “parece funcionar”.
 

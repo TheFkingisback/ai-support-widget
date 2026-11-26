@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="pcm" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Support Integration Manual</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>Support Integration Manual</h1><p>Authentication, context, and tools with defined responsibilities and acceptance criteria.</p>
+<nav><a href="GUIA.md">Markdown Version</a> · <a href="ACEITE.md">Acceptance Form</a> · <button onclick="window.print()">Print</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">Search Section</label><input id="search" type="search">
+<nav aria-label="Navigation"><div class="toc">
+<ul>
+<li><a href="#section-1">1. How e dey work</a></li>
+<li><a href="#section-2">2. Environments and who dey responsible</a></li>
+<li><a href="#section-3">3. Credentials</a></li>
+<li><a href="#section-4">4. Authentication and identity flow</a></li>
+<li><a href="#section-5">5. Issuer contract</a></li>
+<li><a href="#section-6">6. Compulsory context and correct identity</a></li>
+<li><a href="#section-7">7. Fields, limits and normalization</a></li>
+<li><a href="#section-8">8. Privacy and how e dey last</a></li>
+<li><a href="#section-9">9. Frontend and SDK 0.3.0</a></li>
+<li><a href="#section-10">10. Logout, permissions and history</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA and access</a></li>
+<li><a href="#section-12">12. MCP servers for session</a></li>
+<li><a href="#section-13">13. Model, prompt and knowledge</a></li>
+<li><a href="#section-14">14. Error and Diagnosis Contract</a></li>
+<li><a href="#section-15">15. Required Acceptance</a></li>
+<li><a href="#section-16">16. Publish, Cut, and Recover</a></li>
+<li><a href="#section-17">17. Feedback and Package Files</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">Integrate support · contract v4</h1>
+<p><strong>SDK 0.3.0 · Backend, frontend, and operation manual</strong></p>
+<h2 id="section-1">1. How e dey work</h2>
+<p>Your backend go authenticate di user, project di authorized context, and issue one 15-minute session. For di issue call, e fit include di available MCP servers for dat person. Di browser go receive di widget JWT and di context.</p>
+<h2 id="section-2">2. Environments and who dey responsible</h2>
+<p>Di platform dey for https://support-ai.pontes.uk. Use di correct environment integration credential. Di workspace admin go get di credential for di dashboard. Di app team go maintain di authenticated bootstrap, di context, and di delegated tokens per user and server.</p>
+<h2 id="section-3">3. Credentials</h2>
+<table>
+<thead>
+<tr>
+<th>Credential</th>
+<th>Destination</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Integration credential sik_</td>
+<td>Support AI</td>
+<td>Issue one session for di backend</td>
+</tr>
+<tr>
+<td>Delegated token per server</td>
+<td>MCP wey dem indicate for di session</td>
+<td>Call tools as di authenticated person</td>
+</tr>
+<tr>
+<td>JWT of di session</td>
+<td>API of di chat</td>
+<td>Open and continue conversations for di widget</td>
+</tr>
+</tbody>
+</table>
+<p>Keep di integration credential for di app vault. If you revoke am, e go deactivate di JWTs wey dem issue with am for di next request. Generate di delegated tokens for di backend and limit each one to one resource, user, and validity period.</p>
+<h2 id="section-4">4. Authentication and identity flow</h2>
+<pre><code class="language-text">Authenticated app session
+  → backend go validate active person, organization, and current permissions
+  → POST /api/widget/sessions with sik_ for di server
+  ← jwt + tenantKey + expiresIn
+  → backend go collect and project context of di SAME identity
+  ← browser go receive session/context with Cache-Control: no-store
+  → widget go call /api/cases and conversation routes with di temporary JWT
+</code></pre>
+<p>Preserving di client historical identifier <code>usr_...</code> go prevent losing access to dem own conversations. No use email, role, device, or timestamp as identity. If di same user fit change company, define stable subject per link or explicit history policy; di platform go authorize conversations by tenant + person, without inferring client organizations.</p>
+<p>Di platform go verify signature, issuer <code>ai-support</code>, audience <code>ai-support-widget</code>, purpose <code>widget</code>, <code>sub=userId</code>, validity, and di active session credential. Di browser no go re-sign or alter claims. Roles wey dem send to support na context information; API/MCP authorization go continue for di client server.</p>
+<h2 id="section-5">5. Issuer contract</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>Response 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. Validate <code>tenantKey</code> before you return am to di browser. Di <code>backend-session.mjs</code> file go implement strict body, timeout, redirect blocking, response limit, and tenant validation; e no go replace your authentication middleware.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>Optional list of up to eight objects with unique id, url, and accessToken. See section 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>Required, trim, 1–200 characters</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>Valid email up to 254 characters or empty; default empty</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>Up to 30 strings of 1–80 characters; default empty list</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>String of 1–80 characters; default standard</td>
+</tr>
+</tbody>
+</table>
+<p>No send tenantId, tenantKey, userName, role, purpose, exp or other fields for inside. Credential go determine tenant. Identity go come from session/bank, no from browser query/body. Issuer no go accept user JWT, admin key or old secret instead of <code>sik_</code>.</p>
+<p>Public issuer dey work without use quotas for each project. Reuse session wey still dey valid from di same person, company and permissions, with early expiration and invalidation when changes happen.</p>
+<h2 id="section-6">6. Compulsory context and correct identity</h2>
+<p>Every new case need <code>context.userState</code>, <code>context.userHistory</code> and <code>context.userLogs</code>. Send empty lists if dem don query di source and no records dey; <strong>no change collection wey fail to empty list wey look like success</strong>. If you no fit provide valid and authorized context, client bootstrap must return controlled error.</p>
+<p><code>context.example.json</code> na di minimum example. <code>context.schema.json</code> dem export am from schema Zod wey dem use for server, dem no write am separately. Validate di JSON for backend before deploy. Extra fields wey dem no recognize, dem go discard am; metadata and rules fit get dia own structures, subject to projection/limits. Schema no dey prove authorization or remove all sensitive data.</p>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Compulsory / structure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours positive up to 720, events; timeline dem go rebuild am from events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>Optional; docs with id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>Optional; approved rules object, serialized as runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> must be di exact identity wey dem issue. <strong><code>userState.tenantId</code> na di platform tenant</strong>, never di organization/store ID for di client. Discrepancies go return 403. Data for browser fit dey tampered with; context no dey authorize operations.</p>
+<h2 id="section-7">7. Fields, limits and normalization</h2>
+<table>
+<thead>
+<tr>
+<th>Structure</th>
+<th>Main fields / rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status; id/description optional; metadata object; up to 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt; up to 100</td>
+</tr>
+<tr>
+<td>errorClass of activeErrors</td>
+<td>validation, permission, infra or business; categories like payment need mapping</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId fit null/omission; up to 1,000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus integer, timingMs, requestId; errorCode/resourceId fit be null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs number or null; errorCode/lastStage fit be null</td>
+</tr>
+<tr>
+<td>status of jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors from backend</td>
+<td>ts, errorCode, errorClass string, route, requestId; resourceId fit be null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>Up to 50; content up to 32,000 characters, other texts up to 4,096</td>
+</tr>
+</tbody>
+</table>
+<p>Dates na ISO-8601 strings with timezone; serialize Date for backend. No invent updatedAt, durationMs, retryable or categories just to pass schema: use di real source or omit di record and report say di source no dey available. Record your project specific mappings for acceptance.</p>
+<p>Context wey dem send don reach: <strong>262.144 bytes UTF-8 (256 KiB)</strong>. Di HTTP wey complete still get limit of 1.048.576 bytes. Snapshot budget na <code>min(maxContextBytes, 262144)</code>. If di main part no even fit, di request go fail; make una reduce metadata/documents for di backend. We suggest make una start with 48 KiB, ten entities and short knowledge.</p>
+<p>Server go filter events/logs by di smallest window between di one wey dem request and di tenant own, e go remove future dates and apply maxLogLines wey dem combine with requests, errors and jobs (for dis order). maxDocs go limit di docs list; businessRules na separate runbook and e still dey use di total budget. Di timeline go follow di events wey dem keep. If di data wey relevant no too much, e go usually give better diagnosis and cost go reduce.</p>
+<h2 id="section-8">8. Privacy and how e dey last</h2>
+<p>Plan di data before una send am: make una no ever forward headers, cookies, JWTs, credentials, connection strings, signed URLs, binary content, data from other users or raw exports. Replace secrets with support references. Make una no send di whole PRD or complete logs as knowledge base.</p>
+<p>New snapshots go pass through validation, redaction, reduction and budget before dem save am. Messages and results from tools get treatment for known secret patterns. Dis protection na extra: e no be perfect classifier for personal data, e no correct historical records wey don pass and e no replace wetin di client plan.</p>
+<p>Context na snapshot of di beginning of di conversation, e no be real-time query. Give timestamps and sources. <code>updateContext()</code> go work for di next case; for current data during a conversation, use approved reading tool.</p>
+<h2 id="section-9">9. Frontend and SDK 0.3.0</h2>
+<p>Serve di SDK wey dem fix from di package or di public URL. Check SHA-256 with <code>widget.manifest.json</code>. Avoid duplicated script, floating version and JWT cache. Di reference controller for <code>widget-controller.mjs</code> go mount after bootstrap, wait for onOpen, renew and prevent late mounting after logout.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// When you logout, change person/company/role and clean up di component:
+controller.destroy();
+</code></pre>
+<p>Di functions wey dey up na application callbacks, wey una go implement with una usual HTTP client. Bootstrap go return <code>{jwt,tenantKey,expiresIn,context}</code>. getContext go return di context object. For React, stabilize callbacks with useCallback and mount for useEffect wey dem link to di identity. Make una no put di widget outside di authenticated area or offer visitors with a shared userId.</p>
+<p>Di SDK go accept <code>onTokenRefresh</code> wey go return di new JWT; after 401, e go repeat di request once. Renewal need to use di same person. If identity change, e go need destroy and init. If una use proactive timer, prefer around ten minutes with jitter and cancel am for cleanup. Errors for bootstrap, collection and model no suppose to block di main application.</p>
+<h2 id="section-10">10. Logout, permissions and history</h2>
+<p><code>destroy()</code> go cancel calls and comot local persistence by tenant/person. E no be individual revocation for server. One JWT wey don copy fit still dey valid for up to 15 minutes after logout/lock for client. If you need immediate revocation by person, the contract need more work; no use full tenant rotation as normal logout.</p>
+<p>Every conversation read/write needs the same owner and tenant. Role change for client no dey delete content wey person don already receive for conversation. Set history policy for permission demotion and organization changes. No relax authorization to retrieve old caseId; verify original subject or start new conversation.</p>
+<h2 id="section-11">11. CORS, CSP, PWA and access</h2>
+<p>Allow the exact origin of each frontend on the platform. The SDK needs connect-src for support; serving the local file allows script-src self. The SDK injects style into Shadow DOM and still no dey receive nonce: approve the real CSP policy, e fit need SDK evolution for external styles/nonce/hash. No turn off the whole policy.</p>
+<p>Sessions and context na no-store. Exclude support routes from PWA caches, query persistence and replay tools. Test keyboard, focus, screen reader, zoom and mobile. Present real human channel for the app, with confirmed time/URL. The SDK no dey invent a service provider.</p>
+<h2 id="section-12">12. MCP servers for session</h2>
+<p>The app backend sends <code>POST /api/widget/sessions</code> with the integration credential <code>sik_</code>. E dey derive the person and their organization from login and fit include up to eight servers for <code>mcpServers</code>. Omitted or empty field creates a chat with context. Every new session gets its own list.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>Every id starts with a lowercase letter and accepts lowercase letters, digits, underscore and hyphen, up to 32 characters. IDs, normalized URLs and tokens na unique for the list. The transport na MCP Streamable HTTP over public HTTPS, port 443, with URL no get credentials, query or fragment. The service checks DNS when connecting and rejects redirects.</p>
+<p>The app issues or gets a short access token for each destination, restricted to the person, organization, permissions and audience of that MCP. The Support AI presents <code>Authorization: Bearer &lt;accessToken&gt;</code> to the corresponding server. The provider verifies signature or introspection, issuer, validity, audience and resource access for each operation. E dey publish only the tools allowed for that identity for the catalog. The platform credential, the widget JWT and service keys like Stripe get their own purposes.</p>
+<p>The delegated token dey encrypted for server for up to 900 seconds. The browser receives <code>{jwt, tenantKey, expiresIn: 900}</code>. When renewing, the backend revalidates identity and sends a new list with valid tokens. A proposal created before renewal needs to be presented again. For organization change, use a stable identifier per link and destroy the previous widget instance.</p>
+<p>Di Support AI go through di pages wey <code>tools/list</code> get, e go separate names wey be di same by server, and e go use di original name when e dey call <code>tools/call</code>. Catalogs wey get pass 32 tools get search and pagination inside di chat. Di discovery limits for each server na 128 pages and 4 MB of descriptions. If one server no discover well, di others go still dey fine.</p>
+<p>Tools wey get <code>annotations.readOnlyHint: true</code> fit ask directly. For any tool wey no get di annotation or di annotation na lie, di chat go show server, name, and arguments before e run am. Declare read-only for operations wey no get business effects. Di user go reply <code>confirmar</code> or <code>confirm</code> to di message wey show within five minutes. Di SDK go send <code>replyToMessageId</code>. Di confirmation go cover those arguments, server, session, and conversation. A new proposal go replace di old one.</p>
+<p>Di platform go try run am after e don record di confirmation and e go send <code>Idempotency-Key</code> with di proposal ID. For payments and operations wey get external effects, di provider must save di key and di result atomically and respect di idempotency keys wey di financial service need. After timeout or if di result no clear, di support go record unknown state, block new changes for dat conversation and keep queries available. Check di operation for di original system before you continue.</p>
+<p>To homologate, test one session wey no get servers, two sessions for di same user, two organizations, servers wey get tools wey get di same name, and a paginated catalog. Check di scope/expiration of di tokens for di provider, cancellation and duplicate confirmation. Use synthetic records to check di result for di source.</p>
+<h2 id="section-13">13. Model, prompt and knowledge</h2>
+<p>To first keep di model wey di project don homologate go reduce too many changes at once. For a new evaluation, <code>openai/gpt-4.1-mini</code> fit work with di current parameters: Chat Completions through OpenRouter, temperature 0.3 and max_tokens 2048. Validate for di real account before you activate am. Preferred Model go override Model Policy; auto no be smart routing. Prices/costs must come from di provider; old estimates from di panel fit dey different.</p>
+<p>Di field <strong>AI Instructions / Custom instructions</strong> fit take up to 2,000 actual characters. Paste only <code>PROMPT-TENANT.txt</code>; review names, channel and product rules. No paste credentials or join documents for dis field. Di instruction na to support di platform rules; e no give authorization or enable tools.</p>
+<p>Di prompt wey dem give go guide answers for di language and writing style wey di person choose, facts separate from assumptions, respect for permissions, use of secure references, no promises of actions and human channel. <code>knowledgePack.docs</code> must get short, versioned runbooks with who dey in charge: frequent errors, diagnosis, product limits and how to confirm result. Logs and documents na data, dem no be instructions to change di assistant rules.</p>
+<p>Model Sources: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> and <a href="https://openrouter.ai/api/v1/models">OpenRouter catalog</a>, wey dem check before for 14/09/2026. Make una reconfirm if dem still get am/how much e be when una wan use am; dem no pay for any model comparison for dis kit.</p>
+<h2 id="section-14">14. Error and Diagnosis Contract</h2>
+<table>
+<thead>
+<tr>
+<th>Response</th>
+<th>Meaning / Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 for issuer</td>
+<td>sik no dey, e wrong or dem don cancel am; make una correct settings</td>
+</tr>
+<tr>
+<td>400 for issuer</td>
+<td>Body no follow contract; make una comot extra fields</td>
+</tr>
+<tr>
+<td>401 for cases</td>
+<td>Old signature, don expire, claims no valid or session don cancel</td>
+</tr>
+<tr>
+<td>400 for cases</td>
+<td>Required context no valid, dates/states wrong or budget don pass</td>
+</tr>
+<tr>
+<td>403 from context</td>
+<td>userState no match tenant/person for JWT</td>
+</tr>
+<tr>
+<td>404 for conversation</td>
+<td>Resource no dey or e belong to another person; make una no force access</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Rate limit; backoff/jitter, no issue loop</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>Infrastructure, model or context fail; make una report say e no dey available and requestId</td>
+</tr>
+<tr>
+<td>501 for actions/escalation</td>
+<td>Functionality no get executor/connector; make una use real human channel</td>
+</tr>
+<tr>
+<td>Chat dey work, MCP no dey work</td>
+<td>Check di list wey dem send for di last issue, validity, audience and catalog response.</td>
+</tr>
+<tr>
+<td>Tool no dey</td>
+<td>Check di catalog wey dey available for di delegated token and server connectivity.</td>
+</tr>
+</tbody>
+</table>
+<p>No just use HTTP 200 as accept: check di response content and snapshot. If creation fail after e don save di case, e fit leave di case without response; no assume say transaction involve di model call. Retries must be limited and dem must tell di user. Record method, parameterized route, status, requestId and time UTC; never capture Authorization/JWT, secret or raw payload to forward diagnosis.</p>
+<h2 id="section-15">15. Required Acceptance</h2>
+<ol>
+<li>Bootstrap route without login rejected before issuer. Fake identities no change di authenticated user.</li>
+<li>Issue with correct credential return di expected tenant and 900 seconds; secret no show for browser/replay/logs.</li>
+<li>Old JWT dem reject am. New session create conversation with snapshot and real response; reopens for di same person.</li>
+<li>Two people from di same project and two tenants: GET case and POST messages/feedback/close/escalate/actions no cross identities.</li>
+<li>Context without blocks, different identity, invalid date and excessive size dem reject am; synthetic secrets no dey persist for snapshot.</li>
+<li>Renewal after 15 minutes, logout during collection, account/company/role change and navigation no restore another person's conversation.</li>
+<li>Model respond using evidence and respect diagnostic limit; failure no generate apparent success.</li>
+<li>Issue sessions with zero and two servers. Confirm say each destination receive its own token.</li>
+<li>MCP refuse wrong/old token, wrong tenant, missing/inactive user and another person's resource. Test reused session ID, if session dey.</li>
+<li>Confirm say changes need proposal confirmation and dem no repeat for timeout.</li>
+<li>CORS/CSP, mobile, keyboard and human channel approved. Coordinated rotation tested for approval.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> dey check isolated adapters wit mocks. E no go replace dem end-to-end tests. Fill <code>ACEITE.md</code> wit responsible pipo, versions, times, and evidence wey no get secret.</p>
+<h2 id="section-16">16. Publish, Cut, and Recover</h2>
+<p>Install di integration credential, publish di bootstrap and di SDK, validate di chat and approve di servers wey dem declare for di sessions.</p>
+<p>No reactivate old subscriptions or global MCP forwarding to get availability back. If e fail, temporarily disable di widget or MCP of di affected tenant and keep di human channel while you fix di adapter. No delete conversations to bypass a 404 owner error.</p>
+<p>Record di retention limits and di specific evidence for your application.</p>
+<h2 id="section-17">17. Feedback and Package Files</h2>
+<p>Return project name, tenant, backend/frontend commits, UTC date, SDK/hash, installed credential (yes/no, no value), approved chat, MCP approved/off, negative tests, human channel and pending issues. No conclude with “e look like e dey work”.</p>
+<p>Di public kit get dis guide for Markdown, server schema, minimum fixture, issuer adapter, MCP authentication, frontend controller, SDK, prompt, isolated tests, checklist, actions contract and SHA-256 manifest. Individual packages fit add specific attachments. Di examples no automatically implement di client application endpoints. Di browsable version dey for https://support-ai.pontes.uk/developers?lang=pcm.</p></main></div>
+<script id="controls" data-copy="Copy Example" data-copied="Copied" data-selected="Selected — use Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

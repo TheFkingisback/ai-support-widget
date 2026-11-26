@@ -7,6 +7,5 @@ export const sdkRelease = {
   manifest: '/widget.manifest.json',
   starter: `/downloads/${downloads.archives.starter.file}`,
   kit: `/downloads/${downloads.archives.kit.file}`,
-  kitSha256: downloads.archives.kit.sha256,
   controller: `/integration-v4/widget-controller.v${manifest.version}.mjs`,
 };

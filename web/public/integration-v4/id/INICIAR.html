@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="id" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panduan Integrasi Dukungan</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>Panduan Integrasi Dukungan</h1><p>Autentikasi, konteks, dan alat dengan tanggung jawab dan kriteria penerimaan yang ditentukan.</p>
+<nav><a href="GUIA.md">Versi Markdown</a> · <a href="ACEITE.md">Formulir penerimaan</a> · <button onclick="window.print()">Cetak</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">Cari bagian</label><input id="search" type="search">
+<nav aria-label="Navigasi"><div class="toc">
+<ul>
+<li><a href="#section-1">1. Como funciona</a></li>
+<li><a href="#section-2">2. Ambientes e responsáveis</a></li>
+<li><a href="#section-3">3. Credenciais</a></li>
+<li><a href="#section-4">4. Fluxo de autenticação e identidade</a></li>
+<li><a href="#section-5">5. Contrato do emissor</a></li>
+<li><a href="#section-6">6. Konteks wajib dan identitas yang benar</a></li>
+<li><a href="#section-7">7. Bidang, batas, dan normalisasi</a></li>
+<li><a href="#section-8">8. Privacidade e persistência</a></li>
+<li><a href="#section-9">9. Frontend e SDK 0.3.0</a></li>
+<li><a href="#section-10">10. Logout, permissões e histórico</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA dan akses</a></li>
+<li><a href="#section-12">12. Server MCP dalam sesi</a></li>
+<li><a href="#section-13">13. Model, prompt, dan pengetahuan</a></li>
+<li><a href="#section-14">14. Kontrak kesalahan dan diagnostik</a></li>
+<li><a href="#section-15">15. Penerimaan wajib</a></li>
+<li><a href="#section-16">16. Publikasi, Pemotongan, dan Pemulihan</a></li>
+<li><a href="#section-17">17. Umpan Balik dan File Paket</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">Integração do suporte · contrato v4</h1>
+<p><strong>SDK 0.3.0 · Manual de backend, frontend e operação</strong></p>
+<h2 id="section-1">1. Como funciona</h2>
+<p>Seu backend autentica o usuário, projeta o contexto autorizado e emite uma sessão de 15 minutos. Na chamada de emissão, pode incluir os servidores MCP disponíveis para aquela pessoa. O navegador recebe o JWT do widget e o contexto.</p>
+<h2 id="section-2">2. Ambientes e responsáveis</h2>
+<p>A plataforma está em https://support-ai.pontes.uk. Use a credencial de integração do ambiente correto. O administrador do workspace obtém a credencial no painel. O time do aplicativo mantém o bootstrap autenticado, o contexto e os tokens delegados por usuário e servidor.</p>
+<h2 id="section-3">3. Credenciais</h2>
+<table>
+<thead>
+<tr>
+<th>Credencial</th>
+<th>Destino</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Credencial de integração sik_</td>
+<td>Support AI</td>
+<td>Emitir uma sessão no backend</td>
+</tr>
+<tr>
+<td>Token delegado por servidor</td>
+<td>MCP indicado na sessão</td>
+<td>Chamar ferramentas como a pessoa autenticada</td>
+</tr>
+<tr>
+<td>JWT da sessão</td>
+<td>API do chat</td>
+<td>Abrir e continuar conversas no widget</td>
+</tr>
+</tbody>
+</table>
+<p>Guarde a credencial de integração no cofre do aplicativo. Revogá-la desativa os JWTs emitidos com ela na próxima requisição. Gere os tokens delegados no backend e limite cada um a um recurso, usuário e prazo de validade.</p>
+<h2 id="section-4">4. Fluxo de autenticação e identidade</h2>
+<pre><code class="language-text">Sessão autenticada do aplicativo
+  → backend valida pessoa ativa, organização e permissões atuais
+  → POST /api/widget/sessions com sik_ no servidor
+  ← jwt + tenantKey + expiresIn
+  → backend coleta e projeta contexto da MESMA identidade
+  ← browser recebe sessão/contexto com Cache-Control: no-store
+  → widget chama /api/cases e rotas da conversa com o JWT temporário
+</code></pre>
+<p>Preservar o identificador histórico <code>usr_...</code> do cliente evita perder acesso às próprias conversas. Não usar email, papel, aparelho ou timestamp como identidade. Caso o mesmo usuário possa mudar de empresa, definir subject estável por vínculo ou política explícita de histórico; a plataforma autoriza conversas por tenant + pessoa, sem inferir organizações do cliente.</p>
+<p>A plataforma verifica assinatura, emissor <code>ai-support</code>, audiência <code>ai-support-widget</code>, propósito <code>widget</code>, <code>sub=userId</code>, validade e a credencial ativa da sessão. O browser não re-assina nem altera claims. Papéis enviados ao suporte são informação de contexto; autorização de APIs/MCP continua no servidor cliente.</p>
+<h2 id="section-5">5. Contrato do emissor</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>Resposta 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. Validar <code>tenantKey</code> antes de devolver ao browser. O arquivo <code>backend-session.mjs</code> implementa corpo estrito, timeout, bloqueio de redirects, limite de resposta e validação do tenant; não substitui seu middleware de autenticação.</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Regra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>Lista opcional de até oito objetos com id, url e accessToken exclusivos. Ver seção 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>Obrigatório, trim, 1–200 caracteres</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>Email válido até 254 caracteres ou vazio; default vazio</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>Até 30 strings de 1–80 caracteres; default lista vazia</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>String de 1–80 caracteres; default standard</td>
+</tr>
+</tbody>
+</table>
+<p>Jangan kirim tenantId, tenantKey, userName, role, purpose, exp, atau bidang lainnya di body. Kredensial menentukan tenant. Identitas berasal dari sesi/database, bukan dari query/body browser. Penerbit tidak menerima JWT pengguna, kunci administratif, atau rahasia lama sebagai pengganti <code>sik_</code>.</p>
+<p>Penerbit publik berfungsi tanpa kuota penggunaan per proyek. Gunakan kembali sesi yang masih valid dari orang, perusahaan, dan izin yang sama, dengan kedaluwarsa lebih awal dan pembatalan saat ada perubahan.</p>
+<h2 id="section-6">6. Konteks wajib dan identitas yang benar</h2>
+<p>Setiap kasus baru memerlukan <code>context.userState</code>, <code>context.userHistory</code>, dan <code>context.userLogs</code>. Kirim daftar kosong ketika sumber telah dikueri dan tidak ada catatan; <strong>jangan mengubah koleksi yang gagal menjadi daftar kosong yang tampak berhasil</strong>. Jika Anda tidak dapat memberikan konteks yang valid dan sah, bootstrap klien harus mengembalikan kesalahan yang terkontrol.</p>
+<p><code>context.example.json</code> adalah contoh minimal. <code>context.schema.json</code> diekspor dari skema Zod yang digunakan di server, tidak ditulis secara independen. Validasi JSON di backend sebelum deployment. Bidang tambahan yang tidak dikenali akan dibuang; metadata dan aturan dapat berisi struktur sendiri, tunduk pada proyeksi/batas. Skema tidak membuktikan otorisasi atau menghilangkan semua data sensitif.</p>
+<table>
+<thead>
+<tr>
+<th>Blok</th>
+<th>Wajib / struktur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours positif hingga 720, events; timeline dibangun kembali dari events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>Opsional; docs dengan id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>Opsional; objek aturan yang disetujui, diserialisasi sebagai runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> harus persis dengan identitas yang diterbitkan. <strong><code>userState.tenantId</code> adalah tenant platform</strong>, bukan ID organisasi/toko di klien. Perbedaan akan mengembalikan 403. Data di browser dapat diubah; konteks tidak mengotorisasi operasi.</p>
+<h2 id="section-7">7. Bidang, batas, dan normalisasi</h2>
+<table>
+<thead>
+<tr>
+<th>Struktur</th>
+<th>Bidang utama / aturan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status; id/description opsional; metadata objek; hingga 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt; hingga 100</td>
+</tr>
+<tr>
+<td>errorClass dari activeErrors</td>
+<td>validation, permission, infra atau business; kategori seperti payment memerlukan pemetaan</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId menerima null/default; hingga 1.000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus integer, timingMs, requestId; errorCode/resourceId bisa null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs angka atau null; errorCode/lastStage bisa null</td>
+</tr>
+<tr>
+<td>status dari jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors dari backend</td>
+<td>ts, errorCode, errorClass string, route, requestId; resourceId bisa null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>Hingga 50; content hingga 32.000 karakter, teks lainnya hingga 4.096</td>
+</tr>
+</tbody>
+</table>
+<p>Tanggal adalah string ISO-8601 dengan zona waktu; serialisasi Date di backend. Jangan mengarang updatedAt, durationMs, retryable atau kategori hanya untuk melewati skema: gunakan sumber asli atau hilangkan catatan dan informasikan ketidaktersediaan sumber. Catat pemetaan spesifik proyek Anda dalam penerimaan.</p>
+<p>Teto do contexto enviado: <strong>262.144 bytes UTF-8 (256 KiB)</strong>. O HTTP completo continua limitado a 1.048.576 bytes. O orçamento do snapshot é <code>min(maxContextBytes, 262144)</code>. Se nem a parte essencial couber, a solicitação falha; reduzir metadados/documentos no backend. Sugerimos começar com 48 KiB, dez entidades e conhecimento curto.</p>
+<p>O servidor filtra eventos/logs pela menor janela entre a solicitada e a do tenant, remove datas futuras e aplica maxLogLines combinado a requests, erros e jobs (nesta ordem). maxDocs limita a lista docs; businessRules é um runbook separado e também ocupa o orçamento total. A timeline segue os eventos mantidos. Menos dados relevantes costuma produzir diagnóstico melhor e custo menor.</p>
+<h2 id="section-8">8. Privacidade e persistência</h2>
+<p>Projetar os dados antes de enviá-los: nunca encaminhar headers, cookies, JWTs, credenciais, strings de conexão, URLs assinadas, conteúdo binário, dados de outros usuários ou exportações brutas. Substituir segredos por referências de suporte. Não enviar o PRD inteiro ou logs completos como base de conhecimento.</p>
+<p>Novos snapshots passam por validação, redação, redução e orçamento antes da gravação. Mensagens e resultados de ferramentas têm tratamento de padrões conhecidos de segredos. Essa proteção é complementar: não é um classificador infalível de dados pessoais, não corrige retroativamente registros históricos nem substitui a projeção do cliente.</p>
+<p>O contexto é um snapshot do início da conversa, não uma consulta em tempo real. Informar timestamps e fontes. <code>updateContext()</code> vale para o próximo caso; para dados atuais durante uma conversa, usar ferramenta de leitura homologada.</p>
+<h2 id="section-9">9. Frontend e SDK 0.3.0</h2>
+<p>Servir o SDK fixado do pacote ou da URL pública. Conferir SHA-256 com <code>widget.manifest.json</code>. Evitar script duplicado, versão flutuante e cache de JWT. O controlador de referência em <code>widget-controller.mjs</code> monta após bootstrap, aguarda onOpen, renova e impede montagem tardia após logout.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// No logout, troca de pessoa/empresa/papel e cleanup do componente:
+controller.destroy();
+</code></pre>
+<p>As funções acima são callbacks do aplicativo, a implementar com seu cliente HTTP habitual. Bootstrap retorna <code>{jwt,tenantKey,expiresIn,context}</code>. getContext retorna o objeto de contexto. Em React, estabilizar callbacks com useCallback e montar em useEffect vinculado à identidade. Não colocar o widget fora da área autenticada nem oferecer visitantes com um userId compartilhado.</p>
+<p>O SDK aceita <code>onTokenRefresh</code> que retorna o novo JWT; após 401, repete a requisição uma vez. Renovação precisa usar a mesma pessoa. Mudança de identidade exige destroy e init. Se usar timer proativo, preferir cerca de dez minutos com jitter e cancelar no cleanup. Erros de bootstrap, coleta e modelo não devem bloquear o aplicativo principal.</p>
+<h2 id="section-10">10. Logout, permissões e histórico</h2>
+<p><code>destroy()</code> membatalkan panggilan dan menghapus persistensi lokal per penyewa/orang. Ini bukan pencabutan individu di server. Sebuah JWT yang sudah disalin dapat tetap berlaku hingga 15 menit setelah logout/penguncian di klien. Jika diperlukan pencabutan segera per orang, kontrak memerlukan evolusi tambahan; jangan gunakan rotasi seluruh penyewa sebagai logout normal.</p>
+<p>Setiap baca/tulis percakapan memerlukan pemilik dan penyewa yang sama. Perubahan peran di klien tidak menghapus konten yang sudah diterima orang dalam percakapan. Tetapkan kebijakan riwayat untuk penurunan izin dan perubahan organisasi. Jangan melonggarkan otorisasi untuk mengambil caseId lama; verifikasi subjek asli atau mulai percakapan baru.</p>
+<h2 id="section-11">11. CORS, CSP, PWA dan akses</h2>
+<p>Izinkan di platform asal pasti dari setiap frontend. SDK memerlukan connect-src untuk dukungan; menyajikan file lokal memungkinkan script-src self. SDK menyuntikkan gaya ke Shadow DOM dan belum menerima nonce: homologkan kebijakan CSP yang sebenarnya, yang mungkin memerlukan evolusi SDK untuk gaya eksternal/nonce/hash. Jangan matikan seluruh kebijakan.</p>
+<p>Sesi dan konteks adalah no-store. Kecualikan rute dukungan dari cache PWA, persistensi kueri, dan alat replay. Uji keyboard, fokus, pembaca layar, zoom, dan seluler. Sajikan saluran manusia yang sebenarnya di aplikasi, dengan waktu/URL yang dikonfirmasi. SDK tidak menciptakan penyedia layanan.</p>
+<h2 id="section-12">12. Server MCP dalam sesi</h2>
+<p>Backend aplikasi mengirimkan <code>POST /api/widget/sessions</code> dengan kredensial integrasi <code>sik_</code>. Ini menurunkan orang dan organisasinya dari login dan dapat mencakup hingga delapan server di <code>mcpServers</code>. Bidang yang dihilangkan atau kosong membuat obrolan dengan konteks. Setiap sesi baru menerima daftar sendiri.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>Setiap id dimulai dengan huruf kecil dan menerima huruf kecil, digit, garis bawah, dan tanda hubung, hingga 32 karakter. ID, URL yang dinormalisasi, dan token bersifat eksklusif dalam daftar. Transportasi adalah MCP Streamable HTTP di HTTPS publik, port 443, dengan URL tanpa kredensial, kueri, atau fragmen. Layanan memverifikasi DNS saat menghubungkan dan menolak pengalihan.</p>
+<p>Aplikasi mengeluarkan atau memperoleh token akses singkat untuk setiap tujuan, terbatas pada orang, organisasi, izin, dan audiens dari MCP tersebut. Support AI menyajikan <code>Authorization: Bearer &lt;accessToken&gt;</code> ke server yang sesuai. Penyedia memverifikasi tanda tangan atau introspeksi, penerbit, validitas, audiens, dan akses ke sumber daya di setiap operasi. Ini menerbitkan di katalog hanya alat yang diizinkan untuk identitas ini. Kredensial platform, JWT widget, dan kunci layanan seperti Stripe memiliki tujuan sendiri.</p>
+<p>Token yang didelegasikan dienkripsi di server hingga 900 detik. Browser menerima <code>{jwt, tenantKey, expiresIn: 900}</code>. Saat memperbarui, backend memvalidasi ulang identitas dan mengirimkan daftar baru dengan token yang valid. Proposal yang dibuat sebelum pembaruan perlu disajikan lagi. Untuk perubahan organisasi, gunakan pengidentifikasi stabil per tautan dan hancurkan instans widget sebelumnya.</p>
+<p>Support AI menelusuri setiap halaman <code>tools/list</code>, membedakan alat bernama sama menurut server, dan menggunakan nama asli saat memanggil <code>tools/call</code>. Jika katalog memuat lebih dari 32 alat, pengguna dapat mencari dan berpindah halaman di dalam chat. Penemuan alat dibatasi hingga 128 halaman dan 4 MB deskripsi per server. Jika penemuan gagal di satu server, server lain tetap tersedia.</p>
+<p>Alat dengan <code>annotations.readOnlyHint: true</code> dapat dipanggil secara langsung. Untuk setiap alat dengan anotasi yang hilang atau salah, obrolan menampilkan server, nama, dan argumen sebelum dieksekusi. Deklarasikan hanya-baca untuk operasi tanpa efek bisnis. Pengguna membalas <code>confirmar</code> atau <code>confirm</code> ke pesan yang ditampilkan dalam waktu lima menit. SDK mengirimkan <code>replyToMessageId</code>. Konfirmasi berlaku untuk argumen, server, sesi, dan percakapan tersebut. Proposal baru menggantikan yang sebelumnya.</p>
+<p>Platform melakukan satu upaya eksekusi setelah mendaftarkan konfirmasi dan mengirim <code>Idempotency-Key</code> dengan ID proposal. Untuk pembayaran dan operasi dengan efek eksternal, penyedia harus menyimpan kunci dan hasilnya secara atomik dan mematuhi kunci idempoten yang disyaratkan oleh layanan keuangan. Setelah batas waktu atau hasil yang ambigu, dukungan mencatat status tidak diketahui, memblokir perubahan baru dalam percakapan ini, dan menjaga kueri tetap tersedia. Verifikasi operasi dalam sistem sumber sebelum melanjutkan.</p>
+<p>Untuk homologasi, uji satu sesi tanpa server, dua sesi dari pengguna yang sama, dua organisasi, server dengan alat homonim, dan katalog berhalaman. Verifikasi cakupan/kedaluwarsa token pada penyedia, pembatalan, dan konfirmasi duplikat. Gunakan catatan sintetis untuk memverifikasi hasil pada sumber.</p>
+<h2 id="section-13">13. Model, prompt, dan pengetahuan</h2>
+<p>Mempertahankan model yang sudah disetujui oleh proyek pada awalnya mengurangi perubahan simultan. Untuk evaluasi baru, <code>openai/gpt-4.1-mini</code> adalah kandidat yang kompatibel dengan parameter saat ini: Chat Completions melalui OpenRouter, suhu 0,3, dan max_tokens 2048. Validasi di akun nyata sebelum mengaktifkan. Preferred Model lebih diutamakan daripada Model Policy; otomatis bukan perutean cerdas. Harga/biaya harus berasal dari penyedia; perkiraan lama dari panel mungkin berbeda.</p>
+<p>Bidang <strong>AI Instructions / Custom instructions</strong> menerima hingga 2.000 karakter efektif. Tempel hanya <code>PROMPT-TENANT.txt</code>; tinjau nama, saluran, dan aturan produk. Jangan menempelkan kredensial atau menggabungkan dokumen di bidang ini. Instruksi ini melengkapi aturan platform; tidak memberikan otorisasi atau mengaktifkan alat.</p>
+<p>Prompt yang diberikan memandu respons dalam bahasa dan tulisan yang dipilih oleh orang tersebut, fakta yang dipisahkan dari hipotesis, penghormatan terhadap izin, penggunaan referensi yang aman, tidak adanya janji tindakan, dan saluran manusia. <code>knowledgePack.docs</code> harus berisi runbook singkat dan versi dengan penanggung jawab: kesalahan yang sering terjadi, diagnosis, batasan produk, dan cara mengonfirmasi hasil. Log dan dokumen adalah data, bukan instruksi untuk mengubah aturan asisten.</p>
+<p>Sumber model: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> dan <a href="https://openrouter.ai/api/v1/models">katalog OpenRouter</a>, dikonsultasikan dalam persiapan sebelumnya pada 14/09/2026. Konfirmasi ulang ketersediaan/harga saat implementasi; tidak ada perbandingan model berbayar dalam kit ini.</p>
+<h2 id="section-14">14. Kontrak kesalahan dan diagnostik</h2>
+<table>
+<thead>
+<tr>
+<th>Respons</th>
+<th>Arti / tindakan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 pada penerbit</td>
+<td>sik hilang, salah, atau dicabut; perbaiki konfigurasi</td>
+</tr>
+<tr>
+<td>400 pada penerbit</td>
+<td>Isi di luar kontrak; hapus bidang tambahan</td>
+</tr>
+<tr>
+<td>401 dalam kasus</td>
+<td>Tanda tangan lama, kedaluwarsa, klaim tidak valid, atau sesi dicabut</td>
+</tr>
+<tr>
+<td>400 dalam kasus</td>
+<td>Konteks wajib tidak valid, tanggal/status salah, atau anggaran terlampaui</td>
+</tr>
+<tr>
+<td>403 dari konteks</td>
+<td>userState tidak cocok dengan tenant/orang dari JWT</td>
+</tr>
+<tr>
+<td>404 dalam percakapan</td>
+<td>Sumber daya tidak ada atau milik identitas lain; jangan paksa akses</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Batas; backoff/jitter, tanpa loop penerbitan</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>Kegagalan infrastruktur, model, atau konteks; informasikan ketidaktersediaan dan requestId</td>
+</tr>
+<tr>
+<td>501 pada tindakan/eskalasi</td>
+<td>Fungsionalitas tanpa eksekutor/konektor; gunakan saluran manusia nyata</td>
+</tr>
+<tr>
+<td>Chat berfungsi, MCP tidak</td>
+<td>Periksa daftar yang dikirim pada penerbitan terakhir, validitas, audiens, dan respons katalog.</td>
+</tr>
+<tr>
+<td>Alat hilang</td>
+<td>Verifikasi katalog yang tersedia untuk token yang didelegasikan dan konektivitas server.</td>
+</tr>
+</tbody>
+</table>
+<p>Jangan hanya menggunakan HTTP 200 sebagai penerimaan: verifikasi konten respons dan snapshot. Pembuatan yang gagal setelah menyimpan kasus dapat meninggalkan kasus tanpa respons; jangan berasumsi transaksi melibatkan panggilan ke model. Percobaan ulang harus dibatasi dan diinformasikan kepada pengguna. Catat metode, rute berparameter, status, requestId, dan waktu UTC; jangan pernah menangkap Authorization/JWT, rahasia, atau payload mentah untuk meneruskan diagnostik.</p>
+<h2 id="section-15">15. Penerimaan wajib</h2>
+<ol>
+<li>Rute bootstrap tanpa login ditolak sebelum penerbit. Identitas palsu tidak mengubah pengguna yang diautentikasi.</li>
+<li>Penerbitan dengan kredensial yang benar mengembalikan tenant yang diharapkan dan 900 detik; rahasia tidak muncul di browser/replay/log.</li>
+<li>JWT lama ditolak. Sesi baru membuat percakapan dengan snapshot dan respons nyata; dibuka kembali untuk orang yang sama.</li>
+<li>Dua orang dari proyek yang sama dan dua tenant: GET kasus dan POST pesan/umpan balik/tutup/eskalasi/tindakan tidak menyilangkan identitas.</li>
+<li>Konteks tanpa blok, identitas berbeda, tanggal tidak valid, dan ukuran berlebihan ditolak; rahasia sintetis tidak bertahan dalam snapshot.</li>
+<li>Pembaruan setelah 15 menit, logout selama pengumpulan, perubahan akun/perusahaan/peran, dan navigasi tidak memulihkan percakapan orang lain.</li>
+<li>Model merespons menggunakan bukti dan menghormati batas diagnostik; kegagalan tidak menghasilkan keberhasilan yang jelas.</li>
+<li>Terbitkan sesi dengan nol dan dua server. Pastikan setiap tujuan menerima tokennya sendiri.</li>
+<li>MCP menolak token salah/lama, tenant salah, pengguna tidak ada/tidak aktif, dan sumber daya orang lain. Uji ID sesi yang digunakan kembali, jika ada sesi.</li>
+<li>Konfirmasikan bahwa perubahan memerlukan konfirmasi proposal dan tidak berulang jika terjadi timeout.</li>
+<li>CORS/CSP, seluler, keyboard, dan saluran manusia disetujui. Rotasi terkoordinasi diuji dalam homologasi.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> memvalidasi adaptor terisolasi dengan mock. Ini tidak menggantikan pengujian end-to-end tersebut. Isi <code>ACEITE.md</code> dengan penanggung jawab, versi, waktu, dan bukti tanpa rahasia.</p>
+<h2 id="section-16">16. Publikasi, Pemotongan, dan Pemulihan</h2>
+<p>Instal kredensial integrasi, publikasikan bootstrap dan SDK, validasi obrolan, dan setujui server yang dideklarasikan dalam sesi.</p>
+<p>Jangan mengaktifkan kembali langganan lama atau penerusan MCP global untuk memulihkan ketersediaan. Jika terjadi kegagalan, nonaktifkan sementara widget atau MCP dari penyewa yang terpengaruh dan pertahankan saluran manusia saat memperbaiki adaptor. Jangan menghapus percakapan untuk mengatasi 404 pemilik.</p>
+<p>Catat batas retensi dan bukti spesifik aplikasi Anda.</p>
+<h2 id="section-17">17. Umpan Balik dan File Paket</h2>
+<p>Kembalikan nama proyek, penyewa, komit backend/frontend, tanggal UTC, SDK/hash, kredensial terinstal (ya/tidak, tanpa nilai), obrolan disetujui, MCP disetujui/dimatikan, pengujian negatif, saluran manusia, dan item yang tertunda. Jangan menyimpulkan dengan "sepertinya berfungsi".</p>
+<p>Kit publik berisi panduan ini dalam Markdown, skema server, fixture minimal, adaptor penerbit, autentikasi MCP, pengontrol frontend, SDK, prompt, pengujian terisolasi, daftar periksa, kontrak tindakan, dan manifes SHA-256. Paket individual dapat menambahkan lampiran spesifik. Contoh tidak secara otomatis mengimplementasikan endpoint aplikasi klien. Versi yang dapat dijelajahi ada di https://support-ai.pontes.uk/developers?lang=id.</p></main></div>
+<script id="controls" data-copy="Salin contoh" data-copied="Disalin" data-selected="Dipilih — gunakan Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

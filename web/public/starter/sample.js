@@ -5,10 +5,14 @@
   const encode = value => btoa(JSON.stringify(value)).replaceAll('=', '').replaceAll('+', '-').replaceAll('/', '_');
   const jwt = `${encode({ alg: 'none' })}.${encode({ tenantId, userId, sub: userId })}.fixture`;
   const status = document.getElementById('status');
-  const preferred = new URLSearchParams(window.location.search).get('lang') || navigator.language || 'en-US';
+  const preferred = new URLSearchParams(window.location.search).get('lang') || document.documentElement.dataset.kitLocale || navigator.language || 'en-US';
   const locale = window.AISupportWidget?.localization?.(preferred);
   const copy = locale?.messages ?? {};
   if (locale) {
+    if (locale.locale !== document.documentElement.dataset.kitLocale) {
+      document.title = copy.sampleWorkspace;
+      document.querySelector('main section')?.setAttribute('aria-label', copy.sampleImport);
+    }
     document.documentElement.lang = locale.locale;
     document.documentElement.dir = locale.dir;
     document.querySelectorAll('[data-copy]').forEach(element => {

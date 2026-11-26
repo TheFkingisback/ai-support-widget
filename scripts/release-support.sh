@@ -40,7 +40,8 @@ if ! curl -fsS --retry 15 --retry-all-errors --retry-delay 1 --max-time 5 "http:
   exit 1
 fi
 curl -fsS "http://$address/signup" > /dev/null
-curl -fsS "http://$address/downloads/ai-support-starter.zip" > /dev/null
+curl -fsS "http://$address/integration-v4/sr-Cyrl/INICIAR.html" > /dev/null
+curl -fsS "http://$address/downloads/sr-Latn/ai-support-starter.zip" > /dev/null
 stop_candidate
 trap - EXIT
 

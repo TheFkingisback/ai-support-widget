@@ -1,4 +1,5 @@
 import { L } from '@/lib/localization';
+import { ArtifactLink } from '@/components/artifact-link';
 import { LocalizedDemo } from '@/components/localized-demo';
 import Link from 'next/link';
 import { MarketingHeader } from '@/components/marketing-header';
@@ -12,7 +13,7 @@ export default function DemoPage() {
       <LocalizedDemo />
       <div className="mt-6 flex flex-wrap items-center gap-4 text-sm font-medium text-teal-300">
         <Link href="/signup" className="rounded-lg bg-teal-300 px-4 py-2.5 font-semibold text-slate-950 hover:bg-teal-200"><L>{"Get started free"}</L></Link>
-        <a href="/downloads/ai-support-starter.zip" download className="hover:underline"><L>{"Download the starter kit"}</L></a>
+        <ArtifactLink href="/downloads/ai-support-starter.zip" download className="hover:underline"><L>{"Download the starter kit"}</L></ArtifactLink>
         <Link href="/developers/quick-start" className="hover:underline"><L>{"Integration guide"}</L></Link>
       </div>
     </main>

@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ha" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jagoran Haɗin Tallafi</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>Jagoran Haɗin Tallafi</h1><p>Tabbatarwa, mahallin, da kayan aiki tare da ayyuka da ka&#x27;idodin karɓa da aka ayyana.</p>
+<nav><a href="GUIA.md">Siffar Markdown</a> · <a href="ACEITE.md">Fom ɗin Karɓa</a> · <button onclick="window.print()">Buga</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">Nemo sashe</label><input id="search" type="search">
+<nav aria-label="Kewayawa"><div class="toc">
+<ul>
+<li><a href="#section-1">1. Yadda yake aiki</a></li>
+<li><a href="#section-2">2. Muhalli da masu alhakin</a></li>
+<li><a href="#section-3">3. Takardun shaida</a></li>
+<li><a href="#section-4">4. Tsarin tabbatarwa da asali</a></li>
+<li><a href="#section-5">5. Kwangilar mai bayarwa</a></li>
+<li><a href="#section-6">6. Wajibi ne mahallin da kuma asalin daidai</a></li>
+<li><a href="#section-7">7. Filaye, iyakoki da daidaitawa</a></li>
+<li><a href="#section-8">8. Sirri da dorewa</a></li>
+<li><a href="#section-9">9. Frontend da SDK 0.3.0</a></li>
+<li><a href="#section-10">10. Fita, izini da tarihi</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA da samun dama</a></li>
+<li><a href="#section-12">12. Sabar MCP a cikin zama</a></li>
+<li><a href="#section-13">13. Samfuri, umarni da ilimi</a></li>
+<li><a href="#section-14">14. Yarjejeniyar kuskure da bincike</a></li>
+<li><a href="#section-15">15. Karɓa na tilas</a></li>
+<li><a href="#section-16">16. Bugawa, yanke da dawo da su</a></li>
+<li><a href="#section-17">17. Amsa da fayilolin kunshin</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">Haɗin kai na tallafi · kwangila v4</h1>
+<p><strong>SDK 0.3.0 · Littafin baya, gaba da aiki</strong></p>
+<h2 id="section-1">1. Yadda yake aiki</h2>
+<p>Bayananku yana tabbatar da mai amfani, yana tsara mahallin da aka ba izini kuma yana fitar da zaman minti 15. A kiran fitarwa, zai iya haɗa da sabobin MCP da ke akwai ga wannan mutumin. Mai bincike yana karɓar JWT na widget da mahallin.</p>
+<h2 id="section-2">2. Muhalli da masu alhakin</h2>
+<p>Dandalin yana kan https://support-ai.pontes.uk. Yi amfani da takardar shaidar haɗin kai na madaidaicin muhalli. Mai gudanar da wurin aiki yana samun takardar shaidar a cikin dashboard. Ƙungiyar aikace-aikacen tana kula da ingantaccen bootstrap, mahallin da alamun da aka ba da izini ga kowane mai amfani da sabar.</p>
+<h2 id="section-3">3. Takardun shaida</h2>
+<table>
+<thead>
+<tr>
+<th>Takardar shaida</th>
+<th>Makoma</th>
+<th>Amfani</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Takardar shaidar haɗin kai sik_</td>
+<td>Support AI</td>
+<td>Fitar da zama a baya</td>
+</tr>
+<tr>
+<td>Alamar da aka ba da izini ta sabar</td>
+<td>MCP da aka nuna a zaman</td>
+<td>Kira kayan aiki a matsayin mutumin da aka tabbatar</td>
+</tr>
+<tr>
+<td>JWT na zaman</td>
+<td>API na hira</td>
+<td>Bude da ci gaba da tattaunawa a cikin widget</td>
+</tr>
+</tbody>
+</table>
+<p>Ajiye takardar shaidar haɗin kai a cikin ma'ajiyar aikace-aikacen. Soke ta yana kashe JWTs da aka bayar da ita a buƙatar gaba. Samar da alamun da aka ba da izini a baya kuma iyakance kowane ɗaya zuwa albarkatu, mai amfani da lokacin karewa.</p>
+<h2 id="section-4">4. Tsarin tabbatarwa da asali</h2>
+<pre><code class="language-text">Zaman aikace-aikacen da aka tabbatar
+  → baya yana tabbatar da mutum mai aiki, ƙungiya da izini na yanzu
+  → POST /api/widget/sessions tare da sik_ a sabar
+  ← jwt + tenantKey + expiresIn
+  → baya yana tattara kuma yana tsara mahallin asali ƊAYA
+  ← mai bincike yana karɓar zama/mahallin tare da Cache-Control: no-store
+  → widget yana kiran /api/cases da hanyoyin tattaunawa tare da JWT na ɗan lokaci
+</code></pre>
+<p>Kiyaye mai gano tarihi <code>usr_...</code> na abokin ciniki yana hana rasa damar shiga tattaunawarsu. Kada a yi amfani da email, rawa, na'ura ko timestamp a matsayin asali. Idan mai amfani ɗaya zai iya canza kamfani, ayyana batun daidaitacce ta hanyar haɗi ko manufar tarihi bayyananne; dandalin yana ba da izini ga tattaunawa ta hanyar mai haya + mutum, ba tare da gano ƙungiyoyin abokin ciniki ba.</p>
+<p>Dandalin yana duba sa hannu, mai bayarwa <code>ai-support</code>, masu sauraro <code>ai-support-widget</code>, manufa <code>widget</code>, <code>sub=userId</code>, inganci da takardar shaidar aiki na zaman. Mai bincike baya sake sa hannu ko canza da'awa. Matsayin da aka aika zuwa tallafi shine bayanin mahallin; izini na APIs/MCP yana ci gaba a sabar abokin ciniki.</p>
+<h2 id="section-5">5. Kwangilar mai bayarwa</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>Amsa 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. Tabbatar da <code>tenantKey</code> kafin mayar da shi ga mai bincike. Fayil ɗin <code>backend-session.mjs</code> yana aiwatar da tsayayyen jiki, lokacin ƙarewa, toshewar sake tura, iyakance amsa da tabbatar da mai haya; baya maye gurbin middleware na tabbatarwa.</p>
+<table>
+<thead>
+<tr>
+<th>Filin</th>
+<th>Dokar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>Jerin zaɓi na har zuwa abubuwa takwas tare da id, url da accessToken na musamman. Duba sashe na 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>Wajibi, yanke, haruffa 1–200</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>Imel mai inganci har zuwa haruffa 254 ko fanko; tsoho fanko</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>Har zuwa igiyoyi 30 na haruffa 1–80; tsoho jerin fanko</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>Igiyar haruffa 1–80; tsoho standard</td>
+</tr>
+</tbody>
+</table>
+<p>Kada a aika tenantId, tenantKey, userName, role, purpose, exp ko wasu filaye a cikin jiki. Takardar shaidar tana tantance mai haya. Asalin yana fitowa daga zaman/database, ba daga tambaya/jiki na browser ba. Mai bayarwa baya karɓar JWT mai amfani, maɓallin gudanarwa ko tsohon sirri a maimakon <code>sik_</code>.</p>
+<p>Mai bayarwa na jama'a yana aiki ba tare da ƙayyadaddun amfani ba ga kowane aiki. Sake amfani da zaman da har yanzu yana aiki daga mutum ɗaya, kamfani da izini, tare da ƙarewa da wuri da kuma soke shi akan canje-canje.</p>
+<h2 id="section-6">6. Wajibi ne mahallin da kuma asalin daidai</h2>
+<p>Kowane sabon hali yana buƙatar <code>context.userState</code>, <code>context.userHistory</code> da <code>context.userLogs</code>. Aika jerin fanko lokacin da aka tambayi tushen kuma babu bayanai; <strong>kada a canza tarin da ya gaza zuwa jerin fanko wanda ke nuna nasara</strong>. Idan ba za a iya samar da mahallin ingantacce kuma mai izini ba, dole ne abokin ciniki ya dawo da kuskuren da aka sarrafa.</p>
+<p><code>context.example.json</code> shine mafi ƙarancin misali. An fitar da <code>context.schema.json</code> daga schema Zod da aka yi amfani da shi a kan sabar, ba a rubuta shi da kansa ba. Tabbatar da JSON a cikin backend kafin turawa. Ana watsar da ƙarin filaye da ba a gane su ba; metadata da dokoki na iya ƙunsar tsarin nasu, waɗanda ke ƙarƙashin tsinkaya/iyaka. Schema baya tabbatar da izini ko kawar da duk bayanan sirri.</p>
+<table>
+<thead>
+<tr>
+<th>Tashar</th>
+<th>Wajibi / tsari</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours mai kyau har zuwa 720, events; ana sake gina timeline daga events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>Na zaɓi; docs tare da id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>Na zaɓi; abin da aka amince da shi na dokoki, wanda aka tsara a matsayin runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> dole ne ya zama daidai da asalin da aka bayar. <strong><code>userState.tenantId</code> shine mai haya na dandamali</strong>, ba ID na ƙungiya/shago a cikin abokin ciniki ba. Bambance-bambance suna dawo da 403. Ana iya canza bayanai a cikin browser; mahallin baya ba da izinin ayyuka.</p>
+<h2 id="section-7">7. Filaye, iyakoki da daidaitawa</h2>
+<table>
+<thead>
+<tr>
+<th>Tsari</th>
+<th>Babban filaye / dokoki</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status; id/description na zaɓi; metadata abu; har zuwa 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt; har zuwa 100</td>
+</tr>
+<tr>
+<td>errorClass na activeErrors</td>
+<td>validation, permission, infra ko business; nau'ikan kamar payment suna buƙatar taswira</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId suna karɓar null/ƙetare; har zuwa 1,000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus cikakke, timingMs, requestId; errorCode/resourceId na iya zama null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs lamba ko null; errorCode/lastStage na iya zama null</td>
+</tr>
+<tr>
+<td>status na jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors daga backend</td>
+<td>ts, errorCode, errorClass string, route, requestId; resourceId na iya zama null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>Har zuwa 50; content har zuwa haruffa 32,000, sauran rubutun har zuwa 4,096</td>
+</tr>
+</tbody>
+</table>
+<p>Kwanakin sune strings ISO-8601 tare da timezone; serializing Date a cikin backend. Kada a ƙirƙira updatedAt, durationMs, retryable ko nau'ikan don kawai a wuce schema: yi amfani da ainihin tushen ko ƙetare rikodin kuma sanar da rashin samun tushen. Yi rikodin takamaiman taswirar aikinku a cikin karɓa.</p>
+<p>Girman mahallin da aka aiko: <strong>262.144 bytes UTF-8 (256 KiB)</strong>. Cikakken HTTP yana ci gaba da iyakancewa zuwa 1.048.576 bytes. Kasafin kuɗin hoton yana <code>min(maxContextBytes, 262144)</code>. Idan har ma muhimmin ɓangaren bai dace ba, buƙatar ta gaza; rage metadata/takardu a bayan fage. Muna ba da shawarar farawa da 48 KiB, abubuwa goma da ɗan gajeren ilimi.</p>
+<p>Sabar tana tace abubuwan da suka faru/logs ta mafi ƙarancin taga tsakanin wanda aka nema da na mai haya, tana cire kwanakin gaba kuma tana amfani da maxLogLines haɗe da buƙatun, kurakurai da jobs (a wannan tsari). maxDocs yana iyakance jerin docs; businessRules littafi ne na gudanarwa daban kuma yana cinye jimlar kasafin kuɗi. Lokacin yana bin abubuwan da aka kiyaye. Ƙananan bayanai masu dacewa yawanci suna samar da ingantaccen ganewar asali da ƙarancin farashi.</p>
+<h2 id="section-8">8. Sirri da dorewa</h2>
+<p>Tsara bayanai kafin a aiko su: kada a taɓa tura headers, cookies, JWTs, takardun shaida, igiyoyin haɗi, URLs masu sa hannu, abun ciki na binary, bayanan wasu masu amfani ko fitarwa marasa tsari. Sauya sirri da nassoshi masu tallafawa. Kada a aiko da PRD gabaɗaya ko cikakkun logs a matsayin tushen ilimi.</p>
+<p>Sabbin hotuna suna wucewa ta ingantawa, gyarawa, ragewa da kasafin kuɗi kafin a rubuta su. Saƙonni da sakamakon kayan aiki suna da maganin sanannun tsarin sirri. Wannan kariya ce ta ƙari: ba mai rarraba bayanan sirri ba ce, ba ta gyara bayanan tarihi a baya kuma ba ta maye gurbin tsarin abokin ciniki ba.</p>
+<p>Mahaɗin shine hoton farkon tattaunawar, ba tambaya ta ainihin lokaci ba. Sanar da timestamps da tushe. <code>updateContext()</code> yana aiki don shari'ar gaba; don bayanan yanzu yayin tattaunawa, yi amfani da kayan aikin karatu da aka amince da su.</p>
+<h2 id="section-9">9. Frontend da SDK 0.3.0</h2>
+<p>Bada SDK da aka gyara daga kunshin ko daga URL na jama'a. Bincika SHA-256 tare da <code>widget.manifest.json</code>. Guji rubutun da aka maimaita, sigar da ke shawagi da cache na JWT. Mai sarrafa nuni a <code>widget-controller.mjs</code> yana haɗawa bayan bootstrap, yana jira onOpen, yana sabuntawa kuma yana hana haɗawa da latti bayan fita.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// A lokacin fita, canjin mutum/kamfani/rawar da tsaftacewar sashi:
+controller.destroy();
+</code></pre>
+<p>Ayyukan da ke sama sune kiran baya na aikace-aikacen, don aiwatarwa tare da abokin cinikin ku na HTTP na yau da kullun. Bootstrap yana dawo da <code>{jwt,tenantKey,expiresIn,context}</code>. getContext yana dawo da abin mahallin. A cikin React, daidaita kiran baya tare da useCallback kuma haɗa a useEffect da aka haɗa da asali. Kada a sanya widget ɗin a waje da yankin da aka tabbatar ko kuma a ba da baƙi tare da userId da aka raba.</p>
+<p>SDK yana karɓar <code>onTokenRefresh</code> wanda ke dawo da sabon JWT; bayan 401, yana maimaita buƙatar sau ɗaya. Sabuntawa yana buƙatar amfani da mutum ɗaya. Canjin asali yana buƙatar lalata da farawa. Idan an yi amfani da mai ƙidayar lokaci mai aiki, fi son kusan mintuna goma tare da jitter kuma soke a lokacin tsaftacewa. Kurakuran bootstrap, tattarawa da samfuri bai kamata su toshe babban aikace-aikacen ba.</p>
+<h2 id="section-10">10. Fita, izini da tarihi</h2>
+<p><code>destroy()</code> yana soke kira kuma yana cire ci gaba na gida ta mai haya/mutum. Ba soke mutum ɗaya bane a kan sabar. Wani JWT da aka riga aka kwafa zai iya kasancewa mai inganci har zuwa minti 15 bayan fita/kullewa a kan abokin ciniki. Idan ana buƙatar soke nan take ta mutum, kwangilar tana buƙatar ƙarin ci gaba; kada a yi amfani da juyawar mai haya gaba ɗaya a matsayin fita ta al'ada.</p>
+<p>Kowane karatu/rubutu na tattaunawa yana buƙatar mai shi ɗaya da mai haya ɗaya. Canjin rawa a kan abokin ciniki baya share abun ciki da mutumin ya riga ya karɓa a cikin tattaunawar. Saita manufar tarihi don rage izini da canje-canjen ƙungiya. Kada a sassauta izini don dawo da tsohon caseId; duba asalin batun ko fara sabuwar tattaunawa.</p>
+<h2 id="section-11">11. CORS, CSP, PWA da samun dama</h2>
+<p>Bada izinin asalin kowane gaba a kan dandamali. SDK yana buƙatar connect-src don tallafi; hidimar fayil ɗin gida yana ba da izinin script-src kai. SDK yana allura salo a cikin Shadow DOM kuma har yanzu baya karɓar nonce: tabbatar da ainihin manufar CSP, wanda zai iya buƙatar ci gaba na SDK don salo na waje/nonce/hash. Kada a kashe manufar gaba ɗaya.</p>
+<p>Zama da mahallin sune no-store. Cire hanyoyin tallafi daga caches na PWA, ci gaba na tambayoyi da kayan aikin sake kunnawa. Gwada madannai, mai da hankali, mai karanta allo, zuƙowa da wayar hannu. Gabatar da ainihin tashar mutum a cikin aikace-aikacen, tare da tabbatar da lokaci/URL. SDK baya ƙirƙira mai ba da sabis.</p>
+<h2 id="section-12">12. Sabar MCP a cikin zama</h2>
+<p>Bayanin aikace-aikacen yana aika <code>POST /api/widget/sessions</code> tare da takardar shaidar haɗin kai <code>sik_</code>. Yana samo mutumin da ƙungiyarsa daga shiga kuma yana iya haɗawa da sabar har takwas a cikin <code>mcpServers</code>. Filin da aka bari ko fanko yana ƙirƙira hira tare da mahallin. Kowane sabon zama yana karɓar jerin nasa.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>Kowane id yana farawa da ƙaramin harafi kuma yana karɓar ƙananan haruffa, lambobi, ƙaramin layi da alamar haɗi, har zuwa haruffa 32. IDs, URLs da aka daidaita da alamomi suna da keɓantacce a cikin jerin. Sufuri shine MCP Streamable HTTP a cikin HTTPS na jama'a, tashar jiragen ruwa 443, tare da URL ba tare da takardun shaida ba, tambaya ko yanki. Sabis ɗin yana duba DNS lokacin haɗawa kuma yana ƙin turawa.</p>
+<p>Aikace-aikacen yana bayarwa ko samun ɗan gajeren alamar shiga don kowane wuri, an iyakance shi ga mutum, ƙungiya, izini da masu sauraro na wannan MCP. Support AI yana gabatar da <code>Authorization: Bearer &lt;accessToken&gt;</code> ga sabar da ta dace. Mai bayarwa yana duba sa hannu ko introspeksi, mai bayarwa, inganci, masu sauraro da samun dama ga albarkatu a kowane aiki. Yana bugawa a cikin kasida kawai kayan aikin da aka ba da izini don wannan asalin. Takardar shaidar dandamali, JWT na widget da maɓallan sabis kamar Stripe suna da manufofinsu.</p>
+<p>Alamar da aka ba da izini tana ɓoye a kan sabar har zuwa daƙiƙa 900. Mai bincike yana karɓar <code>{jwt, tenantKey, expiresIn: 900}</code>. Lokacin sabuntawa, bayanai yana sake tabbatar da asalin kuma yana aika sabon jerin tare da alamomi masu inganci. Shawarar da aka ƙirƙira kafin sabuntawa tana buƙatar sake gabatarwa. Don canjin ƙungiya, yi amfani da mai gano abubuwa mai dorewa ta hanyar haɗi kuma lalata tsohuwar misalin widget.</p>
+<p>AI mai Taimako Support AI yana bincika shafukan <code>tools/list</code>, yana bambanta sunaye iri ɗaya ta hanyar sabar kuma yana amfani da sunan asali lokacin kiran <code>tools/call</code>. Kataloji masu kayan aiki sama da 32 suna da bincike da shafuka a cikin taɗi. Iyakokin gano sabar sune shafuka 128 da 4 MB na bayani. Rashin gano sabar ɗaya yana kiyaye sauran.</p>
+<p>Ana iya tuntuɓar kayan aiki tare da <code>annotations.readOnlyHint: true</code> kai tsaye. Ga kowane kayan aiki da babu bayanin ko kuma ba daidai ba ne, taɗi yana nuna sabar, suna da hujjoji kafin aiwatarwa. Bayyana karatu kawai don ayyukan da ba su da tasirin kasuwanci. Mai amfani yana amsa <code>confirmar</code> ko <code>confirm</code> ga saƙon da aka nuna a cikin minti biyar. SDK yana aikawa <code>replyToMessageId</code>. Tabbatarwa tana aiki ga waɗannan hujjoji, sabar, zama da tattaunawa. Sabon shawara yana maye gurbin na baya.</p>
+<p>Dandalin yana yin yunƙurin aiwatarwa bayan yin rajistar tabbatarwa kuma yana aikawa <code>Idempotency-Key</code> tare da ID na shawarar. Don biyan kuɗi da ayyukan da ke da tasirin waje, mai bayarwa dole ne ya adana maɓalli da sakamako a atomatik kuma ya mutunta maɓallan idempotency da sabis ɗin kuɗi ke buƙata. Bayan lokaci ya ƙare ko sakamako mara tabbas, tallafi yana yin rajistar yanayin da ba a sani ba, yana toshe sabbin canje-canje a cikin wannan tattaunawar kuma yana kiyaye tambayoyi. Bincika aikin a cikin tsarin asali kafin ci gaba.</p>
+<p>Don tabbatarwa, gwada zama ba tare da sabar ba, zaman biyu na mai amfani ɗaya, ƙungiyoyi biyu, sabar tare da kayan aiki iri ɗaya da kataloji mai shafuka. Bincika iyaka/ƙarewar alamun a cikin mai bayarwa, soke da tabbatarwa sau biyu. Yi amfani da rajistar roba don bincika sakamakon a asali.</p>
+<h2 id="section-13">13. Samfuri, umarni da ilimi</h2>
+<p>Kiyaye samfurin da aikin ya riga ya tabbatar da shi da farko yana rage canje-canje lokaci guda. Don sabon kimantawa, <code>openai/gpt-4.1-mini</code> ɗan takara ne mai dacewa da sigogin yanzu: Chat Completions ta hanyar OpenRouter, zafin jiki 0.3 da max_tokens 2048. Tabbatar a ainihin asusun kafin kunnawa. Preferred Model ya fi Model Policy; auto ba hanyar da ta dace ba ce. Farashi/kuɗi dole ne su fito daga mai bayarwa; tsofaffin ƙididdigar daga kwamitin na iya bambanta.</p>
+<p>Filin <strong>AI Instructions / Custom instructions</strong> yana karɓar haruffa 2,000 masu inganci. Liƙa kawai <code>PROMPT-TENANT.txt</code>; bincika sunaye, tashar da ka'idodin samfurin. Kada a liƙa takardun shaida ko haɗa takardu a cikin wannan filin. Umarnin yana ƙarin ga ka'idodin dandalin; baya ba da izini ko kunna kayan aiki.</p>
+<p>Umarnin da aka bayar yana jagorantar amsoshi a cikin harshe da rubutun da mutum ya zaɓa, gaskiya da aka raba daga zato, mutunta izini, amfani da amintattun bayanai, rashin alkawuran ayyuka da tashar ɗan adam. <code>knowledgePack.docs</code> dole ne ya ƙunshi gajerun littattafan aiki da aka yi amfani da su tare da mai alhakin: kurakurai akai-akai, ganewar asali, iyakokin samfurin da yadda za a tabbatar da sakamako. Rajista da takardu bayanai ne, ba umarni ba ne don canza ka'idodin mataimakin.</p>
+<p>Tushen samfuri: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> da <a href="https://openrouter.ai/api/v1/models">kasida OpenRouter</a>, an duba su a shirye-shiryen baya na 14/09/2026. Sake tabbatar da samuwa/farashi lokacin aiwatarwa; babu kwatancen samfura da aka biya a cikin wannan kit ɗin.</p>
+<h2 id="section-14">14. Yarjejeniyar kuskure da bincike</h2>
+<table>
+<thead>
+<tr>
+<th>Amsa</th>
+<th>Ma'ana / aiki</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 a mai fitarwa</td>
+<td>sik ya ɓace, ba daidai ba ne ko an soke shi; gyara saitin</td>
+</tr>
+<tr>
+<td>400 a mai fitarwa</td>
+<td>Jiki ya fita daga yarjejeniya; cire ƙarin filaye</td>
+</tr>
+<tr>
+<td>401 a cikin shari'o'i</td>
+<td>Sa hannu na gado, ƙarewa, da'awar mara inganci ko zaman da aka soke</td>
+</tr>
+<tr>
+<td>400 a cikin shari'o'i</td>
+<td>Yanayin da ake buƙata mara inganci, kwanakin/jihohi marasa daidai ko kasafin kuɗi ya wuce</td>
+</tr>
+<tr>
+<td>403 daga mahallin</td>
+<td>userState bai dace da mai haya/mutum na JWT ba</td>
+</tr>
+<tr>
+<td>404 a cikin tattaunawa</td>
+<td>Albarkatu babu ko mallakar wani; kar a tilasta shiga</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Iyakance; backoff/jitter, babu madauki na fitarwa</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>Kuskuren kayan aiki, samfuri ko mahallin; sanar da rashin samuwa da requestId</td>
+</tr>
+<tr>
+<td>501 a kan ayyuka/haɓakawa</td>
+<td>Aiki ba tare da mai aiwatarwa/mai haɗawa ba; yi amfani da ainihin tashar mutum</td>
+</tr>
+<tr>
+<td>Chat yana aiki, MCP baya aiki</td>
+<td>Duba jerin da aka aika a fitarwa ta ƙarshe, inganci, masu sauraro da amsar kasida.</td>
+</tr>
+<tr>
+<td>Kayan aiki ya ɓace</td>
+<td>Duba kasidar da ke akwai don alamar da aka ba da izini da haɗin haɗin uwar garken.</td>
+</tr>
+</tbody>
+</table>
+<p>Kar a yi amfani da HTTP 200 kawai azaman karɓa: duba abun ciki na amsa da hoton allo. Ƙirƙirar da ta gaza bayan adana shari'ar na iya barin shari'ar ba tare da amsa ba; kar a ɗauka cewa ma'amala ta shafi kiran samfurin. Dole ne a iyakance sake gwadawa kuma a sanar da mai amfani. Yi rikodin hanya, hanyar da aka tsara, status, requestId da lokaci UTC; kar a taɓa kama Authorization/JWT, sirri ko ɗanyen kaya don tura bincike.</p>
+<h2 id="section-15">15. Karɓa na tilas</h2>
+<ol>
+<li>Hanyar bootstrap ba tare da shiga ba an ƙi ta kafin mai fitarwa. Ba a canza asali na bogi ba mai amfani da aka tabbatar.</li>
+<li>Fitarwa tare da ingantaccen takardar shaidar yana dawo da mai haya da aka sa ran da sakan 900; sirri baya bayyana a cikin mai bincike/sake kunnawa/rajista.</li>
+<li>JWT na da an ƙi shi. Sabon zaman yana ƙirƙirar tattaunawa tare da hoton allo da ainihin amsa; yana sake buɗewa ga mutum ɗaya.</li>
+<li>Mutane biyu daga aiki ɗaya da masu haya biyu: GET shari'a da POST saƙonni/ra'ayi/rufe/haɓakawa/ayyuka ba sa ketare asali.</li>
+<li>Yanayin ba tare da tubalan ba, asali daban, kwanan wata mara inganci da girman da ya wuce kima an ƙi su; sirrin roba baya dawwama a cikin hoton allo.</li>
+<li>Sabuntawa bayan mintuna 15, fita yayin tattarawa, canjin asusu/kamfani/rawar da kewayawa ba sa dawo da tattaunawar wani.</li>
+<li>Samfurin yana amsawa ta amfani da shaidu kuma yana mutunta iyakokin bincike; gazawa baya haifar da nasara bayyananne.</li>
+<li>Fitar da zaman tare da sifili da sabobin biyu. Tabbatar cewa kowane wuri yana karɓar alamar sa.</li>
+<li>MCP yana ƙin alamar da ba daidai ba/na da, mai haya mara daidai, mai amfani da ya ɓace/mara aiki da albarkatun wani. Gwada ID na zaman da aka sake amfani da shi, idan akwai zaman.</li>
+<li>Tabbatar cewa canje-canje suna buƙatar tabbatar da shawarar kuma ba sa maimaita kansu idan akwai lokacin ƙarewa.</li>
+<li>CORS/CSP, wayar hannu, madannai da tashar mutum an amince da su. An gwada juyawa da aka haɗa a cikin amincewa.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> yana inganta adaftan da aka ware tare da mocks. Ba ya maye gurbin waɗannan gwaje-gwaje na ƙarshe-zuwa-ƙarshe. Cika <code>ACEITE.md</code> tare da masu alhakin, sigogi, lokuta da shaidu ba tare da sirri ba.</p>
+<h2 id="section-16">16. Bugawa, yanke da dawo da su</h2>
+<p>Shigar da takardar shaidar haɗin kai, buga bootstrap da SDK, tabbatar da taɗi kuma amince da sabobin da aka bayyana a cikin zaman.</p>
+<p>Kada a sake kunna tsoffin biyan kuɗi ko tura MCP na duniya don dawo da samuwa. Idan akwai gazawa, kashe widget din na ɗan lokaci ko MCP na mai haya da abin ya shafa kuma a kiyaye tashar ɗan adam yayin gyara adaftan. Kada a share tattaunawa don kauce wa 404 na mai shi.</p>
+<p>Yi rikodin iyakokin riƙewa da takamaiman shaidar aikace-aikacen ku.</p>
+<h2 id="section-17">17. Amsa da fayilolin kunshin</h2>
+<p>Mayar da sunan aikin, mai haya, backend/frontend commits, kwanan wata UTC, SDK/hash, takardar shaidar da aka shigar (eh/a'a, babu daraja), taɗi da aka amince da shi, MCP an amince da shi/kashe, gwaje-gwaje marasa kyau, tashar ɗan adam da abubuwan da ba a warware ba. Kada a kammala da “yana kama da aiki”.</p>
+<p>Kit ɗin jama'a ya ƙunshi wannan jagorar a cikin Markdown, tsarin sabar, mafi ƙarancin kayan aiki, adaftan mai bayarwa, tantancewa MCP, mai sarrafa gaba, SDK, sauri, gwaje-gwaje masu zaman kansu, jerin abubuwan dubawa, kwangilar ayyuka da bayanin SHA-256. Fakitin mutum ɗaya na iya ƙara takamaiman abubuwan haɗe-haɗe. Misalai ba sa aiwatar da wuraren ƙarshe na aikace-aikacen abokin ciniki ta atomatik. Sigar da za a iya bincika tana cikin https://support-ai.pontes.uk/developers?lang=ha.</p></main></div>
+<script id="controls" data-copy="Kwafi misali" data-copied="An kwafa" data-selected="An zaɓa — yi amfani da Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

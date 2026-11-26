@@ -25,4 +25,4 @@ createServer(async (request, response) => {
   } catch {
     response.writeHead(500).end('The sample file is missing. Extract the entire starter ZIP.');
   }
-}).listen(port, '127.0.0.1', () => process.stdout.write(`Open http://127.0.0.1:${port}\n`));
+}).listen(port, '127.0.0.1', () => process.stdout.write(`http://127.0.0.1:${port}\n`));

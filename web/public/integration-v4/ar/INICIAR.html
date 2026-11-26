@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دليل تكامل الدعم</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>دليل تكامل الدعم</h1><p>المصادقة والسياق والأدوات ذات المسؤوليات ومعايير القبول المحددة.</p>
+<nav><a href="GUIA.md">إصدار Markdown</a> · <a href="ACEITE.md">نموذج القبول</a> · <button onclick="window.print()">طباعة</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">البحث في القسم</label><input id="search" type="search">
+<nav aria-label="التنقل"><div class="toc">
+<ul>
+<li><a href="#section-1">1. كيف يعمل</a></li>
+<li><a href="#section-2">2. البيئات والمسؤولون</a></li>
+<li><a href="#section-3">3. بيانات الاعتماد</a></li>
+<li><a href="#section-4">4. تدفق المصادقة والهوية</a></li>
+<li><a href="#section-5">5. عقد المصدر</a></li>
+<li><a href="#section-6">6. السياق المطلوب والهوية الصحيحة</a></li>
+<li><a href="#section-7">7. الحقول، الحدود والتطبيع</a></li>
+<li><a href="#section-8">8. الخصوصية والاستمرارية</a></li>
+<li><a href="#section-9">9. الواجهة الأمامية و SDK 0.3.0</a></li>
+<li><a href="#section-10">10. تسجيل الخروج، الأذونات، والسجل</a></li>
+<li><a href="#section-11">11. CORS، CSP، PWA والوصول</a></li>
+<li><a href="#section-12">12. خوادم MCP في الجلسة</a></li>
+<li><a href="#section-13">13. النموذج، الموجه والمعرفة</a></li>
+<li><a href="#section-14">14. عقد الأخطاء والتشخيص</a></li>
+<li><a href="#section-15">15. قبول إلزامي</a></li>
+<li><a href="#section-16">16. النشر والقطع والاسترداد</a></li>
+<li><a href="#section-17">17. التعليقات وملفات الحزمة</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">دمج الدعم · العقد v4</h1>
+<p><strong>SDK 0.3.0 · دليل الواجهة الخلفية والأمامية والتشغيل</strong></p>
+<h2 id="section-1">1. كيف يعمل</h2>
+<p>تقوم الواجهة الخلفية الخاصة بك بمصادقة المستخدم، وتحديد السياق المصرح به، وإصدار جلسة مدتها 15 دقيقة. عند استدعاء الإصدار، يمكن أن تتضمن خوادم MCP المتاحة لذلك الشخص. يتلقى المتصفح JWT الخاص بالأداة والسياق.</p>
+<h2 id="section-2">2. البيئات والمسؤولون</h2>
+<p>المنصة موجودة على https://support-ai.pontes.uk. استخدم بيانات اعتماد التكامل للبيئة الصحيحة. يحصل مسؤول مساحة العمل على بيانات الاعتماد من لوحة التحكم. يحافظ فريق التطبيق على التمهيد المصادق عليه، والسياق، والرموز المميزة المفوضة لكل مستخدم وخادم.</p>
+<h2 id="section-3">3. بيانات الاعتماد</h2>
+<table>
+<thead>
+<tr>
+<th>بيانات الاعتماد</th>
+<th>الوجهة</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>بيانات اعتماد التكامل sik_</td>
+<td>Support AI</td>
+<td>إصدار جلسة في الواجهة الخلفية</td>
+</tr>
+<tr>
+<td>رمز مميز مفوض لكل خادم</td>
+<td>MCP المشار إليه في الجلسة</td>
+<td>استدعاء الأدوات كشخص مصادق عليه</td>
+</tr>
+<tr>
+<td>JWT الجلسة</td>
+<td>API الدردشة</td>
+<td>فتح المحادثات ومتابعتها في الأداة</td>
+</tr>
+</tbody>
+</table>
+<p>احفظ بيانات اعتماد التكامل في خزينة التطبيق. يؤدي إلغاؤها إلى تعطيل JWTs الصادرة بها في الطلب التالي. قم بإنشاء الرموز المميزة المفوضة في الواجهة الخلفية وقيد كل منها بمورد واحد ومستخدم واحد وفترة صلاحية.</p>
+<h2 id="section-4">4. تدفق المصادقة والهوية</h2>
+<pre><code class="language-text">جلسة التطبيق المصادق عليها
+  → الواجهة الخلفية تتحقق من الشخص النشط، المنظمة، والأذونات الحالية
+  → POST /api/widget/sessions مع sik_ على الخادم
+  ← jwt + tenantKey + expiresIn
+  → الواجهة الخلفية تجمع وتحدد سياق نفس الهوية
+  ← المتصفح يتلقى الجلسة/السياق مع Cache-Control: no-store
+  → الأداة تستدعي /api/cases ومسارات المحادثة باستخدام JWT المؤقت
+</code></pre>
+<p>الحفاظ على المعرف التاريخي <code>usr_...</code> للعميل يمنع فقدان الوصول إلى محادثاته الخاصة. لا تستخدم email، الدور، الجهاز، أو الطابع الزمني كهوية. إذا كان بإمكان نفس المستخدم تغيير الشركة، فحدد موضوعًا مستقرًا حسب الارتباط أو سياسة تاريخ صريحة؛ تسمح المنصة بالمحادثات حسب المستأجر + الشخص، دون استنتاج منظمات العميل.</p>
+<p>تتحقق المنصة من التوقيع، المصدر <code>ai-support</code>، الجمهور <code>ai-support-widget</code>، الغرض <code>widget</code>، <code>sub=userId</code>، الصلاحية، وبيانات الاعتماد النشطة للجلسة. لا يقوم المتصفح بإعادة التوقيع أو تغيير المطالبات. الأدوار المرسلة إلى الدعم هي معلومات سياقية؛ يستمر ترخيص واجهات برمجة التطبيقات/MCP في خادم العميل.</p>
+<h2 id="section-5">5. عقد المصدر</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>الاستجابة 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. تحقق من <code>tenantKey</code> قبل إعادتها إلى المتصفح. ينفذ الملف <code>backend-session.mjs</code> نصًا صارمًا، ومهلة، وحظر إعادة التوجيه، وحدًا للاستجابة، والتحقق من المستأجر؛ ولا يحل محل برنامجك الوسيط للمصادقة.</p>
+<table>
+<thead>
+<tr>
+<th>الحقل</th>
+<th>القاعدة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>قائمة اختيارية تصل إلى ثمانية كائنات مع id، وعنوان URL، وaccessToken فريدين. انظر القسم 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>إلزامي، تقليم، 1-200 حرف</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>بريد إلكتروني صالح يصل إلى 254 حرفًا أو فارغًا؛ الافتراضي فارغ</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>ما يصل إلى 30 سلسلة من 1-80 حرفًا؛ الافتراضي قائمة فارغة</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>سلسلة من 1-80 حرفًا؛ الافتراضي standard</td>
+</tr>
+</tbody>
+</table>
+<p>لا ترسل tenantId, tenantKey, userName, role, purpose, exp أو حقول أخرى في النص الأساسي. تحدد بيانات الاعتماد المستأجر. تأتي الهوية من الجلسة/قاعدة البيانات، وليس من استعلام/نص المتصفح. لا يقبل المصدر JWT المستخدم، مفتاح الإدارة، أو السر القديم بدلاً من <code>sik_</code>.</p>
+<p>يعمل المصدر العام بدون حصص استخدام لكل مشروع. أعد استخدام جلسة لا تزال صالحة لنفس الشخص والشركة والأذونات، مع انتهاء صلاحية مبكر وإلغاء عند التغييرات.</p>
+<h2 id="section-6">6. السياق المطلوب والهوية الصحيحة</h2>
+<p>تتطلب كل حالة جديدة <code>context.userState</code>, <code>context.userHistory</code> و <code>context.userLogs</code>. أرسل قوائم فارغة عندما تم استعلام المصدر ولا توجد سجلات؛ <strong>لا تحول مجموعة فاشلة إلى قائمة فارغة تبدو ناجحة</strong>. إذا لم تتمكن من توفير سياق صالح ومصرح به، يجب أن يعيد تشغيل العميل خطأً متحكمًا فيه.</p>
+<p><code>context.example.json</code> هو الحد الأدنى للمثال. تم تصدير <code>context.schema.json</code> من المخطط Zod المستخدم في الخادم، ولم يتم كتابته بشكل مستقل. تحقق من صحة JSON في الواجهة الخلفية قبل النشر. يتم تجاهل الحقول الإضافية غير المعترف بها؛ قد تحتوي البيانات الوصفية والقواعد على هياكلها الخاصة، تخضع للإسقاط/القيود. لا يثبت المخطط التفويض ولا يزيل جميع البيانات الحساسة.</p>
+<table>
+<thead>
+<tr>
+<th>الكتلة</th>
+<th>مطلوب / الهيكل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours إيجابي حتى 720، events؛ يتم إعادة بناء الجدول الزمني من events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>اختياري؛ docs مع id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>اختياري؛ كائن قواعد معتمد، يتم تسلسله كدليل تشغيل</td>
+</tr>
+</tbody>
+</table>
+<p>يجب أن يكون <code>userState.userId</code> هو الهوية الصادرة بالضبط. <strong><code>userState.tenantId</code> هو مستأجر المنصة</strong>، وليس أبدًا معرف المنظمة/المتجر في العميل. تؤدي الاختلافات إلى إرجاع 403. يمكن التلاعب بالبيانات في المتصفح؛ السياق لا يصرح بالعمليات.</p>
+<h2 id="section-7">7. الحقول، الحدود والتطبيع</h2>
+<table>
+<thead>
+<tr>
+<th>الهيكل</th>
+<th>الحقول الرئيسية / القواعد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status؛ id/description اختياريان؛ metadata كائن؛ حتى 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt؛ حتى 100</td>
+</tr>
+<tr>
+<td>errorClass من activeErrors</td>
+<td>validation, permission, infra أو business؛ تتطلب الفئات مثل payment تعيينًا</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId تقبل null/إغفال؛ حتى 1,000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus عدد صحيح، timingMs, requestId؛ errorCode/resourceId يمكن أن يكونا null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs رقم أو null؛ errorCode/lastStage يمكن أن يكونا null</td>
+</tr>
+<tr>
+<td>status من jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors من الواجهة الخلفية</td>
+<td>ts, errorCode, errorClass سلسلة، route, requestId؛ resourceId يمكن أن يكون null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>حتى 50؛ content حتى 32,000 حرف، النصوص الأخرى حتى 4,096</td>
+</tr>
+</tbody>
+</table>
+<p>التواريخ هي سلاسل ISO-8601 مع المنطقة الزمنية؛ قم بتسلسل التاريخ في الواجهة الخلفية. لا تخترع updatedAt, durationMs, retryable أو فئات لتمرير المخطط فقط: استخدم المصدر الحقيقي أو احذف السجل وأبلغ عن عدم توفر المصدر. سجل التعيينات الخاصة بمشروعك عند القبول.</p>
+<p>سقف سياق الإرسال: <strong>262,144 بايت UTF-8 (256 KiB)</strong>. يظل HTTP الكامل محدودًا بـ 1,048,576 بايت. ميزانية اللقطة هي <code>min(maxContextBytes, 262144)</code>. إذا لم يتناسب الجزء الأساسي، يفشل الطلب؛ قلل البيانات الوصفية/المستندات في الواجهة الخلفية. نقترح البدء بـ 48 KiB، وعشرة كيانات، ومعرفة قصيرة.</p>
+<p>يقوم الخادم بتصفية الأحداث/السجلات حسب النافذة الأصغر بين المطلوبة ونافذة المستأجر، ويزيل التواريخ المستقبلية ويطبق maxLogLines مدمجًا مع الطلبات والأخطاء و jobs (بهذا الترتيب). maxDocs يحد من قائمة docs؛ businessRules هو دليل تشغيل منفصل ويشغل أيضًا الميزانية الإجمالية. يتبع الجدول الزمني الأحداث المحفوظة. عادةً ما تؤدي البيانات الأقل صلة إلى تشخيص أفضل وتكلفة أقل.</p>
+<h2 id="section-8">8. الخصوصية والاستمرارية</h2>
+<p>صمم البيانات قبل إرسالها: لا تقم أبدًا بإعادة توجيه الرؤوس، ملفات تعريف الارتباط، JWTs، بيانات الاعتماد، سلاسل الاتصال، عناوين URL الموقعة، المحتوى الثنائي، بيانات المستخدمين الآخرين، أو الصادرات الخام. استبدل الأسرار بمراجع الدعم. لا ترسل PRD بالكامل أو السجلات الكاملة كقاعدة معرفية.</p>
+<p>تخضع اللقطات الجديدة للتحقق، التنقيح، التخفيض، والميزانية قبل التسجيل. يتم التعامل مع الرسائل ونتائج الأدوات بأنماط معروفة من الأسرار. هذه الحماية تكميلية: إنها ليست مصنفًا معصومًا للبيانات الشخصية، ولا تصحح السجلات التاريخية بأثر رجعي، ولا تحل محل تصميم العميل.</p>
+<p>السياق هو لقطة من بداية المحادثة، وليس استعلامًا في الوقت الفعلي. قم بتضمين الطوابع الزمنية والمصادر. <code>updateContext()</code> ينطبق على الحالة التالية؛ للبيانات الحالية أثناء المحادثة، استخدم أداة قراءة معتمدة.</p>
+<h2 id="section-9">9. الواجهة الأمامية و SDK 0.3.0</h2>
+<p>قدم SDK الثابت من الحزمة أو من عنوان URL العام. تحقق من SHA-256 باستخدام <code>widget.manifest.json</code>. تجنب النص البرمجي المكرر، والإصدار العائم، وذاكرة التخزين المؤقت لـ JWT. يقوم وحدة التحكم المرجعية في <code>widget-controller.mjs</code> بالتثبيت بعد التمهيد، وينتظر onOpen، ويجدد، ويمنع التثبيت المتأخر بعد تسجيل الخروج.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// عند تسجيل الخروج، تبديل الشخص/الشركة/الدور وتنظيف المكون:
+controller.destroy();
+</code></pre>
+<p>الوظائف المذكورة أعلاه هي وظائف رد نداء للتطبيق، يجب تنفيذها مع عميل HTTP المعتاد الخاص بك. يقوم Bootstrap بإرجاع <code>{jwt,tenantKey,expiresIn,context}</code>. يقوم getContext بإرجاع كائن السياق. في React، قم بتثبيت وظائف رد النداء باستخدام useCallback وقم بالتركيب في useEffect المرتبط بالهوية. لا تضع الأداة خارج المنطقة الموثقة ولا تقدم للزوار userId مشتركًا.</p>
+<p>يقبل SDK <code>onTokenRefresh</code> الذي يعيد JWT الجديد؛ بعد 401، يكرر الطلب مرة واحدة. يجب أن يستخدم التجديد نفس الشخص. يتطلب تغيير الهوية التدمير والتهيئة. إذا كنت تستخدم مؤقتًا استباقيًا، ففضل حوالي عشر دقائق مع التذبذب وقم بالإلغاء عند التنظيف. يجب ألا تمنع أخطاء التمهيد والجمع والنموذج التطبيق الرئيسي.</p>
+<h2 id="section-10">10. تسجيل الخروج، الأذونات، والسجل</h2>
+<p>يقوم <code>destroy()</code> بإلغاء المكالمات وإزالة الثبات المحلي لكل مستأجر/شخص. إنه ليس إلغاءً فرديًا على الخادم. قد يظل JWT الذي تم نسخه بالفعل صالحًا لمدة تصل إلى 15 دقيقة بعد تسجيل الخروج/القفل على العميل. إذا كنت بحاجة إلى إلغاء فوري لكل شخص، فإن العقد يتطلب تطورًا إضافيًا؛ لا تستخدم تدوير المستأجر بالكامل كتسجيل خروج عادي.</p>
+<p>تتطلب كل قراءة/كتابة للمحادثة نفس المالك والمستأجر. لا يؤدي تغيير الدور على العميل إلى مسح المحتوى الذي تلقاه الشخص بالفعل في المحادثة. قم بتعيين سياسة السجل لتخفيض الأذونات وتغييرات المؤسسة. لا تخفف التفويض لاسترداد caseId قديم؛ تحقق من الموضوع الأصلي أو ابدأ محادثة جديدة.</p>
+<h2 id="section-11">11. CORS، CSP، PWA والوصول</h2>
+<p>اسمح على المنصة بالمصدر الدقيق لكل واجهة أمامية. يحتاج SDK إلى connect-src للدعم؛ يتيح تقديم الملف المحلي script-src ذاتيًا. يقوم SDK بحقن النمط في Shadow DOM ولا يتلقى nonce بعد: قم بالمصادقة على سياسة CSP الحقيقية، والتي قد تتطلب تطوير SDK للأنماط الخارجية/nonce/hash. لا تقم بإيقاف تشغيل السياسة بأكملها.</p>
+<p>الجلسات والسياق هي no-store. استبعد مسارات الدعم من ذاكرات التخزين المؤقت لـ PWA، واستمرارية الاستعلامات، وأدوات الإعادة. اختبر لوحة المفاتيح، والتركيز، وقارئ الشاشة، والتكبير، والجوال. قدم قناة بشرية حقيقية في التطبيق، مع وقت/عنوان URL مؤكدين. لا يقوم SDK باختراع مزود خدمة.</p>
+<h2 id="section-12">12. خوادم MCP في الجلسة</h2>
+<p>يرسل الواجهة الخلفية للتطبيق <code>POST /api/widget/sessions</code> مع بيانات اعتماد التكامل <code>sik_</code>. يستمد الشخص ومؤسسته من تسجيل الدخول ويمكن أن يتضمن ما يصل إلى ثمانية خوادم في <code>mcpServers</code>. يؤدي الحقل المحذوف أو الفارغ إلى إنشاء دردشة ذات سياق. تتلقى كل جلسة جديدة قائمتها الخاصة.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>يبدأ كل id بحرف صغير ويقبل الأحرف الصغيرة والأرقام والشرطة السفلية والواصلة، حتى 32 حرفًا. المعرفات وعناوين URL الموحدة والرموز مميزة في القائمة. النقل هو MCP Streamable HTTP عبر HTTPS عام، المنفذ 443، مع عنوان URL بدون بيانات اعتماد أو استعلام أو جزء. تتحقق الخدمة من DNS عند الاتصال وترفض عمليات إعادة التوجيه.</p>
+<p>يصدر التطبيق أو يحصل على رمز وصول قصير لكل وجهة، مقيد بالشخص والمؤسسة والأذونات والجمهور الخاص بـ MCP. يقدم Support AI <code>Authorization: Bearer &lt;accessToken&gt;</code> إلى الخادم المقابل. يتحقق المزود من التوقيع أو الاستبطان، والمصدر، والصلاحية، والجمهور، والوصول إلى المورد في كل عملية. ينشر في الكتالوج فقط الأدوات المسموح بها لهذه الهوية. بيانات اعتماد المنصة، JWT للودجت، ومفاتيح الخدمات مثل Stripe لها أغراضها الخاصة.</p>
+<p>يظل الرمز المميز المفوض مشفرًا على الخادم لمدة تصل إلى 900 ثانية. يتلقى المتصفح <code>{jwt, tenantKey, expiresIn: 900}</code>. عند التجديد، يعيد الواجهة الخلفية التحقق من الهوية ويرسل قائمة جديدة برموز مميزة صالحة. يجب تقديم اقتراح تم إنشاؤه قبل التجديد مرة أخرى. لتغيير المؤسسة، استخدم معرفًا ثابتًا لكل ارتباط وقم بتدمير المثيل السابق للودجت.</p>
+<p>يتصفح Support AI صفحات <code>tools/list</code>، ويميز الأسماء المتطابقة حسب الخادم، ويستخدم الاسم الأصلي عند استدعاء <code>tools/call</code>. تحتوي الكتالوجات التي تضم أكثر من 32 أداة على بحث وترقيم صفحات داخل الدردشة. حدود الاكتشاف لكل خادم هي 128 صفحة و4 ميجابايت من الأوصاف. يحافظ فشل اكتشاف خادم واحد على بقية الخوادم.</p>
+<p>يمكن استدعاء الأدوات التي تحتوي على <code>annotations.readOnlyHint: true</code> مباشرة. لكل أداة لا تحتوي على التعليق التوضيحي أو تحتوي على تعليق توضيحي خاطئ، تعرض الدردشة الخادم والاسم والوسائط قبل التنفيذ. أعلن عن القراءة فقط للعمليات التي ليس لها تأثيرات تجارية. يرد المستخدم بـ <code>confirmar</code> أو <code>confirm</code> على الرسالة المعروضة في غضون خمس دقائق. يرسل SDK <code>replyToMessageId</code>. التأكيد صالح لتلك الوسائط والخادم والجلسة والمحادثة. يحل الاقتراح الجديد محل السابق.</p>
+<p>تقوم المنصة بمحاولة تنفيذ بعد تسجيل التأكيد وترسل <code>Idempotency-Key</code> مع معرف الاقتراح. بالنسبة للمدفوعات والعمليات ذات التأثيرات الخارجية، يجب على المزود حفظ المفتاح والنتيجة بشكل ذري واحترام مفاتيح عدم التكرار المطلوبة من قبل الخدمة المالية. بعد انتهاء المهلة أو النتيجة الغامضة، يسجل الدعم حالة غير معروفة، ويحظر التغييرات الجديدة في هذه المحادثة ويحافظ على الاستعلامات المتاحة. تحقق من العملية في النظام الأصلي قبل المتابعة.</p>
+<p>للموافقة، اختبر جلسة بدون خوادم، جلستين لنفس المستخدم، منظمتين، خوادم بأدوات متجانسة وكتالوج مقسم إلى صفحات. تحقق من نطاق/انتهاء صلاحية الرموز المميزة في المزود، والإلغاء والتأكيد المكرر. استخدم سجلات اصطناعية للتحقق من النتيجة في المصدر.</p>
+<h2 id="section-13">13. النموذج، الموجه والمعرفة</h2>
+<p>يقلل الحفاظ على النموذج المعتمد بالفعل من قبل المشروع في البداية من التغييرات المتزامنة. لتقييم جديد، <code>openai/gpt-4.1-mini</code> هو مرشح متوافق مع المعلمات الحالية: Chat Completions عبر OpenRouter، درجة حرارة 0.3 و max_tokens 2048. تحقق في الحساب الحقيقي قبل التفعيل. Preferred Model يسود على Model Policy؛ التلقائي ليس توجيهًا ذكيًا. يجب أن تأتي الأسعار/التكاليف من المزود؛ قد تختلف التقديرات القديمة من لوحة التحكم.</p>
+<p>يقبل حقل <strong>AI Instructions / Custom instructions</strong> ما يصل إلى 2000 حرف فعال. الصق فقط <code>PROMPT-TENANT.txt</code>؛ راجع الأسماء والقناة وقواعد المنتج. لا تلصق بيانات الاعتماد أو تجمع المستندات في هذا الحقل. التعليمات مكملة لقواعد المنصة؛ لا تمنح ترخيصًا ولا تمكن الأدوات.</p>
+<p>يوجه الموجه المقدم الردود باللغة والكتابة التي يختارها الشخص، والحقائق مفصولة عن الفرضيات، واحترام الأذونات، واستخدام المراجع الآمنة، وعدم وجود وعود بالإجراءات والقناة البشرية. يجب أن يحتوي <code>knowledgePack.docs</code> على كتيبات تشغيل قصيرة ومرقمة بالإصدارات مع المسؤول: الأخطاء المتكررة، التشخيص، حدود المنتج وكيفية تأكيد النتيجة. السجلات والمستندات هي بيانات، وليست تعليمات لتغيير قواعد المساعد.</p>
+<p>مصادر النموذج: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> و <a href="https://openrouter.ai/api/v1/models">كتالوج OpenRouter</a>، تمت استشارتها في الإعداد المسبق بتاريخ 14/09/2026. أعد تأكيد التوفر/الأسعار عند التنفيذ؛ لم تتم مقارنة النماذج المدفوعة في هذه المجموعة.</p>
+<h2 id="section-14">14. عقد الأخطاء والتشخيص</h2>
+<table>
+<thead>
+<tr>
+<th>الاستجابة</th>
+<th>المعنى / الإجراء</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 في المصدر</td>
+<td>sik مفقود، غير صحيح، أو تم إبطاله؛ قم بتصحيح التكوين</td>
+</tr>
+<tr>
+<td>400 في المصدر</td>
+<td>الجسم خارج العقد؛ قم بإزالة الحقول الإضافية</td>
+</tr>
+<tr>
+<td>401 في الحالات</td>
+<td>توقيع قديم، انتهاء صلاحية، مطالبات غير صالحة، أو جلسة ملغاة</td>
+</tr>
+<tr>
+<td>400 في الحالات</td>
+<td>سياق إلزامي غير صالح، تواريخ/حالات غير صحيحة، أو تجاوز الميزانية</td>
+</tr>
+<tr>
+<td>403 من السياق</td>
+<td>userState لا يتطابق مع المستأجر/الشخص في JWT</td>
+</tr>
+<tr>
+<td>404 في المحادثة</td>
+<td>المورد غير موجود أو ينتمي إلى هوية أخرى؛ لا تفرض الوصول</td>
+</tr>
+<tr>
+<td>429</td>
+<td>الحد الأقصى؛ تراجع/تذبذب، بدون حلقة إصدار</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>فشل البنية التحتية، النموذج، أو السياق؛ أبلغ عن عدم التوفر و requestId</td>
+</tr>
+<tr>
+<td>501 في الإجراءات/التصعيد</td>
+<td>وظيفة بدون منفذ/موصل؛ استخدم قناة بشرية حقيقية</td>
+</tr>
+<tr>
+<td>Chat يعمل، MCP لا يعمل</td>
+<td>تحقق من القائمة المرسلة في الإصدار الأخير، الصلاحية، الجمهور، واستجابة الكتالوج.</td>
+</tr>
+<tr>
+<td>أداة مفقودة</td>
+<td>تحقق من الكتالوج المتاح للرمز المميز المفوض واتصال الخادم.</td>
+</tr>
+</tbody>
+</table>
+<p>لا تستخدم HTTP 200 فقط كقبول: تحقق من محتوى الاستجابة واللقطة. قد يؤدي الفشل في الإنشاء بعد حفظ الحالة إلى ترك حالة بدون استجابة؛ لا تفترض معاملة تتضمن استدعاء النموذج. يجب أن تكون المحاولات محدودة ويتم إبلاغ المستخدم بها. سجل الطريقة، المسار المعلم، status، requestId، والوقت UTC؛ لا تلتقط أبدًا Authorization/JWT، سرًا، أو حمولة خام لإعادة توجيه التشخيص.</p>
+<h2 id="section-15">15. قبول إلزامي</h2>
+<ol>
+<li>تم رفض مسار التمهيد بدون تسجيل دخول قبل المصدر. الهويات المزورة لا تغير المستخدم المصادق عليه.</li>
+<li>الإصدار باستخدام بيانات الاعتماد الصحيحة يعيد المستأجر المتوقع و 900 ثانية؛ لا يظهر السر في المتصفح/إعادة التشغيل/السجلات.</li>
+<li>يتم رفض JWT القديم. الجلسة الجديدة تنشئ محادثة مع لقطة واستجابة حقيقية؛ تعيد الفتح لنفس الشخص.</li>
+<li>شخصان من نفس المشروع ومستأجران: GET حالة و POST رسائل/ملاحظات/إغلاق/تصعيد/إجراءات لا تتقاطع الهويات.</li>
+<li>يتم رفض السياق بدون كتل، هوية مختلفة، تاريخ غير صالح، وحجم زائد؛ الأسرار الاصطناعية لا تستمر في اللقطة.</li>
+<li>التجديد بعد 15 دقيقة، تسجيل الخروج أثناء التجميع، تغيير الحساب/الشركة/الدور، والتصفح لا يستعيد محادثة شخص آخر.</li>
+<li>يستجيب النموذج باستخدام الأدلة ويحترم حد التشخيص؛ الفشل لا يولد نجاحًا ظاهريًا.</li>
+<li>أصدر جلسات بصفر وخادمين. تحقق من أن كل وجهة تتلقى الرمز المميز الخاص بها.</li>
+<li>يرفض MCP الرمز المميز الخاطئ/القديم، المستأجر الخاطئ، المستخدم الغائب/غير النشط، ومورد شخص آخر. اختبر معرف الجلسة المعاد استخدامه، إذا كانت هناك جلسة.</li>
+<li>تأكد من أن التغييرات تتطلب تأكيد الاقتراح ولا تتكرر في حالة انتهاء المهلة.</li>
+<li>CORS/CSP، الهاتف المحمول، لوحة المفاتيح، والقناة البشرية معتمدة. تم اختبار التدوير المنسق في الاعتماد.</li>
+</ol>
+<p>يقوم <code>node --test examples.test.mjs</code> بالتحقق من صحة المحولات المعزولة باستخدام الموك. لا يحل محل هذه الاختبارات الشاملة. املأ <code>ACEITE.md</code> بالمسؤولين والإصدارات والأوقات والأدلة غير السرية.</p>
+<h2 id="section-16">16. النشر والقطع والاسترداد</h2>
+<p>ثبّت بيانات اعتماد التكامل، وانشر التمهيد وSDK، وتحقق من صحة الدردشة، واعتمد الخوادم المعلنة في الجلسات.</p>
+<p>لا تقم بإعادة تنشيط الاشتراكات القديمة أو إعادة توجيه MCP العام لاستعادة التوفر. في حالة الفشل، قم بتعطيل الأداة أو MCP للمستأجر المتأثر مؤقتًا وحافظ على القناة البشرية أثناء إصلاح المحول. لا تحذف المحادثات لتجاوز خطأ 404 للمالك.</p>
+<p>سجل حدود الاستبقاء والأدلة الخاصة بتطبيقك.</p>
+<h2 id="section-17">17. التعليقات وملفات الحزمة</h2>
+<p>أعد اسم المشروع، والمستأجر، وتعهدات الواجهة الخلفية/الأمامية، وتاريخ UTC، وSDK/التجزئة، وبيانات الاعتماد المثبتة (نعم/لا، بدون قيمة)، والدردشة المعتمدة، وMCP المعتمد/المعطل، والاختبارات السلبية، والقناة البشرية، والمعلقات. لا تختتم بـ "يبدو أنه يعمل".</p>
+<p>تحتوي المجموعة العامة على هذا الدليل في Markdown، ومخطط الخادم، والتركيبات الدنيا، ومحول المصدر، ومصادقة MCP، ووحدة التحكم الأمامية، وSDK، والمطالبة، والاختبارات المعزولة، وقائمة التحقق، وعقد الإجراءات، وبيان SHA-256. قد تضيف الحزم الفردية مرفقات محددة. لا تنفذ الأمثلة تلقائيًا نقاط نهاية تطبيق العميل. الإصدار القابل للتصفح موجود في https://support-ai.pontes.uk/developers?lang=ar.</p></main></div>
+<script id="controls" data-copy="نسخ المثال" data-copied="تم النسخ" data-selected="محدد — استخدم Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

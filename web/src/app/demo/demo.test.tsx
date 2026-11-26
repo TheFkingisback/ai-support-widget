@@ -16,7 +16,7 @@ describe('Widget Demo Page', () => {
     expect(screen.getByTestId('demo-page')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'See Support AI in action' })).toBeInTheDocument();
     expect(screen.getByTitle('Support chat in a sample product')).toHaveAttribute('src', '/starter/index.html?lang=en-US');
-    expect(screen.getByRole('link', { name: 'Download the starter kit' })).toHaveAttribute('href', '/downloads/ai-support-starter.zip');
+    expect(screen.getByRole('link', { name: 'Download the starter kit' })).toHaveAttribute('href', '/downloads/en-US/ai-support-starter.zip');
     expect(screen.getByRole('link', { name: 'Get started free' })).toHaveAttribute('href', '/signup');
   });
 });

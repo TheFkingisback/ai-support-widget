@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="sw" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mwongozo wa Ujumuishaji wa Usaidizi</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>Mwongozo wa Ujumuishaji wa Usaidizi</h1><p>Uthibitishaji, muktadha, na zana zilizo na majukumu na vigezo vya kukubalika vilivyofafanuliwa.</p>
+<nav><a href="GUIA.md">Toleo la Markdown</a> · <a href="ACEITE.md">Fomu ya Kukubalika</a> · <button onclick="window.print()">Chapisha</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">Tafuta sehemu</label><input id="search" type="search">
+<nav aria-label="Urambazaji"><div class="toc">
+<ul>
+<li><a href="#section-1">1. Jinsi inavyofanya kazi</a></li>
+<li><a href="#section-2">2. Mazingira na wahusika</a></li>
+<li><a href="#section-3">3. Vitambulisho</a></li>
+<li><a href="#section-4">4. Mtiririko wa uthibitishaji na utambulisho</a></li>
+<li><a href="#section-5">5. Mkataba wa mtoaji</a></li>
+<li><a href="#section-6">6. Muktadha wa lazima na utambulisho sahihi</a></li>
+<li><a href="#section-7">7. Sehemu, mipaka na urekebishaji</a></li>
+<li><a href="#section-8">8. Faragha na uhifadhi</a></li>
+<li><a href="#section-9">9. Frontend na SDK 0.3.0</a></li>
+<li><a href="#section-10">10. Kuondoka, ruhusa na historia</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA na ufikiaji</a></li>
+<li><a href="#section-12">12. Seva za MCP kwenye kikao</a></li>
+<li><a href="#section-13">13. Mfumo, kidokezo na maarifa</a></li>
+<li><a href="#section-14">14. Mkataba wa hitilafu na uchunguzi</a></li>
+<li><a href="#section-15">15. Kukubali lazima</a></li>
+<li><a href="#section-16">16. Uchapishaji, ukataji na urejeshaji</a></li>
+<li><a href="#section-17">17. Maoni na faili za kifurushi</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">Ujumuishaji wa usaidizi · mkataba v4</h1>
+<p><strong>SDK 0.3.0 · Mwongozo wa backend, frontend na uendeshaji</strong></p>
+<h2 id="section-1">1. Jinsi inavyofanya kazi</h2>
+<p>Backend yako inathibitisha mtumiaji, inaweka muktadha ulioidhinishwa na kutoa kikao cha dakika 15. Katika simu ya kutoa, inaweza kujumuisha seva za MCP zinazopatikana kwa mtu huyo. Kivinjari kinapokea JWT ya wijeti na muktadha.</p>
+<h2 id="section-2">2. Mazingira na wahusika</h2>
+<p>Jukwaa liko https://support-ai.pontes.uk. Tumia kitambulisho cha ujumuishaji cha mazingira sahihi. Msimamizi wa nafasi ya kazi anapata kitambulisho kwenye paneli. Timu ya programu inadumisha bootstrap iliyothibitishwa, muktadha na tokeni zilizokabidhiwa kwa kila mtumiaji na seva.</p>
+<h2 id="section-3">3. Vitambulisho</h2>
+<table>
+<thead>
+<tr>
+<th>Kitambulisho</th>
+<th>Lengo</th>
+<th>Matumizi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kitambulisho cha ujumuishaji sik_</td>
+<td>Support AI</td>
+<td>Toa kikao kwenye backend</td>
+</tr>
+<tr>
+<td>Tokeni iliyokabidhiwa kwa kila seva</td>
+<td>MCP iliyoonyeshwa kwenye kikao</td>
+<td>Piga zana kama mtu aliyethibitishwa</td>
+</tr>
+<tr>
+<td>JWT ya kikao</td>
+<td>API ya gumzo</td>
+<td>Fungua na uendelee mazungumzo kwenye wijeti</td>
+</tr>
+</tbody>
+</table>
+<p>Hifadhi kitambulisho cha ujumuishaji kwenye hifadhi ya programu. Kukibatilisha huzima JWTs zilizotolewa nacho kwenye ombi linalofuata. Tengeneza tokeni zilizokabidhiwa kwenye backend na uweke kikomo kila moja kwa rasilimali, mtumiaji na muda wa uhalali.</p>
+<h2 id="section-4">4. Mtiririko wa uthibitishaji na utambulisho</h2>
+<pre><code class="language-text">Kikao cha programu kilichothibitishwa
+  → backend inathibitisha mtu anayefanya kazi, shirika na ruhusa za sasa
+  → POST /api/widget/sessions na sik_ kwenye seva
+  ← jwt + tenantKey + expiresIn
+  → backend inakusanya na kuweka muktadha wa utambulisho HUO HUO
+  ← kivinjari kinapokea kikao/muktadha na Cache-Control: no-store
+  → wijeti inaita /api/cases na njia za mazungumzo na JWT ya muda
+</code></pre>
+<p>Kuhifadhi kitambulisho cha kihistoria cha mteja <code>usr_...</code> huzuia kupoteza ufikiaji wa mazungumzo yao wenyewe. Usitumie email, jukumu, kifaa au timestamp kama utambulisho. Ikiwa mtumiaji yule yule anaweza kubadilisha kampuni, weka somo thabiti kwa uhusiano au sera wazi ya historia; jukwaa linaidhinisha mazungumzo kwa mpangaji + mtu, bila kudhani mashirika ya mteja.</p>
+<p>Jukwaa linathibitisha saini, mtoaji <code>ai-support</code>, hadhira <code>ai-support-widget</code>, kusudi <code>widget</code>, <code>sub=userId</code>, uhalali na kitambulisho kinachotumika cha kikao. Kivinjari hakisaini upya wala kubadilisha madai. Majukumu yaliyotumwa kwa usaidizi ni habari ya muktadha; idhini ya API/MCP inaendelea kwenye seva ya mteja.</p>
+<h2 id="section-5">5. Mkataba wa mtoaji</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>Jibu 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. Thibitisha <code>tenantKey</code> kabla ya kurudisha kwenye kivinjari. Faili <code>backend-session.mjs</code> inatekeleza mwili mkali, muda wa kuisha, kuzuia uelekezaji upya, kikomo cha jibu na uthibitishaji wa mpangaji; haibadilishi middleware yako ya uthibitishaji.</p>
+<table>
+<thead>
+<tr>
+<th>Sehemu</th>
+<th>Sheria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>Orodha ya hiari ya hadi vitu nane na id, url na accessToken za kipekee. Tazama sehemu ya 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>Inahitajika, punguza, herufi 1–200</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>Barua pepe halali hadi herufi 254 au tupu; chaguo-msingi tupu</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>Hadi nyuzi 30 za herufi 1–80; orodha tupu chaguo-msingi</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>Mfuatano wa herufi 1–80; chaguo-msingi standard</td>
+</tr>
+</tbody>
+</table>
+<p>Usitume tenantId, tenantKey, userName, role, purpose, exp au sehemu zingine kwenye body. Kitambulisho huamua mpangaji. Utambulisho hutoka kwenye kipindi/database, si kutoka kwenye swala/body ya kivinjari. Mtoaji hakubali JWT ya mtumiaji, ufunguo wa usimamizi, au siri ya zamani badala ya <code>sik_</code>.</p>
+<p>Mtoaji wa umma hufanya kazi bila upendeleo wa matumizi kwa kila mradi. Tumia tena kipindi ambacho bado ni halali cha mtu yule yule, kampuni, na ruhusa, na kumalizika mapema na kutobatilisha mabadiliko.</p>
+<h2 id="section-6">6. Muktadha wa lazima na utambulisho sahihi</h2>
+<p>Kila kesi mpya inahitaji <code>context.userState</code>, <code>context.userHistory</code> na <code>context.userLogs</code>. Tuma orodha tupu wakati chanzo kiliulizwa na hakuna rekodi; <strong>usibadilishe mkusanyiko ulioshindwa kuwa orodha tupu inayoonekana kufanikiwa</strong>. Ikiwa huwezi kutoa muktadha halali na ulioidhinishwa, kuanzisha mteja kunapaswa kurudisha kosa lililodhibitiwa.</p>
+<p><code>context.example.json</code> ni mfano mdogo. <code>context.schema.json</code> ilisafirishwa kutoka schema Zod iliyotumiwa kwenye seva, haikuandikwa kwa kujitegemea. Thibitisha JSON kwenye backend kabla ya kupeleka. Sehemu za ziada zisizotambuliwa zimetupwa; metadata na sheria zinaweza kuwa na miundo yao wenyewe, kulingana na makadirio/mipaka. Schema haithibitishi idhini wala kuondoa data zote nyeti.</p>
+<table>
+<thead>
+<tr>
+<th>Kizuizi</th>
+<th>Inahitajika / muundo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours chanya hadi 720, events; ratiba inajengwa upya kutoka events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>Hiari; docs na id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>Hiari; kitu cha sheria kilichoidhinishwa, kilichosawazishwa kama runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> lazima iwe utambulisho uliotolewa. <strong><code>userState.tenantId</code> ni mpangaji wa jukwaa</strong>, kamwe si kitambulisho cha shirika/duka kwa mteja. Tofauti hurudisha 403. Data kwenye kivinjari inaweza kubadilishwa; muktadha hauidhinishi shughuli.</p>
+<h2 id="section-7">7. Sehemu, mipaka na urekebishaji</h2>
+<table>
+<thead>
+<tr>
+<th>Muundo</th>
+<th>Sehemu kuu / sheria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status; id/description hiari; metadata kitu; hadi 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt; hadi 100</td>
+</tr>
+<tr>
+<td>errorClass ya activeErrors</td>
+<td>validation, permission, infra au business; kategoria kama payment zinahitaji ramani</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page; elementId, intent, correlationRequestId inakubali null/chaguomsingi; hadi 1,000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus integer, timingMs, requestId; errorCode/resourceId zinaweza kuwa null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs nambari au null; errorCode/lastStage zinaweza kuwa null</td>
+</tr>
+<tr>
+<td>status ya jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors kutoka backend</td>
+<td>ts, errorCode, errorClass string, route, requestId; resourceId inaweza kuwa null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>Hadi 50; content hadi herufi 32,000, maandishi mengine hadi 4,096</td>
+</tr>
+</tbody>
+</table>
+<p>Tarehe ni strings ISO-8601 zenye timezone; sawazisha Tarehe kwenye backend. Usibuni updatedAt, durationMs, retryable au kategoria ili tu kupitisha schema: tumia chanzo halisi au acha rekodi na ujulishe kutopatikana kwa chanzo. Sajili ramani maalum za mradi wako kwenye kukubali.</p>
+<p>Kikomo cha muktadha uliotumwa: <strong>baiti 262,144 UTF-8 (256 KiB)</strong>. HTTP kamili bado imepunguzwa hadi baiti 1,048,576. Bajeti ya picha ni <code>min(maxContextBytes, 262144)</code>. Ikiwa hata sehemu muhimu haitoshi, ombi litashindwa; punguza metadata/nyaraka kwenye backend. Tunashauri kuanza na KiB 48, huluki kumi na maarifa mafupi.</p>
+<p>Seva huchuja matukio/magogo kwa dirisha dogo zaidi kati ya lililoombwa na la mpangaji, huondoa tarehe za baadaye na kutumia maxLogLines iliyounganishwa na maombi, makosa na jobs (kwa mpangilio huu). maxDocs hupunguza orodha docs; businessRules ni runbook tofauti na pia inachukua bajeti yote. Ratiba inafuata matukio yaliyohifadhiwa. Data isiyo muhimu sana mara nyingi hutoa uchunguzi bora na gharama ndogo.</p>
+<h2 id="section-8">8. Faragha na uhifadhi</h2>
+<p>Buni data kabla ya kuituma: usiwahi kusambaza vichwa, vidakuzi, JWTs, vitambulisho, nyuzi za muunganisho, URL zilizotiwa saini, maudhui ya binary, data ya watumiaji wengine au usafirishaji ghafi. Badilisha siri na marejeleo ya usaidizi. Usitume PRD nzima au magogo kamili kama msingi wa maarifa.</p>
+<p>Picha mpya hupitia uthibitisho, uhariri, upunguzaji na bajeti kabla ya kurekodiwa. Ujumbe na matokeo ya zana hutibiwa kwa mifumo inayojulikana ya siri. Ulinzi huu ni wa ziada: si kigawanyaji kisichokosea cha data ya kibinafsi, hairekebishi rekodi za kihistoria kiotomatiki wala haibadilishi muundo wa mteja.</p>
+<p>Muktadha ni picha ya mwanzo wa mazungumzo, si swali la wakati halisi. Toa mihuri ya muda na vyanzo. <code>updateContext()</code> inatumika kwa kesi inayofuata; kwa data ya sasa wakati wa mazungumzo, tumia zana ya kusoma iliyoidhinishwa.</p>
+<h2 id="section-9">9. Frontend na SDK 0.3.0</h2>
+<p>Toa SDK iliyobandikwa kutoka kwenye kifurushi au URL ya umma. Thibitisha SHA-256 na <code>widget.manifest.json</code>. Epuka hati rudufu, toleo linaloelea na akiba ya JWT. Kidhibiti cha marejeleo katika <code>widget-controller.mjs</code> huweka baada ya kuanzisha, husubiri onOpen, hufanya upya na kuzuia kuweka kuchelewa baada ya kuingia.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// Wakati wa kuondoka, kubadilisha mtu/kampuni/jukumu na kusafisha kijenzi:
+controller.destroy();
+</code></pre>
+<p>Kazi zilizo hapo juu ni callbacks za programu, zitakazotekelezwa na mteja wako wa kawaida wa HTTP. Bootstrap inarudisha <code>{jwt,tenantKey,expiresIn,context}</code>. getContext inarudisha kitu cha muktadha. Katika React, thibitisha callbacks na useCallback na uweke katika useEffect iliyounganishwa na utambulisho. Usiweke wijeti nje ya eneo lililothibitishwa wala usitoe wageni na userId iliyoshirikiwa.</p>
+<p>SDK inakubali <code>onTokenRefresh</code> ambayo inarudisha JWT mpya; baada ya 401, inarudia ombi mara moja. Usasishaji unahitaji kutumia mtu yule yule. Mabadiliko ya utambulisho yanahitaji kuharibu na kuanzisha. Ikiwa unatumia kipima muda kinachofanya kazi, pendelea takriban dakika kumi na jitter na ughairi wakati wa kusafisha. Makosa ya kuanzisha, kukusanya na mfano hayapaswi kuzuia programu kuu.</p>
+<h2 id="section-10">10. Kuondoka, ruhusa na historia</h2>
+<p><code>destroy()</code> huondoa simu na kuondoa uhifadhi wa ndani kwa mpangaji/mtu. Sio ubatilishaji wa kibinafsi kwenye seva. JWT ambayo tayari imenakiliwa inaweza kubaki halali kwa hadi dakika 15 baada ya kuingia/kufunga kwenye mteja. Ikiwa unahitaji ubatilishaji wa haraka kwa kila mtu, mkataba unahitaji mageuzi ya ziada; usitumie mzunguko wa mpangaji mzima kama kuingia kwa kawaida.</p>
+<p>Kila usomaji/uandishi wa mazungumzo unahitaji mmiliki na mpangaji sawa. Mabadiliko ya jukumu kwenye mteja hayaondoi maudhui ambayo mtu tayari amepokea kwenye mazungumzo. Weka sera ya historia kwa ajili ya kupunguza ruhusa na mabadiliko ya shirika. Usilegeze idhini ili kurejesha caseId ya zamani; thibitisha somo la asili au anza mazungumzo mapya.</p>
+<h2 id="section-11">11. CORS, CSP, PWA na ufikiaji</h2>
+<p>Ruhusu kwenye jukwaa chanzo halisi cha kila frontend. SDK inahitaji connect-src kwa usaidizi; kuhudumia faili ya ndani inaruhusu script-src self. SDK inaingiza mtindo kwenye Shadow DOM na bado haipokei nonce: idhinisha sera halisi ya CSP, ambayo inaweza kuhitaji mageuzi ya SDK kwa mitindo ya nje/nonce/hash. Usizime sera nzima.</p>
+<p>Vikao na muktadha ni no-store. Ondoa njia za usaidizi kutoka kwa kache za PWA, uhifadhi wa maswali na zana za kucheza tena. Jaribu kibodi, umakini, kisoma skrini, kukuza na simu ya mkononi. Wasilisha chaneli halisi ya kibinadamu kwenye programu, na saa/URL zilizothibitishwa. SDK haibuni mtoa huduma.</p>
+<h2 id="section-12">12. Seva za MCP kwenye kikao</h2>
+<p>Backend ya programu hutuma <code>POST /api/widget/sessions</code> na kitambulisho cha ujumuishaji <code>sik_</code>. Inatoa mtu na shirika lake kutoka kwa kuingia na inaweza kujumuisha hadi seva nane katika <code>mcpServers</code>. Sehemu iliyoachwa au tupu huunda gumzo na muktadha. Kila kikao kipya hupokea orodha yake mwenyewe.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>Kila id huanza na herufi ndogo na inakubali herufi ndogo, tarakimu, alama ya chini na alama ya kuunganisha, hadi herufi 32. Vitambulisho, URL zilizosanifishwa na tokeni ni za kipekee kwenye orodha. Usafiri ni MCP Streamable HTTP katika HTTPS ya umma, bandari 443, na URL bila vitambulisho, swali au kipande. Huduma inathibitisha DNS inapounganisha na kukataa uelekezaji upya.</p>
+<p>Programu inatoa au kupata tokeni fupi ya ufikiaji kwa kila lengo, iliyozuiliwa kwa mtu, shirika, ruhusa na hadhira ya MCP hiyo. Support AI inawasilisha <code>Authorization: Bearer &lt;accessToken&gt;</code> kwa seva inayolingana. Mtoa huduma anathibitisha saini au utangulizi, mtoaji, uhalali, hadhira na ufikiaji wa rasilimali katika kila operesheni. Inachapisha kwenye katalogi tu zana zinazoruhusiwa kwa kitambulisho hicho. Kitambulisho cha jukwaa, JWT ya wijeti na funguo za huduma kama Stripe zina madhumuni yao wenyewe.</p>
+<p>Tokeni iliyokabidhiwa imesimbwa kwenye seva kwa hadi sekunde 900. Kivinjari kinapokea <code>{jwt, tenantKey, expiresIn: 900}</code>. Wakati wa kusasisha, backend inathibitisha tena kitambulisho na kutuma orodha mpya na tokeni halali. Pendekezo lililoundwa kabla ya kusasisha linahitaji kuwasilishwa tena. Kwa mabadiliko ya shirika, tumia kitambulisho thabiti kwa kiungo na uharibu mfano wa awali wa wijeti.</p>
+<p>AI ya Usaidizi Support AI hupitia kurasa za <code>tools/list</code>, hutofautisha majina yanayofanana kwa seva na hutumia jina asili wakati wa kupiga <code>tools/call</code>. Katalogi zilizo na zana zaidi ya 32 zina utafutaji na ukurasa ndani ya gumzo. Vikomo vya ugunduzi kwa kila seva ni kurasa 128 na MB 4 za maelezo. Kushindwa kwa ugunduzi wa seva moja huhifadhi zingine.</p>
+<p>Zana zilizo na <code>annotations.readOnlyHint: true</code> zinaweza kuulizwa moja kwa moja. Kwa kila zana iliyo na ufafanuzi usio sahihi au usio sahihi, gumzo huonyesha seva, jina na hoja kabla ya kutekeleza. Tangaza kusoma tu kwa shughuli zisizo na athari za biashara. Mtumiaji hujibu <code>confirmar</code> au <code>confirm</code> kwa ujumbe ulioonyeshwa ndani ya dakika tano. SDK hutuma <code>replyToMessageId</code>. Uthibitisho ni halali kwa hoja hizo, seva, kikao na mazungumzo. Pendekezo jipya hubadilisha la awali.</p>
+<p>Jukwaa hujaribu kutekeleza baada ya kusajili uthibitisho na kutuma <code>Idempotency-Key</code> na kitambulisho cha pendekezo. Kwa malipo na shughuli zilizo na athari za nje, mtoa huduma lazima ahifadhi ufunguo na matokeo kwa usahihi na kuheshimu funguo za utambulisho zinazohitajika na huduma ya kifedha. Baada ya muda kuisha au matokeo yasiyoeleweka, usaidizi hurekodi hali isiyojulikana, huzuia mabadiliko mapya katika mazungumzo hayo na huweka maswali yanayopatikana. Thibitisha operesheni katika mfumo wa asili kabla ya kuendelea.</p>
+<p>Ili kuidhinisha, jaribu kikao bila seva, vikao viwili vya mtumiaji mmoja, mashirika mawili, seva zilizo na zana zenye majina sawa na katalogi iliyopangwa. Thibitisha upeo/muda wa tokeni kwa mtoa huduma, kughairi na uthibitisho mara mbili. Tumia rekodi za synthetic ili kuthibitisha matokeo katika chanzo.</p>
+<h2 id="section-13">13. Mfumo, kidokezo na maarifa</h2>
+<p>Kuhifadhi mfumo uliokwisha kuidhinishwa na mradi hupunguza mabadiliko ya wakati mmoja. Kwa tathmini mpya, <code>openai/gpt-4.1-mini</code> ni mgombea anayepatana na vigezo vya sasa: Chat Completions kupitia OpenRouter, joto 0.3 na max_tokens 2048. Thibitisha katika akaunti halisi kabla ya kuwezesha. Preferred Model inashinda Model Policy; auto si uelekezaji mahiri. Bei/gharama zinapaswa kutoka kwa mtoa huduma; makadirio ya zamani ya paneli yanaweza kutofautiana.</p>
+<p>Sehemu ya <strong>AI Instructions / Custom instructions</strong> inakubali hadi herufi 2,000 halisi. Bandika <code>PROMPT-TENANT.txt</code> tu; kagua majina, chaneli na sheria za bidhaa. Usibandike vitambulisho au kuunganisha hati katika sehemu hii. Maelekezo ni nyongeza kwa sheria za jukwaa; hayatoi idhini wala kuwezesha zana.</p>
+<p>Kidokezo kilichotolewa huongoza majibu katika lugha na uandishi uliochaguliwa na mtu, ukweli uliotenganishwa na dhana, heshima kwa ruhusa, matumizi ya marejeleo salama, kutokuwepo kwa ahadi za vitendo na chaneli ya kibinadamu. <code>knowledgePack.docs</code> inapaswa kuwa na vitabu vifupi na vilivyorekebishwa na msimamizi: makosa ya mara kwa mara, utambuzi, mipaka ya bidhaa na jinsi ya kuthibitisha matokeo. Kumbukumbu na hati ni data, kamwe si maelekezo ya kubadilisha sheria za msaidizi.</p>
+<p>Vyanzo vya modeli: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> na <a href="https://openrouter.ai/api/v1/models">katalogi ya OpenRouter</a>, iliyorejelewa katika maandalizi ya awali ya 2026-09-14. Thibitisha upatikanaji/bei wakati wa utekelezaji; hakukuwa na ulinganisho wa modeli uliolipwa katika kifaa hiki.</p>
+<h2 id="section-14">14. Mkataba wa hitilafu na uchunguzi</h2>
+<table>
+<thead>
+<tr>
+<th>Jibu</th>
+<th>Maana / hatua</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 kwa mtoaji</td>
+<td>sik haipo, si sahihi, au imebatilishwa; rekebisha usanidi</td>
+</tr>
+<tr>
+<td>400 kwa mtoaji</td>
+<td>Mwili nje ya mkataba; ondoa sehemu za ziada</td>
+</tr>
+<tr>
+<td>401 katika kesi</td>
+<td>Saini ya zamani, muda wake kuisha, madai batili au kikao kimebatilishwa</td>
+</tr>
+<tr>
+<td>400 katika kesi</td>
+<td>Muktadha unaohitajika batili, tarehe/hali zisizo sahihi au bajeti imezidi</td>
+</tr>
+<tr>
+<td>403 kutoka kwa muktadha</td>
+<td>userState hailingani na mpangaji/mtu wa JWT</td>
+</tr>
+<tr>
+<td>404 katika mazungumzo</td>
+<td>Rasilimali haipo au ni ya kitambulisho kingine; usilazimishe ufikiaji</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Kikomo; backoff/jitter, hakuna kitanzi cha utoaji</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>Kushindwa kwa miundombinu, modeli au muktadha; ripoti kutopatikana na requestId</td>
+</tr>
+<tr>
+<td>501 kwenye vitendo/kuongeza</td>
+<td>Utendaji bila mtekelezaji/kiunganishi; tumia chaneli halisi ya binadamu</td>
+</tr>
+<tr>
+<td>Chat inafanya kazi, MCP haifanyi kazi</td>
+<td>Angalia orodha iliyotumwa katika toleo la mwisho, uhalali, hadhira na jibu la katalogi.</td>
+</tr>
+<tr>
+<td>Zana haipo</td>
+<td>Angalia katalogi inayopatikana kwa tokeni iliyokabidhiwa na muunganisho wa seva.</td>
+</tr>
+</tbody>
+</table>
+<p>Usitumie HTTP 200 pekee kama kukubali: angalia maudhui ya jibu na picha. Uundaji unaoshindwa baada ya kuhifadhi kesi unaweza kuacha kesi bila jibu; usidhani shughuli inayohusisha simu ya modeli. Majaribio yanapaswa kuwa na kikomo na kuripotiwa kwa mtumiaji. Sajili njia, njia iliyoparameterishwa, status, requestId na saa UTC; usiwahi kunasa Authorization/JWT, siri au malipo ghafi ili kusambaza uchunguzi.</p>
+<h2 id="section-15">15. Kukubali lazima</h2>
+<ol>
+<li>Njia ya bootstrap bila kuingia imekataliwa kabla ya mtoaji. Vitambulisho vilivyoghushiwa havibadilishi mtumiaji aliyeidhinishwa.</li>
+<li>Utoaji na kitambulisho sahihi unarudisha mpangaji anayetarajiwa na sekunde 900; siri haionekani kwenye kivinjari/marudio/magogo.</li>
+<li>JWT ya zamani inakataliwa. Kikao kipya huunda mazungumzo na picha na jibu halisi; hufungua tena kwa mtu yule yule.</li>
+<li>Watu wawili kutoka mradi mmoja na wapangaji wawili: GET kesi na POST ujumbe/maoni/funga/ongeza/vitendo havipitani vitambulisho.</li>
+<li>Muktadha bila vizuizi, kitambulisho tofauti, tarehe batili na saizi kubwa sana hukataliwa; siri za sintetiki hazidumu kwenye picha.</li>
+<li>Usasishaji baada ya dakika 15, kuondoka wakati wa kukusanya, kubadilisha akaunti/kampuni/jukumu na urambazaji haurejeshi mazungumzo ya mtu mwingine.</li>
+<li>Modeli hujibu kwa kutumia ushahidi na kuheshimu kikomo cha uchunguzi; kushindwa hakuzalishi mafanikio dhahiri.</li>
+<li>Toa vikao na seva sifuri na mbili. Thibitisha kuwa kila lengo linapokea tokeni yake mwenyewe.</li>
+<li>MCP inakataa tokeni isiyo sahihi/ya zamani, mpangaji asiye sahihi, mtumiaji asiyepo/asiyefanya kazi na rasilimali ya mtu mwingine. Jaribu kitambulisho cha kikao kilichotumiwa tena, ikiwa kuna kikao.</li>
+<li>Thibitisha kuwa mabadiliko yanahitaji uthibitisho wa pendekezo na hayarudiwi katika kesi ya muda kuisha.</li>
+<li>CORS/CSP, simu ya mkononi, kibodi na chaneli ya binadamu zimeidhinishwa. Mzunguko ulioratibiwa umejaribiwa katika uidhinishaji.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> huthibitisha adapta za pekee kwa kutumia mocks. Haibadilishi majaribio haya ya mwisho hadi mwisho. Jaza <code>ACEITE.md</code> na wahusika, matoleo, nyakati na ushahidi usio na siri.</p>
+<h2 id="section-16">16. Uchapishaji, ukataji na urejeshaji</h2>
+<p>Sakinisha kitambulisho cha ujumuishaji, chapisha bootstrap na SDK, thibitisha gumzo na uidhinishe seva zilizotangazwa katika vipindi.</p>
+<p>Usianze tena usajili wa zamani au usambazaji wa MCP wa kimataifa ili kurejesha upatikanaji. Ikiwa kuna hitilafu, zima kwa muda wijeti au MCP ya mpangaji aliyeathirika na uendelee kutumia chaneli ya binadamu wakati unarekebisha adapta. Usifute mazungumzo ili kukwepa 404 ya mmiliki.</p>
+<p>Andika mipaka ya uhifadhi na ushahidi maalum wa programu yako.</p>
+<h2 id="section-17">17. Maoni na faili za kifurushi</h2>
+<p>Rudisha jina la mradi, mpangaji, commits za backend/frontend, tarehe UTC, SDK/hash, kitambulisho kilichosakinishwa (ndiyo/hapana, bila thamani), gumzo lililoidhinishwa, MCP iliyoidhinishwa/kuzimwa, majaribio hasi, chaneli ya binadamu na mambo yanayosubiri. Usimalizie kwa “inaonekana kufanya kazi”.</p>
+<p>Kifurushi cha umma kina mwongozo huu katika Markdown, schema ya seva, fixture ndogo, adapta ya mtoaji, uthibitishaji wa MCP, kidhibiti cha frontend, SDK, prompt, majaribio yaliyotengwa, orodha ya ukaguzi, mkataba wa vitendo na manifesto ya SHA-256. Vifurushi vya kibinafsi vinaweza kuongeza viambatisho maalum. Mifano haitekelezi kiotomatiki sehemu za mwisho za programu ya mteja. Toleo linaloweza kuvinjari liko https://support-ai.pontes.uk/developers?lang=sw.</p></main></div>
+<script id="controls" data-copy="Nakili mfano" data-copied="Imenakiliwa" data-selected="Imechaguliwa — tumia Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

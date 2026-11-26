@@ -11,3 +11,4 @@ tmp/
 *.tsbuildinfo
 Servidor no SSdnodes.txt
 nginx/nginx.conf
+__pycache__/

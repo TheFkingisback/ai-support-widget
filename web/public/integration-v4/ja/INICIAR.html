@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ja" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>サポート統合マニュアル</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>サポート統合マニュアル</h1><p>認証、コンテキスト、および定義された責任と受け入れ基準を持つツール。</p>
+<nav><a href="GUIA.md">Markdown 版</a> · <a href="ACEITE.md">承諾フォーム</a> · <button onclick="window.print()">印刷</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">セクションを検索</label><input id="search" type="search">
+<nav aria-label="ナビゲーション"><div class="toc">
+<ul>
+<li><a href="#section-1">1. 仕組み</a></li>
+<li><a href="#section-2">2. 環境と担当者</a></li>
+<li><a href="#section-3">3. 資格情報</a></li>
+<li><a href="#section-4">4. 認証とIDのフロー</a></li>
+<li><a href="#section-5">5. 発行者契約</a></li>
+<li><a href="#section-6">6. 必須のコンテキストと正しいID</a></li>
+<li><a href="#section-7">7. フィールド、制限、正規化</a></li>
+<li><a href="#section-8">8. プライバシーと永続性</a></li>
+<li><a href="#section-9">9. フロントエンドと SDK 0.3.0</a></li>
+<li><a href="#section-10">10. ログアウト、権限、履歴</a></li>
+<li><a href="#section-11">11. CORS、CSP、PWA、およびアクセス</a></li>
+<li><a href="#section-12">12. セッション内の MCP サーバー</a></li>
+<li><a href="#section-13">13. モデル、プロンプト、知識</a></li>
+<li><a href="#section-14">14. エラーと診断の契約</a></li>
+<li><a href="#section-15">15. 必須の承認</a></li>
+<li><a href="#section-16">16. 公開、カット、および復元</a></li>
+<li><a href="#section-17">17. フィードバックとパッケージファイル</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">サポート統合 · 契約 v4</h1>
+<p><strong>SDK 0.3.0 · バックエンド、フロントエンド、運用マニュアル</strong></p>
+<h2 id="section-1">1. 仕組み</h2>
+<p>バックエンドはユーザーを認証し、承認されたコンテキストを投影し、15分間のセッションを発行します。発行呼び出しでは、そのユーザーが利用できるMCPサーバーを含めることができます。ブラウザはウィジェットのJWTとコンテキストを受け取ります。</p>
+<h2 id="section-2">2. 環境と担当者</h2>
+<p>プラットフォームはhttps://support-ai.pontes.ukにあります。正しい環境の統合資格情報を使用してください。ワークスペース管理者は、パネルで資格情報を取得します。アプリケーションチームは、認証されたブートストラップ、コンテキスト、およびユーザーごと、サーバーごとの委任トークンを維持します。</p>
+<h2 id="section-3">3. 資格情報</h2>
+<table>
+<thead>
+<tr>
+<th>資格情報</th>
+<th>宛先</th>
+<th>使用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>統合資格情報 sik_</td>
+<td>Support AI</td>
+<td>バックエンドでセッションを発行する</td>
+</tr>
+<tr>
+<td>サーバーごとの委任トークン</td>
+<td>セッションで示されるMCP</td>
+<td>認証されたユーザーとしてツールを呼び出す</td>
+</tr>
+<tr>
+<td>セッションのJWT</td>
+<td>チャットのAPI</td>
+<td>ウィジェットで会話を開いて続行する</td>
+</tr>
+</tbody>
+</table>
+<p>統合資格情報をアプリケーションの金庫に保存します。それを失効させると、次のリクエストでそれによって発行されたJWTsが無効になります。バックエンドで委任トークンを生成し、それぞれを1つのリソース、ユーザー、および有効期限に制限します。</p>
+<h2 id="section-4">4. 認証とIDのフロー</h2>
+<pre><code class="language-text">アプリケーションの認証済みセッション
+  → バックエンドはアクティブなユーザー、組織、現在の権限を検証します
+  → サーバーでPOST /api/widget/sessionsとsik_
+  ← jwt + tenantKey + expiresIn
+  → バックエンドは同じIDのコンテキストを収集して投影します
+  ← ブラウザはCache-Control: no-storeでセッション/コンテキストを受け取ります
+  → ウィジェットは一時的なJWTで/api/casesと会話ルートを呼び出します
+</code></pre>
+<p>顧客の履歴識別子<code>usr_...</code>を保持することで、自分の会話へのアクセスを失うことを防ぎます。email、役割、デバイス、またはタイムスタンプをIDとして使用しないでください。同じユーザーが会社を変更できる場合、リンクまたは明示的な履歴ポリシーによって安定したサブジェクトを定義します。プラットフォームは、顧客の組織を推測することなく、テナント+ユーザーごとに会話を承認します。</p>
+<p>プラットフォームは、署名、発行者<code>ai-support</code>、オーディエンス<code>ai-support-widget</code>、目的<code>widget</code>、<code>sub=userId</code>、有効性、およびセッションのアクティブな資格情報を検証します。ブラウザはクレームを再署名したり変更したりしません。サポートに送信される役割はコンテキスト情報です。API/MCPの承認はクライアントサーバーで続行されます。</p>
+<h2 id="section-5">5. 発行者契約</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>応答200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>。ブラウザに返す前に<code>tenantKey</code>を検証します。ファイル<code>backend-session.mjs</code>は、厳密な本文、タイムアウト、リダイレクトのブロック、応答制限、テナントの検証を実装しています。これは認証ミドルウェアを置き換えるものではありません。</p>
+<table>
+<thead>
+<tr>
+<th>フィールド</th>
+<th>ルール</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>id、URL、および一意のaccessTokenを持つ最大8つのオブジェクトのオプションリスト。セクション12を参照。</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>必須、トリム、1〜200文字</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>最大254文字の有効なメールアドレス、または空。デフォルトは空。</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>1〜80文字の文字列を最大30個。デフォルトは空のリスト。</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>1〜80文字の文字列。デフォルトはstandard。</td>
+</tr>
+</tbody>
+</table>
+<p>tenantId、tenantKey、userName、role、purpose、exp、その他のフィールドを本文に送信しないでください。資格情報がテナントを決定します。IDはセッション/データベースから取得され、ブラウザのクエリ/本文からは取得されません。発行者は、ユーザーのJWT、管理キー、または古いシークレットを<code>sik_</code>の代わりとして受け入れません。</p>
+<p>パブリック発行者は、プロジェクトごとの使用量クォータなしで動作します。同じ人物、会社、権限の有効なセッションを再利用し、変更時に早期期限切れと無効化を行います。</p>
+<h2 id="section-6">6. 必須のコンテキストと正しいID</h2>
+<p>新しいケースごとに<code>context.userState</code>、<code>context.userHistory</code>、<code>context.userLogs</code>が必要です。ソースがクエリされ、レコードがない場合は空のリストを送信します。<strong>失敗したコレクションを、成功したかのように見える空のリストに変換しないでください</strong>。有効で承認されたコンテキストを提供できない場合、クライアントのブートストラップは制御されたエラーを返す必要があります。</p>
+<p><code>context.example.json</code>は最小限の例です。<code>context.schema.json</code>は、サーバーで使用されているスキーマZodからエクスポートされたものであり、独立して作成されたものではありません。デプロイ前にバックエンドでJSONを検証してください。認識されない追加フィールドは破棄されます。メタデータとルールには独自の構造が含まれる場合があり、投影/制限の対象となります。スキーマは承認を証明するものではなく、すべての機密データを排除するものでもありません。</p>
+<table>
+<thead>
+<tr>
+<th>ブロック</th>
+<th>必須 / 構造</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHoursは720まで正の値、events。タイムラインはeventsから再構築されます。</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>オプション。id、title、content、categoryを含むdocs。</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>オプション。承認されたルールオブジェクト。ランブックとしてシリアル化されます。</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code>は発行されたIDと完全に一致する必要があります。<strong><code>userState.tenantId</code>はプラットフォームのテナントであり</strong>、クライアントの組織/店舗IDではありません。不一致は403を返します。ブラウザのデータは改ざんされる可能性があります。コンテキストは操作を承認しません。</p>
+<h2 id="section-7">7. フィールド、制限、正規化</h2>
+<table>
+<thead>
+<tr>
+<th>構造</th>
+<th>主要フィールド / ルール</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type、status。id/descriptionはオプション。metadataオブジェクト。最大100。</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode、errorClass、retryable、userActionable、resourceId、occurredAt。最大100。</td>
+</tr>
+<tr>
+<td>activeErrorsのerrorClass</td>
+<td>validation、permission、infra、またはbusiness。paymentのようなカテゴリはマッピングが必要です。</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts、event、page、elementId、intent、correlationRequestId。nullまたは省略を受け入れます。最大1,000。</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts、route、httpStatus整数、timingMs、requestId。errorCode/resourceIdはnullになることがあります。</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId、queue、status、createdAt、updatedAt、durationMs数値またはnull。errorCode/lastStageはnullになることがあります。</td>
+</tr>
+<tr>
+<td>jobsのstatus</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>バックエンドのerrors</td>
+<td>ts、errorCode、errorClass文字列、route、requestId。resourceIdはnullになることがあります。</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>最大50。contentは最大32,000文字、その他のテキストは最大4,096文字。</td>
+</tr>
+</tbody>
+</table>
+<p>日付はタイムゾーン付きのISO-8601文字列です。バックエンドでDateをシリアル化してください。スキーマに合格するためだけにupdatedAt、durationMs、retryableやカテゴリを捏造しないでください。実際のソースを使用するか、レコードを省略してソースの利用不可を報告してください。プロジェクト固有のマッピングを承認時に記録してください。</p>
+<p>送信されたコンテキストの天井: <strong>262,144バイト UTF-8 (256 KiB)</strong>。完全な HTTP は1,048,576バイトに制限されたままです。スナップショットの予算は <code>min(maxContextBytes, 262144)</code> です。必須部分でさえ収まらない場合、リクエストは失敗します。バックエンドのメタデータ/ドキュメントを減らしてください。48 KiB、10エンティティ、短い知識から始めることをお勧めします。</p>
+<p>サーバーは、要求されたウィンドウとテナントのウィンドウの小さい方でイベント/ログをフィルタリングし、将来の日付を削除し、リクエスト、エラー、および jobs (この順序) に結合された maxLogLines を適用します。 maxDocs は docs リストを制限します。 businessRules は別のランブックであり、総予算も消費します。タイムラインは保持されたイベントに従います。関連性の低いデータは、通常、より良い診断とより低いコストをもたらします。</p>
+<h2 id="section-8">8. プライバシーと永続性</h2>
+<p>送信前にデータを設計する: ヘッダー、Cookie、JWTs、資格情報、接続文字列、署名付きURL、バイナリコンテンツ、他のユーザーのデータ、または生のエクスポートを決して転送しないでください。秘密をサポート参照に置き換えます。知識ベースとして PRD 全体または完全なログを送信しないでください。</p>
+<p>新しいスナップショットは、書き込み前に検証、編集、削減、予算編成が行われます。メッセージとツール結果は、既知の秘密パターン処理を受けます。この保護は補完的なものです。個人データの完璧な分類器ではなく、履歴レコードを遡及的に修正するものでも、顧客の設計に取って代わるものでもありません。</p>
+<p>コンテキストは会話開始時のスナップショットであり、リアルタイムクエリではありません。タイムスタンプとソースを通知してください。 <code>updateContext()</code> は次のケースに適用されます。会話中の現在のデータについては、承認された読み取りツールを使用してください。</p>
+<h2 id="section-9">9. フロントエンドと SDK 0.3.0</h2>
+<p>パッケージまたは公開URLから固定された SDK を提供します。 SHA-256 を <code>widget.manifest.json</code> で確認します。重複したスクリプト、浮動バージョン、JWT のキャッシュを避けてください。 <code>widget-controller.mjs</code> の参照コントローラーは、ブートストラップ後にマウントされ、onOpen を待機し、更新し、ログアウト後の遅延マウントを防ぎます。</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// ログアウト時、人物/会社/役割の変更時、コンポーネントのクリーンアップ時:
+controller.destroy();
+</code></pre>
+<p>上記の関数はアプリケーションのコールバックであり、通常の HTTP クライアントで実装する必要があります。ブートストラップは <code>{jwt,tenantKey,expiresIn,context}</code> を返します。 getContext はコンテキストオブジェクトを返します。Reactでは、useCallback でコールバックを安定させ、IDにリンクされた useEffect でマウントします。ウィジェットを認証済みエリアの外に配置したり、共有 userId を持つ訪問者を提供したりしないでください。</p>
+<p>SDK は、新しい JWT を返す <code>onTokenRefresh</code> を受け入れます。401の後、リクエストを一度繰り返します。更新は同じ人物を使用する必要があります。IDの変更には、破棄と初期化が必要です。プロアクティブなタイマーを使用する場合は、ジッターを伴う約10分を好み、クリーンアップ時にキャンセルしてください。ブートストラップ、収集、モデルのエラーは、メインアプリケーションをブロックしてはなりません。</p>
+<h2 id="section-10">10. ログアウト、権限、履歴</h2>
+<p><code>destroy()</code> は呼び出しを中止し、テナント/個人ごとにローカルの永続性を削除します。これはサーバー上での個別の取り消しではありません。すでにコピーされた JWT は、クライアントでのログアウト/ロック後、最大15分間有効なままになることがあります。個人ごとの即時取り消しが必要な場合、契約には追加の進化が必要です。テナント全体のローテーションを通常のログアウトとして使用しないでください。</p>
+<p>各会話の読み取り/書き込みには、同じ所有者とテナントが必要です。クライアントでの役割変更は、その人が会話ですでに受け取ったコンテンツを消去しません。権限の降格や組織変更のために履歴ポリシーを定義してください。古い caseId を回復するために承認を緩和しないでください。元のサブジェクトを確認するか、新しい会話を開始してください。</p>
+<h2 id="section-11">11. CORS、CSP、PWA、およびアクセス</h2>
+<p>各フロントエンドの正確なオリジンをプラットフォームで許可します。SDK はサポートのために connect-src を必要とします。ローカルファイルを配信すると script-src が自己許可されます。SDK は Shadow DOM にスタイルを挿入し、まだ nonce を受け取っていません。実際の CSP ポリシーを承認し、外部スタイル/nonce/ハッシュのために SDK の進化が必要になる場合があります。ポリシー全体をオフにしないでください。</p>
+<p>セッションとコンテキストは no-store です。PWA のキャッシュ、クエリの永続性、リプレイツールからサポートルートを除外します。キーボード、フォーカス、スクリーンリーダー、ズーム、モバイルをテストします。確認済みの時間/URLとともに、アプリ内で真の人間チャネルを提示します。SDK はサービスプロバイダーを発明しません。</p>
+<h2 id="section-12">12. セッション内の MCP サーバー</h2>
+<p>アプリケーションのバックエンドは、統合資格情報 <code>sik_</code> を使用して <code>POST /api/widget/sessions</code> を送信します。これにより、ログインから個人とその組織が派生し、<code>mcpServers</code> に最大8つのサーバーを含めることができます。省略または空のフィールドは、コンテキストを持つチャットを作成します。新しいセッションごとに独自のリストが受信されます。</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>各 id は小文字で始まり、小文字、数字、アンダースコア、ハイフンを受け入れ、最大32文字です。ID、正規化されたURL、トークンはリスト内で一意です。トランスポートはパブリック HTTPS のポート443で MCP Streamable HTTP であり、資格情報、クエリ、またはフラグメントのないURLを使用します。サービスは接続時に DNS を検証し、リダイレクトを拒否します。</p>
+<p>アプリケーションは、その MCP の個人、組織、権限、およびオーディエンスに制限された、各宛先への短いアクセストークンを発行または取得します。Support AI は対応するサーバーに <code>Authorization: Bearer &lt;accessToken&gt;</code> を提示します。プロバイダーは、各操作で署名またはイントロスペクション、発行者、有効性、オーディエンス、およびリソースへのアクセスを検証します。そのIDに許可されたツールのみをカタログに公開します。プラットフォームの資格情報、ウィジェットの JWT、および Stripe などのサービスキーには独自の目的があります。</p>
+<p>委任されたトークンは、サーバー上で最大900秒間暗号化されたままになります。ブラウザは <code>{jwt, tenantKey, expiresIn: 900}</code> を受け取ります。更新時、バックエンドはIDを再検証し、有効なトークンを含む新しいリストを送信します。更新前に作成された提案は、再度提示する必要があります。組織変更の場合、リンクごとに安定した識別子を使用し、ウィジェットの以前のインスタンスを破棄します。</p>
+<p>Support AI は <code>tools/list</code> のページを巡回し、サーバーごとに同じ名前を区別し、<code>tools/call</code> を呼び出す際に元の名前を使用します。32 を超えるツールを持つカタログには、チャット内で検索とページネーションがあります。サーバーごとの検出制限は 128 ページと 4 MB の説明です。サーバーの検出に失敗しても、他のサーバーは維持されます。</p>
+<p><code>annotations.readOnlyHint: true</code> を持つツールは直接照会できます。アノテーションがないか偽であるすべてのツールについて、チャットは実行前にサーバー、名前、引数を表示します。ビジネス効果のない操作には読み取り専用を宣言してください。ユーザーは表示されたメッセージに 5 分以内に <code>confirmar</code> または <code>confirm</code> で応答します。SDK は <code>replyToMessageId</code> を送信します。確認は、それらの引数、サーバー、セッション、および会話に対して有効です。新しい提案は以前の提案を置き換えます。</p>
+<p>プラットフォームは確認を登録した後、実行を試行し、提案の ID とともに <code>Idempotency-Key</code> を送信します。支払いおよび外部効果を伴う操作の場合、プロバイダーはキーと結果をアトミックに保存し、金融サービスで要求されるべき等性キーを尊重する必要があります。タイムアウトまたは曖昧な結果の後、サポートは不明な状態を記録し、この会話での新しい変更をブロックし、クエリを引き続き利用可能にします。続行する前に、元のシステムで操作を確認してください。</p>
+<p>承認するには、サーバーなしのセッション、同じユーザーの 2 つのセッション、2 つの組織、同名のツールを持つサーバー、およびページ分割されたカタログをテストします。プロバイダーでのトークンのスコープ/有効期限、キャンセル、および重複した確認を確認します。合成ログを使用して、元の結果を確認します。</p>
+<h2 id="section-13">13. モデル、プロンプト、知識</h2>
+<p>プロジェクトによってすでに承認されているモデルを最初に保持することで、同時変更が減少します。新しい評価の場合、<code>openai/gpt-4.1-mini</code> は現在のパラメーターと互換性のある候補です: Chat Completions を介した OpenRouter、温度 0.3、および max_tokens 2048。アクティブ化する前に実際の環境で検証してください。Preferred Model は Model Policy よりも優先されます。自動はインテリジェントなルーティングではありません。価格/コストはプロバイダーから取得する必要があります。古いパネルの見積もりは異なる場合があります。</p>
+<p><strong>AI Instructions / Custom instructions</strong> フィールドは最大 2,000 文字の有効な文字を受け入れます。<code>PROMPT-TENANT.txt</code> のみを貼り付けてください。名前、チャネル、製品ルールを確認してください。このフィールドに資格情報を貼り付けたり、ドキュメントを連結したりしないでください。この指示はプラットフォームのルールを補完するものであり、承認を付与したり、ツールを有効にしたりするものではありません。</p>
+<p>提供されたプロンプトは、ユーザーが選択した言語と書き方での応答、仮説から分離された事実、権限の尊重、安全な参照の使用、行動の約束の欠如、および人間チャネルをガイドします。<code>knowledgePack.docs</code> には、責任者とともに短くバージョン管理されたランブックを含める必要があります: 頻繁なエラー、診断、製品の制限、および結果の確認方法。ログとドキュメントはデータであり、アシスタントのルールを変更するための指示ではありません。</p>
+<p>モデルソース: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> および <a href="https://openrouter.ai/api/v1/models">カタログ OpenRouter</a>、2026年9月14日の以前の準備で参照。実装時に可用性/価格を再確認してください。このキットではモデルの有料比較は行われていません。</p>
+<h2 id="section-14">14. エラーと診断の契約</h2>
+<table>
+<thead>
+<tr>
+<th>応答</th>
+<th>意味 / アクション</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>エミッターでの401</td>
+<td>sik がない、正しくない、または取り消されています。設定を修正してください。</td>
+</tr>
+<tr>
+<td>エミッターでの400</td>
+<td>契約外の本文。余分なフィールドを削除してください。</td>
+</tr>
+<tr>
+<td>ケースでの401</td>
+<td>レガシー署名、有効期限切れ、無効なクレーム、またはセッションの取り消し</td>
+</tr>
+<tr>
+<td>ケースでの400</td>
+<td>必須コンテキストが無効、日付/状態が正しくない、または予算超過</td>
+</tr>
+<tr>
+<td>コンテキストからの403</td>
+<td>userState がテナント/人物の JWT と一致しません</td>
+</tr>
+<tr>
+<td>会話での404</td>
+<td>リソースが存在しないか、別のIDに属しています。アクセスを強制しないでください。</td>
+</tr>
+<tr>
+<td>429</td>
+<td>レート制限; バックオフ/ジッター、発行ループなし</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>インフラストラクチャ、モデル、またはコンテキストの障害。利用不可と requestId を報告してください。</td>
+</tr>
+<tr>
+<td>アクション/エスカレーションでの501</td>
+<td>実行者/コネクタのない機能。実際の人間チャネルを使用してください。</td>
+</tr>
+<tr>
+<td>Chat は機能するが、MCP は機能しない</td>
+<td>最後の発行で送信されたリスト、有効性、対象者、およびカタログの応答を確認してください。</td>
+</tr>
+<tr>
+<td>ツールが見つかりません</td>
+<td>委任されたトークンで利用可能なカタログとサーバーの接続性を確認してください。</td>
+</tr>
+</tbody>
+</table>
+<p>HTTP 200 のみを承認として使用しないでください。応答の内容とスナップショットを確認してください。ケースを保存した後に作成が失敗すると、応答のないケースが残る可能性があります。モデルへの呼び出しを含むトランザクションを想定しないでください。再試行は制限し、ユーザーに通知する必要があります。メソッド、パラメータ化されたルート、status、requestId、および UTC の時刻を記録してください。診断を転送するために Authorization/JWT、シークレット、または生のペイロードをキャプチャしないでください。</p>
+<h2 id="section-15">15. 必須の承認</h2>
+<ol>
+<li>ログインなしのブートストラップルートは、エミッターの前に拒否されます。偽造されたIDは、認証されたユーザーを変更しません。</li>
+<li>正しい資格情報での発行は、期待されるテナントと900秒を返します。シークレットはブラウザ/リプレイ/ログには表示されません。</li>
+<li>古い JWT は拒否されます。新しいセッションは、スナップショットと実際の応答で会話を作成します。同じ人物のために再開します。</li>
+<li>同じプロジェクトの2人の人物と2つのテナント: GET ケースと POST メッセージ/フィードバック/クローズ/エスカレート/アクションはIDを交差させません。</li>
+<li>ブロックなしのコンテキスト、異なるID、無効な日付、および過剰なサイズは拒否されます。合成シークレットはスナップショットに保持されません。</li>
+<li>15分後の更新、収集中のログアウト、アカウント/会社/役割の変更、およびナビゲーションは、他の人の会話を復元しません。</li>
+<li>モデルは証拠を使用して応答し、診断の制限を尊重します。失敗は明らかな成功を生成しません。</li>
+<li>ゼロと2つのサーバーでセッションを発行します。各宛先が独自のトークンを受け取ることを確認してください。</li>
+<li>MCP は、間違った/古いトークン、間違ったテナント、ユーザーの欠落/非アクティブ、および他の人のリソースを拒否します。セッションがある場合は、再利用されたセッションIDをテストしてください。</li>
+<li>変更には提案の確認が必要であり、タイムアウトの場合に繰り返されないことを確認してください。</li>
+<li>CORS/CSP、携帯電話、キーボード、および人間チャネルが承認されています。調整されたローテーションは承認でテストされています。</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> は、モックを使用して分離されたアダプターを検証します。これらのエンドツーエンドテストを置き換えるものではありません。<code>ACEITE.md</code> に担当者、バージョン、時刻、および機密情報を含まない証拠を記入してください。</p>
+<h2 id="section-16">16. 公開、カット、および復元</h2>
+<p>統合クレデンシャルをインストールし、ブートストラップと SDK を公開し、チャットを検証し、セッションで宣言されたサーバーを承認します。</p>
+<p>レガシーサブスクリプションやグローバル MCP 転送を再アクティブ化して可用性を回復しないでください。障害が発生した場合は、影響を受けるテナントのウィジェットまたは MCP を一時的に無効にし、アダプターを修正する間、人間チャネルを維持してください。所有者の 404 を回避するために会話を削除しないでください。</p>
+<p>保持制限とアプリケーション固有の証拠を記録してください。</p>
+<h2 id="section-17">17. フィードバックとパッケージファイル</h2>
+<p>プロジェクト名、テナント、バックエンド/フロントエンドコミット、UTC 日付、SDK/ハッシュ、インストールされたクレデンシャル（はい/いいえ、値なし）、承認されたチャット、承認/無効化された MCP、ネガティブテスト、人間チャネル、および未解決の項目を返します。「動作するようです」で締めくくらないでください。</p>
+<p>公開キットには、Markdown 形式のこのガイド、サーバーのスキーマ、最小限のフィクスチャ、発行元アダプター、MCP 認証、フロントエンドコントローラー、SDK、プロンプト、分離テスト、チェックリスト、アクション契約、および SHA-256 マニフェストが含まれています。個々のパッケージには、特定の添付ファイルが追加される場合があります。例では、クライアントアプリケーションのエンドポイントは自動的に実装されません。閲覧可能なバージョンは https://support-ai.pontes.uk/developers?lang=ja にあります。</p></main></div>
+<script id="controls" data-copy="例をコピー" data-copied="コピー済み" data-selected="選択済み — Ctrl+Cを使用">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

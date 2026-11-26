@@ -1,3 +1,4 @@
+import { ArtifactLink } from '@/components/artifact-link';
 import { L } from '@/lib/localization';
 import Link from 'next/link';
 import { ArrowRight, ArrowUpRight, Info } from 'lucide-react';
@@ -14,7 +15,7 @@ export function DocArticle({article}:{article:Article}) {
       {s.rows&&<div className="dc-table-wrap"><table><thead><tr>{s.rows[0].map(c=><th key={c} scope="col"><L>{c}</L></th>)}</tr></thead><tbody>{s.rows.slice(1).map((row,i)=><tr key={i}>{row.map((c,j)=><td key={j}><L>{c}</L></td>)}</tr>)}</tbody></table></div>}
       {s.code&&<CodeBlock code={s.code} language={s.language}/>}
       {s.note&&<div className="dc-note" role="note"><Info size={18}/><p><L>{s.note}</L></p></div>}
-      {s.links&&<div className="dc-inline-links">{s.links.map(l=><Link href={l.href} key={l.href}><L>{l.label}</L><ArrowUpRight size={14}/></Link>)}</div>}
+      {s.links&&<div className="dc-inline-links">{s.links.map(l=>l.href.startsWith('/integration-v4/') || l.href.startsWith('/downloads/') ? <ArtifactLink key={l.href} href={l.href}><L>{l.label}</L><ArrowUpRight size={14}/></ArtifactLink> : <Link href={l.href} key={l.href}><L>{l.label}</L><ArrowUpRight size={14}/></Link>)}</div>}
     </section>)}
     {next&&<Link className="dc-next" href={'/developers/'+next.slug}><span><small><L>{"CONTINUE POR AQUI"}</L></small><strong><L>{next.title}</L></strong></span><ArrowRight size={22}/></Link>}
     </article><nav className="dc-toc" aria-label="Nesta página"><p><L>{"NESTA PÁGINA"}</L></p>{article.sections.map(s=><a key={s.id} href={'#'+s.id}><L>{s.title}</L></a>)}<span><L>{"Referência pública."}</L><br/><L>{"Credenciais ficam no seu backend."}</L></span></nav></div>;

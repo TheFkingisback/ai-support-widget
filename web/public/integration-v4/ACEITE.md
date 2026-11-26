@@ -16,5 +16,5 @@ Servidores fornecidos pela sessão, catálogo descoberto, escopos e versão do p
 Testes de token/tenant/pessoa/recurso errados e isError:
 Canal humano real:
 Confirmação, troca de sessão, resultado ambíguo e idempotência:
-Itens da seção 17, um por linha, com resultado/evidência:
+Itens da seção 15, um por linha, com resultado/evidência:
 Pendências e decisão de liberação:

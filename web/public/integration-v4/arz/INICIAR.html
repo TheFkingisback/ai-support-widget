@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="arz" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دليل تكامل الدعم</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #edf3f4; color: #17313d; font: 16px/1.65 system-ui, sans-serif }
+header { background: #103c3f; color: white; border-top: 6px solid #35d5a7; padding: 2rem max(1.5rem, calc((100vw - 1150px)/2)) }
+header a { color: white }
+h1, h2 { line-height: 1.25 }
+.wrap { max-width: 1400px; margin: auto; padding: 1.5rem; display: grid; grid-template-columns: minmax(14rem, 21%) minmax(0, 1fr); gap: 1.5rem }
+aside, main { border-radius: .5rem; background: white; padding: 1.5rem }
+aside { position: sticky; top: 1rem; align-self: start; max-height: 94vh; overflow: auto }
+aside ul { list-style: none; padding: 0 }
+aside a { display: block; padding: .3rem 0 }
+input { width: 100%; padding: .5rem }
+main { min-width: 0 }
+h2 { margin-top: 2rem; border-top: 1px solid #d7e4e5; padding-top: 1rem }
+a { color: #076355; overflow-wrap: anywhere }
+pre { direction: ltr; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; background: #12313b; color: white; padding: 1rem; border-radius: .3rem }
+code { overflow-wrap: anywhere; unicode-bidi: isolate; direction: ltr }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0 }
+td, th { text-align: start; vertical-align: top; border: 1px solid #d7e4e5; overflow-wrap: anywhere; padding: .5rem }
+th, tr:nth-child(even) { background: #f1f7f4 }
+button { font: inherit; cursor: pointer }
+@media (max-width: 800px) { .wrap { display: block; padding: .5rem } aside { position: static; max-height: 15rem; margin-bottom: .5rem } main { padding: 1rem } }
+@media print { aside, button, header nav { display: none } .wrap { display: block; padding: 0 } main, header { padding: 0; background: white; color: black } pre { background: white; color: black; border: 1px solid #888 } h2 { break-after: avoid } }
+</style>
+</head>
+<body>
+<header>
+<h1>دليل تكامل الدعم</h1><p>المصادقة، السياق، والأدوات بمسؤوليات ومعايير قبول محددة.</p>
+<nav><a href="GUIA.md">إصدار Markdown</a> · <a href="ACEITE.md">نموذج القبول</a> · <button onclick="window.print()">طباعة</button></nav>
+</header>
+<div class="wrap"><aside><label for="search">ابحث عن قسم</label><input id="search" type="search">
+<nav aria-label="تصفح"><div class="toc">
+<ul>
+<li><a href="#section-1">1. إزاي بيشتغل</a></li>
+<li><a href="#section-2">2. البيئات والمسؤولين</a></li>
+<li><a href="#section-3">3. بيانات الاعتماد</a></li>
+<li><a href="#section-4">4. تدفق التوثيق والهوية</a></li>
+<li><a href="#section-5">5. عقد المصدر</a></li>
+<li><a href="#section-6">6. سياق إلزامي وهوية صحيحة</a></li>
+<li><a href="#section-7">7. الخانات، الحدود، والتوحيد</a></li>
+<li><a href="#section-8">8. الخصوصية والاستمرارية</a></li>
+<li><a href="#section-9">9. الـ Frontend والـ SDK 0.3.0</a></li>
+<li><a href="#section-10">10. الـ Logout، الصلاحيات والتاريخ</a></li>
+<li><a href="#section-11">11. CORS, CSP, PWA والوصول</a></li>
+<li><a href="#section-12">12. سيرفرات MCP في الجلسة</a></li>
+<li><a href="#section-13">13. النموذج، الموجه، والمعرفة</a></li>
+<li><a href="#section-14">14. عقد الأخطاء والتشخيص</a></li>
+<li><a href="#section-15">15. قبول إلزامي</a></li>
+<li><a href="#section-16">16. النشر، القطع، والاسترجاع</a></li>
+<li><a href="#section-17">17. الملاحظات وملفات الحزمة</a></li>
+</ul>
+</div>
+</nav></aside><main><h1 id="section-0">دمج الدعم · عقد v4</h1>
+<p><strong>SDK 0.3.0 · دليل الواجهة الخلفية، الواجهة الأمامية والتشغيل</strong></p>
+<h2 id="section-1">1. إزاي بيشتغل</h2>
+<p>الواجهة الخلفية بتاعتك بتوثّق المستخدم، بتعرض السياق المصرح بيه وبتصدر جلسة مدتها 15 دقيقة. في مكالمة الإصدار، ممكن تتضمن سيرفرات الـ MCP المتاحة للشخص ده. المتصفح بيستقبل الـ JWT بتاع الودجت والسياق.</p>
+<h2 id="section-2">2. البيئات والمسؤولين</h2>
+<p>المنصة موجودة على https://support-ai.pontes.uk. استخدم بيانات اعتماد التكامل للبيئة الصحيحة. مسؤول مساحة العمل بيحصل على بيانات الاعتماد من لوحة التحكم. فريق التطبيق بيحافظ على التمهيد الموثّق، السياق والرموز المميزة المفوضة لكل مستخدم وسيرفر.</p>
+<h2 id="section-3">3. بيانات الاعتماد</h2>
+<table>
+<thead>
+<tr>
+<th>بيانات الاعتماد</th>
+<th>الوجهة</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>بيانات اعتماد التكامل sik_</td>
+<td>Support AI</td>
+<td>إصدار جلسة في الواجهة الخلفية</td>
+</tr>
+<tr>
+<td>رمز مفوض لكل سيرفر</td>
+<td>MCP المشار إليه في الجلسة</td>
+<td>استدعاء الأدوات كشخص موثّق</td>
+</tr>
+<tr>
+<td>JWT الجلسة</td>
+<td>API الشات</td>
+<td>فتح ومتابعة المحادثات في الودجت</td>
+</tr>
+</tbody>
+</table>
+<p>احفظ بيانات اعتماد التكامل في خزنة التطبيق. إلغائها بيعطّل الـ JWTs اللي تم إصدارها بيها في الطلب التالي. أنشئ الرموز المميزة المفوضة في الواجهة الخلفية وحدد كل واحد لمورد، مستخدم ومدة صلاحية.</p>
+<h2 id="section-4">4. تدفق التوثيق والهوية</h2>
+<pre><code class="language-text">جلسة التطبيق الموثّقة
+  → الواجهة الخلفية بتتحقق من الشخص النشط، المنظمة والصلاحيات الحالية
+  → POST /api/widget/sessions مع sik_ على السيرفر
+  ← jwt + tenantKey + expiresIn
+  → الواجهة الخلفية بتجمع وبتعرض سياق نفس الهوية
+  ← المتصفح بيستقبل الجلسة/السياق مع Cache-Control: no-store
+  → الودجت بيستدعي /api/cases ومسارات المحادثة بالـ JWT المؤقت
+</code></pre>
+<p>الحفاظ على المعرف التاريخي <code>usr_...</code> للعميل بيمنع فقدان الوصول لمحادثاته الخاصة. لا تستخدم email، الدور، الجهاز أو الطابع الزمني كهوية. إذا كان نفس المستخدم ممكن يغير الشركة، حدد موضوع ثابت لكل ارتباط أو سياسة تاريخ صريحة؛ المنصة بتصرح بالمحادثات حسب المستأجر + الشخص، بدون استنتاج منظمات العميل.</p>
+<p>المنصة بتتحقق من التوقيع، المصدر <code>ai-support</code>، الجمهور <code>ai-support-widget</code>، الغرض <code>widget</code>، <code>sub=userId</code>، الصلاحية وبيانات الاعتماد النشطة للجلسة. المتصفح لا يعيد التوقيع أو يغير المطالبات. الأدوار المرسلة للدعم هي معلومات سياقية؛ ترخيص الـ APIs/MCP بيستمر في سيرفر العميل.</p>
+<h2 id="section-5">5. عقد المصدر</h2>
+<pre><code class="language-http">POST https://support-ai.pontes.uk/api/widget/sessions
+Authorization: Bearer &lt;SUPPORT_INTEGRATION_CREDENTIAL&gt;
+Content-Type: application/json
+
+{&quot;userId&quot;:&quot;usr_usuario_autenticado&quot;,&quot;userEmail&quot;:&quot;&quot;,&quot;userRoles&quot;:[&quot;member&quot;],&quot;plan&quot;:&quot;standard&quot;}
+</code></pre>
+<p>استجابة 200: <code>{"jwt":"&lt;JWT&gt;","tenantKey":"ten_do_projeto","expiresIn":900}</code>. تحقق من <code>tenantKey</code> قبل إعادتها للمتصفح. الملف <code>backend-session.mjs</code> بينفذ جسم صارم، مهلة، حظر إعادة التوجيه، حد الاستجابة والتحقق من المستأجر؛ لا يحل محل وسيط التوثيق الخاص بك.</p>
+<table>
+<thead>
+<tr>
+<th>الحقل</th>
+<th>القاعدة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcpServers</td>
+<td>قائمة اختيارية تصل إلى ثمانية كائنات مع id، url و accessToken فريدين. انظر القسم 12.</td>
+</tr>
+<tr>
+<td>userId</td>
+<td>إلزامي، تقليم، 1-200 حرف</td>
+</tr>
+<tr>
+<td>userEmail</td>
+<td>بريد إلكتروني صالح يصل إلى 254 حرفًا أو فارغ؛ الافتراضي فارغ</td>
+</tr>
+<tr>
+<td>userRoles</td>
+<td>حتى 30 سلسلة من 1-80 حرفًا؛ الافتراضي قائمة فارغة</td>
+</tr>
+<tr>
+<td>plan</td>
+<td>سلسلة من 1-80 حرفًا؛ الافتراضي standard</td>
+</tr>
+</tbody>
+</table>
+<p>متبعتش tenantId, tenantKey, userName, role, purpose, exp أو أي خانات تانية في الـ body. الـ credential هي اللي بتحدد الـ tenant. الهوية بتيجي من الـ session/database، مش من الـ query/body بتاع المتصفح. الـ issuer مبيقبلش JWT بتاع مستخدم، مفتاح إداري، أو سر قديم بدل <code>sik_</code>.</p>
+<p>الـ issuer العام بيشتغل من غير حصص استخدام لكل مشروع. استخدم نفس الـ session لو لسه صالحة لنفس الشخص، الشركة، والصلاحيات، مع انتهاء صلاحية بدري وإلغاء صلاحية عند التغييرات.</p>
+<h2 id="section-6">6. سياق إلزامي وهوية صحيحة</h2>
+<p>كل حالة جديدة محتاجة <code>context.userState</code>, <code>context.userHistory</code> و <code>context.userLogs</code>. ابعت قوائم فاضية لما تكون المصدر اتسأل ومفيش سجلات؛ <strong>متحولش مجموعة فشلت لقائمة فاضية تبان إنها نجحت</strong>. لو مقدرتش توفر سياق صالح ومصرح بيه، الـ bootstrap بتاع العميل لازم يرجع خطأ متحكم فيه.</p>
+<p><code>context.example.json</code> هو المثال الأدنى. <code>context.schema.json</code> تم تصديره من الـ schema Zod المستخدم في السيرفر، مش مكتوب بشكل مستقل. تحقق من الـ JSON في الـ backend قبل النشر. أي خانات إضافية مش معروفة بيتم تجاهلها؛ الـ metadata والقواعد ممكن تحتوي على هياكل خاصة بيها، خاضعة للـ projection/limits. الـ schema مش بيثبت الصلاحية ولا بيشيل كل البيانات الحساسة.</p>
+<table>
+<thead>
+<tr>
+<th>بلوك</th>
+<th>إلزامي / هيكل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>userState</td>
+<td>userId, tenantId, roles, plan, featuresEnabled, entities, activeErrors, limitsReached</td>
+</tr>
+<tr>
+<td>userHistory</td>
+<td>windowHours إيجابي لحد 720، events؛ الـ timeline بيتبني تاني من events</td>
+</tr>
+<tr>
+<td>userLogs</td>
+<td>recentRequests, jobs, errors</td>
+</tr>
+<tr>
+<td>knowledgePack</td>
+<td>اختياري؛ docs مع id, title, content, category</td>
+</tr>
+<tr>
+<td>businessRules</td>
+<td>اختياري؛ كائن قواعد موافق عليه، متسلسل كـ runbook</td>
+</tr>
+</tbody>
+</table>
+<p><code>userState.userId</code> لازم يكون هوية الـ user اللي تم إصدارها بالظبط. <strong><code>userState.tenantId</code> هو الـ tenant بتاع الـ platform</strong>، مش الـ ID بتاع المنظمة/المحل في الـ client. أي اختلافات بترجع 403. البيانات في المتصفح ممكن تتغير؛ الـ context مش بيصرح بالعمليات.</p>
+<h2 id="section-7">7. الخانات، الحدود، والتوحيد</h2>
+<table>
+<thead>
+<tr>
+<th>هيكل</th>
+<th>الخانات الأساسية / القواعد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entities</td>
+<td>type, status؛ id/description اختياريين؛ metadata كائن؛ لحد 100</td>
+</tr>
+<tr>
+<td>activeErrors</td>
+<td>errorCode, errorClass, retryable, userActionable, resourceId, occurredAt؛ لحد 100</td>
+</tr>
+<tr>
+<td>errorClass من activeErrors</td>
+<td>validation, permission, infra أو business؛ فئات زي payment بتحتاج mapping</td>
+</tr>
+<tr>
+<td>events</td>
+<td>ts, event, page؛ elementId, intent, correlationRequestId بيقبلوا null/إهمال؛ لحد 1,000</td>
+</tr>
+<tr>
+<td>recentRequests</td>
+<td>ts, route, httpStatus رقم صحيح، timingMs, requestId؛ errorCode/resourceId ممكن يكونوا null</td>
+</tr>
+<tr>
+<td>jobs</td>
+<td>jobId, queue, status, createdAt, updatedAt, durationMs رقم أو null؛ errorCode/lastStage ممكن يكونوا null</td>
+</tr>
+<tr>
+<td>status من jobs</td>
+<td>queued, running, succeeded, failed, canceled</td>
+</tr>
+<tr>
+<td>errors من الـ backend</td>
+<td>ts, errorCode, errorClass نص، route, requestId؛ resourceId ممكن يكون null</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>لحد 50؛ content لحد 32,000 حرف، باقي النصوص لحد 4,096</td>
+</tr>
+</tbody>
+</table>
+<p>التواريخ هي نصوص ISO-8601 مع timezone؛ اعمل serialize للـ Date في الـ backend. متخترعش updatedAt, durationMs, retryable أو فئات عشان تعدي الـ schema بس: استخدم المصدر الحقيقي أو اهمل السجل وبلغ عن عدم توفر المصدر. سجل الـ mappings الخاصة بمشروعك في الـ acceptance.</p>
+<p>سقف السياق اللي اتبعت: <strong>262.144 بايت UTF-8 (256 KiB)</strong>. الـ HTTP الكامل لسه محدود بـ 1.048.576 بايت. ميزانية الـ snapshot هي <code>min(maxContextBytes, 262144)</code>. لو الجزء الأساسي ما كفاش، الطلب بيفشل؛ قلل الـ metadata/documents في الـ backend. بنقترح تبدأ بـ 48 KiB، عشر كيانات ومعرفة قصيرة.</p>
+<p>الخادم بيفلتر الأحداث/الـ logs بأصغر نافذة بين المطلوبة والخاصة بالمستأجر، بيشيل التواريخ المستقبلية وبيطبق maxLogLines مدمج مع الـ requests، الأخطاء والـ jobs (بالترتيب ده). maxDocs بيحدد قائمة الـ docs؛ businessRules هو runbook منفصل وبيستهلك الميزانية الكلية برضه. الـ timeline بيمشي على الأحداث اللي فضلت. بيانات أقل ذات صلة غالبًا بتنتج تشخيص أفضل وتكلفة أقل.</p>
+<h2 id="section-8">8. الخصوصية والاستمرارية</h2>
+<p>صمم البيانات قبل ما تبعتها: ما تبعتش أبدًا headers، cookies، JWTs، بيانات اعتماد، strings اتصال، URLs موقعة، محتوى ثنائي، بيانات مستخدمين تانيين أو صادرات خام. استبدل الأسرار بمراجع دعم. ما تبعتش الـ PRD كله أو logs كاملة كقاعدة معرفة.</p>
+<p>الـ snapshots الجديدة بتعدي على تحقق، تنقيح، تقليل وميزانية قبل التسجيل. الرسائل ونتائج الأدوات بيتم التعامل معاها بأنماط معروفة من الأسرار. الحماية دي تكميلية: مش مصنف لا يخطئ للبيانات الشخصية، مش بيصحح السجلات التاريخية بأثر رجعي ولا بيحل محل تصميم العميل.</p>
+<p>السياق هو snapshot من بداية المحادثة، مش استعلام في الوقت الفعلي. بلغ عن الـ timestamps والمصادر. <code>updateContext()</code> صالح للحالة اللي جاية؛ للبيانات الحالية أثناء محادثة، استخدم أداة قراءة معتمدة.</p>
+<h2 id="section-9">9. الـ Frontend والـ SDK 0.3.0</h2>
+<p>قدم الـ SDK الثابت من الحزمة أو من الـ URL العام. راجع الـ SHA-256 مع الـ <code>widget.manifest.json</code>. تجنب الـ script المكرر، الإصدار العائم والـ cache بتاع الـ JWT. الـ controller المرجعي في <code>widget-controller.mjs</code> بيتركب بعد الـ bootstrap، بيستنى onOpen، بيجدد وبيمنع التركيب المتأخر بعد الـ logout.</p>
+<pre><code class="language-js">const controller = mountSupport({
+  apiUrl: 'https://support-ai.pontes.uk',
+  bootstrap: signal =&gt; fetchAuthenticatedBootstrap(signal),
+  getContext: signal =&gt; fetchAuthorizedContext(signal),
+  onUnavailable: () =&gt; showHumanSupportChannel(),
+});
+// عند الـ logout، تغيير الشخص/الشركة/الدور وتنظيف المكون:
+controller.destroy();
+</code></pre>
+<p>الوظائف اللي فوق دي هي callbacks للتطبيق، هتتنفذ مع عميل الـ HTTP المعتاد بتاعك. الـ Bootstrap بيرجع <code>{jwt,tenantKey,expiresIn,context}</code>. الـ getContext بيرجع كائن السياق. في React، ثبت الـ callbacks بـ useCallback وركب في useEffect مرتبط بالهوية. ما تحطش الـ widget بره المنطقة الموثقة ولا تقدم زوار بـ userId مشترك.</p>
+<p>الـ SDK بيقبل <code>onTokenRefresh</code> اللي بيرجع الـ JWT الجديد؛ بعد 401، بيكرر الطلب مرة واحدة. التجديد لازم يستخدم نفس الشخص. تغيير الهوية بيتطلب destroy و init. لو بتستخدم timer استباقي، يفضل حوالي عشر دقايق مع jitter وتلغيه في الـ cleanup. أخطاء الـ bootstrap، التجميع والنموذج ما ينفعش تعطل التطبيق الرئيسي.</p>
+<h2 id="section-10">10. الـ Logout، الصلاحيات والتاريخ</h2>
+<p><code>destroy()</code> <code>destroy()</code> بيلغي المكالمات وبيشيل الثبات المحلي لكل مستأجر/شخص. ده مش إلغاء فردي على السيرفر. ممكن JWT اللي اتنسخ يفضل صالح لمدة تصل لـ 15 دقيقة بعد تسجيل الخروج/القفل على الكلاينت. لو محتاج إلغاء فوري لكل شخص، العقد بيتطلب تطوير إضافي؛ متستخدمش تدوير المستأجر بالكامل كـ تسجيل خروج عادي.</p>
+<p>كل قراءة/كتابة للمحادثة بتتطلب نفس المالك والمستأجر. تغيير الدور في الكلاينت مش بيمسح المحتوى اللي الشخص استلمه بالفعل في المحادثة. حدد سياسة السجل لتقليل الصلاحيات وتغييرات المؤسسة. متخففش التفويض عشان تسترجع caseId قديم؛ تحقق من الموضوع الأصلي أو ابدأ محادثة جديدة.</p>
+<h2 id="section-11">11. CORS, CSP, PWA والوصول</h2>
+<p>اسمح للمنصة بالوصول الدقيق لكل واجهة أمامية. SDK بيحتاج connect-src للدعم؛ تقديم الملف المحلي بيسمح بـ script-src ذاتي. SDK بيحقن الأنماط في Shadow DOM ولسه مش بيستقبل nonce: وافق على سياسة CSP الحقيقية، وممكن تتطلب تطوير SDK للأنماط الخارجية/nonce/hash. متوقفش السياسة كلها.</p>
+<p>الجلسات والسياق هما no-store. استبعد مسارات الدعم من ذاكرات التخزين المؤقت لـ PWA، واستمرارية الاستعلامات وأدوات إعادة التشغيل. اختبر لوحة المفاتيح، التركيز، قارئ الشاشة، التكبير/التصغير والموبايل. قدم قناة بشرية حقيقية في التطبيق، مع تأكيد الوقت/الرابط. SDK مش بيخترع مزود خدمة.</p>
+<h2 id="section-12">12. سيرفرات MCP في الجلسة</h2>
+<p>الباك إند بتاع التطبيق بيبعت <code>POST /api/widget/sessions</code> مع بيانات اعتماد التكامل <code>sik_</code>. بيستمد الشخص ومؤسسته من تسجيل الدخول وممكن يتضمن لحد تمن سيرفرات في <code>mcpServers</code>. الحقل المحذوف أو الفارغ بيعمل دردشة بسياق. كل جلسة جديدة بتاخد قائمتها الخاصة.</p>
+<pre><code class="language-json">{
+  &quot;userId&quot;: &quot;usr_ana&quot;,
+  &quot;mcpServers&quot;: [
+    {&quot;id&quot;:&quot;billing&quot;,&quot;url&quot;:&quot;https://billing.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_BILLING&quot;},
+    {&quot;id&quot;:&quot;crm&quot;,&quot;url&quot;:&quot;https://crm.example/mcp&quot;,&quot;accessToken&quot;:&quot;TOKEN_DELEGADO_CRM&quot;}
+  ]
+}
+</code></pre>
+<p>كل id بيبدأ بحرف صغير وبيقبل حروف صغيرة، أرقام، شرطة سفلية وشرطة، لحد 32 حرف. الـ IDs، الـ URLs الموحدة والتوكنز فريدة في القائمة. النقل هو MCP Streamable HTTP على HTTPS عام، بورت 443، مع URL بدون بيانات اعتماد، استعلام أو جزء. الخدمة بتتحقق من DNS عند الاتصال وبترفض إعادة التوجيه.</p>
+<p>التطبيق بيصدر أو بيحصل على توكن وصول قصير لكل وجهة، مقيد بالشخص، المؤسسة، الصلاحيات والجمهور بتاع MCP ده. Support AI بيقدم <code>Authorization: Bearer &lt;accessToken&gt;</code> للسيرفر المقابل. المزود بيتحقق من التوقيع أو الاستبطان، المصدر، الصلاحية، الجمهور والوصول للمورد في كل عملية. بينشر في الكتالوج الأدوات المسموح بيها للهوية دي بس. بيانات اعتماد المنصة، JWT بتاع الودجت ومفاتيح الخدمات زي Stripe ليها أغراضها الخاصة.</p>
+<p>التوكن المفوض بيبقى مشفر على السيرفر لمدة تصل لـ 900 ثانية. المتصفح بيستقبل <code>{jwt, tenantKey, expiresIn: 900}</code>. عند التجديد، الباك إند بيعيد التحقق من الهوية وبيبعت قائمة جديدة بتوكنز صالحة. أي اقتراح اتعمل قبل التجديد لازم يتقدم تاني. لتغيير المؤسسة، استخدم معرف ثابت لكل رابط ودمر النسخة السابقة من الودجت.</p>
+<p>الـ Support AI بيلف على صفحات الـ <code>tools/list</code>، وبيفرق بين الأسماء المتشابهة حسب السيرفر، وبيستخدم الاسم الأصلي لما بينادي الـ <code>tools/call</code>. الكتالوجات اللي فيها أكتر من 32 أداة بيكون فيها بحث وتقسيم صفحات جوه الشات. حدود الاكتشاف لكل سيرفر هي 128 صفحة و4 ميجابايت من الوصف. لو سيرفر فشل في الاكتشاف، الباقيين بيفضلوا شغالين.</p>
+<p>الأدوات اللي فيها <code>annotations.readOnlyHint: true</code> ممكن تتسأل عنها مباشرة. لأي أداة مافيهاش الملاحظة دي أو الملاحظة غلط، الشات بيعرض السيرفر والاسم والحجج قبل ما ينفذ. اعلن عن القراءة فقط للعمليات اللي مالهاش تأثير على البزنس. المستخدم بيرد بـ <code>confirmar</code> أو <code>confirm</code> على الرسالة المعروضة في خلال خمس دقايق. الـ SDK بيبعت <code>replyToMessageId</code>. التأكيد ده بيكون صالح للحجج دي، والسيرفر، والجلسة، والمحادثة. أي اقتراح جديد بيحل محل اللي قبله.</p>
+<p>المنصة بتعمل محاولة تنفيذ بعد تسجيل التأكيد وبتبعت <code>Idempotency-Key</code> مع الـ ID بتاع الاقتراح. بالنسبة للمدفوعات والعمليات اللي ليها تأثيرات خارجية، المزود لازم يحفظ المفتاح والنتيجة بشكل متكامل ويحترم مفاتيح الـ idempotency المطلوبة من الخدمة المالية. بعد الـ timeout أو النتيجة الغامضة، الدعم بيسجل حالة غير معروفة، وبيمنع أي تغييرات جديدة في المحادثة دي وبيخلي الاستعلامات متاحة. راجع العملية في النظام الأصلي قبل ما تكمل.</p>
+<p>عشان تعتمد، اختبر جلسة من غير سيرفرات، جلستين لنفس المستخدم، منظمتين، سيرفرات فيها أدوات بنفس الاسم، وكتالوج متقسم صفحات. اتأكد من نطاق/انتهاء صلاحية التوكنز في المزود، والإلغاء، والتأكيد المكرر. استخدم سجلات مصطنعة عشان تتأكد من النتيجة في المصدر.</p>
+<h2 id="section-13">13. النموذج، الموجه، والمعرفة</h2>
+<p>الحفاظ على النموذج اللي تم اعتماده بالفعل من المشروع في البداية بيقلل من التغييرات المتزامنة. لتقييم جديد، <code>openai/gpt-4.1-mini</code> هو مرشح متوافق مع المعايير الحالية: Chat Completions عن طريق OpenRouter، ودرجة حرارة 0.3، و max_tokens 2048. لازم يتم التحقق في الحساب الحقيقي قبل التفعيل. Preferred Model له الأولوية على Model Policy؛ "auto" مش توجيه ذكي. الأسعار/التكاليف لازم تيجي من المزود؛ التقديرات القديمة من لوحة التحكم ممكن تختلف.</p>
+<p>حقل <strong>AI Instructions / Custom instructions</strong> بيقبل لحد 2,000 حرف فعال. الصق <code>PROMPT-TENANT.txt</code> بس؛ راجع الأسماء، القناة، وقواعد المنتج. ماتلصقش بيانات اعتماد أو تجمع مستندات في الحقل ده. التعليمات دي بتكمل قواعد المنصة؛ مش بتدي تصريح ولا بتفعل أدوات.</p>
+<p>الموجه اللي بيتم توفيره بيرشد الإجابات باللغة والكتابة اللي بيختارها الشخص، الحقائق منفصلة عن الفرضيات، احترام الأذونات، استخدام مراجع آمنة، عدم وجود وعود بأي إجراءات، وقناة بشرية. <code>knowledgePack.docs</code> لازم يحتوي على كتيبات تشغيل قصيرة ومحدثة مع تحديد المسؤول: الأخطاء المتكررة، التشخيص، حدود المنتج، وكيفية تأكيد النتيجة. السجلات والمستندات هي بيانات، مش تعليمات لتغيير قواعد المساعد.</p>
+<p>مصادر النموذج: <a href="https://developers.openai.com/api/docs/models/gpt-4.1-mini">OpenAI GPT-4.1 mini</a> و <a href="https://openrouter.ai/api/v1/models">كتالوج OpenRouter</a>، تم الرجوع إليها في التحضير السابق بتاريخ 14/09/2026. أعد تأكيد التوفر/الأسعار عند التنفيذ؛ لم تكن هناك مقارنة مدفوعة للنماذج في هذه المجموعة.</p>
+<h2 id="section-14">14. عقد الأخطاء والتشخيص</h2>
+<table>
+<thead>
+<tr>
+<th>الاستجابة</th>
+<th>المعنى / الإجراء</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>401 في المصدر</td>
+<td>sik مفقود، غير صحيح أو ملغى؛ صحح الإعدادات</td>
+</tr>
+<tr>
+<td>400 في المصدر</td>
+<td>الجسم خارج العقد؛ أزل الحقول الإضافية</td>
+</tr>
+<tr>
+<td>401 في الحالات</td>
+<td>توقيع قديم، انتهاء صلاحية، مطالبات غير صالحة أو جلسة ملغاة</td>
+</tr>
+<tr>
+<td>400 في الحالات</td>
+<td>سياق إلزامي غير صالح، تواريخ/حالات غير صحيحة أو تجاوز الميزانية</td>
+</tr>
+<tr>
+<td>403 من السياق</td>
+<td>userState لا يتطابق مع المستأجر/الشخص في JWT</td>
+</tr>
+<tr>
+<td>404 في المحادثة</td>
+<td>المورد غير موجود أو ينتمي لهوية أخرى؛ لا تفرض الوصول</td>
+</tr>
+<tr>
+<td>429</td>
+<td>الحد الأقصى؛ تراجع/تذبذب، بدون حلقة إصدار</td>
+</tr>
+<tr>
+<td>500/502/503</td>
+<td>فشل البنية التحتية، النموذج أو السياق؛ أبلغ عن عدم التوفر و requestId</td>
+</tr>
+<tr>
+<td>501 في الإجراءات/التصعيد</td>
+<td>وظيفة بدون منفذ/موصل؛ استخدم قناة بشرية حقيقية</td>
+</tr>
+<tr>
+<td>Chat يعمل، MCP لا يعمل</td>
+<td>تحقق من القائمة المرسلة في الإصدار الأخير، الصلاحية، الجمهور واستجابة الكتالوج.</td>
+</tr>
+<tr>
+<td>أداة مفقودة</td>
+<td>تحقق من الكتالوج المتاح للرمز المميز المفوض واتصال الخادم.</td>
+</tr>
+</tbody>
+</table>
+<p>لا تستخدم فقط HTTP 200 كقبول: تحقق من محتوى الاستجابة واللقطة. الإنشاء الذي يفشل بعد حفظ الحالة قد يترك حالة بدون استجابة؛ لا تفترض معاملة تتضمن استدعاء النموذج. يجب أن تكون المحاولات محدودة ويتم إبلاغ المستخدم بها. سجل الطريقة، المسار المعلم، status، requestId والوقت UTC؛ لا تلتقط أبدًا Authorization/JWT، السر أو الحمولة الخام لإعادة توجيه التشخيص.</p>
+<h2 id="section-15">15. قبول إلزامي</h2>
+<ol>
+<li>مسار التمهيد بدون تسجيل دخول مرفوض قبل المصدر. الهويات المزورة لا تغير المستخدم المصادق عليه.</li>
+<li>الإصدار بالاعتماد الصحيح يعيد المستأجر المتوقع و 900 ثانية؛ السر لا يظهر في المتصفح/الإعادة/السجلات.</li>
+<li>JWT القديم مرفوض. الجلسة الجديدة تنشئ محادثة مع لقطة واستجابة حقيقية؛ تعيد الفتح لنفس الشخص.</li>
+<li>شخصان من نفس المشروع ومستأجران: GET حالة و POST رسائل/ملاحظات/إغلاق/تصعيد/إجراءات لا تتقاطع الهويات.</li>
+<li>السياق بدون كتل، هوية مختلفة، تاريخ غير صالح وحجم زائد مرفوضة؛ الأسرار الاصطناعية لا تستمر في اللقطة.</li>
+<li>التجديد بعد 15 دقيقة، تسجيل الخروج أثناء التجميع، تغيير الحساب/الشركة/الدور والتصفح لا يستعيد محادثة شخص آخر.</li>
+<li>النموذج يستجيب باستخدام الأدلة ويحترم حد التشخيص؛ الفشل لا يولد نجاحًا ظاهريًا.</li>
+<li>أصدر جلسات بصفر وخادمين. تحقق من أن كل وجهة تتلقى الرمز المميز الخاص بها.</li>
+<li>MCP يرفض الرمز المميز الخاطئ/القديم، المستأجر الخاطئ، المستخدم الغائب/غير النشط ومورد شخص آخر. اختبر معرف الجلسة المعاد استخدامه، إذا كانت هناك جلسة.</li>
+<li>تأكد من أن التغييرات تتطلب تأكيد الاقتراح ولا تتكرر في حالة انتهاء المهلة.</li>
+<li>CORS/CSP، الهاتف المحمول، لوحة المفاتيح والقناة البشرية معتمدة. تم اختبار التدوير المنسق في الاعتماد.</li>
+</ol>
+<p><code>node --test examples.test.mjs</code> بيتحقق من المحولات المعزولة باستخدام الـ mocks. ده مش بيحل محل اختبارات الـ end-to-end. املى <code>ACEITE.md</code> بالمسؤولين، الإصدارات، الأوقات، والأدلة بدون أسرار.</p>
+<h2 id="section-16">16. النشر، القطع، والاسترجاع</h2>
+<p>ثبت بيانات اعتماد التكامل، انشر الـ bootstrap والـ SDK، تحقق من الـ chat، واعتمد السيرفرات المعلنة في الجلسات.</p>
+<p>ماترجعش تشغل الاشتراكات القديمة أو تحويل الـ MCP العالمي عشان تسترجع التوفر. لو حصل فشل، عطل الـ widget أو الـ MCP بتاع الـ tenant المتأثر مؤقتًا، وخلي القناة البشرية شغالة لحد ما تصلح المحول. ماتمسحش المحادثات عشان تتجنب 404 بتاع المالك.</p>
+<p>سجل حدود الاحتفاظ والأدلة الخاصة بتطبيقك.</p>
+<h2 id="section-17">17. الملاحظات وملفات الحزمة</h2>
+<p>رجع اسم المشروع، الـ tenant، الـ commits بتاع الـ backend/frontend، تاريخ UTC، SDK/hash، بيانات الاعتماد المثبتة (نعم/لا، بدون قيمة)، الـ chat الموافق عليه، الـ MCP الموافق عليه/المتوقف، الاختبارات السلبية، القناة البشرية، والمعلقات. ماتنهيش بـ "يبدو أنه يعمل".</p>
+<p>العدة العامة فيها الدليل ده بـ Markdown، الـ schema بتاع السيرفر، الـ fixture الأدنى، محول المصدر، مصادقة MCP، متحكم الـ frontend، SDK، الـ prompt، الاختبارات المعزولة، قائمة التحقق، عقد الإجراءات، والـ manifesto بتاع SHA-256. الحزم الفردية ممكن تضيف مرفقات محددة. الأمثلة مش بتنفذ تلقائيًا الـ endpoints بتاع تطبيق العميل. النسخة اللي ممكن تتصفح موجودة على https://support-ai.pontes.uk/developers?lang=arz.</p></main></div>
+<script id="controls" data-copy="انسخ المثال" data-copied="تم النسخ" data-selected="محدد — استخدم Ctrl+C">
+const labels = document.currentScript.dataset;
+const normalize = value => value.normalize('NFC').toLocaleLowerCase(document.documentElement.lang);
+document.querySelector('#search').addEventListener('input', event => {
+  const query = normalize(event.target.value.trim());
+  for (const item of document.querySelectorAll('aside li')) item.hidden = !normalize(item.textContent).includes(query);
+});
+for (const block of document.querySelectorAll('pre')) {
+  const button = document.createElement('button');
+  button.textContent = labels.copy;
+  button.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(block.textContent); button.textContent = labels.copied; }
+    catch {
+      const range = document.createRange();
+      range.selectNodeContents(block);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      button.textContent = labels.selected;
+    }
+  });
+  block.after(button);
+}
+</script></body></html>

@@ -1,0 +1,16 @@
+{
+  "sdkVersion": "0.3.0",
+  "locale": "hi",
+  "archives": {
+    "kit": {
+      "file": "ai-support-integration-v4-sdk-0.3.0.zip",
+      "bytes": 75641,
+      "sha256": "84c15c277392994340a05a9780f59f7220497cee7d0f023b0e76e7fe3a6250eb"
+    },
+    "starter": {
+      "file": "ai-support-starter.zip",
+      "bytes": 47362,
+      "sha256": "b0f30df9809525c9d683bed3312b963a5a01562dfa4f05f886e396f57c92f193"
+    }
+  }
+}

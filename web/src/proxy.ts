@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { localizedArtifact } from './lib/artifact-path';
 import { defaultLocale, matchAcceptLanguage, matchLocale } from '@ai-support/shared/locales';
 
 export function proxy(request: NextRequest) {
@@ -6,6 +7,19 @@ export function proxy(request: NextRequest) {
     ?? matchLocale(request.cookies.get('support_locale')?.value)
     ?? matchAcceptLanguage(request.headers.get('accept-language'))
     ?? defaultLocale;
+  const { pathname, search } = request.nextUrl;
+  if (pathname.startsWith('/downloads/') || pathname.startsWith('/integration-v4/')) {
+    const destination = localizedArtifact(pathname, locale);
+    if (destination !== pathname) {
+      return new NextResponse(null, { status: 307, headers: {
+        Location: destination + search, Vary: 'Cookie, Accept-Language', 'Cache-Control': 'private, no-store',
+      } });
+    }
+    const response = NextResponse.next();
+    const tag = pathname.split('/')[2];
+    if (tag && matchLocale(tag) === tag) response.headers.set('Content-Language', tag);
+    return response;
+  }
   const headers = new Headers(request.headers);
   headers.set('x-support-locale', locale);
   const response = NextResponse.next({ request: { headers } });
@@ -14,5 +28,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api/|_next/|downloads/|integration-v4/|starter/|.*\\.).*)'],
+  matcher: ['/downloads/:path*', '/integration-v4/:path*', '/((?!api/|_next/|downloads/|integration-v4/|starter/|.*\\.).*)'],
 };

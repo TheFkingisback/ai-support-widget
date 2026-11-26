@@ -4,3 +4,7 @@ web/public/widget.js -text
 web/public/widget.bundle.js -text
 *.sh text eol=lf
 **/widget-controller*.mjs text eol=lf
+# Localized public documents must match their copies in the downloadable archives.
+web/public/integration-v4/**/* text eol=lf
+web/public/downloads/**/*.json text eol=lf
+integration/translations/*.json text eol=lf
